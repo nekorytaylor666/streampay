@@ -1,7 +1,7 @@
 import {XIcon} from '@heroicons/react/outline'
 import {Component} from "react";
 
-//could be "stupid"/functional component, but we decided to let it manage its own state (open/close)
+//could be functional component, but we decided to let it manage its own state (open/close)
 export default class Banner extends Component {
     state = {
         hidden: false
