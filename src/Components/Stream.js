@@ -13,7 +13,7 @@ import {
     STREAM_STATUS_SCHEDULED,
     STREAM_STATUS_STREAMING
 } from "../constants/constants";
-import {Link} from "./index";
+import {Address, Link} from "./index";
 
 export default function Stream(props: { data: StreamData, myAddress: string, id: string, removeStream: void, onStatusUpdate: void, onCancel: void, onWithdraw: void }) {
     const {start, end, withdrawn, amount, receiver, sender, status} = props.data;
@@ -49,10 +49,10 @@ export default function Stream(props: { data: StreamData, myAddress: string, id:
                 </button>
             </div>
             <Duration start={start} end={end}/>
-                <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"ID"}/>
-            <dd className="col-span-2 text-sm text-gray-400 truncate">{id}</dd>
+            <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"ID"}/>
+            <Address address={id} className="col-span-2 text-sm text-gray-400"/>
             <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, receiver)} title={"Recipient"}/>
-            <dd className="col-span-2 text-sm text-gray-400 truncate">{receiver}</dd>
+            <Address address={receiver} className="col-span-2 text-sm text-gray-400"/>
             {status === STREAM_STATUS_CANCELED ? (
                 <>
                     <Progress title="Withdrawn" value={withdrawn} max={amount}/>
@@ -68,12 +68,12 @@ export default function Stream(props: { data: StreamData, myAddress: string, id:
                             <sup className="text-xs text-gray-300 align-top">for withdrawal</sup></dt>
                         <dd className="col-span-2">◎{available.toFixed(2)}</dd>
                         {showWithdraw && (<button onClick={onWithdraw}
-                                                className="rounded-md text-sm bg-green-500 hover:bg-green-700 active:bg-green text-white py-1 px-2">
+                                                  className="rounded-md text-sm bg-green-500 hover:bg-green-700 active:bg-green text-white py-1 px-2">
                             Withdraw
                         </button>)}
                     </>)}
-                    { showCancel && (<button onClick={onCancel}
-                                                                    className="rounded-md text-sm bg-red-400 hover:bg-red-600 active:bg-red text-white py-1 px-2">
+                    {showCancel && (<button onClick={onCancel}
+                                            className="rounded-md text-sm bg-red-400 hover:bg-red-600 active:bg-red text-white py-1 px-2">
                         Cancel</button>)}
                 </>)}
         </dl>

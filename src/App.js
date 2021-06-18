@@ -16,7 +16,8 @@ import {
     Link,
     Logo,
     Footer,
-    ButtonPrimary
+    ButtonPrimary,
+    Address
 } from "./Components";
 import {
     _swal,
@@ -158,6 +159,7 @@ function App() {
         let msg = "";
         switch (name) {
             case "start":
+                //todo move to time input if time is the problem
                 start = new Date(value + "T" + startTime);
                 msg = start < new Date() ? "Cannot start the stream in the past." : "";
                 break;
@@ -253,7 +255,7 @@ function App() {
                             <div className="mb-4 text-white">
                                 <Link url={getExplorerLink('address', selectedWallet.publicKey.toBase58(), network)}
                                       title="My Wallet Address"/>
-                                <span className="block truncate">{selectedWallet.publicKey.toBase58()}</span>
+                                <Address address={selectedWallet.publicKey.toBase58()} className="block truncate"/>
                             </div>
                             <div className="mb-4 clearfix text-white">
                                 <strong className="block">Balance</strong>
