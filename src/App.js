@@ -36,6 +36,8 @@ import {_createStream, _cancelStream, _withdrawStream} from './Actions'
 
 import 'react-toastify/dist/ReactToastify.css';
 import logo from './logo.png'
+import EmptyStreams from "./Components/EmptyStreams";
+import StreamsContainer from "./Containers/StreamsContainer";
 
 function App() {
     const network = clusterApiUrl('devnet');
@@ -292,39 +294,17 @@ function App() {
                                                action={() => createStream()}/>
                             </form>
                         </div>
-                        {/*move to different file StreamsContainer */}
-                        <div>
-                            <strong className="text-white text-center text-2xl block">My Streams</strong>
-                            {Object.keys(streams).length > 0 ? (
-                                Object.entries(streams)
-                                    .sort(([, stream1], [, stream2]) => stream2.start - stream1.start)
-                                    .map(([id, data]) => (
-                                        <Stream
-                                            onStatusUpdate={(status) => setStreams({
-                                                ...streams,
-                                                [id]: {...streams[id], status}
-                                            })}
-                                            onWithdraw={() => withdrawStream(id)}
-                                            onCancel={() => cancelStream(id)}
-                                            key={id}
-                                            id={id}
-                                            data={data}
-                                            myAddress={selectedWallet.publicKey.toBase58()}
-                                            removeStream={() => removeStream(id)}/>
-                                    ))
-                            ) : (
-                                //move to EmptyStreams
-                                <div className="mx-auto my-10 text-white text-center">
-                                    <span>Your streams will appear here.</span>
-                                    <br/>
-                                    <span>Start streaming!</span>
-                                </div>
-                            )}
-                        </div>
+                        <StreamsContainer
+                            hasStreams={Object.keys(streams).length > 0}
+                            streams={streams}
+                            setStreams={setStreams}
+                            myAddress={selectedWallet.publicKey.toBase58()}
+                            cancelStream={cancelStream}
+                            withdrawStream={withdrawStream}
+                            removeStream={withdrawStream}
+                        />
                     </div>
-                ) : (
-                    <NotConnected action={() => selectedWallet.connect()}/>
-                )}
+                ) : <NotConnected action={() => selectedWallet.connect()}/>}
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={4}/>
             <Footer/>
