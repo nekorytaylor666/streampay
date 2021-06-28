@@ -5,7 +5,10 @@ export default function NotConnected(props: { action: () => * }) {
         <iframe width="100%" height={270} src="https://www.youtube-nocookie.com/embed/7HWzcxu-De0"
                 title="StreamFlow Finance Demo" frameBorder="0"
                 allowFullScreen>&nbsp;</iframe>
-        <ButtonPrimary text="Connect" className="font-bold text-2xl my-5"
-                       action={props.action}/>
+        <ButtonPrimary className="font-bold text-2xl my-5"
+                       type="button"
+                       onClick={props.action}>
+            Connect
+        </ButtonPrimary>
     </div>;
 }

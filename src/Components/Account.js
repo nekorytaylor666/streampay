@@ -56,9 +56,11 @@ export default function Account({
                         className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     Disconnect
                 </button>
-                <ButtonPrimary text="Airdrop" action={requestAirdrop}
+                <ButtonPrimary type="button" onClick={requestAirdrop}
                                className="float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white"
-                               disabled={loading}/>
+                               disabled={loading}>
+                    Airdrop
+                </ButtonPrimary>
             </div>
         </>
     )

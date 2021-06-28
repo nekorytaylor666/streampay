@@ -120,10 +120,12 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
                 />
             </div>
             <ButtonPrimary
-                text="Stream!"
                 className="font-bold text-2xl my-5"
-                action={createStream}
-            />
+                onClick={createStream}
+                type="button"
+            >
+                Stream!
+            </ButtonPrimary>
         </form>
     );
 }
