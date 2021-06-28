@@ -75,7 +75,7 @@ export default function StreamsContainer() {
         const success = await _withdrawStream(id, streams[id], connection, selectedWallet, network)
         if (success) {
             const withdrawn = getStreamed(start, end, amount)
-            setBalance(balance - withdrawn)
+            setBalance(balance + withdrawn)
             setStreams({...streams, [id]: {...streams[id], withdrawn}})
         }
     }
