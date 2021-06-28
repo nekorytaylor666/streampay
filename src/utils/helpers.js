@@ -39,16 +39,6 @@ export function getDecodedAccountData(buffer: Buffer) {
     const sender = (new PublicKey(accountData.sender)).toBase58();
     const recipient = (new PublicKey(accountData.recipient)).toBase58();
 
-    /*
-    const start = Number(buffer.readBigUInt64LE(0));
-    const start = u64.fromBuff
-    const end = Number(buffer.readBigUInt64LE(8));
-    const amount = Number(buffer.readBigUInt64LE(16)) / LAMPORTS_PER_SOL;
-    const withdrawn = Number(buffer.readBigUInt64LE(24)) / LAMPORTS_PER_SOL;
-    const sender = (new PublicKey(buffer.slice(32, 64))).toBase58();
-    const recipient = (new PublicKey(buffer.slice(64, 96))).toBase58();
-    */
-
     const status = getStreamStatus(Number(start), Number(end), getUnixTime(new Date())) //in milliseconds
 
     return new StreamData(sender, recipient, amount, start, end, withdrawn, status);
