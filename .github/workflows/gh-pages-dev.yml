@@ -3,7 +3,7 @@ name: Deploy beta
 on:
     push:
         branches:
-            - master
+            - refactor
     pull_request:
 
 env:
