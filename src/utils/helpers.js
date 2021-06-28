@@ -123,6 +123,6 @@ export function streamCreated(id: string) {
 }
 
 function getClusterName(url: string) {
-    const hasMatch = url.match(/https:\/\/api.(.*).solana.com/)
+    const hasMatch = url.match(/https:\/\/api\.(.*)\.solana\.com/)
     return hasMatch ? hasMatch[1] : null
 }
