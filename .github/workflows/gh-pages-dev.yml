@@ -1,4 +1,4 @@
-name: Deploy dev
+name: Deploy beta
 
 on:
     push:
@@ -40,7 +40,7 @@ jobs:
               with:
                 github_token: ${{ secrets.GITHUB_TOKEN }}
                 publish_dir: ./build
-                publish_branch: dev
+                publish_branch: beta
 
             - name: Hook
               run: |
