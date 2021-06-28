@@ -1,7 +1,7 @@
 import {Address, ButtonPrimary, Link} from "./index";
 import {getExplorerLink} from "../utils/helpers";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import {AIRDROP_AMOUNT, TX_FINALITY_CONFIRMED} from "../constants/constants";
+import {AIRDROP_AMOUNT, TX_FINALITY_CONFIRMED} from "../constants";
 import {toast} from "react-toastify";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";

@@ -3,7 +3,7 @@ import {_swal, getDecodedAccountData} from "../utils/helpers";
 import {getStreamed, Stream} from "../Components";
 import {_cancelStream, _withdrawStream} from "../Actions";
 import {getUnixTime} from "date-fns";
-import {STREAM_STATUS_CANCELED} from "../constants/constants";
+import {STREAM_STATUS_CANCELED} from "../constants";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useBalanceStore from "../Stores/BalanceStore";
 import useStreamStore from "../Stores/StreamsStore";

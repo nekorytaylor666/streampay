@@ -7,9 +7,8 @@ import {
     Transaction,
     TransactionInstruction
 } from "@solana/web3.js";
-import {PROGRAM_ID} from "../constants/ids";
 import BufferLayout from "buffer-layout";
-import {INSTRUCTION_CREATE_STREAM} from "../constants/constants";
+import {INSTRUCTION_CREATE_STREAM, PROGRAM_ID} from "../constants";
 import {StreamData} from "../utils/helpers";
 import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";

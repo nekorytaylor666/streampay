@@ -25,13 +25,7 @@ jobs:
 
             - name: Build static website
               run: |
-                npm install --save \
-                    @solana/web3.js \
-                    @solana/spl-token \
-                    @craco/craco \
-                    tailwindcss@npm:@tailwindcss/postcss7-compat \
-                    'postcss@^7' \
-                    'autoprefixer@^9'
+                npm ci
                 npm run build
 
             - name: Deploy

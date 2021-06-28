@@ -1,5 +1,5 @@
 import {createContext, useContext, useMemo, useState} from "react";
-import {SOLLET_URL} from "../constants/constants";
+import {SOLLET_URL} from "../constants";
 import {clusterApiUrl, Connection} from "@solana/web3.js";
 import Wallet from "@project-serum/sol-wallet-adapter";
 

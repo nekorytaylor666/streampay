@@ -1,3 +1,5 @@
+export * from './ids';
+
 export const SOLLET_URL = 'https://www.sollet.io';
 export const AIRDROP_AMOUNT = 10; //10 is the cap on the devnet
 

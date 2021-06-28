@@ -1,8 +1,7 @@
 import BufferLayout from "buffer-layout";
-import {INSTRUCTION_CANCEL_STREAM} from "../constants/constants";
+import {INSTRUCTION_CANCEL_STREAM,PROGRAM_ID} from "../constants";
 import {Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {StreamData} from "../utils/helpers";
-import {PROGRAM_ID} from "../constants/ids";
 import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";
 

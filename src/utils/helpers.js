@@ -3,7 +3,7 @@ import {
     STREAM_STATUS_COMPLETE,
     STREAM_STATUS_SCHEDULED,
     STREAM_STATUS_STREAMING
-} from "../constants/constants";
+} from "../constants";
 import BufferLayout from "buffer-layout";
 import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import {u64} from "@solana/spl-token";

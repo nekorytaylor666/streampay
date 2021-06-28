@@ -13,7 +13,7 @@ import {
     STREAM_STATUS_COMPLETE,
     STREAM_STATUS_SCHEDULED,
     STREAM_STATUS_STREAMING
-} from "../constants/constants";
+} from "../constants";
 import {Address, Link} from "./index";
 
 export default function Stream(props: { data: StreamData, myAddress: string, id: string, removeStream: void, onStatusUpdate: void, onCancel: void, onWithdraw: void }) {
@@ -25,9 +25,8 @@ export default function Stream(props: { data: StreamData, myAddress: string, id:
     const [streamed, setStreamed] = useState(getStreamed(start, end, amount))
     const [available, setAvailable] = useState(streamed - withdrawn);
 
-    const showWithdraw = status === STREAM_STATUS_STREAMING || (status === STREAM_STATUS_COMPLETE && withdrawn < amount);
+    const showWithdraw = ((status === STREAM_STATUS_STREAMING || (status === STREAM_STATUS_COMPLETE && withdrawn < amount)) && myAddress === receiver);
     const showCancel = (status === STREAM_STATUS_STREAMING || status === STREAM_STATUS_SCHEDULED) && myAddress === sender
-
     useEffect(() => {
         const interval = setInterval(() => {
             setStreamed(getStreamed(start, end, amount));
@@ -60,16 +59,16 @@ export default function Stream(props: { data: StreamData, myAddress: string, id:
             {status !== STREAM_STATUS_CANCELED &&
             <>
                 <Progress title="Streamed" value={streamed} max={amount}/>
-                {myAddress === receiver &&
+                {showWithdraw &&
                 (<>
                     <dt>Available<br/>
                         <sup className="text-xs text-gray-300 align-top">for withdrawal</sup></dt>
                     <dd className="col-span-2">◎{available.toFixed(2)}</dd>
-                    {showWithdraw && <ActionButton title="Withdraw" action={onWithdraw}
-                                                   color={STREAM_STATUS_COLOR[STREAM_STATUS_STREAMING]}/>}
-                    {showCancel && <ActionButton title={"Cancel"} action={onCancel}
-                                                 color={STREAM_STATUS_COLOR[STREAM_STATUS_CANCELED]}/>}
+                    <ActionButton title="Withdraw" action={onWithdraw}
+                                  color={STREAM_STATUS_COLOR[STREAM_STATUS_STREAMING]}/>
                 </>)}
+                {showCancel && <ActionButton title={"Cancel"} action={onCancel}
+                                             color={STREAM_STATUS_COLOR[STREAM_STATUS_CANCELED]}/>}
             </>}
         </dl>
     )
