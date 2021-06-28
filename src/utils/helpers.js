@@ -5,11 +5,12 @@ import {
     STREAM_STATUS_STREAMING
 } from "../constants/constants";
 import BufferLayout from "buffer-layout";
-import {clusterApiUrl, LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
+import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import {u64} from "@solana/spl-token";
 import {getUnixTime} from "date-fns";
 import swal from "sweetalert";
 import {Buffer} from 'buffer/';
+import useNetworkStore from "../Stores/NetworkStore";
 
 export const publicKey = (property = "publicKey"): BufferLayout.Layout => {
     return BufferLayout.blob(32, property);
@@ -53,9 +54,8 @@ export function getDecodedAccountData(buffer: Buffer) {
     return new StreamData(sender, recipient, amount, start, end, withdrawn, status);
 }
 
-export function getExplorerLink(type: string, id: string, network?: string): string {
-    //todo choose network dynamically, don't force it as an argument
-    network = network || clusterApiUrl('devnet'); //mainnet-beta
+export function getExplorerLink(type: string, id: string): string {
+    const network = useNetworkStore.getState().network
     const cluster = getClusterName(network) || `custom&customUrl=${network}`
     return `https://explorer.solana.com/${type}/${id}?cluster=${cluster}`;
 }

@@ -17,12 +17,14 @@ export default async function sendTransaction(type: number, transaction: Transac
 
         const signed = await wallet.signTransaction(transaction);
         const signature = await connection.sendRawTransaction(signed.serialize());
+        toast.dismiss();
         toast.info('Submitted transaction. Awaiting confirmation...', {autoClose:15000});
 
         // can use 'finalized' which gives 100% certainty, but requires much longer waiting.
         const finality = TX_FINALITY_CONFIRMED
         await connection.confirmTransaction(signature, finality)
-        const transactionUrl = getExplorerLink('tx', signature, network);
+        const transactionUrl = getExplorerLink('tx', signature);
+        toast.dismiss();
         toast.success(<ToastrLink
             url={transactionUrl}
             urlText="View on explorer"

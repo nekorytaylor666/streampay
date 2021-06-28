@@ -1,4 +1,5 @@
 import Badge from "./Stream/Badge";
+import ActionButton from "./Stream/ActionButton";
 import {getUnixTime} from "date-fns";
 import Duration from "./Stream/Duration";
 import Progress from "./Stream/Progress";
@@ -53,29 +54,23 @@ export default function Stream(props: { data: StreamData, myAddress: string, id:
             <Address address={id} className="col-span-2 text-sm text-gray-400"/>
             <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, receiver)} title={"Recipient"}/>
             <Address address={receiver} className="col-span-2 text-sm text-gray-400"/>
-            {status === STREAM_STATUS_CANCELED ? (
-                <>
-                    <Progress title="Withdrawn" value={withdrawn} max={amount}/>
-                    <Progress title="Returned" value={amount - withdrawn} max={amount} rtl={true}/>
-                </>
-            ) : (
-                <>
-                    <Progress title="Streamed" value={streamed} max={amount}/>
-                    <Progress title="Withdrawn" value={withdrawn} max={amount}/>
-                    {myAddress === receiver &&
-                    (<>
-                        <dt>Available<br/>
-                            <sup className="text-xs text-gray-300 align-top">for withdrawal</sup></dt>
-                        <dd className="col-span-2">◎{available.toFixed(2)}</dd>
-                        {showWithdraw && (<button onClick={onWithdraw}
-                                                  className="rounded-md text-sm bg-green-500 hover:bg-green-700 active:bg-green text-white py-1 px-2">
-                            Withdraw
-                        </button>)}
-                    </>)}
-                    {showCancel && (<button onClick={onCancel}
-                                            className="rounded-md text-sm bg-red-400 hover:bg-red-600 active:bg-red text-white py-1 px-2">
-                        Cancel</button>)}
+            <Progress title="Withdrawn" value={withdrawn} max={amount}/>
+            {status === STREAM_STATUS_CANCELED &&
+            <Progress title="Returned" value={amount - withdrawn} max={amount} rtl={true}/>}
+            {status !== STREAM_STATUS_CANCELED &&
+            <>
+                <Progress title="Streamed" value={streamed} max={amount}/>
+                {myAddress === receiver &&
+                (<>
+                    <dt>Available<br/>
+                        <sup className="text-xs text-gray-300 align-top">for withdrawal</sup></dt>
+                    <dd className="col-span-2">◎{available.toFixed(2)}</dd>
+                    {showWithdraw && <ActionButton title="Withdraw" action={onWithdraw}
+                                                   color={STREAM_STATUS_COLOR[STREAM_STATUS_STREAMING]}/>}
+                    {showCancel && <ActionButton title={"Cancel"} action={onCancel}
+                                                 color={STREAM_STATUS_COLOR[STREAM_STATUS_CANCELED]}/>}
                 </>)}
+            </>}
         </dl>
     )
 }
