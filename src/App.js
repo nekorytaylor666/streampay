@@ -1,14 +1,14 @@
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {toast, ToastContainer} from "react-toastify";
 import NotConnected from "./Pages/NotConnected";
-import {Account, Banner, CreateStreamForm, Curtain, Footer, Logo} from "./Components";
+import {Banner, Footer, Logo} from "./Components";
 
 import 'react-toastify/dist/ReactToastify.css';
 import logo from './logo.png'
-import StreamsContainer from "./Containers/StreamsContainer";
 import {useNetworkContext} from "./Contexts/NetworkContext";
 import useBalanceStore from "./Stores/BalanceStore";
+import Main from "./Pages/Main";
 
 function App() {
     const {
@@ -20,7 +20,6 @@ function App() {
         connection,
     } = useNetworkContext()
 
-    const [loading, setLoading] = useState(false);
     const {setBalance} = useBalanceStore()
 
     useEffect(() => {
@@ -43,7 +42,6 @@ function App() {
         }
     }, [connection, selectedWallet, setBalance, setConnected]);
 
-    //componentWillMount
     useEffect(() => {
         setSelectedWallet(urlWallet)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,18 +52,9 @@ function App() {
             <Banner/>
             <div className={"mx-auto bg-blend-darken px-4 my-4"}>
                 <Logo src={logo}/>
-                {connected ? (
-                    <div className="mx-auto grid grid-cols-1 gap-16 max-w-lg xl:grid-cols-2 xl:max-w-5xl">
-                        <div className="mb-8">
-                            <Curtain visible={loading}/>
-                            <Account wallet={selectedWallet} loading={loading} setLoading={setLoading}/>
-                            <hr/>
-                            <CreateStreamForm loading={loading} setLoading={setLoading}/>
-                        </div>
-                        <StreamsContainer loading={loading} setLoading={setLoading}/>
-                        />
-                    </div>
-                ) : <NotConnected action={() => selectedWallet.connect()}/>}
+                {connected ?
+                    <Main/> :
+                    <NotConnected action={() => selectedWallet.connect()}/>}
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={4}/>
             <Footer/>
