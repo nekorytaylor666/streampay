@@ -2,13 +2,13 @@ import {useEffect} from "react";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {toast, ToastContainer} from "react-toastify";
 import NotConnected from "./Pages/NotConnected";
+import Main from "./Pages/Main";
 import {Banner, Footer, Logo} from "./Components";
 
 import 'react-toastify/dist/ReactToastify.css';
 import logo from './logo.png'
 import {useNetworkContext} from "./Contexts/NetworkContext";
 import useBalanceStore from "./Stores/BalanceStore";
-import Main from "./Pages/Main";
 
 function App() {
     const {
