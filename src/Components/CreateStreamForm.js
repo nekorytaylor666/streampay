@@ -98,16 +98,16 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
                 <DateTime
                     title="start"
                     date={startDate}
-                    updateDate={(e) => setStartDate(e.target.value)}
+                    updateDate={setStartDate}
                     time={startTime}
-                    updateTime={(e) => setStartTime(e.target.value)}
+                    updateTime={setStartTime}
                 />
                 <DateTime
                     title="end"
                     date={endDate}
-                    updateDate={(e) => setEndDate(e.target.value)}
+                    updateDate={setEndDate}
                     time={endTime}
-                    updateTime={(e) => setEndTime(e.target.value)}
+                    updateTime={setEndTime}
                 />
             </div>
             <ButtonPrimary
