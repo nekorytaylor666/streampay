@@ -114,6 +114,7 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
                 className="font-bold text-2xl my-5"
                 onClick={createStream}
                 type="button"
+                disabled={loading}
             >
                 Stream!
             </ButtonPrimary>

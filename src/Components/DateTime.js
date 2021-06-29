@@ -6,7 +6,7 @@ export default function DateTime(props: { title: string, date: string, updateDat
     const {title, date, updateDate, time, updateTime} = props;
 
     function initializeTime() {
-        const now = format(new Date(), TIME_FORMAT);
+        const now = format(add(new Date(), {minutes: 1}), TIME_FORMAT);
         if (!time || time < now) {
             updateTime(now)
         }
