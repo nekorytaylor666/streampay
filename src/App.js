@@ -54,7 +54,7 @@ function App() {
                     <Main/> :
                     <NotConnected action={() => selectedWallet.connect()}/>}
             </div>
-            <ToastContainer hideProgressBar position="bottom-left" limit={4}/>
+            <ToastContainer hideProgressBar position="bottom-left" limit={3}/>
             <Footer/>
         </div>
     );
