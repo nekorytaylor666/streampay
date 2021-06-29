@@ -14,7 +14,7 @@ export default class Banner extends Component {
                     <div className="pr-16 sm:text-center sm:px-16">
                         <p className="font-small text-white">
                             <b>Devnet version. Test freely! </b>
-                            <span className="hidden lg:inline">Mainnet version soon.</span>
+                            <span className="hidden lg:inline">Coming soon™ to mainnet.</span>
                         </p>
                     </div>
                     <div
