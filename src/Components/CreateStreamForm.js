@@ -5,6 +5,7 @@ import {streamCreated, StreamData} from "../utils/helpers";
 import {_createStream} from "../Actions";
 import useBalanceStore from "../Stores/BalanceStore";
 import {Keypair} from "@solana/web3.js";
+import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
 

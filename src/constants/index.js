@@ -13,7 +13,8 @@ export const INSTRUCTION_CANCEL_STREAM = 2;
 export const EXPLORER_TYPE_TX = "tx";
 export const EXPLORER_TYPE_ADDR = "address";
 
-export const ACC_DATA_OFFSET_WITHDRAWN = 25;
+export const DATE_FORMAT = "yyyy-MM-dd";
+export const TIME_FORMAT = "HH:mm";
 
 export const STREAM_STATUS_SCHEDULED = "scheduled";
 export const STREAM_STATUS_STREAMING = "streaming";

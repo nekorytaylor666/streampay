@@ -1,4 +1,5 @@
 import {add, format} from "date-fns";
+import {DATE_FORMAT} from "../constants";
 
 export default function DateTime(props: { title: string, date: string, updateDate: void, time: string, updateTime: void }) {
     return (
@@ -9,8 +10,8 @@ export default function DateTime(props: { title: string, date: string, updateDat
                 <div className="mt-1">
                     <input type="date" name={props.title} id={props.title}
                            value={props.date}
-                           min={format(new Date(), "yyyy-MM-dd")}
-                           max={format(add(new Date(), {years: 1}), "yyyy-MM-dd")}
+                           min={format(new Date(), DATE_FORMAT)}
+                           max={format(add(new Date(), {years: 1}), DATE_FORMAT)}
                            onChange={props.updateDate}
                            className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
                            placeholder="" aria-describedby={props.title + `-description`} required/>
