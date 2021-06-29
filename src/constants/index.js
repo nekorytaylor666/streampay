@@ -21,6 +21,7 @@ export const STREAM_STATUS_STREAMING = "streaming";
 export const STREAM_STATUS_COMPLETE = "complete";
 export const STREAM_STATUS_CANCELED = "canceled";
 
+//don't forget to update tailwind.config.js to safelist dynamically generated classes
 export const STREAM_STATUS_COLOR = {
     [STREAM_STATUS_SCHEDULED]: 'gray', // now < start
     [STREAM_STATUS_STREAMING]: 'green', // start <= now < end
