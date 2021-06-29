@@ -39,9 +39,7 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
         let msg = "";
         switch (name) {
             case "start":
-                //todo move to time input if time is the problem
-                start = new Date(value + "T" + startTime);
-                msg = start < new Date() ? "Cannot start the stream in the past." : "";
+                msg = new Date(value) < new Date((new Date()).toDateString()) ? "Cannot start the stream in the past." : "";
                 break;
             case "start_time":
                 start = new Date(startDate + "T" + value);
