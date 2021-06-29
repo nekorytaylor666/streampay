@@ -32,7 +32,7 @@ export default function StreamsContainer() {
                 new PublicKey(streamID);
                 newStreams[streamID] = undefined; // We're setting the data few lines below
             } catch (e) {
-                toast.error("Stream URL not valid. Please double check with the sender.")
+                toast.error("Stream doesn't exist. Please double check with the sender.")
             }
         }
 
@@ -54,7 +54,7 @@ export default function StreamsContainer() {
                             temp[id] = getDecodedAccountData(result.data);
                         } else {
                             if (id === streamID) {
-                                toast.error("Stream URL not valid. Please double check with the sender.")
+                                toast.error("Stream doesn't exist. Please double check with the sender.")
                             }
                             delete temp[id]
                         }
