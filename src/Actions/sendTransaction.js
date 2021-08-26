@@ -23,13 +23,16 @@ export default async function sendTransaction(type: number, transaction: Transac
         // can use 'finalized' which gives 100% certainty, but requires much longer waiting.
         const finality = TX_FINALITY_CONFIRMED
         await connection.confirmTransaction(signature, finality)
-        const transactionUrl = getExplorerLink('tx', signature);
+        const url = getExplorerLink('tx', signature)
         toast.dismiss();
-        toast.success(<ToastrLink
-            url={transactionUrl}
-            urlText="View on explorer"
-            nonUrlText={`Transaction ${finality}!` + (finality === TX_FINALITY_CONFIRMED ? " Please allow it some time to finalize." : "")}
-        />, {autoClose: 20000, closeOnClick: false});
+        toast.success(
+            <ToastrLink
+                url={url}
+                urlText="View on explorer"
+                nonUrlText={`Transaction ${finality}!` + (finality === TX_FINALITY_CONFIRMED ? " Please allow it some time to finalize." : "")}
+            />,
+            {autoClose: 20000, closeOnClick: false}
+        )
         return true;
     } catch (e) {
         console.warn(e);

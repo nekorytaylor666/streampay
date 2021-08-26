@@ -2,11 +2,24 @@ import {useEffect} from "react";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {toast, ToastContainer} from "react-toastify";
 import {Main, NotConnected} from "./Pages";
-import {Banner, Footer, Logo} from "./Components";
+import {Footer, Logo} from "./Components";
 import {useNetworkContext} from "./Contexts/NetworkContext";
 import useBalanceStore from "./Stores/BalanceStore";
+import SelectCluster from "./Components/SelectCluster";
 import logo from './logo.png'
 import 'react-toastify/dist/ReactToastify.css';
+
+const mainComponent = (connected: boolean, selectedWallet: ?Wallet) => {
+    if (connected) {
+        return <Main/>
+    }
+    else {
+        return <>
+            <div className="sm:absolute top-0 right-0 p-4"><SelectCluster/></div>
+            <NotConnected action={() => selectedWallet.connect()}/>
+        </>
+    }
+}
 
 function App() {
     const {
@@ -47,12 +60,9 @@ function App() {
 
     return (
         <div>
-            <Banner/>
             <div className={"mx-auto bg-blend-darken px-4 my-4"}>
                 <Logo src={logo}/>
-                {connected ?
-                    <Main/> :
-                    <NotConnected action={() => selectedWallet.connect()}/>}
+                {mainComponent(connected, selectedWallet)}
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={3}/>
             <Footer/>

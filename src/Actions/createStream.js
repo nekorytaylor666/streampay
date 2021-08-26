@@ -8,10 +8,11 @@ import {
     TransactionInstruction
 } from "@solana/web3.js";
 import BufferLayout from "buffer-layout";
-import {INSTRUCTION_CREATE_STREAM, PROGRAM_ID} from "../constants";
+import {INSTRUCTION_CREATE_STREAM} from "../constants";
 import {StreamData} from "../utils/helpers";
 import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";
+import useNetworkStore from "../Stores/NetworkStore"
 
 export default async function _createStream(data: StreamData, connection: Connection, wallet: Wallet, network?: string, pda: Keypair) {
     const instruction = getCreateStreamInstruction(data, pda.publicKey)
@@ -40,7 +41,7 @@ function getCreateStreamInstruction(data: StreamData, pdaPub: PublicKey): Transa
             isSigner: false,
             isWritable: false
         }],
-        programId: new PublicKey(PROGRAM_ID),
+        programId: new PublicKey(useNetworkStore.getState().programId),
         data: encodeInstructionData(data),
     });
 }
