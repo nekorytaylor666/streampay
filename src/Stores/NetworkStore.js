@@ -15,7 +15,7 @@ const clusterUrls = {
 }
 
 const programIds = {
-    [CLUSTER_LOCAL]: () => prompt("Program id?"),
+    [CLUSTER_LOCAL]: () => prompt("Program ID?"),
     [CLUSTER_DEVNET]: () => "2DvvSEde36Ch3B52g9hKWDYbfmJimLpJwVBV9Cknypi4",
     [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
     [CLUSTER_MAINNET]: () => null, // TODO: publish the program to mainnet
