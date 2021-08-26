@@ -3,7 +3,7 @@ name: Deploy (beta)
 on:
     push:
         branches:
-            - refactor
+            - beta
 
 env:
     NODE_VERSION: '16.x'
