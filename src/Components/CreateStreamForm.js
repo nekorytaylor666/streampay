@@ -8,6 +8,9 @@ import {Keypair} from "@solana/web3.js";
 import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
+import useNetworkStore from "../Stores/NetworkStore"
+
+const networkStore = state => state.cluster
 
 export default function CreateStreamForm({loading, setLoading} : {loading: boolean, setLoading: Dispatch<SetStateAction<boolean>>}) {
     const pda = Keypair.generate();
@@ -27,8 +30,10 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
     } = useFormContext()
 
     const {
-        connection, selectedWallet, network
+        connection, selectedWallet
     } = useNetworkContext();
+
+    const cluster = useNetworkStore(networkStore)
 
     const {balance, setBalance} = useBalanceStore()
     const {streams, setStreams} = useStreamStore()
@@ -79,7 +84,7 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
 
         setLoading(true);
         const data = new StreamData(selectedWallet.publicKey.toBase58(), receiver, amount, start, end);
-        const success = await _createStream(data, connection, selectedWallet, network, pda)
+        const success = await _createStream(data, connection, selectedWallet, cluster, pda)
         setLoading(false);
         if (success) {
             streamCreated(pda.publicKey.toBase58())

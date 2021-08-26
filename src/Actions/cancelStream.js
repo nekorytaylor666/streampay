@@ -1,9 +1,10 @@
 import BufferLayout from "buffer-layout";
-import {INSTRUCTION_CANCEL_STREAM,PROGRAM_ID} from "../constants";
+import {INSTRUCTION_CANCEL_STREAM} from "../constants";
 import {Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {StreamData} from "../utils/helpers";
 import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";
+import useNetworkStore from "../Stores/NetworkStore"
 
 export default async function _cancelStream(account_id: string, data: StreamData, connection: Connection, wallet: Wallet, network: string) {
     const {sender, receiver} = data;
@@ -31,7 +32,7 @@ function getCancelStreamInstruction(account_id, sender, receiver) {
             isSigner: false,
             isWritable: false
         }],
-        programId: new PublicKey(PROGRAM_ID),
+        programId: new PublicKey(useNetworkStore.getState().programId),
         data: encodeInstructionData(),
     });
 

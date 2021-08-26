@@ -10,15 +10,14 @@ import useStreamStore from "../Stores/StreamsStore";
 import {PublicKey} from "@solana/web3.js";
 import {toast} from "react-toastify";
 import {useEffect} from "react";
+import useNetworkStore from "../Stores/NetworkStore"
+
+const networkStore = state => state.cluster
 
 export default function StreamsContainer() {
 
-    const {
-        network,
-        selectedWallet,
-        connection,
-    } = useNetworkContext()
-
+    const { selectedWallet, connection } = useNetworkContext()
+    const cluster = useNetworkStore(networkStore)
     const {balance, setBalance} = useBalanceStore()
     const [streams, setStreams] = useStreamStore(state => [state.streams, state.setStreams])
 
@@ -72,7 +71,7 @@ export default function StreamsContainer() {
 
     async function withdrawStream(id: string) {
         const {start, end, amount} = streams[id];
-        const success = await _withdrawStream(id, streams[id], connection, selectedWallet, network)
+        const success = await _withdrawStream(id, streams[id], connection, selectedWallet, cluster)
         if (success) {
             const withdrawn = getStreamed(start, end, amount)
             setBalance(balance + withdrawn)
@@ -84,7 +83,7 @@ export default function StreamsContainer() {
         const {start, end, amount} = streams[id];
         const now = new Date();
         const withdrawn = getStreamed(start, end, amount);
-        const success = await _cancelStream(id, streams[id], connection, selectedWallet, network)
+        const success = await _cancelStream(id, streams[id], connection, selectedWallet, cluster)
         if (success) {
             setBalance(balance + amount - withdrawn)
             setStreams({

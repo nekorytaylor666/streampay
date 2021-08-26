@@ -1,2 +1,1 @@
-export const PROGRAM_ID = "2DvvSEde36Ch3B52g9hKWDYbfmJimLpJwVBV9Cknypi4";
 export const STREAMFLOW_ACCOUNT_ID = "DrFtxPb9F6SxpHHHFiEtSNXE3SZCUNLXMaHS6r8pkoz2";
