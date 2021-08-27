@@ -7,6 +7,9 @@ import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useBalanceStore from "../Stores/BalanceStore";
+import useNetworkStore, { CLUSTER_MAINNET } from "../Stores/NetworkStore"
+
+const networkStore = state => state.cluster === CLUSTER_MAINNET
 
 export default function Account({
                                     wallet,
@@ -17,6 +20,7 @@ export default function Account({
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
     const {balance, setBalance} = useBalanceStore()
     const {connection, selectedWallet} = useNetworkContext()
+    const isMainnet = useNetworkStore(networkStore)
 
     useEffect(() => {
         if (airdropTxSignature) {
@@ -56,9 +60,11 @@ export default function Account({
                         className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     Disconnect
                 </button>
-                <ButtonPrimary type="button" onClick={requestAirdrop}
-                               className="float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white"
-                               disabled={loading}>
+                <ButtonPrimary
+                    type="button" onClick={requestAirdrop}
+                    className={"float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" + (isMainnet ? " hidden" : "")}
+                    disabled={loading}
+                >
                     Airdrop
                 </ButtonPrimary>
             </div>
