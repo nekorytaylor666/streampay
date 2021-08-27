@@ -55,8 +55,7 @@ function App() {
 
     useEffect(() => {
         setSelectedWallet(urlWallet)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [setSelectedWallet, urlWallet])
 
     return (
         <div>
