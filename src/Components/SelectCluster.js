@@ -16,7 +16,8 @@ export default function SelectCluster() {
             <option value={CLUSTER_MAINNET} disabled={true}>{CLUSTER_MAINNET} — soon™</option>
             <option value={CLUSTER_DEVNET}>{CLUSTER_DEVNET}</option>
             <option value={CLUSTER_TESTNET}>{CLUSTER_TESTNET}</option>
-            {/*<option value={CLUSTER_LOCAL}>{CLUSTER_LOCAL}</option>*/}
+            {/* handy for developers, but not needed for the end user */}
+            <option value={CLUSTER_LOCAL} hidden={true}>{CLUSTER_LOCAL}</option>
         </select>
     )
 }
