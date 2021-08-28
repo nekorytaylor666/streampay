@@ -15,6 +15,5 @@ Serverless. Realtime. Free and open-source. Built on Solana.
 
 To run locally:
 ```
-  npm install @craco/craco --save
-  npm install -D tailwindcss@npm:@tailwindcss/postcss7-compat 'postcss@^7' 'autoprefixer@^9'
-  npm run build
+  npm i
+  npm run start
