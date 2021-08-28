@@ -13,7 +13,7 @@ Serverless. Realtime. Free and open-source. Built on Solana.
 - [Telegram](https://t.me/streamflow_fi)
 - [Twitter](https://twitter.com/streamflow_fi)
 
-To run locally:
+To run locally, git clone the app and then:
 ```
   npm i
   npm run start
