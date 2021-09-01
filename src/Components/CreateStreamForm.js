@@ -4,16 +4,20 @@ import {getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
 import {_createStream} from "../Actions";
 import useBalanceStore from "../Stores/BalanceStore";
-import {Keypair} from "@solana/web3.js";
+import {Keypair, LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
 import useNetworkStore from "../Stores/NetworkStore"
 import {START, END} from "../constants";
+import {encodeInstructionData} from "../Actions/createStream";
 
 const networkStore = state => state.cluster
 
-export default function CreateStreamForm({loading, setLoading} : {loading: boolean, setLoading: Dispatch<SetStateAction<boolean>>}) {
+export default function CreateStreamForm({
+                                             loading,
+                                             setLoading
+                                         }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
     const pda = Keypair.generate();
     const {
         amount,
@@ -87,10 +91,11 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
         const data = new StreamData(selectedWallet.publicKey.toBase58(), receiver, amount, start, end);
         const success = await _createStream(data, connection, selectedWallet, cluster, pda)
         setLoading(false);
+
         if (success) {
             streamCreated(pda.publicKey.toBase58())
-            // const newBalance = await connection.getBalance(selectedWallet.publicKey);
-            setBalance(balance - amount)
+            const fee = await connection.getMinimumBalanceForRentExemption(96)
+            setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
             setStreams({...streams, [pda.publicKey.toBase58()]: data})
         }
     }

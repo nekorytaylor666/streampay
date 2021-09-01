@@ -3,11 +3,11 @@ import {_swal, getDecodedAccountData} from "../utils/helpers";
 import {getStreamed, Stream} from "../Components";
 import {_cancelStream, _withdrawStream} from "../Actions";
 import {getUnixTime} from "date-fns";
-import {STREAM_STATUS_CANCELED} from "../constants";
+import {STREAM_STATUS_CANCELED, TX_FINALITY_FINALIZED} from "../constants";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useBalanceStore from "../Stores/BalanceStore";
 import useStreamStore from "../Stores/StreamsStore";
-import {PublicKey} from "@solana/web3.js";
+import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import {toast} from "react-toastify";
 import {useEffect} from "react";
 import useNetworkStore from "../Stores/NetworkStore"
@@ -16,7 +16,7 @@ const networkStore = state => state.cluster
 
 export default function StreamsContainer() {
 
-    const { selectedWallet, connection } = useNetworkContext()
+    const {selectedWallet, connection} = useNetworkContext()
     const cluster = useNetworkStore(networkStore)
     const {balance, setBalance} = useBalanceStore()
     const [streams, setStreams] = useStreamStore(state => [state.streams, state.setStreams])
@@ -72,23 +72,38 @@ export default function StreamsContainer() {
     async function withdrawStream(id: string) {
         const {start, end, amount} = streams[id];
         const success = await _withdrawStream(id, streams[id], connection, selectedWallet, cluster)
+
         if (success) {
+            //optimistic
             const withdrawn = getStreamed(start, end, amount)
             setBalance(balance + withdrawn)
             setStreams({...streams, [id]: {...streams[id], withdrawn}})
+
+            //final
+            const newBalance = (await connection.getBalance(selectedWallet.publicKey, TX_FINALITY_FINALIZED)) / LAMPORTS_PER_SOL;
+            const streamData = await connection.getAccountInfo(new PublicKey(id))
+            setBalance(newBalance)
+            setStreams({...streams, [id]: getDecodedAccountData(streamData.data)})
         }
     }
 
     async function cancelStream(id: string) {
-        const {start, end, amount} = streams[id];
+        const {amount, withdrawn} = streams[id];
         const now = new Date();
-        const withdrawn = getStreamed(start, end, amount);
+        const oldBalance = balance;
         const success = await _cancelStream(id, streams[id], connection, selectedWallet, cluster)
         if (success) {
+            const newBalance = (await connection.getBalance(selectedWallet.publicKey)) / LAMPORTS_PER_SOL;
+            const newWithdrawn = amount - (newBalance - oldBalance);
             setBalance(balance + amount - withdrawn)
             setStreams({
                 ...streams,
-                [id]: {...streams[id], withdrawn, canceled_at: getUnixTime(now), status: STREAM_STATUS_CANCELED}
+                [id]: {
+                    ...streams[id],
+                    withdrawn: newWithdrawn,
+                    canceled_at: getUnixTime(now),
+                    status: STREAM_STATUS_CANCELED
+                }
             })
         }
     }

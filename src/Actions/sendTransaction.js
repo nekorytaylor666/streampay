@@ -29,9 +29,9 @@ export default async function sendTransaction(type: number, transaction: Transac
             <ToastrLink
                 url={url}
                 urlText="View on explorer"
-                nonUrlText={`Transaction ${finality}!` + (finality === TX_FINALITY_CONFIRMED ? " Please allow it some time to finalize." : "")}
+                nonUrlText={`Transaction ${finality}!` + (finality === TX_FINALITY_CONFIRMED ? " Please allow it few seconds to finalize." : "")}
             />,
-            {autoClose: 20000, closeOnClick: false}
+            {autoClose: 20000, closeOnClick: true}
         )
         return true;
     } catch (e) {

@@ -39,6 +39,7 @@ function App() {
                 setConnected(true);
                 connection.getBalance(selectedWallet.publicKey)
                     .then(result => setBalance(result / LAMPORTS_PER_SOL));
+             connection.getMinimumBalanceForRentExemption(96).then(result => console.log('fee', result))
                 toast.success('Connected to wallet!');
             });
             selectedWallet.on('disconnect', () => {

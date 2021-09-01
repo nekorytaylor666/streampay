@@ -7,7 +7,7 @@ export default function Progress(props: { title: string, value: number, max: num
             <dt>{title}</dt>
             <div className="rounded-sm h-3 bg-gray-900 w-full my-auto">
                 <div
-                    className={"bg-gradient-to-r from-primary to-secondary rounded-sm h-full " + (rtl ? "float-right" : "")}
+                    className={"max-w-full bg-gradient-to-r from-primary to-secondary rounded-sm h-full " + (rtl ? "float-right" : "")}
                     style={{width: value / max * 100 + "%"}}>
                 </div>
             </div>
