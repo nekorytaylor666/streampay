@@ -15,6 +15,7 @@ export const EXPLORER_TYPE_ADDR = "address";
 
 export const DATE_FORMAT = "yyyy-MM-dd";
 export const TIME_FORMAT = "HH:mm";
+export const TIME_SUFFIX = "T00:00";
 
 export const START = "start";
 export const END = "end";

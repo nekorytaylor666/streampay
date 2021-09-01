@@ -9,7 +9,7 @@ import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
 import useNetworkStore from "../Stores/NetworkStore"
-import {START, END} from "../constants";
+import {START, END, TIME_SUFFIX} from "../constants";
 
 const networkStore = state => state.cluster
 
@@ -45,17 +45,19 @@ export default function CreateStreamForm({
     function validate(element) {
         const {name, value} = element;
         let start;
-        let msg = "";
+        let msg = '';
         switch (name) {
             case "start":
-                msg = new Date(value) < new Date((new Date()).toDateString()) ? "Cannot start the stream in the past." : "";
+                start = new Date(value + TIME_SUFFIX)
+                const now =  new Date(new Date().toDateString())
+                msg = start < now ? "Cannot start the stream in the past." : "";
                 break;
             case "start_time":
                 start = new Date(startDate + "T" + value);
                 msg = start < new Date() ? "Cannot start the stream in the past." : "";
                 break;
             case "end":
-                msg = new Date(value) < new Date(startDate) ? "Umm... end date before the start date?" : "";
+                msg = new Date(value + TIME_SUFFIX) < new Date(startDate + TIME_SUFFIX) ? "Umm... end date before the start date?" : "";
                 break;
             case "end_time":
                 start = new Date(startDate + "T" + startTime);

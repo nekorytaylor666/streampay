@@ -1,5 +1,5 @@
 import {add, format} from "date-fns";
-import {DATE_FORMAT, END, TIME_FORMAT} from "../constants";
+import {DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX} from "../constants";
 import {Dispatch, SetStateAction} from "react";
 import {useFormContext} from "../Contexts/FormContext";
 
@@ -9,7 +9,7 @@ export default function DateTime(props: { title: string, date: string, updateDat
 
     function getMinDate(): string {
         if (title === END && startDate) {
-            return format(new Date(startDate), DATE_FORMAT);
+            return format(new Date(startDate + TIME_SUFFIX), DATE_FORMAT);
         } else {
             return format(new Date(), DATE_FORMAT);
         }
@@ -19,7 +19,7 @@ export default function DateTime(props: { title: string, date: string, updateDat
         const now = format(add(new Date(), {minutes: 1}), TIME_FORMAT);
 
         if (title === END) {
-            const minEndDate = startDate ? (new Date(startDate)) : (new Date())
+            const minEndDate = startDate ? (new Date(startDate + TIME_SUFFIX)) : (new Date())
 
             if (!startDate || !date || date < startDate) {
                 updateDate(format(minEndDate, DATE_FORMAT))
