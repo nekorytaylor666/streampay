@@ -9,6 +9,7 @@ import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
 import useNetworkStore from "../Stores/NetworkStore"
+import {START, END} from "../constants";
 
 const networkStore = state => state.cluster
 
@@ -101,14 +102,14 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
                 <SelectToken/>
                 <Recipient onChange={setReceiver} value={receiver}/>
                 <DateTime
-                    title="start"
+                    title={START}
                     date={startDate}
                     updateDate={setStartDate}
                     time={startTime}
                     updateTime={setStartTime}
                 />
                 <DateTime
-                    title="end"
+                    title={END}
                     date={endDate}
                     updateDate={setEndDate}
                     time={endTime}

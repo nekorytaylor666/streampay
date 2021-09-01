@@ -1,7 +1,7 @@
 export * from './ids';
 
 export const SOLLET_URL = 'https://www.sollet.io';
-export const AIRDROP_AMOUNT = 1; // 1 is the cap on the testnet
+export const AIRDROP_AMOUNT = 1; // 1 SOL is the cap on the testnet
 
 export const TX_FINALITY_CONFIRMED = "confirmed";
 export const TX_FINALITY_FINALIZED = "finalized";
@@ -15,6 +15,9 @@ export const EXPLORER_TYPE_ADDR = "address";
 
 export const DATE_FORMAT = "yyyy-MM-dd";
 export const TIME_FORMAT = "HH:mm";
+
+export const START = "start";
+export const END = "end";
 
 export const STREAM_STATUS_SCHEDULED = "scheduled";
 export const STREAM_STATUS_STREAMING = "streaming";
