@@ -10,7 +10,6 @@ import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
 import useNetworkStore from "../Stores/NetworkStore"
 import {START, END} from "../constants";
-import {encodeInstructionData} from "../Actions/createStream";
 
 const networkStore = state => state.cluster
 
