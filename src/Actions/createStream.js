@@ -52,8 +52,8 @@ function encodeInstructionData(data: StreamData) {
     // Packed as little endian
     const layout = BufferLayout.struct([
         BufferLayout.u8("instruction"),
-        BufferLayout.u32("start"),
-        BufferLayout.u32("end"),
+        BufferLayout.ns64("start"),
+        BufferLayout.ns64("end"),
         // N.B. JS Number has 53 significant bits, so numbers larger than
         // 2^53 can be misrepresented
         BufferLayout.nu64("amount")
