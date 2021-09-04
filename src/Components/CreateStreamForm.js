@@ -3,15 +3,18 @@ import {useFormContext} from "../Contexts/FormContext";
 import {getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
 import {_createStream} from "../Actions";
-import useBalanceStore from "../Stores/BalanceStore";
 import {Keypair, LAMPORTS_PER_SOL} from "@solana/web3.js";
+import {START, END, TIME_SUFFIX} from "../constants";
 import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
-import useStreamStore from "../Stores/StreamsStore";
-import useNetworkStore from "../Stores/NetworkStore"
-import {START, END, TIME_SUFFIX} from "../constants";
+import useStore from "../Stores"
 
-const networkStore = state => state.cluster
+const storeGetter = state => ({
+    balance: state.balance, 
+    setBalance: state.setBalance, 
+    streams: state.streams, 
+    setStreams: state.setStreams,
+})
 
 export default function CreateStreamForm({
                                              loading,
@@ -34,13 +37,10 @@ export default function CreateStreamForm({
     } = useFormContext()
 
     const {
-        connection, selectedWallet
+        connection, wallet
     } = useNetworkContext();
 
-    const cluster = useNetworkStore(networkStore)
-
-    const {balance, setBalance} = useBalanceStore()
-    const {streams, setStreams} = useStreamStore()
+    const {balance, setBalance, streams, setStreams, cluster} = useStore(storeGetter)
 
     function validate(element) {
         const {name, value} = element;
@@ -89,8 +89,8 @@ export default function CreateStreamForm({
         }
 
         setLoading(true);
-        const data = new StreamData(selectedWallet.publicKey.toBase58(), receiver, amount, start, end);
-        const success = await _createStream(data, connection, selectedWallet, cluster, pda)
+        const data = new StreamData(wallet.publicKey.toBase58(), receiver, amount, start, end);
+        const success = await _createStream(data, connection, wallet, cluster, pda)
         setLoading(false);
 
         if (success) {

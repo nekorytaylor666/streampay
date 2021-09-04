@@ -1,10 +1,10 @@
 import {CLUSTER_LOCAL, CLUSTER_DEVNET, CLUSTER_TESTNET, CLUSTER_MAINNET} from '../Stores/NetworkStore'
-import useNetworkStore from "../Stores/NetworkStore"
+import useStore from "../Stores"
 
-const networkStore = state => [state.cluster, state.setCluster]
+const networkStore = state => ({cluster: state.cluster, setCluster: state.setCluster})
 
 export default function SelectCluster() {
-    const [cluster, setCluster] = useNetworkStore(networkStore)
+    const {cluster, setCluster} = useStore(networkStore)
     return (
         <select
             id="cluster"

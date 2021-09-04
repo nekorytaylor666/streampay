@@ -1,26 +1,27 @@
 import {Address, ButtonPrimary, Link} from "./index";
 import {getExplorerLink} from "../utils/helpers";
-import Wallet from "@project-serum/sol-wallet-adapter";
 import {AIRDROP_AMOUNT, TX_FINALITY_CONFIRMED} from "../constants";
 import {toast} from "react-toastify";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
-import useBalanceStore from "../Stores/BalanceStore";
-import useNetworkStore, { CLUSTER_MAINNET } from "../Stores/NetworkStore"
+import useStore from "../Stores"
+import { CLUSTER_MAINNET } from "../Stores/NetworkStore"
 
-const networkStore = state => state.cluster === CLUSTER_MAINNET
+const storeGetter = state => ({
+    balance: state.balance,
+    setBalance: state.setBalance,
+    isMainnet: state.cluster === CLUSTER_MAINNET,
+})
 
 export default function Account({
-                                    wallet,
                                     loading,
                                     setLoading
-                                }: { wallet: Wallet, loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
+                                }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
 
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
-    const {balance, setBalance} = useBalanceStore()
-    const {connection, selectedWallet} = useNetworkContext()
-    const isMainnet = useNetworkStore(networkStore)
+    const {balance, setBalance, isMainnet} = useStore(storeGetter)
+    const {connection, wallet} = useNetworkContext()
 
     useEffect(() => {
         if (airdropTxSignature) {
@@ -40,7 +41,7 @@ export default function Account({
 
     async function requestAirdrop() {
         setLoading(true);
-        const signature = await connection.requestAirdrop(selectedWallet.publicKey, AIRDROP_AMOUNT * LAMPORTS_PER_SOL);
+        const signature = await connection.requestAirdrop(wallet.publicKey, AIRDROP_AMOUNT * LAMPORTS_PER_SOL);
         setAirdropTxSignature(signature);
         setLoading(false);
         toast.success("Airdrop requested!")

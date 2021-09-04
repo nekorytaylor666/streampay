@@ -2,29 +2,31 @@ import {createContext, useContext, useMemo, useState} from "react";
 import {SOLLET_URL} from "../constants";
 import {Connection} from "@solana/web3.js";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import useNetworkStore from "../Stores/NetworkStore"
+import useStore from "../Stores"
 
 const NetworkContext = createContext(undefined)
 
 const networkStore = state => state.clusterUrl()
 
+const wallets = {
+    Sollet: SOLLET_URL,
+}
+
 export function NetworkProvider(props) {
-    const cluster = useNetworkStore(networkStore)
-    const [providerUrl,] = useState(SOLLET_URL);
-    const [selectedWallet, setSelectedWallet] = useState(undefined);
+    const cluster = useStore(networkStore)
+    const [walletType, setWalletType] = useState('Sollet');
     const [connected, setConnected] = useState(false);
 
     const connection = useMemo(() => new Connection(cluster), [cluster]);
-    const urlWallet = useMemo(() => new Wallet(providerUrl, cluster), [providerUrl, cluster]);
+    const wallet = useMemo(() => new Wallet(wallets[walletType], cluster), [walletType, cluster]);
 
     return <NetworkContext.Provider value={{
-        providerUrl,
-        selectedWallet,
-        setSelectedWallet,
+        wallet,
+        walletType,
+        setWalletType,
         connected,
         setConnected,
         connection,
-        urlWallet
     }}>{props.children}</NetworkContext.Provider>
 
 }

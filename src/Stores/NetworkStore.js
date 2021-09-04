@@ -1,6 +1,4 @@
-import createStore from 'zustand'
 import {clusterApiUrl} from "@solana/web3.js"
-import { devtools } from 'zustand/middleware'
 
 export const CLUSTER_LOCAL = 'local'
 export const CLUSTER_DEVNET = 'devnet'
@@ -21,7 +19,7 @@ const programIds = {
     [CLUSTER_MAINNET]: () => null, // TODO: publish the program to mainnet
 }
 
-const networkStore = createStore(devtools((set: Function, get: Function) => ({
+const useNetworkStore = (set: Function, get: Function) => ({
     // state
     cluster: localStorage.cluster || CLUSTER_DEVNET,
     programId: programIds[localStorage.cluster || CLUSTER_DEVNET](),
@@ -41,12 +39,6 @@ const networkStore = createStore(devtools((set: Function, get: Function) => ({
             set({cluster: CLUSTER_DEVNET, programId: programIds[CLUSTER_DEVNET]()})
         }
     }
-})))
-
-window.addEventListener("beforeunload", () => {
-    const state = networkStore.getState()
-    localStorage.cluster = state.cluster
-    localStorage.programId = state.programId
 })
 
-export default networkStore
+export default useNetworkStore

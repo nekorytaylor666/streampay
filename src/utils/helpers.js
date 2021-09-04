@@ -10,7 +10,7 @@ import {u64} from "@solana/spl-token";
 import {getUnixTime} from "date-fns";
 import swal from "sweetalert";
 import {Buffer} from 'buffer/';
-import useNetworkStore from "../Stores/NetworkStore";
+import useStore from "../Stores"
 
 export const publicKey = (property = "publicKey"): BufferLayout.Layout => {
     return BufferLayout.blob(32, property);
@@ -45,7 +45,7 @@ export function getDecodedAccountData(buffer: Buffer) {
 }
 
 export function getExplorerLink(type: string, id: string): string {
-    return `https://explorer.solana.com/${type}/${id}?cluster=${useNetworkStore.getState().explorerUrl()}`;
+    return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
 }
 
 export function getStreamStatus(start: number, end: number, now: number) {

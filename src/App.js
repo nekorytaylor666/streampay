@@ -4,64 +4,48 @@ import {toast, ToastContainer} from "react-toastify";
 import {Main, NotConnected} from "./Pages";
 import {Footer, Logo} from "./Components";
 import {useNetworkContext} from "./Contexts/NetworkContext";
-import useBalanceStore from "./Stores/BalanceStore";
+import useStore from "./Stores"
 import SelectCluster from "./Components/SelectCluster";
 import logo from './logo.png'
 import 'react-toastify/dist/ReactToastify.css';
 
-const mainComponent = (connected: boolean, selectedWallet: ?Wallet) => {
-    if (connected) {
-        return <Main/>
-    }
-    else {
-        return <>
-            <div className="sm:absolute top-0 right-0 p-4"><SelectCluster/></div>
-            <NotConnected action={() => selectedWallet.connect()}/>
-        </>
-    }
-}
+const storeGetter = state => state.setBalance
 
 function App() {
     const {
-        selectedWallet,
-        setSelectedWallet,
-        urlWallet,
+        wallet,
         connected,
         setConnected,
         connection,
     } = useNetworkContext()
 
-    const {setBalance} = useBalanceStore()
+    const setBalance = useStore(storeGetter)
 
     useEffect(() => {
-        if (selectedWallet) {
-            selectedWallet.on('connect', () => {
+        if (wallet) {
+            wallet.on('connect', () => {
                 setConnected(true);
-                connection.getBalance(selectedWallet.publicKey)
+                connection.getBalance(wallet.publicKey)
                     .then(result => setBalance(result / LAMPORTS_PER_SOL));
                 toast.success('Connected to wallet!');
             });
-            selectedWallet.on('disconnect', () => {
+            wallet.on('disconnect', () => {
                 setConnected(false);
-                // setSelectedWallet(undefined);
                 toast.info('Disconnected from wallet');
             });
-            //selectedWallet.connect();
+            //wallet.connect();
             return () => {
-                selectedWallet.disconnect();
+                wallet.disconnect();
             };
         }
-    }, [connection, selectedWallet, setBalance, setConnected]);
-
-    useEffect(() => {
-        setSelectedWallet(urlWallet)
-    }, [setSelectedWallet, urlWallet])
+    }, [connection, wallet, setBalance, setConnected]);
 
     return (
         <div>
             <div className={"mx-auto bg-blend-darken px-4 my-4"}>
                 <Logo src={logo}/>
-                {mainComponent(connected, selectedWallet)}
+                <div className="sm:absolute top-0 right-0 p-4"><SelectCluster/></div>
+                {connected ? <Main/> : <NotConnected action={() => wallet.connect()}/>}
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={3}/>
             <Footer/>

@@ -12,7 +12,7 @@ import {INSTRUCTION_CREATE_STREAM} from "../constants";
 import {StreamData} from "../utils/helpers";
 import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import useNetworkStore from "../Stores/NetworkStore"
+import useStore from "../Stores"
 
 export default async function _createStream(data: StreamData, connection: Connection, wallet: Wallet, network?: string, pda: Keypair) {
     const instruction = getCreateStreamInstruction(data, pda.publicKey)
@@ -41,7 +41,7 @@ function getCreateStreamInstruction(data: StreamData, pdaPub: PublicKey): Transa
             isSigner: false,
             isWritable: false
         }],
-        programId: new PublicKey(useNetworkStore.getState().programId),
+        programId: new PublicKey(useStore.getState().programId),
         data: encodeInstructionData(data),
     });
 }
