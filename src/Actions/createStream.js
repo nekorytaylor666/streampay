@@ -16,7 +16,7 @@ import useNetworkStore from "../Stores/NetworkStore"
 
 export default async function _createStream(data: StreamData, connection: Connection, wallet: Wallet, network?: string, pda: Keypair) {
     const instruction = getCreateStreamInstruction(data, pda.publicKey)
-    const tx = new Transaction().add(instruction);
+    const tx = new Transaction({feePayer: wallet.publicKey}).add(instruction);
     return await sendTransaction(INSTRUCTION_CREATE_STREAM, tx, connection, wallet, network, pda);
 }
 

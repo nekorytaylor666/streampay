@@ -1,13 +1,36 @@
 import {add, format} from "date-fns";
-import {DATE_FORMAT, TIME_FORMAT} from "../constants";
+import {DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX} from "../constants";
 import {Dispatch, SetStateAction} from "react";
+import {useFormContext} from "../Contexts/FormContext";
 
 export default function DateTime(props: { title: string, date: string, updateDate: Dispatch<SetStateAction<string>>, time: string, updateTime: Dispatch<SetStateAction<string>> }) {
     const {title, date, updateDate, time, updateTime} = props;
+    const {startDate, startTime} = useFormContext();
+
+    function getMinDate(): string {
+        if (title === END && startDate) {
+            return format(new Date(startDate + TIME_SUFFIX), DATE_FORMAT);
+        } else {
+            return format(new Date(), DATE_FORMAT);
+        }
+    }
 
     function initializeTime() {
         const now = format(add(new Date(), {minutes: 1}), TIME_FORMAT);
-        if (!time || time < now) {
+
+        if (title === END) {
+            const minEndDate = startDate ? (new Date(startDate + TIME_SUFFIX)) : (new Date())
+
+            if (!startDate || !date || date < startDate) {
+                updateDate(format(minEndDate, DATE_FORMAT))
+            }
+
+            if (startDate && startDate === date && time <= startTime) {
+                updateTime(format(add(new Date(startDate + 'T' + startTime), {minutes: 5}), TIME_FORMAT));
+            } else if (!startTime) {
+                updateTime(now)
+            }
+        } else if (!time || time < now) {
             updateTime(now)
         }
     }
@@ -20,8 +43,10 @@ export default function DateTime(props: { title: string, date: string, updateDat
                 <div className="mt-1">
                     <input type="date" name={title} id={title}
                            value={date}
-                           min={format(new Date(), DATE_FORMAT)}
+                           min={getMinDate()}
                            max={format(add(new Date(), {years: 1}), DATE_FORMAT)}
+                           onFocus={initializeTime}
+                           onClick={initializeTime}
                            onChange={e => updateDate(e.target.value)}
                            className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
                            placeholder="" aria-describedby={title + `-description`} required/>

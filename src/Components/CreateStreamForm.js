@@ -4,15 +4,19 @@ import {getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
 import {_createStream} from "../Actions";
 import useBalanceStore from "../Stores/BalanceStore";
-import {Keypair} from "@solana/web3.js";
+import {Keypair, LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {Dispatch, SetStateAction} from "react";
 import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStreamStore from "../Stores/StreamsStore";
 import useNetworkStore from "../Stores/NetworkStore"
+import {START, END, TIME_SUFFIX} from "../constants";
 
 const networkStore = state => state.cluster
 
-export default function CreateStreamForm({loading, setLoading} : {loading: boolean, setLoading: Dispatch<SetStateAction<boolean>>}) {
+export default function CreateStreamForm({
+                                             loading,
+                                             setLoading
+                                         }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
     const pda = Keypair.generate();
     const {
         amount,
@@ -41,17 +45,19 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
     function validate(element) {
         const {name, value} = element;
         let start;
-        let msg = "";
+        let msg = '';
         switch (name) {
             case "start":
-                msg = new Date(value) < new Date((new Date()).toDateString()) ? "Cannot start the stream in the past." : "";
+                start = new Date(value + TIME_SUFFIX)
+                const now =  new Date(new Date().toDateString())
+                msg = start < now ? "Cannot start the stream in the past." : "";
                 break;
             case "start_time":
                 start = new Date(startDate + "T" + value);
                 msg = start < new Date() ? "Cannot start the stream in the past." : "";
                 break;
             case "end":
-                msg = new Date(value) < new Date(startDate) ? "Umm... end date before the start date?" : "";
+                msg = new Date(value + TIME_SUFFIX) < new Date(startDate + TIME_SUFFIX) ? "Umm... end date before the start date?" : "";
                 break;
             case "end_time":
                 start = new Date(startDate + "T" + startTime);
@@ -86,10 +92,11 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
         const data = new StreamData(selectedWallet.publicKey.toBase58(), receiver, amount, start, end);
         const success = await _createStream(data, connection, selectedWallet, cluster, pda)
         setLoading(false);
+
         if (success) {
             streamCreated(pda.publicKey.toBase58())
-            // const newBalance = await connection.getBalance(selectedWallet.publicKey);
-            setBalance(balance - amount)
+            const fee = await connection.getMinimumBalanceForRentExemption(96)
+            setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
             setStreams({...streams, [pda.publicKey.toBase58()]: data})
         }
     }
@@ -101,14 +108,14 @@ export default function CreateStreamForm({loading, setLoading} : {loading: boole
                 <SelectToken/>
                 <Recipient onChange={setReceiver} value={receiver}/>
                 <DateTime
-                    title="start"
+                    title={START}
                     date={startDate}
                     updateDate={setStartDate}
                     time={startTime}
                     updateTime={setStartTime}
                 />
                 <DateTime
-                    title="end"
+                    title={END}
                     date={endDate}
                     updateDate={setEndDate}
                     time={endTime}
