@@ -4,7 +4,6 @@ import {getStreamed, Stream} from "../Components";
 import {_cancelStream, _withdrawStream} from "../Actions";
 import {getUnixTime} from "date-fns";
 import {STREAM_STATUS_CANCELED, TX_FINALITY_FINALIZED} from "../constants";
-import {useNetworkContext} from "../Contexts/NetworkContext";
 import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import useStore from "../Stores"
 import {toast} from "react-toastify";
@@ -16,12 +15,12 @@ const storeGetter = state => ({
     streams: state.streams,
     setStreams: state.setStreams,
     cluster: state.cluster,
+    wallet: state.wallet(),
+    connection: state.connection(),
 })
 
 export default function StreamsContainer() {
-
-    const { wallet, connection } = useNetworkContext()
-    const {balance, setBalance, streams, setStreams, cluster} = useStore(storeGetter)
+    const { wallet, connection, balance, setBalance, streams, setStreams, cluster } = useStore(storeGetter)
 
     //componentWillMount
     useEffect(() => {

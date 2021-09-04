@@ -4,15 +4,12 @@ import './index.css';
 import App from './App';
 // import reportWebVitals from './reportWebVitals';
 import {FormProvider} from "./Contexts/FormContext";
-import {NetworkProvider} from "./Contexts/NetworkContext";
 
 ReactDOM.render(
     <React.StrictMode>
-        <NetworkProvider>
-            <FormProvider>
-                <App/>
-            </FormProvider>
-        </NetworkProvider>
+        <FormProvider>
+            <App/>
+        </FormProvider>
     </React.StrictMode>,
     document.getElementById('root')
 );

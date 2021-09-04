@@ -1,4 +1,4 @@
-const useStreamStore = set => ({
+const useStreamStore = (set: Function) => ({
     streams: localStorage.streams ? JSON.parse(localStorage.streams) : {},
     setStreams: streams => set({streams})
 })

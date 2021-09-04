@@ -6,7 +6,6 @@ import {_createStream} from "../Actions";
 import {Keypair, LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {START, END, TIME_SUFFIX} from "../constants";
 import {Dispatch, SetStateAction} from "react";
-import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStore from "../Stores"
 
 const storeGetter = state => ({
@@ -14,6 +13,8 @@ const storeGetter = state => ({
     setBalance: state.setBalance, 
     streams: state.streams, 
     setStreams: state.setStreams,
+    connection: state.connection(),
+    wallet: state.wallet(),
 })
 
 export default function CreateStreamForm({
@@ -36,11 +37,7 @@ export default function CreateStreamForm({
         setEndTime
     } = useFormContext()
 
-    const {
-        connection, wallet
-    } = useNetworkContext();
-
-    const {balance, setBalance, streams, setStreams, cluster} = useStore(storeGetter)
+    const { connection, wallet, balance, setBalance, streams, setStreams, cluster } = useStore(storeGetter)
 
     function validate(element) {
         const {name, value} = element;

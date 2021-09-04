@@ -4,7 +4,6 @@ import {AIRDROP_AMOUNT, TX_FINALITY_CONFIRMED} from "../constants";
 import {toast} from "react-toastify";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {Dispatch, SetStateAction, useEffect, useState} from "react";
-import {useNetworkContext} from "../Contexts/NetworkContext";
 import useStore from "../Stores"
 import { CLUSTER_MAINNET } from "../Stores/NetworkStore"
 
@@ -12,6 +11,8 @@ const storeGetter = state => ({
     balance: state.balance,
     setBalance: state.setBalance,
     isMainnet: state.cluster === CLUSTER_MAINNET,
+    connection: state.connection(),
+    wallet: state.wallet(),
 })
 
 export default function Account({
@@ -20,8 +21,7 @@ export default function Account({
                                 }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
 
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
-    const {balance, setBalance, isMainnet} = useStore(storeGetter)
-    const {connection, wallet} = useNetworkContext()
+    const { connection, wallet, balance, setBalance, isMainnet } = useStore(storeGetter)
 
     useEffect(() => {
         if (airdropTxSignature) {
