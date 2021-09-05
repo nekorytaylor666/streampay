@@ -46,10 +46,4 @@ const walletStore = (set: Function, get: Function) => ({
     setWalletType: (walletType: string) => set({walletType}),
 })
 
-window.addEventListener("beforeunload", () => {
-    const state = walletStore.getState()
-    localStorage.cluster = state.cluster
-    localStorage.programId = state.programId
-})
-
 export default walletStore
