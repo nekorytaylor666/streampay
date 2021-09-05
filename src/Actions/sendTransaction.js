@@ -8,7 +8,7 @@ import {getExplorerLink} from "../utils/helpers";
 export default async function sendTransaction(type: number, transaction: Transaction, connection: Connection, wallet: Wallet, network?: string, pda?: Keypair) {
     try {
         transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
-        toast.info('Please confirm transaction in your wallet.', {autoClose: 15000});
+        toast.info('Please confirm transaction in your wallet.', {autoClose: 10000});
         transaction.feePayer = wallet.publicKey;
 
         if (type === INSTRUCTION_CREATE_STREAM) {
@@ -18,7 +18,7 @@ export default async function sendTransaction(type: number, transaction: Transac
         const signed = await wallet.signTransaction(transaction);
         const signature = await connection.sendRawTransaction(signed.serialize());
         toast.dismiss();
-        toast.info('Submitted transaction. Awaiting confirmation...', {autoClose:15000});
+        toast.info('Submitted transaction. Awaiting confirmation...', {autoClose: 10000});
 
         // can use 'finalized' which gives 100% certainty, but requires much longer waiting.
         const finality = TX_FINALITY_CONFIRMED
@@ -31,7 +31,7 @@ export default async function sendTransaction(type: number, transaction: Transac
                 urlText="View on explorer"
                 nonUrlText={`Transaction ${finality}!` + (finality === TX_FINALITY_CONFIRMED ? " Please allow it few seconds to finalize." : "")}
             />,
-            {autoClose: 20000, closeOnClick: true}
+            {autoClose: 15000, closeOnClick: true}
         )
         return true;
     } catch (e) {
