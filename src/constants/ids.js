@@ -1,1 +1,1 @@
-export const STREAMFLOW_ACCOUNT_ID = "DrFtxPb9F6SxpHHHFiEtSNXE3SZCUNLXMaHS6r8pkoz2";
+export const STREAMFLOW_ACCOUNT_ID = "61q5sBk7ZtjWJtRxnbhgKjUP9cxvdzmxcGRFxCJhQhdN";
