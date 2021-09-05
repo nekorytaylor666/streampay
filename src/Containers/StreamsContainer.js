@@ -1,9 +1,9 @@
 import EmptyStreams from "../Components/EmptyStreams";
 import {_swal, getDecodedAccountData} from "../utils/helpers";
-import {getStreamed, Stream} from "../Components";
+import {Stream} from "../Components";
 import {_cancelStream, _withdrawStream} from "../Actions";
 import {getUnixTime} from "date-fns";
-import {STREAM_STATUS_CANCELED, TX_FINALITY_FINALIZED} from "../constants";
+import {STREAM_STATUS_CANCELED, TX_FINALITY_CONFIRMED} from "../constants";
 import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import useStore from "../Stores"
 import {toast} from "react-toastify";
@@ -20,7 +20,7 @@ const storeGetter = state => ({
 })
 
 export default function StreamsContainer() {
-    const { wallet, connection, balance, setBalance, streams, setStreams, cluster } = useStore(storeGetter)
+    const {wallet, connection, balance, setBalance, streams, setStreams, cluster} = useStore(storeGetter)
 
     //componentWillMount
     useEffect(() => {
@@ -71,17 +71,10 @@ export default function StreamsContainer() {
     }, [streams])
 
     async function withdrawStream(id: string) {
-        const {start, end, amount} = streams[id];
         const success = await _withdrawStream(id, streams[id], connection, wallet, cluster)
         if (success) {
-            //optimistic
-            const withdrawn = getStreamed(start, end, amount)
-            setBalance(balance + withdrawn)
-            setStreams({...streams, [id]: {...streams[id], withdrawn}})
-
-            //final
-            const newBalance = (await connection.getBalance(wallet.publicKey, TX_FINALITY_FINALIZED)) / LAMPORTS_PER_SOL;
-            const streamData = await connection.getAccountInfo(new PublicKey(id))
+            const newBalance = (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) / LAMPORTS_PER_SOL;
+            const streamData = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED)
             setBalance(newBalance)
             setStreams({...streams, [id]: getDecodedAccountData(streamData.data)})
         }
@@ -93,7 +86,7 @@ export default function StreamsContainer() {
         const oldBalance = balance;
         const success = await _cancelStream(id, streams[id], connection, wallet, cluster)
         if (success) {
-            const newBalance = (await connection.getBalance(wallet.publicKey)) / LAMPORTS_PER_SOL;
+            const newBalance = (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) / LAMPORTS_PER_SOL;
             const newWithdrawn = amount - (newBalance - oldBalance);
             setBalance(balance + amount - withdrawn)
             setStreams({
