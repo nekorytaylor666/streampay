@@ -13,7 +13,7 @@ export default function SelectCluster() {
             defaultValue={cluster}
             onChange={e => setCluster(e.target.value)}
         >
-            <option value={CLUSTER_MAINNET} disabled={true}>{CLUSTER_MAINNET} — soon™</option>
+            <option value={CLUSTER_MAINNET} disabled={true}>mainnet</option>
             <option value={CLUSTER_DEVNET}>{CLUSTER_DEVNET}</option>
             {/* handy for developers, but not needed for the end user */}
             <option value={CLUSTER_TESTNET} hidden={true}>{CLUSTER_TESTNET}</option>
