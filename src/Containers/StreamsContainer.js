@@ -13,18 +13,22 @@ const storeGetter = state => ({
     balance: state.balance,
     setBalance: state.setBalance,
     streams: state.streams,
-    setStreams: state.setStreams,
+    addStream: state.addStream,
+    deleteStream: state.deleteStream,
+    clearStreams: state.clearStreams,
     cluster: state.cluster,
     wallet: state.wallet(),
     connection: state.connection(),
 })
 
 export default function StreamsContainer() {
-    const {wallet, connection, balance, setBalance, streams, setStreams, cluster} = useStore(storeGetter)
+    const {wallet, connection, balance, setBalance, streams, addStream, deleteStream, clearStreams, cluster,} = useStore(storeGetter)
 
     //componentWillMount
     useEffect(() => {
-        const newStreams = {...streams}
+        clearStreams()
+        const savedStreams = JSON.parse(localStorage.streams || '{}')
+        const newStreams = savedStreams?.[cluster]?.[wallet?.publicKey?.toBase58()] || {}
         const streamID = window.location.hash.substring(1);
 
         if (streamID) {
@@ -49,16 +53,13 @@ export default function StreamsContainer() {
 
                 if (pk) {
                     connection.getAccountInfo(new PublicKey(id)).then(result => {
-                        const temp = {...streams}
                         if (result?.data) {
-                            temp[id] = getDecodedAccountData(result.data);
+                            addStream(id, getDecodedAccountData(result.data));
                         } else {
                             if (id === streamID) {
                                 toast.error("Stream doesn't exist. Please double check with the sender.")
                             }
-                            delete temp[id]
                         }
-                        setStreams(temp)
                     })
                 }
             }
@@ -66,17 +67,13 @@ export default function StreamsContainer() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    useEffect(() => {
-        localStorage.streams = JSON.stringify(streams);
-    }, [streams])
-
     async function withdrawStream(id: string) {
         const success = await _withdrawStream(id, streams[id], connection, wallet, cluster)
         if (success) {
             const newBalance = (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) / LAMPORTS_PER_SOL;
             const streamData = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED)
             setBalance(newBalance)
-            setStreams({...streams, [id]: getDecodedAccountData(streamData.data)})
+            addStream(id, getDecodedAccountData(streamData.data))
         }
     }
 
@@ -89,23 +86,21 @@ export default function StreamsContainer() {
             const newBalance = (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) / LAMPORTS_PER_SOL;
             const newWithdrawn = amount - (newBalance - oldBalance);
             setBalance(balance + amount - withdrawn)
-            setStreams({
-                ...streams,
-                [id]: {
+            addStream(
+                id,
+                {
                     ...streams[id],
                     withdrawn: newWithdrawn,
                     canceled_at: getUnixTime(now),
                     status: STREAM_STATUS_CANCELED
                 }
-            })
+            )
         }
     }
 
     async function removeStream(id: string, skipPrompt?: boolean) {
         if (!skipPrompt && await _swal()) {
-            const newStreams = {...streams}
-            delete newStreams[id];
-            setStreams(newStreams)
+            deleteStream(id)
         }
     }
 
@@ -115,10 +110,7 @@ export default function StreamsContainer() {
             Object.entries(streams)
                 .sort(([, stream1], [, stream2]) => stream2.start - stream1.start)
                 .map(([id, data]) => (
-                    <Stream key={id} onStatusUpdate={(status) => setStreams({
-                        ...streams,
-                        [id]: {...streams[id], status}
-                    })}
+                    <Stream key={id} onStatusUpdate={(status) => addStream(id, {...streams[id], status})}
                             onWithdraw={() => withdrawStream(id)} onCancel={() => cancelStream(id)}
                             id={id} data={data} myAddress={wallet.publicKey.toBase58()}
                             removeStream={() => removeStream(id)}/>

@@ -10,8 +10,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const storeGetter = state => ({
     wallet: state.wallet(),
+    cluster: state.cluster,
     connection: state.connection(),
     setBalance: state.setBalance,
+    setStreams: state.setStreams,
+    disconnectWallet: state.disconnectWallet,
 })
 
 let reconnectWallet = false
@@ -19,8 +22,11 @@ let reconnectWallet = false
 function App() {
     const {
         wallet,
+        cluster,
         connection,
         setBalance,
+        setStreams,
+        disconnectWallet,
     } = useStore(storeGetter)
 
     const [, forceUpdate] = useReducer(i => ++i, 0)
@@ -43,10 +49,10 @@ function App() {
             }
             return () => {
                 reconnectWallet = true
-                wallet.disconnect();
+                disconnectWallet()
             };
         }
-    }, [connection, wallet, setBalance]);
+    }, [connection, wallet, cluster, setBalance, setStreams, disconnectWallet]);
 
     return (
         <div>

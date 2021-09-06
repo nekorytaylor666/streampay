@@ -13,6 +13,7 @@ const storeGetter = state => ({
     isMainnet: state.cluster === CLUSTER_MAINNET,
     connection: state.connection(),
     wallet: state.wallet(),
+    disconnectWallet: state.disconnectWallet,
 })
 
 export default function Account({
@@ -21,7 +22,7 @@ export default function Account({
                                 }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
 
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
-    const { connection, wallet, balance, setBalance, isMainnet } = useStore(storeGetter)
+    const { connection, wallet, balance, setBalance, isMainnet, disconnectWallet } = useStore(storeGetter)
 
     useEffect(() => {
         if (airdropTxSignature) {
@@ -57,7 +58,7 @@ export default function Account({
             <div className="mb-4 clearfix text-white">
                 <strong className="block">Balance</strong>
                 <span>◎{Number(balance).toFixed(4)}</span>
-                <button type="button" onClick={() => wallet.disconnect()}
+                <button type="button" onClick={disconnectWallet}
                         className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     Disconnect
                 </button>

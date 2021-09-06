@@ -11,8 +11,7 @@ import useStore from "../Stores"
 const storeGetter = state => ({
     balance: state.balance, 
     setBalance: state.setBalance, 
-    streams: state.streams, 
-    setStreams: state.setStreams,
+    addStream: state.addStream,
     connection: state.connection(),
     wallet: state.wallet(),
 })
@@ -37,7 +36,7 @@ export default function CreateStreamForm({
         setEndTime
     } = useFormContext()
 
-    const { connection, wallet, balance, setBalance, streams, setStreams, cluster } = useStore(storeGetter)
+    const { connection, wallet, balance, setBalance, addStream, cluster } = useStore(storeGetter)
 
     function validate(element) {
         const {name, value} = element;
@@ -94,7 +93,7 @@ export default function CreateStreamForm({
             streamCreated(pda.publicKey.toBase58())
             const fee = await connection.getMinimumBalanceForRentExemption(96)
             setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
-            setStreams({...streams, [pda.publicKey.toBase58()]: data})
+            addStream(pda.publicKey.toBase58(), data)
         }
     }
 

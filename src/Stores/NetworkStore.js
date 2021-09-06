@@ -31,6 +31,7 @@ const useNetworkStore = (set: Function, get: Function) => ({
         return cluster === CLUSTER_LOCAL ? `custom&customUrl=${encodeURIComponent(get().clusterUrl)}` : cluster
     },
     setCluster: (cluster: string) => {
+        get().persistStoreToLocalStorage()
         const programId = programIds[cluster]()
         if (programId) {
             set({cluster, programId})

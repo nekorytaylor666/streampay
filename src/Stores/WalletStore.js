@@ -43,7 +43,15 @@ const walletStore = (set: Function, get: Function) => ({
     connection: () => getConnection(get().clusterUrl()),
 
     // actions
-    setWalletType: (walletType: string) => set({walletType}),
+    setWalletType: (walletType: string) => {
+        get().persistStoreToLocalStorage()
+        set({walletType})
+    },
+    disconnectWallet: () => {
+        const state = get()
+        state.persistStoreToLocalStorage()
+        state.wallet()?.disconnect()
+    },
 })
 
 export default walletStore
