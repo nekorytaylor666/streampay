@@ -56,7 +56,7 @@ function App() {
             <div className={"mx-auto bg-blend-darken px-4 my-4"}>
                 <Logo src={logo}/>
                 <div className="sm:absolute top-0 right-0 p-4"><SelectCluster/></div>
-                <SelectWalletType/>
+                {!wallet && <SelectWalletType/>}
                 <Main/>
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={3}/>

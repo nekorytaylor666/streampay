@@ -72,6 +72,6 @@ export default function SelectWalletType() {
         type="button"
         onClick={() => pickWallet(walletTypes, setWalletType)}
     >
-        {walletType ? <img alt="wallet logo" className="h-8" src={walletType.icon}/> : 'Connect'}
+        Connect
     </ButtonPrimary>
 }
