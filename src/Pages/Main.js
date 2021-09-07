@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {Account, CreateStreamForm, Curtain} from "../Components";
-import StreamsContainer from "../Containers/StreamsContainer";
+import StreamsList from "../Components/StreamsList";
+import EmptyStreams from "../Components/EmptyStreams";
 import useStore from "../Stores";
 
 const storeGetter = state => state.wallet
@@ -21,7 +22,10 @@ export default function Main() {
                 }
                 <CreateStreamForm loading={loading} setLoading={setLoading}/>
             </div>
-            <StreamsContainer/>
+            <div>
+                <strong className="text-white text-center text-2xl block">My Streams</strong>
+                {wallet?.connected ? <StreamsList/> : <EmptyStreams/>}
+            </div>
         </div>
     )
 }
