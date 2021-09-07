@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import {useMemo, useEffect} from 'react'
 import useStore from "../Stores"
 import swal from "sweetalert"
 import {
@@ -44,13 +44,13 @@ const pickWallet = (walletTypes: Array, setWalletType: Function) => {
         .then(setWalletType)
 }
 
-export default function SelectWalletType() {
-    const {walletType, setWalletType, cluster} = useStore(storeGetter)
+export default function WalletPicker() {
+    const {setWalletType, cluster} = useStore(storeGetter)
     const walletTypes = useMemo(() => [
             getPhantomWallet(),
-            getSolflareWebWallet({ network: cluster }),
+            getSolflareWebWallet({network: cluster}),
             getSolflareWallet(),
-            getSolletWallet({ network: cluster }),
+            getSolletWallet({network: cluster}),
         ],
         [cluster]
     )

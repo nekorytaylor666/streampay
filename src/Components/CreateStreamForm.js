@@ -1,4 +1,4 @@
-import {Amount, ButtonPrimary, DateTime, Recipient, SelectToken,} from "./index";
+import {Amount, ButtonPrimary, DateTime, Recipient, SelectToken, WalletPicker} from "./index";
 import {useFormContext} from "../Contexts/FormContext";
 import {getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
@@ -9,8 +9,8 @@ import {Dispatch, SetStateAction} from "react";
 import useStore from "../Stores"
 
 const storeGetter = state => ({
-    balance: state.balance, 
-    setBalance: state.setBalance, 
+    balance: state.balance,
+    setBalance: state.setBalance,
     addStream: state.addStream,
     connection: state.connection(),
     wallet: state.wallet(),
@@ -36,7 +36,7 @@ export default function CreateStreamForm({
         setEndTime
     } = useFormContext()
 
-    const { connection, wallet, balance, setBalance, addStream, cluster } = useStore(storeGetter)
+    const {connection, wallet, balance, setBalance, addStream, cluster} = useStore(storeGetter)
 
     function validate(element) {
         const {name, value} = element;
@@ -45,7 +45,7 @@ export default function CreateStreamForm({
         switch (name) {
             case "start":
                 start = new Date(value + TIME_SUFFIX)
-                const now =  new Date(new Date().toDateString())
+                const now = new Date(new Date().toDateString())
                 msg = start < now ? "Cannot start the stream in the past." : "";
                 break;
             case "start_time":
@@ -118,14 +118,13 @@ export default function CreateStreamForm({
                     updateTime={setEndTime}
                 />
             </div>
-            <ButtonPrimary
-                className="font-bold text-2xl my-5"
-                onClick={createStream}
-                type="button"
-                disabled={loading}
-            >
-                Stream!
-            </ButtonPrimary>
+            {wallet ?
+                <ButtonPrimary className="font-bold text-2xl my-5"
+                               onClick={createStream}
+                               type="button"
+                               disabled={loading}>Stream!</ButtonPrimary>
+                :
+                <WalletPicker/>}
         </form>
     );
 }

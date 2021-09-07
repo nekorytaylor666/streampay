@@ -2,10 +2,8 @@ import {useEffect, useReducer} from "react";
 import {LAMPORTS_PER_SOL} from "@solana/web3.js";
 import {toast, ToastContainer} from "react-toastify";
 import {Main} from "./Pages";
-import {Footer, Logo} from "./Components";
+import {Footer, Logo, SelectCluster} from "./Components";
 import useStore from "./Stores"
-import SelectCluster from "./Components/SelectCluster";
-import SelectWalletType from "./Components/SelectWalletType"
 import logo from './logo.png'
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -56,7 +54,6 @@ function App() {
             <div className={"mx-auto bg-blend-darken px-4 my-4"}>
                 <Logo src={logo}/>
                 <div className="sm:absolute top-0 right-0 p-4"><SelectCluster/></div>
-                {!wallet && <SelectWalletType/>}
                 <Main/>
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={3}/>
