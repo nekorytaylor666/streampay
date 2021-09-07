@@ -4,6 +4,7 @@ import swal from "sweetalert"
 import {
     getPhantomWallet,
     getSolflareWebWallet,
+    getSolflareWallet,
     getSolletWallet,
 } from "@solana/wallet-adapter-wallets"
 import ButtonPrimary from "./ButtonPrimary"
@@ -48,6 +49,7 @@ export default function SelectWalletType() {
     const walletTypes = useMemo(() => [
             getPhantomWallet(),
             getSolflareWebWallet({ network: cluster }),
+            getSolflareWallet(),
             getSolletWallet({ network: cluster }),
         ],
         [cluster]
