@@ -24,7 +24,7 @@ const addWalletOption = (walletType: Object) => {
     img.className = 'h-8 inline-block mr-4'
     p.innerHTML = walletType.name
     p.className = 'inline-block'
-    button.className = 'border-white border hover:cursor-pointer mb-4 p-4'
+    button.className = 'border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md'
     button.onclick = () => {
         swal.setActionValue({cancel: walletType})
         swal.close()
@@ -39,7 +39,7 @@ const pickWallet = (walletTypes: Array, setWalletType: Function) => {
     for (const w of walletTypes) {
         addWalletOption(w)
     }
-    swal({text: "Pick your wallet:", buttons: {}, content: div, className: "swal-dark"})
+    swal({buttons: {}, content: div, className: "bg-gray-800"})
         .then(setWalletType)
 }
 
@@ -70,6 +70,6 @@ export default function SelectWalletType() {
         type="button"
         onClick={() => pickWallet(walletTypes, setWalletType)}
     >
-        {walletType ? <img alt="wallet logo" className="h-8" src={walletType.icon}/> : 'Pick a wallet'}
+        {walletType ? <img alt="wallet logo" className="h-8" src={walletType.icon}/> : 'Connect'}
     </ButtonPrimary>
 }

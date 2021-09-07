@@ -74,7 +74,7 @@ export default function Account({
             </div>
             <div className="mb-4 clearfix text-white">
                 <strong className="block">Balance</strong>
-                <span>◎{wallet?.connected && Number(balance).toFixed(4)}</span>
+                <span>◎{Number(balance).toFixed(4)}</span>
                 { wallet && connectDisconnectBtn() }
                 { wallet?.connected &&
                     <ButtonPrimary
