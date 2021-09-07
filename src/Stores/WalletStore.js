@@ -1,23 +1,17 @@
-import { SOLLET_URL } from '../constants'
 import { Connection } from "@solana/web3.js"
-import Wallet from "@project-serum/sol-wallet-adapter"
-
-const wallets = {
-    Sollet: SOLLET_URL,
-}
+import { toast } from "react-toastify"
+import { WalletNotFoundError } from "@solana/wallet-adapter-base"
 
 let memoizedWallet = {}
 let memoizedConnection = {}
 
-const walletTypeWithFallback = (type: ?string, fallback?: ?string = null) => !type || !(type in wallets) ? fallback : type
-
-const getWallet = (type: ?string, clusterUrl: ?string) => {
-    if (!clusterUrl || !walletTypeWithFallback(type)) {
+const getWallet = (type: ?Object, clusterUrl: ?string) => {
+    if (!clusterUrl || !type) {
         return null
     }
-    const key = clusterUrl + type
+    const key = clusterUrl + type.name
     if (! memoizedWallet[key]) {
-        memoizedWallet = {[key]: new Wallet(wallets[type], clusterUrl)}
+        memoizedWallet = {[key]: type.adapter()}
     }
     return memoizedWallet[key]
 }
@@ -35,7 +29,7 @@ const getConnection = (clusterUrl: ?string) => {
 
 const walletStore = (set: Function, get: Function) => ({
     // state
-    walletType: walletTypeWithFallback(localStorage.walletType, 'Sollet'),
+    walletType: null,
     wallet: () => {
         const state = get()
         return getWallet(state.walletType, state.clusterUrl())
@@ -43,10 +37,13 @@ const walletStore = (set: Function, get: Function) => ({
     connection: () => getConnection(get().clusterUrl()),
 
     // actions
-    setWalletType: (walletType: string) => {
+    setWalletType: (walletType: Object) => {
         get().persistStoreToLocalStorage()
         set({walletType})
     },
+    connectWallet: () => get().wallet()?.connect()
+        .catch((e) => toast.error(e instanceof WalletNotFoundError ? 'Wallet extension not installed' : 'Wallet not connected, please try again'))
+    ,
     disconnectWallet: () => {
         const state = get()
         state.persistStoreToLocalStorage()

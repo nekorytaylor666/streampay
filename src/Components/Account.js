@@ -13,6 +13,7 @@ const storeGetter = state => ({
     isMainnet: state.cluster === CLUSTER_MAINNET,
     connection: state.connection(),
     wallet: state.wallet(),
+    connectWallet: state.connectWallet,
     disconnectWallet: state.disconnectWallet,
 })
 
@@ -22,7 +23,7 @@ export default function Account({
                                 }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
 
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
-    const { connection, wallet, balance, setBalance, isMainnet, disconnectWallet } = useStore(storeGetter)
+    const { connection, wallet, balance, setBalance, isMainnet, connectWallet, disconnectWallet } = useStore(storeGetter)
 
     useEffect(() => {
         if (airdropTxSignature) {
@@ -48,27 +49,42 @@ export default function Account({
         toast.success("Airdrop requested!")
     }
 
+    const connectDisconnectBtn = () => wallet?.connected ?
+        <button
+            type="button"
+            onClick={disconnectWallet}
+            className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+            Disconnect
+        </button>
+        :
+        <ButtonPrimary
+            type="button" onClick={connectWallet}
+            className={"float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" + (isMainnet ? " hidden" : "")}
+        >
+            Connect
+        </ButtonPrimary>
+
     return (
         <>
             <div className="mb-4 text-white">
-                <Link url={getExplorerLink('address', wallet.publicKey.toBase58())}
+                <Link url={getExplorerLink('address', wallet?.publicKey?.toBase58())}
                       title="My Wallet Address"/>
-                <Address address={wallet.publicKey.toBase58()} className="block truncate"/>
+                <Address address={wallet?.publicKey?.toBase58()} className="block truncate"/>
             </div>
             <div className="mb-4 clearfix text-white">
                 <strong className="block">Balance</strong>
-                <span>◎{Number(balance).toFixed(4)}</span>
-                <button type="button" onClick={disconnectWallet}
-                        className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-                    Disconnect
-                </button>
-                <ButtonPrimary
-                    type="button" onClick={requestAirdrop}
-                    className={"float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" + (isMainnet ? " hidden" : "")}
-                    disabled={loading}
-                >
-                    Airdrop
-                </ButtonPrimary>
+                <span>◎{wallet?.connected && Number(balance).toFixed(4)}</span>
+                { wallet && connectDisconnectBtn() }
+                { wallet?.connected &&
+                    <ButtonPrimary
+                        type="button" onClick={requestAirdrop}
+                        className={"float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" + (isMainnet ? " hidden" : "")}
+                        disabled={loading}
+                    >
+                        Airdrop
+                    </ButtonPrimary>
+                }
             </div>
         </>
     )

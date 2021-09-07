@@ -1,6 +1,5 @@
 export * from './ids';
 
-export const SOLLET_URL = 'https://www.sollet.io';
 export const AIRDROP_AMOUNT = 1; // 1 SOL is the cap on the testnet
 
 export const TX_FINALITY_CONFIRMED = "confirmed";

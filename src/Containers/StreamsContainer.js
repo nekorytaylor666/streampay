@@ -106,7 +106,7 @@ export default function StreamsContainer() {
 
     return <div>
         <strong className="text-white text-center text-2xl block">My Streams</strong>
-        {Object.keys(streams).length > 0 ? (
+        {wallet?.connected && Object.keys(streams).length > 0 ? (
             Object.entries(streams)
                 .sort(([, stream1], [, stream2]) => stream2.start - stream1.start)
                 .map(([id, data]) => (

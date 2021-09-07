@@ -9,7 +9,7 @@ const persistStoreToLocalStorage = () => {
     const state = useStore.getState()
     localStorage.cluster = state.cluster
     localStorage.programId = state.programId
-    localStorage.walletType = state.walletType
+    localStorage.walletType = state.walletType?.name
 
     const existingStreams = JSON.parse(localStorage.streams || '{}')
     const walletKey = state.wallet()?.publicKey
