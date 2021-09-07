@@ -19,8 +19,6 @@ const storeGetter = state => ({
     disconnectWallet: state.disconnectWallet,
 })
 
-let reconnectWallet = false
-
 function App() {
     const {
         wallet,
@@ -37,7 +35,6 @@ function App() {
     useEffect(() => {
         if (wallet) {
             wallet.on('connect', () => {
-                reconnectWallet = false
                 forceUpdate()
                 connection.getBalance(wallet.publicKey)
                     .then(result => setBalance(result / LAMPORTS_PER_SOL));
@@ -47,11 +44,8 @@ function App() {
                 forceUpdate()
                 toast.info('Disconnected from wallet');
             });
-            if (reconnectWallet) {
-                setTimeout(connectWallet, 0)
-            }
+            setTimeout(connectWallet, 0)
             return () => {
-                reconnectWallet = !!wallet?.connected
                 disconnectWallet()
             };
         }

@@ -37,12 +37,15 @@ const walletStore = (set: Function, get: Function) => ({
     connection: () => getConnection(get().clusterUrl()),
 
     // actions
-    setWalletType: (walletType: Object) => {
+    setWalletType: (walletType: ?Object) => {
         get().persistStoreToLocalStorage()
         set({walletType})
     },
     connectWallet: () => get().wallet()?.connect()
-        .catch((e) => toast.error(e instanceof WalletNotFoundError ? 'Wallet extension not installed' : 'Wallet not connected, please try again'))
+        .catch((e) => {
+            get().setWalletType(null)
+            toast.error(e instanceof WalletNotFoundError ? 'Wallet extension not installed' : 'Wallet not connected, please try again')
+        })
     ,
     disconnectWallet: () => {
         const state = get()

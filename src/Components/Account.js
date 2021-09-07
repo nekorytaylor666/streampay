@@ -15,6 +15,7 @@ const storeGetter = state => ({
     wallet: state.wallet(),
     connectWallet: state.connectWallet,
     disconnectWallet: state.disconnectWallet,
+    setWalletType: state.setWalletType,
 })
 
 export default function Account({
@@ -23,7 +24,7 @@ export default function Account({
                                 }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
 
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
-    const { connection, wallet, balance, setBalance, isMainnet, connectWallet, disconnectWallet } = useStore(storeGetter)
+    const { connection, wallet, balance, setBalance, isMainnet, connectWallet, disconnectWallet, setWalletType } = useStore(storeGetter)
 
     useEffect(() => {
         if (airdropTxSignature) {
@@ -52,7 +53,10 @@ export default function Account({
     const connectDisconnectBtn = () => wallet?.connected ?
         <button
             type="button"
-            onClick={disconnectWallet}
+            onClick={() => {
+                disconnectWallet()
+                setWalletType(null)
+            }}
             className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
             Disconnect
