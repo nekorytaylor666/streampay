@@ -24,7 +24,7 @@ export default function Account({
                                 }: { loading: boolean, setLoading: Dispatch<SetStateAction<boolean>> }) {
 
     const [airdropTxSignature, setAirdropTxSignature] = useState(undefined)
-    const { connection, wallet, balance, setBalance, isMainnet, connectWallet, disconnectWallet, setWalletType } = useStore(storeGetter)
+    const { connection, wallet, balance, setBalance, isMainnet, disconnectWallet, setWalletType } = useStore(storeGetter)
 
     useEffect(() => {
         if (airdropTxSignature) {
@@ -50,25 +50,6 @@ export default function Account({
         toast.success("Airdrop requested!")
     }
 
-    const connectDisconnectBtn = () => wallet?.connected ?
-        <button
-            type="button"
-            onClick={() => {
-                disconnectWallet()
-                setWalletType(null)
-            }}
-            className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-        >
-            Disconnect
-        </button>
-        :
-        <ButtonPrimary
-            type="button" onClick={connectWallet}
-            className={"float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" + (isMainnet ? " hidden" : "")}
-        >
-            Connect
-        </ButtonPrimary>
-
     return (
         <>
             <div className="mb-4 text-white">
@@ -79,7 +60,16 @@ export default function Account({
             <div className="mb-4 clearfix text-white">
                 <strong className="block">Balance</strong>
                 <span>◎{Number(balance).toFixed(4)}</span>
-                { wallet && connectDisconnectBtn() }
+                <button
+                    type="button"
+                    onClick={() => {
+                        disconnectWallet()
+                        setWalletType(null)
+                    }}
+                    className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                    Disconnect
+                </button>
                 { wallet?.connected &&
                     <ButtonPrimary
                         type="button" onClick={requestAirdrop}

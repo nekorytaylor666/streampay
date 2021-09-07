@@ -53,7 +53,7 @@ function App() {
         <div>
             <div className={"mx-auto bg-blend-darken px-4 my-4"}>
                 <Logo src={logo}/>
-                <div className="sm:absolute top-0 right-0 p-4"><SelectCluster/></div>
+                <div className="sm:absolute top-0 right-0 sm:p-4"><SelectCluster/></div>
                 <Main/>
             </div>
             <ToastContainer hideProgressBar position="bottom-left" limit={3}/>

@@ -1,4 +1,4 @@
-import {Amount, ButtonPrimary, DateTime, Recipient, SelectToken, WalletPicker} from "./index";
+import {Amount, ButtonPrimary, DateTime, Recipient, SelectCluster, SelectToken, WalletPicker} from "./index";
 import {useFormContext} from "../Contexts/FormContext";
 import {getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
@@ -123,8 +123,11 @@ export default function CreateStreamForm({
                                onClick={createStream}
                                type="button"
                                disabled={loading}>Stream!</ButtonPrimary>
-                :
-                <WalletPicker/>}
+                : <>
+                    <hr className="my-4 sm:hidden"/>
+                    <SelectCluster/>
+                    <WalletPicker/>
+                </>}
         </form>
     );
 }
