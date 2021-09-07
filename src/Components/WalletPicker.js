@@ -44,6 +44,8 @@ const pickWallet = (walletTypes: Array, setWalletType: Function) => {
         .then(setWalletType)
 }
 
+let walletInitialized = false
+
 export default function WalletPicker() {
     const {setWalletType, cluster} = useStore(storeGetter)
     const walletTypes = useMemo(() => [
@@ -57,6 +59,11 @@ export default function WalletPicker() {
 
     useEffect(
         () => {
+            if (walletInitialized) {
+                return
+            }
+            walletInitialized = true
+
             const type = localStorage.walletType
             if (type) {
                 const restoredWalletType = walletTypes.find(w => w.name === type)

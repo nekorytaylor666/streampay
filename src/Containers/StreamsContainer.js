@@ -17,7 +17,7 @@ const storeGetter = state => ({
     deleteStream: state.deleteStream,
     clearStreams: state.clearStreams,
     cluster: state.cluster,
-    wallet: state.wallet(),
+    wallet: state.wallet,
     connection: state.connection(),
 })
 

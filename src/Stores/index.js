@@ -12,7 +12,7 @@ const persistStoreToLocalStorage = () => {
     localStorage.walletType = state.walletType?.name
 
     const existingStreams = JSON.parse(localStorage.streams || '{}')
-    const walletKey = state.wallet()?.publicKey
+    const walletKey = state.wallet?.publicKey
     if (walletKey) {
         // put current streams in localStorage without overwriting
         // the exiting ones in other wallets or clusters

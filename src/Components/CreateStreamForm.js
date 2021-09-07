@@ -13,7 +13,7 @@ const storeGetter = state => ({
     setBalance: state.setBalance,
     addStream: state.addStream,
     connection: state.connection(),
-    wallet: state.wallet(),
+    wallet: state.wallet,
 })
 
 export default function CreateStreamForm({

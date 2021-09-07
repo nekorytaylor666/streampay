@@ -3,12 +3,10 @@ import {Account, CreateStreamForm, Curtain} from "../Components";
 import StreamsContainer from "../Containers/StreamsContainer";
 import useStore from "../Stores";
 
-const storeGetter = state => ({
-    wallet: state.wallet()
-})
+const storeGetter = state => state.wallet
 
 export default function Main() {
-    const {wallet} = useStore(storeGetter)
+    const wallet = useStore(storeGetter)
     const [loading, setLoading] = useState(false)
 
     return (

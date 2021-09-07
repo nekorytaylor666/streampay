@@ -12,7 +12,7 @@ const storeGetter = state => ({
     setBalance: state.setBalance,
     isMainnet: state.cluster === CLUSTER_MAINNET,
     connection: state.connection(),
-    wallet: state.wallet(),
+    wallet: state.wallet,
     connectWallet: state.connectWallet,
     disconnectWallet: state.disconnectWallet,
     setWalletType: state.setWalletType,
