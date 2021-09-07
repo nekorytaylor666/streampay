@@ -118,7 +118,7 @@ export default function CreateStreamForm({
                     updateTime={setEndTime}
                 />
             </div>
-            {wallet ?
+            {wallet?.connected ?
                 <ButtonPrimary className="font-bold text-2xl my-5"
                                onClick={createStream}
                                type="button"
