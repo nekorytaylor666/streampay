@@ -1,10 +1,10 @@
-import {Amount, ButtonPrimary, DateTime, Recipient, SelectCluster, SelectToken, WalletPicker} from "./index";
+import {Amount, ButtonPrimary, Curtain, DateTime, Recipient, SelectCluster, SelectToken, Vesting, WalletPicker} from "./index";
 import {useFormContext} from "../Contexts/FormContext";
-import {getUnixTime} from "date-fns";
+import {add, format, getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
 import {_createStream} from "../Actions";
 import {Keypair, LAMPORTS_PER_SOL} from "@solana/web3.js";
-import {START, END, TIME_SUFFIX} from "../constants";
+import {START, END, TIME_SUFFIX, DATE_FORMAT} from "../constants";
 import {Dispatch, SetStateAction} from "react";
 import useStore from "../Stores"
 
@@ -118,6 +118,7 @@ export default function CreateStreamForm({
                     updateTime={setEndTime}
                 />
             </div>
+            <Vesting updateDate={setEndDate}/>
             {wallet?.connected ?
                 <ButtonPrimary className="font-bold text-2xl my-5"
                                onClick={createStream}
