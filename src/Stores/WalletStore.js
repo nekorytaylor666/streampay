@@ -41,7 +41,10 @@ const walletStore = (set: Function, get: Function) => ({
                 set({walletType: null, wallet: null})
                 toast.info('Disconnected from wallet')
             })
-            wallet.connect()
+            wallet.connect().catch(e => {
+                set({walletType: null, wallet: null})
+                toast.error(e instanceof WalletNotFoundError ? 'Wallet extension not installed' : 'Wallet not connected, try again')
+            })
         }
         else {
             set({walletType, wallet})
