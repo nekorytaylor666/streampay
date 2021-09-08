@@ -24,6 +24,9 @@ export const STREAM_STATUS_STREAMING = "streaming";
 export const STREAM_STATUS_COMPLETE = "complete";
 export const STREAM_STATUS_CANCELED = "canceled";
 
+//might move to a separate class if it becomes clunky
+export const ERR_NO_STREAM = "Specified stream doesn't exist. Please double check with the sender."
+
 //don't forget to update tailwind.config.js to safelist dynamically generated classes
 export const STREAM_STATUS_COLOR = {
     [STREAM_STATUS_SCHEDULED]: 'gray', // now < start

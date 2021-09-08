@@ -3,7 +3,7 @@ import {_swal, getDecodedAccountData} from "../utils/helpers";
 import {Stream} from "../Components";
 import {_cancelStream, _withdrawStream} from "../Actions";
 import {getUnixTime} from "date-fns";
-import {STREAM_STATUS_CANCELED, TX_FINALITY_CONFIRMED} from "../constants";
+import {ERR_NO_STREAM, STREAM_STATUS_CANCELED, TX_FINALITY_CONFIRMED} from "../constants";
 import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
 import useStore from "../Stores"
 import {toast} from "react-toastify";
@@ -36,7 +36,7 @@ export default function StreamsContainer() {
                 new PublicKey(streamID);
                 newStreams[streamID] = undefined; // We're setting the data few lines below
             } catch (e) {
-                toast.error("Stream doesn't exist. Please double check with the sender.")
+                toast.error(ERR_NO_STREAM)
             }
         }
 
@@ -57,7 +57,7 @@ export default function StreamsContainer() {
                             addStream(id, getDecodedAccountData(result.data));
                         } else {
                             if (id === streamID) {
-                                toast.error("Stream doesn't exist. Please double check with the sender.")
+                                toast.error(ERR_NO_STREAM)
                             }
                         }
                     })
