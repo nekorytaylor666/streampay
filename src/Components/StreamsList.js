@@ -78,7 +78,7 @@ export default function StreamsContainer() {
     }
 
     async function cancelStream(id: string) {
-        const {amount, withdrawn} = streams[id];
+        const {amount} = streams[id];
         const now = new Date();
         const oldBalance = balance;
         const success = await _cancelStream(id, streams[id], connection, wallet, cluster)

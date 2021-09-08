@@ -1,4 +1,4 @@
-import {CLUSTER_LOCAL, CLUSTER_DEVNET, CLUSTER_TESTNET, CLUSTER_MAINNET} from '../Stores/NetworkStore'
+import {CLUSTER_DEVNET, CLUSTER_MAINNET} from '../Stores/NetworkStore'
 import useStore from "../Stores"
 
 const networkStore = state => ({cluster: state.cluster, setCluster: state.setCluster})
