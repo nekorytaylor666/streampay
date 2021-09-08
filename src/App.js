@@ -11,7 +11,7 @@ function App() {
                 <Logo src={logo}/>
                 <Main/>
             </div>
-            <ToastContainer hideProgressBar position="bottom-left" limit={3}/>
+            <ToastContainer hideProgressBar position="bottom-left" limit={5}/>
             <Footer/>
         </div>
     );
