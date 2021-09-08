@@ -85,7 +85,7 @@ export default function StreamsContainer() {
         if (success) {
             const newBalance = (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) / LAMPORTS_PER_SOL;
             const newWithdrawn = amount - (newBalance - oldBalance);
-            setBalance(balance + amount - withdrawn)
+            setBalance(newBalance)
             addStream(
                 id,
                 {
