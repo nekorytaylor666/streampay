@@ -1,6 +1,5 @@
 export * from './ids';
 
-export const SOLLET_URL = 'https://www.sollet.io';
 export const AIRDROP_AMOUNT = 1; // 1 SOL is the cap on the testnet
 
 export const TX_FINALITY_CONFIRMED = "confirmed";
@@ -24,6 +23,9 @@ export const STREAM_STATUS_SCHEDULED = "scheduled";
 export const STREAM_STATUS_STREAMING = "streaming";
 export const STREAM_STATUS_COMPLETE = "complete";
 export const STREAM_STATUS_CANCELED = "canceled";
+
+//might move to a separate class if it becomes clunky
+export const ERR_NO_STREAM = "Specified stream doesn't exist. Please double check with the sender."
 
 //don't forget to update tailwind.config.js to safelist dynamically generated classes
 export const STREAM_STATUS_COLOR = {

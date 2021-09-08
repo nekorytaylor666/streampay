@@ -4,7 +4,7 @@ import {Connection, PublicKey, SystemProgram, Transaction, TransactionInstructio
 import {StreamData} from "../utils/helpers";
 import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import useNetworkStore from "../Stores/NetworkStore"
+import useStore from "../Stores"
 
 export default async function _cancelStream(account_id: string, data: StreamData, connection: Connection, wallet: Wallet, network: string) {
     const {sender, receiver} = data;
@@ -32,7 +32,7 @@ function getCancelStreamInstruction(account_id, sender, receiver) {
             isSigner: false,
             isWritable: false
         }],
-        programId: new PublicKey(useNetworkStore.getState().programId),
+        programId: new PublicKey(useStore.getState().programId),
         data: encodeInstructionData(),
     });
 

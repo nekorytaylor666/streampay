@@ -1,17 +1,20 @@
-import {Amount, ButtonPrimary, DateTime, Recipient, SelectToken,} from "./index";
+import {Amount, ButtonPrimary, DateTime, Recipient, SelectCluster, SelectToken, WalletPicker} from "./index";
 import {useFormContext} from "../Contexts/FormContext";
 import {getUnixTime} from "date-fns";
 import {streamCreated, StreamData} from "../utils/helpers";
 import {_createStream} from "../Actions";
-import useBalanceStore from "../Stores/BalanceStore";
 import {Keypair, LAMPORTS_PER_SOL} from "@solana/web3.js";
-import {Dispatch, SetStateAction} from "react";
-import {useNetworkContext} from "../Contexts/NetworkContext";
-import useStreamStore from "../Stores/StreamsStore";
-import useNetworkStore from "../Stores/NetworkStore"
 import {START, END, TIME_SUFFIX} from "../constants";
+import {Dispatch, SetStateAction} from "react";
+import useStore from "../Stores"
 
-const networkStore = state => state.cluster
+const storeGetter = state => ({
+    balance: state.balance,
+    setBalance: state.setBalance,
+    addStream: state.addStream,
+    connection: state.connection(),
+    wallet: state.wallet,
+})
 
 export default function CreateStreamForm({
                                              loading,
@@ -33,14 +36,7 @@ export default function CreateStreamForm({
         setEndTime
     } = useFormContext()
 
-    const {
-        connection, selectedWallet
-    } = useNetworkContext();
-
-    const cluster = useNetworkStore(networkStore)
-
-    const {balance, setBalance} = useBalanceStore()
-    const {streams, setStreams} = useStreamStore()
+    const {connection, wallet, balance, setBalance, addStream, cluster} = useStore(storeGetter)
 
     function validate(element) {
         const {name, value} = element;
@@ -49,7 +45,7 @@ export default function CreateStreamForm({
         switch (name) {
             case "start":
                 start = new Date(value + TIME_SUFFIX)
-                const now =  new Date(new Date().toDateString())
+                const now = new Date(new Date().toDateString())
                 msg = start < now ? "Cannot start the stream in the past." : "";
                 break;
             case "start_time":
@@ -89,15 +85,15 @@ export default function CreateStreamForm({
         }
 
         setLoading(true);
-        const data = new StreamData(selectedWallet.publicKey.toBase58(), receiver, amount, start, end);
-        const success = await _createStream(data, connection, selectedWallet, cluster, pda)
+        const data = new StreamData(wallet.publicKey.toBase58(), receiver, amount, start, end);
+        const success = await _createStream(data, connection, wallet, cluster, pda)
         setLoading(false);
 
         if (success) {
             streamCreated(pda.publicKey.toBase58())
             const fee = await connection.getMinimumBalanceForRentExemption(96)
             setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
-            setStreams({...streams, [pda.publicKey.toBase58()]: data})
+            addStream(pda.publicKey.toBase58(), data)
         }
     }
 
@@ -122,14 +118,16 @@ export default function CreateStreamForm({
                     updateTime={setEndTime}
                 />
             </div>
-            <ButtonPrimary
-                className="font-bold text-2xl my-5"
-                onClick={createStream}
-                type="button"
-                disabled={loading}
-            >
-                Stream!
-            </ButtonPrimary>
+            {wallet?.connected ?
+                <ButtonPrimary className="font-bold text-2xl my-5"
+                               onClick={createStream}
+                               type="button"
+                               disabled={loading}>Stream!</ButtonPrimary>
+                : <>
+                    <hr className="my-4 sm:hidden"/>
+                    <SelectCluster/>
+                    <WalletPicker/>
+                </>}
         </form>
     );
 }
