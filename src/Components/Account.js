@@ -76,7 +76,7 @@ export default function Account({
                         className={"float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" + (isMainnet ? " hidden" : "")}
                         disabled={loading}
                     >
-                        Airdrop
+                        Gimme SOL!
                     </ButtonPrimary>
                 }
             </div>
