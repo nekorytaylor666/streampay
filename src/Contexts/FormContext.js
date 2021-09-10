@@ -13,6 +13,7 @@ export function FormProvider(props) {
     const [startTime, setStartTime] = useState("");
     const [endDate, setEndDate] = useState(startDate);
     const [endTime, setEndTime] = useState("");
+    const [vesting, setVesting] = useState(false);
 
     return <FormContext.Provider value={{
         amount,
@@ -26,7 +27,9 @@ export function FormProvider(props) {
         endDate,
         setEndDate,
         endTime,
-        setEndTime
+        setEndTime,
+        vesting,
+        setVesting
     }}>{props.children}</FormContext.Provider>
 }
 

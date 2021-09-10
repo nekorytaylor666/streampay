@@ -27,6 +27,13 @@ export const STREAM_STATUS_CANCELED = "canceled";
 //might move to a separate class if it becomes clunky
 export const ERR_NO_STREAM = "Specified stream doesn't exist. Please double check with the sender."
 
+export const PRODUCT_STREAMS = "streams"
+export const PRODUCT_VESTING = "vesting"
+export const PRODUCT_PAYROLL = "payroll"
+export const PRODUCT_MULTISIG = "multisig"
+
+export const products = [PRODUCT_STREAMS, PRODUCT_VESTING, PRODUCT_PAYROLL, PRODUCT_MULTISIG]
+
 //don't forget to update tailwind.config.js to safelist dynamically generated classes
 export const STREAM_STATUS_COLOR = {
     [STREAM_STATUS_SCHEDULED]: 'gray', // now < start
