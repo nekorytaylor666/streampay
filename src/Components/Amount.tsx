@@ -1,5 +1,5 @@
 export default function Amount(props: {
-  onChange: (value: string) => void;
+  onChange: (value: number) => void;
   max: number;
   value: number;
 }) {
@@ -16,7 +16,7 @@ export default function Amount(props: {
           name="amount"
           id="amount"
           defaultValue={props.value}
-          onChange={(e) => props.onChange(e.target.value)}
+          onChange={(e) => props.onChange(Number(e.target.value))}
           className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           min={0}
           max={props.max || Number.MAX_SAFE_INTEGER}

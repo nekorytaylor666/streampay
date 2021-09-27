@@ -21,8 +21,8 @@ const programIds: { [s: string]: () => string | null } = {
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: localStorage.cluster || CLUSTER_DEVNET,
-  programId: programIds[localStorage.cluster || CLUSTER_DEVNET](),
+  cluster: (localStorage.cluster || CLUSTER_DEVNET) as string,
+  programId: programIds[localStorage.cluster || CLUSTER_DEVNET]() as string,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),

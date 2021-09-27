@@ -1,3 +1,5 @@
+import { TokenInfo } from "@solana/spl-token-registry";
+
 export interface WalletType {
   name: string;
   icon: string;
@@ -29,4 +31,23 @@ export enum StreamStatus {
   streaming = "streaming",
   complete = "complete",
   canceled = "canceled",
+}
+
+export interface CrerateStreamsFormType {
+  amount: number;
+  setAmount: (value: number) => void;
+  receiver: string;
+  setReceiver: (value: string) => void;
+  startDate: string;
+  setStartDate: (value: string) => void;
+  startTime: string;
+  setStartTime: (value: string) => void;
+  endDate: string;
+  setEndDate: (value: string) => void;
+  endTime: string;
+  setEndTime: (value: string) => void;
+  vesting: any;
+  setVesting: any;
+  token: TokenInfo | null;
+  setToken: (token: TokenInfo | null) => void;
 }

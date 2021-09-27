@@ -50,6 +50,8 @@ export default function CreateStreamForm({
     setEndTime,
     vesting,
     setVesting,
+    token,
+    setToken,
   } = useFormContext();
 
   const { connection, wallet, balance, setBalance, addStream } =
@@ -134,7 +136,7 @@ export default function CreateStreamForm({
     <form onSubmit={createStream} id="form">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
         <Amount onChange={setAmount} value={amount} max={balance} />
-        <SelectToken />
+        <SelectToken token={token} setToken={setToken} />
         <Recipient onChange={setReceiver} value={receiver} />
         <DateTime
           title={START}

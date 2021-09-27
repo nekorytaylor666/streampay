@@ -1,14 +1,13 @@
 import { add, format } from "date-fns";
 import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from "../constants";
-import { Dispatch, SetStateAction } from "react";
 import { useFormContext } from "../Contexts/FormContext";
 
 export default function DateTime(props: {
   title: string;
   date: string;
-  updateDate: Dispatch<SetStateAction<string>>;
+  updateDate: (value: string) => void;
   time: string;
-  updateTime: Dispatch<SetStateAction<string>>;
+  updateTime: (value: string) => void;
 }) {
   const { title, date, updateDate, time, updateTime } = props;
   const { startDate, startTime } = useFormContext();

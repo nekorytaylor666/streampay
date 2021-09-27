@@ -9,6 +9,14 @@ import { ButtonPrimary, Recipient, SelectToken } from "../Components";
 import { ClockIcon, UploadIcon } from "@heroicons/react/outline";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
+const exampleToken = {
+  chainId: 0,
+  address: " ",
+  name: " ",
+  decimals: 0,
+  symbol: "SOL",
+};
+
 export default function Products({ product }: { product: string }) {
   switch (product) {
     case PRODUCT_STREAMS:
@@ -31,7 +39,7 @@ export default function Products({ product }: { product: string }) {
           <div className="col-span-3">
             <Recipient onChange={() => null} value="1337...c0de" />
           </div>
-          <SelectToken />
+          <SelectToken token={exampleToken} setToken={() => null} />
           <div>
             <label htmlFor="amount" className="block font-medium text-gray-100">
               Amount
@@ -39,7 +47,7 @@ export default function Products({ product }: { product: string }) {
             <input
               type="number"
               value={Math.floor(Math.random() * 666) / 10}
-              className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+              className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
             />
           </div>
           <input
@@ -48,7 +56,7 @@ export default function Products({ product }: { product: string }) {
             className="col-span-3 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
           <select
-            className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
             defaultValue="SOL"
           >
             <option>SRM</option>
@@ -66,7 +74,7 @@ export default function Products({ product }: { product: string }) {
             className="col-span-3 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
           <select
-            className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
             defaultValue="SOL"
           >
             <option>STRM</option>
