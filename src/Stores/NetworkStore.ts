@@ -23,6 +23,7 @@ const useNetworkStore = (set: Function, get: Function) => ({
   // state
   cluster: (localStorage.cluster || CLUSTER_DEVNET) as string,
   programId: programIds[localStorage.cluster || CLUSTER_DEVNET]() as string,
+  tokenAccounts: {} as { [key: string]: string },
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),
@@ -41,6 +42,8 @@ const useNetworkStore = (set: Function, get: Function) => ({
       set({ cluster: CLUSTER_DEVNET, programId: programIds[CLUSTER_DEVNET]() });
     }
   },
+  setTokenAccounts: (tokenAccounts: { [key: string]: string }) =>
+    set({ tokenAccounts }),
 });
 
 export default useNetworkStore;

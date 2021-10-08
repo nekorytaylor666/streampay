@@ -1,4 +1,5 @@
 import { TokenInfo } from "@solana/spl-token-registry";
+import { PublicKey } from "@solana/web3.js";
 
 export interface WalletType {
   name: string;
@@ -50,4 +51,9 @@ export interface CrerateStreamsFormType {
   setVesting: any;
   token: TokenInfo | null;
   setToken: (token: TokenInfo | null) => void;
+}
+
+export interface TokenAccount {
+  token: TokenInfo;
+  account: PublicKey;
 }

@@ -4,31 +4,70 @@ import {
   LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
-  Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
 import BufferLayout from "buffer-layout";
 import { INSTRUCTION_CREATE_STREAM } from "../constants";
 import { StreamData } from "../utils/helpers";
-import sendTransaction from "./sendTransaction";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import useStore from "../Stores";
+import program from "./program";
+import { BN, web3, Provider, utils } from "@project-serum/anchor";
+import { Wallet as AnchorWallet } from "@project-serum/anchor/src/provider";
+import { createTokenAccountInstrs } from "@project-serum/common";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TokenAccount } from "../types";
 
 export default async function _createStream(
   data: StreamData,
   connection: Connection,
   wallet: Wallet,
-  pda: Keypair
+  pda: Keypair,
+  tokenAccount: TokenAccount
 ) {
-  const instruction = getCreateStreamInstruction(data, pda.publicKey);
-  const tx = new Transaction({ feePayer: wallet.publicKey }).add(instruction);
-  return await sendTransaction(
-    INSTRUCTION_CREATE_STREAM,
-    tx,
-    connection,
-    wallet,
-    pda
+  const provider = new Provider(connection, wallet as AnchorWallet, {});
+  const prg = program(provider);
+  const { sender, receiver, amount, start, end } = data;
+  const senderPK = new PublicKey(sender);
+  const mint = new PublicKey(tokenAccount.token.address);
+  let [pdaSigner, nonce] = await web3.PublicKey.findProgramAddress(
+    [pda.publicKey.toBuffer()], //(Seeds can be anything but we decided those will be serialized pda's pubkey
+    prg.programId
   );
+  const pdaTokenAcc = Keypair.generate();
+  const r = await prg.rpc.create(
+    //order of the parameters must match the ones in program
+    new PublicKey(receiver),
+    new BN(amount),
+    new BN(start),
+    new BN(end),
+    new BN(1),
+    nonce,
+    null,
+    null,
+    {
+      accounts: {
+        pda: pda.publicKey,
+        pdaSigner,
+        pdaTokenAcc: pdaTokenAcc.publicKey,
+        depositorTokenAcc: tokenAccount.account,
+        depositor: senderPK,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+      },
+      signers: [pda, pdaTokenAcc],
+      instructions: [
+        ...(await createTokenAccountInstrs(
+          provider,
+          pdaTokenAcc.publicKey,
+          mint,
+          pdaSigner
+        )),
+      ],
+    }
+  );
+  debugger;
+  return r;
 }
 
 function getCreateStreamInstruction(

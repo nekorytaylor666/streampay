@@ -12,8 +12,14 @@ import { useFormContext } from "../Contexts/FormContext";
 import { getUnixTime } from "date-fns";
 import { streamCreated, StreamData } from "../utils/helpers";
 import { _createStream } from "../Actions";
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { END, ERR_NOT_CONNECTED, START, TIME_SUFFIX } from "../constants";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import {
+  END,
+  ERR_NOT_CONNECTED,
+  ERR_NO_TOKEN_SELECTED,
+  START,
+  TIME_SUFFIX,
+} from "../constants";
 import { Dispatch, SetStateAction } from "react";
 import useStore, { StoreType } from "../Stores";
 import Toggle from "./Toggle";
@@ -25,6 +31,7 @@ const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
   connection: state.connection(),
   wallet: state.wallet,
+  tokenAccounts: state.tokenAccounts,
 });
 
 export default function CreateStreamForm({
@@ -54,7 +61,7 @@ export default function CreateStreamForm({
     setToken,
   } = useFormContext();
 
-  const { connection, wallet, balance, setBalance, addStream } =
+  const { connection, wallet, balance, setBalance, addStream, tokenAccounts } =
     useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
@@ -92,6 +99,10 @@ export default function CreateStreamForm({
       toast.error(ERR_NOT_CONNECTED);
       return false;
     }
+    if (token === null) {
+      toast.error(ERR_NO_TOKEN_SELECTED);
+      return false;
+    }
     const form = document.getElementById("form") as HTMLFormElement;
     if (!form) {
       return false;
@@ -121,7 +132,10 @@ export default function CreateStreamForm({
       start,
       end
     );
-    const success = await _createStream(data, connection, wallet, pda);
+    const success = await _createStream(data, connection, wallet, pda, {
+      token,
+      account: new PublicKey(tokenAccounts[token.address]),
+    });
     setLoading(false);
 
     if (success) {
@@ -136,7 +150,7 @@ export default function CreateStreamForm({
     <form onSubmit={createStream} id="form">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
         <Amount onChange={setAmount} value={amount} max={balance} />
-        <SelectToken token={token} setToken={setToken} />
+        {wallet?.publicKey && <SelectToken token={token} setToken={setToken} />}
         <Recipient onChange={setReceiver} value={receiver} />
         <DateTime
           title={START}

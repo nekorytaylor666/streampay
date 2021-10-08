@@ -26,6 +26,7 @@ export const ERR_NO_STREAM =
   "Specified stream doesn't exist. Please double check with the sender.";
 export const ERR_NOT_CONNECTED =
   "There was an issue with the connection - please try to refresh the page.";
+export const ERR_NO_TOKEN_SELECTED = "Please select the token";
 
 export const PRODUCT_STREAMS = "streams";
 export const PRODUCT_VESTING = "vesting";

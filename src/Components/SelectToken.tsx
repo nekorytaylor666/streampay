@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { TokenListProvider, TokenInfo } from "@solana/spl-token-registry";
 import useStore, { StoreType } from "../Stores";
 import Dropdown from "./Dropdown";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ERR_NOT_CONNECTED } from "../constants";
+import { PublicKey } from "@solana/web3.js";
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
+  connection: state.connection(),
+  wallet: state.wallet,
+  setTokenAccounts: state.setTokenAccounts,
 });
 
 export default function SelectToken({
@@ -14,12 +20,39 @@ export default function SelectToken({
   token: TokenInfo | null;
   setToken: (token: TokenInfo) => void;
 }) {
-  const { cluster } = useStore(storeGetter);
+  const { cluster, connection, wallet, setTokenAccounts } =
+    useStore(storeGetter);
   const [tokenArray, setTokenArray] = useState<TokenInfo[]>([]);
 
+  if (connection === null || !wallet?.publicKey) {
+    throw ERR_NOT_CONNECTED;
+  }
+  let senderPK: PublicKey = wallet.publicKey;
   useEffect(() => {
-    new TokenListProvider().resolve().then((tokens) => {
-      const tokenList = tokens.filterByClusterSlug(cluster).getList();
+    Promise.all([
+      new TokenListProvider().resolve(),
+      connection
+        .getParsedTokenAccountsByOwner(senderPK, {
+          programId: TOKEN_PROGRAM_ID,
+        })
+        .then((result) => result.value),
+    ]).then(([tokens, tokenAccounts]) => {
+      setTokenAccounts(
+        tokenAccounts.reduce(
+          (pr, cu) => ({
+            ...pr,
+            [cu.account.data.parsed.info.mint]: cu.pubkey,
+          }),
+          {}
+        )
+      );
+      const mappedTokenAccounts = tokenAccounts.map(
+        (tokAcc) => tokAcc.account.data.parsed.info.mint
+      );
+      const tokenList = tokens
+        .filterByClusterSlug(cluster)
+        .getList()
+        .filter((token) => mappedTokenAccounts.includes(token.address));
       setTokenArray(tokenList);
       const solTokenInfo =
         tokenList.find((i) => i.symbol === "SOL") || tokenList[0];
