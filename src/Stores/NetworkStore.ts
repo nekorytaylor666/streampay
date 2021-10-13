@@ -6,14 +6,14 @@ export const CLUSTER_TESTNET = "testnet";
 export const CLUSTER_MAINNET = "mainnet-beta";
 
 const clusterUrls: { [s: string]: () => string } = {
-  [CLUSTER_LOCAL]: () => "http://127.0.0.1:8899",
+  [CLUSTER_LOCAL]: () => "http://localhost:8899", //http://127.0.0.1:8899",
   [CLUSTER_DEVNET]: () => clusterApiUrl(CLUSTER_DEVNET),
   [CLUSTER_TESTNET]: () => clusterApiUrl(CLUSTER_TESTNET),
   [CLUSTER_MAINNET]: () => clusterApiUrl(CLUSTER_MAINNET),
 };
 
 const programIds: { [s: string]: () => string | null } = {
-  [CLUSTER_LOCAL]: () => prompt("Program ID?"),
+  [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa",// prompt("Program ID?"),
   [CLUSTER_DEVNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_MAINNET]: () => null, // TODO: publish the program to mainnet
@@ -30,7 +30,7 @@ const useNetworkStore = (set: Function, get: Function) => ({
   explorerUrl: () => {
     const cluster = get().cluster;
     return cluster === CLUSTER_LOCAL
-      ? `custom&customUrl=${encodeURIComponent(get().clusterUrl)}`
+      ? `custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
       : cluster;
   },
   setCluster: (cluster: string) => {

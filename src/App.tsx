@@ -8,7 +8,7 @@ import { useFormContext } from "./Contexts/FormContext";
 import { PRODUCT_STREAMS, PRODUCT_VESTING, products } from "./constants";
 
 function App() {
-  const { setVesting } = useFormContext();
+  const { setAdvanced } = useFormContext();
   const [product, setProduct] = useState(PRODUCT_STREAMS);
   return (
     <div>
@@ -18,7 +18,7 @@ function App() {
             <span
               key={prod}
               onClick={() => {
-                setVesting(prod === PRODUCT_VESTING);
+                setAdvanced(prod === PRODUCT_VESTING);
                 setProduct(prod);
               }}
               className={`cursor-pointer capitalize inline-block mx-4 

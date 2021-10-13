@@ -16,7 +16,6 @@ const exampleToken = {
   decimals: 0,
   symbol: "SOL",
 };
-
 export default function Products({ product }: { product: string }) {
   switch (product) {
     case PRODUCT_STREAMS:

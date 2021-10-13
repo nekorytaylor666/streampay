@@ -48,7 +48,7 @@ export default function Dropdown({
       </div>
       <div
         className={
-          "absolute top-full left-0 bg-gray-900 mt-4 border-b border-l border-r border-primary rounded-t-lg w-full" +
+          "absolute -top-0.5 -left-0.5 -right-0.5 bg-gray-900 border border-primary rounded-md" +
           (wrapperHidden && searchBoxHidden ? " hidden" : "")
         }
       >

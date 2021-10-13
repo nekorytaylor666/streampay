@@ -1,4 +1,4 @@
-import { CLUSTER_DEVNET, CLUSTER_MAINNET } from "../Stores/NetworkStore";
+import { CLUSTER_DEVNET, CLUSTER_MAINNET, CLUSTER_LOCAL } from "../Stores/NetworkStore";
 import useStore, { StoreType } from "../Stores";
 
 const networkStore = (state: StoreType) => ({
@@ -14,16 +14,16 @@ export default function SelectCluster() {
         id="cluster"
         name="cluster"
         className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
-        defaultValue={cluster}
+        defaultValue={CLUSTER_LOCAL}
         onChange={(e) => setCluster(e.target.value)}
       >
-        <option value={CLUSTER_MAINNET} disabled={true}>
+        <option value={CLUSTER_LOCAL}>
           mainnet
         </option>
         <option value={CLUSTER_DEVNET}>{CLUSTER_DEVNET}</option>
         {/* handy for developers, but not needed for the end user */}
         {/* <option value={CLUSTER_TESTNET}>{CLUSTER_TESTNET}</option> */}
-        {/* <option value={CLUSTER_LOCAL}>{CLUSTER_LOCAL}</option> */}
+         <option value={CLUSTER_LOCAL}>{CLUSTER_LOCAL}</option>
       </select>
     </div>
   );

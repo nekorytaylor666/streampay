@@ -1,4 +1,4 @@
-import { Stream } from "../types";
+import {Stream} from "@timelock/layout"
 
 const useStreamStore = (set: Function, get: Function) => ({
   streams: {} as { [s: string]: Stream },

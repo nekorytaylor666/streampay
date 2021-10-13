@@ -1,18 +1,16 @@
 import EmptyStreams from "../Components/EmptyStreams";
-import { _swal, getDecodedAccountData } from "../utils/helpers";
-import { Stream } from "../Components";
-import { _cancelStream, _withdrawStream } from "../Actions";
-import { getUnixTime } from "date-fns";
-import {
-  ERR_NOT_CONNECTED,
-  ERR_NO_STREAM,
-  TX_FINALITY_CONFIRMED,
-} from "../constants";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import useStore, { StoreType } from "../Stores";
-import { toast } from "react-toastify";
-import { useEffect } from "react";
-import { StreamStatus } from "../types";
+import {_swal} from "../utils/helpers";
+import {Stream} from "../Components";
+import {getUnixTime} from "date-fns";
+import {ERR_NO_STREAM, ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_CONFIRMED,} from "../constants";
+import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
+import useStore, {StoreType} from "../Stores";
+import {toast} from "react-toastify";
+import {useEffect} from "react";
+import {decode} from "@timelock/layout"
+import sendTransaction from "../Actions/sendTransaction";
+import {StreamStatus} from "../types";
+import {BN} from "@project-serum/anchor";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -74,7 +72,7 @@ export default function StreamsList() {
         if (pk) {
           connection?.getAccountInfo(new PublicKey(id)).then((result) => {
             if (result?.data) {
-              addStream(id, getDecodedAccountData(result.data));
+              addStream(id, decode(result.data));
             } else {
               if (id === streamID) {
                 toast.error(ERR_NO_STREAM);
@@ -92,18 +90,19 @@ export default function StreamsList() {
       toast.error(ERR_NOT_CONNECTED);
       return;
     }
-    const success = await _withdrawStream(id, streams[id], connection, wallet);
+    //TODO: enable withdrawing arbitrary amount via UI
+    const success = await sendTransaction(ProgramInstruction.Withdraw, connection, wallet, new PublicKey(id), new BN(0));
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
         LAMPORTS_PER_SOL;
-      const streamData = await connection.getAccountInfo(
+      const stream = await connection.getAccountInfo(
         new PublicKey(id),
         TX_FINALITY_CONFIRMED
       );
       setBalance(newBalance);
-      if (streamData !== null) {
-        addStream(id, getDecodedAccountData(streamData.data));
+      if (stream !== null) {
+        addStream(id, decode(stream.data));
       }
     }
   }
@@ -113,15 +112,15 @@ export default function StreamsList() {
       toast.error(ERR_NOT_CONNECTED);
       return;
     }
-    const { amount } = streams[id];
+    const { deposited_amount } = streams[id];
     const now = new Date();
     const oldBalance = balance;
-    const success = await _cancelStream(id, streams[id], connection, wallet);
+    const success = await sendTransaction(ProgramInstruction.Cancel, connection, wallet, new PublicKey(id), null)
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
         LAMPORTS_PER_SOL;
-      const newWithdrawn = amount - (newBalance - oldBalance);
+      const newWithdrawn = deposited_amount - (newBalance - oldBalance);
       setBalance(newBalance);
       addStream(id, {
         ...streams[id],
@@ -145,7 +144,7 @@ export default function StreamsList() {
     return <EmptyStreams />;
   }
   const entries = Object.entries(streams)
-    .sort(([, stream1], [, stream2]) => stream2.start - stream1.start)
+    .sort(([, stream1], [, stream2]) => stream2.start_time - stream1.start_time)
     .map(([id, data]) => (
       <Stream
         key={id}

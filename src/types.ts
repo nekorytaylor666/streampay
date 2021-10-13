@@ -7,26 +7,6 @@ export interface WalletType {
   adapter: () => any;
 }
 
-export interface Stream {
-  start: number;
-  end: number;
-  amount: number;
-  withdrawn: number;
-  canceled_at: number;
-  status: StreamStatus;
-  receiver: string;
-  sender: string;
-}
-
-export interface Account {
-  starttime: Buffer;
-  endtime: Buffer;
-  amount: Buffer;
-  withdrawn: Buffer;
-  sender: Buffer;
-  recipient: Buffer;
-}
-
 export enum StreamStatus {
   scheduled = "scheduled",
   streaming = "streaming",
@@ -34,7 +14,7 @@ export enum StreamStatus {
   canceled = "canceled",
 }
 
-export interface CrerateStreamsFormType {
+export interface CreateStreamsFormType {
   amount: number;
   setAmount: (value: number) => void;
   receiver: string;
@@ -47,8 +27,18 @@ export interface CrerateStreamsFormType {
   setEndDate: (value: string) => void;
   endTime: string;
   setEndTime: (value: string) => void;
-  vesting: any;
-  setVesting: any;
+  cliffDate: string;
+  setCliffDate: (value: string) => void;
+  cliffTime: string;
+  setCliffTime: (value: string) => void;
+  cliffAmount: number;
+  setCliffAmount: (value: number) => void;
+  timePeriod: number;
+  setTimePeriod: (value: number) => void;
+  timePeriodMultiplier: number;
+  setTimePeriodMultiplier: (value: number) => void;
+  advanced: any;
+  setAdvanced: any;//todo add correct type.
   token: TokenInfo | null;
   setToken: (token: TokenInfo | null) => void;
 }

@@ -8,7 +8,8 @@ import { getExplorerLink } from "../utils/helpers";
 import { XIcon } from "@heroicons/react/outline";
 import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
 import { Address, Link } from "./index";
-import { Stream as StreamType, StreamStatus } from "../types";
+import { StreamStatus } from "../types";
+import {Stream as StreamType} from "@timelock/layout"
 
 export default function Stream(props: {
   data: StreamType;
@@ -20,11 +21,13 @@ export default function Stream(props: {
 
   onWithdraw: () => void;
 }) {
+  // @ts-ignore
   const { start, end, withdrawn, amount, receiver, sender, status } =
     props.data;
   const { myAddress, removeStream, onStatusUpdate, onCancel, onWithdraw, id } =
     props;
 
+  // @ts-ignore
   const color = STREAM_STATUS_COLOR[status];
 
   const [streamed, setStreamed] = useState(getStreamed(start, end, amount));
