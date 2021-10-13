@@ -1,26 +1,35 @@
-import {Amount, ButtonPrimary, DateTime, Recipient, SelectCluster, SelectToken, Advanced, WalletPicker,} from "./index";
-import {useFormContext} from "../Contexts/FormContext";
-import {getUnixTime} from "date-fns";
-import {streamCreated} from "../utils/helpers";
-import {Keypair, LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
-import {END, ERR_NO_TOKEN_SELECTED, ERR_NOT_CONNECTED, ProgramInstruction, START, TIME_SUFFIX,} from "../constants";
-import {Dispatch, SetStateAction} from "react";
-import useStore, {StoreType} from "../Stores";
+import {
+  Advanced,
+  Amount,
+  ButtonPrimary,
+  DateTime,
+  Recipient,
+  SelectCluster,
+  SelectToken,
+  WalletPicker,
+} from "./index";
+import { useFormContext } from "../Contexts/FormContext";
+import { getUnixTime } from "date-fns";
+import { streamCreated } from "../utils/helpers";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import {
+  END,
+  ERR_NO_TOKEN_SELECTED,
+  ERR_NOT_CONNECTED,
+  ProgramInstruction,
+  START,
+  TIME_SUFFIX,
+} from "../constants";
+import { Dispatch, SetStateAction } from "react";
+import useStore, { StoreType } from "../Stores";
 import Toggle from "./Toggle";
-import {toast} from "react-toastify";
-// @ts-ignore
-import {Stream} from "@timelock/layout"
-import Timelock from "@timelock/timelock";
+import { toast } from "react-toastify";
 
-// @ts-ignore TODO: fix module
-// import Timelock from "timelock";
-import 'fs'
-import 'buffer-layout'
-import {BN} from "@project-serum/anchor";
-import {NATIVE_MINT} from "@solana/spl-token";
+import "fs";
+import "buffer-layout";
+import { BN } from "@project-serum/anchor";
 import sendTransaction from "../Actions/sendTransaction";
-import Dropdown from "./Dropdown";
-import {CLUSTER_LOCAL} from "../Stores/NetworkStore";
+import { CreateStreamInstructionData } from "../types";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -73,7 +82,7 @@ export default function CreateStreamForm({
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
-    let start;
+    let start, end, cliff;
     let msg = "";
     switch (name) {
       case "start":
@@ -93,8 +102,26 @@ export default function CreateStreamForm({
         break;
       case "end_time":
         start = new Date(startDate + "T" + startTime);
-        const end = new Date(endDate + "T" + value);
+        end = new Date(endDate + "T" + value);
         msg = end < start ? "Err... end time before the start time?" : "";
+        break;
+      case "cliff_date":
+        start = new Date(startDate + TIME_SUFFIX);
+        cliff = new Date(value + TIME_SUFFIX);
+        end = new Date(endDate + TIME_SUFFIX);
+        msg =
+          cliff < start || cliff > end
+            ? "Cliff must be between start and end date."
+            : "";
+        break;
+      case "cliff_time":
+        start = new Date(startDate + "T" + startTime);
+        cliff = new Date(cliffDate + "T" + value);
+        end = new Date(endDate + "T" + endTime);
+        msg =
+          cliff < start || cliff > end
+            ? "Cliff must be between start and end date."
+            : "";
         break;
       default:
     }
@@ -132,10 +159,27 @@ export default function CreateStreamForm({
     }
 
     setLoading(true);
-    const data = {} as Stream;
-    const escrow = Keypair.generate()
-    //todo add data!
-    const success = await sendTransaction(ProgramInstruction.Create, connection, wallet, new PublicKey(escrow.publicKey), null, escrow)
+    const data = {
+      deposited_amount: new BN(amount),
+      recipient: new PublicKey(receiver),
+      mint: new PublicKey(token.address),
+      start_time: new BN(start),
+      end_time: new BN(end),
+      period: new BN(timePeriod * timePeriodMultiplier),
+      cliff: new BN(
+        advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
+      ),
+      cliff_amount: new BN(advanced ? (cliffAmount / 100) * amount : 0),
+    } as CreateStreamInstructionData;
+    const escrow = Keypair.generate();
+    const success = await sendTransaction(
+      ProgramInstruction.Create,
+      connection,
+      wallet,
+      new PublicKey(escrow.publicKey),
+      data,
+      escrow
+    );
     setLoading(false);
     if (success) {
       streamCreated(pda.publicKey.toBase58());
@@ -144,25 +188,30 @@ export default function CreateStreamForm({
       addStream(pda.publicKey.toBase58(), data);
     }
   }
+
   return (
     <form onSubmit={createStream} id="form">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
         <Amount onChange={setAmount} value={amount} max={balance} />
-        {wallet?.publicKey
-            ? <SelectToken token={token} setToken={setToken} />
-            : <div className="col-span-2 sm:col-span-1">
-          <label htmlFor="token" className="block font-medium text-gray-100">
-            Token
-          </label>
-              <select
-                  disabled={true}
-                  className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
-                  defaultValue="1">
-                <option value="1">Wallet not connected</option>
-              </select>
-        </div>}
+        {wallet?.publicKey ? (
+          <SelectToken token={token} setToken={setToken} />
+        ) : (
+          <div className="col-span-2 sm:col-span-1">
+            <label htmlFor="token" className="block font-medium text-gray-100">
+              Token
+            </label>
+            <select
+              disabled={true}
+              className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+              defaultValue="1"
+            >
+              <option value="1">Wallet not connected</option>
+            </select>
+          </div>
+        )}
         <Recipient onChange={setReceiver} value={receiver} />
-        <DateTime title={START}
+        <DateTime
+          title={START}
           date={startDate}
           updateDate={setStartDate}
           time={startTime}
@@ -177,17 +226,21 @@ export default function CreateStreamForm({
         />
       </div>
       <Toggle enabled={advanced} setEnabled={setAdvanced} label="Advanced" />
-      <Advanced visible={advanced}
-               cliffDate={cliffDate}
-               updateCliffDate={setCliffDate}
-               cliffTime={cliffTime}
-               updateCliffTime={setCliffTime}
-               timePeriod={timePeriod}
-               updateTimePeriod={setTimePeriod}
-               timePeriodMultiplier={timePeriodMultiplier}
-               updateTimePeriodMultiplier={setTimePeriodMultiplier}
-               cliffAmount={cliffAmount}
-               updateCliffAmount={setCliffAmount}
+      <Advanced
+        visible={advanced}
+        amount={amount}
+        endDate={endDate}
+        endTime={endTime}
+        cliffDate={cliffDate}
+        updateCliffDate={setCliffDate}
+        cliffTime={cliffTime}
+        updateCliffTime={setCliffTime}
+        timePeriod={timePeriod}
+        updateTimePeriod={setTimePeriod}
+        timePeriodMultiplier={timePeriodMultiplier}
+        updateTimePeriodMultiplier={setTimePeriodMultiplier}
+        cliffAmount={cliffAmount}
+        updateCliffAmount={setCliffAmount}
       />
       {wallet?.connected ? (
         <ButtonPrimary

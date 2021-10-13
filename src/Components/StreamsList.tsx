@@ -1,16 +1,22 @@
 import EmptyStreams from "../Components/EmptyStreams";
-import {_swal} from "../utils/helpers";
-import {Stream} from "../Components";
-import {getUnixTime} from "date-fns";
-import {ERR_NO_STREAM, ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_CONFIRMED,} from "../constants";
-import {LAMPORTS_PER_SOL, PublicKey} from "@solana/web3.js";
-import useStore, {StoreType} from "../Stores";
-import {toast} from "react-toastify";
-import {useEffect} from "react";
-import {decode} from "@timelock/layout"
+import { _swal } from "../utils/helpers";
+import { Stream } from "../Components";
+import { getUnixTime } from "date-fns";
+import {
+  ERR_NO_STREAM,
+  ERR_NOT_CONNECTED,
+  ProgramInstruction,
+  TX_FINALITY_CONFIRMED,
+} from "../constants";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import useStore, { StoreType } from "../Stores";
+import { toast } from "react-toastify";
+import { useEffect } from "react";
+import {} from "@timelock/layout";
 import sendTransaction from "../Actions/sendTransaction";
-import {StreamStatus} from "../types";
-import {BN} from "@project-serum/anchor";
+import { StreamStatus } from "../types";
+import { BN } from "@project-serum/anchor";
+import { decode } from "@streamflow/timelock/dist/layout";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -91,7 +97,13 @@ export default function StreamsList() {
       return;
     }
     //TODO: enable withdrawing arbitrary amount via UI
-    const success = await sendTransaction(ProgramInstruction.Withdraw, connection, wallet, new PublicKey(id), new BN(0));
+    const success = await sendTransaction(
+      ProgramInstruction.Withdraw,
+      connection,
+      wallet,
+      new PublicKey(id),
+      new BN(0)
+    );
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
@@ -115,7 +127,13 @@ export default function StreamsList() {
     const { deposited_amount } = streams[id];
     const now = new Date();
     const oldBalance = balance;
-    const success = await sendTransaction(ProgramInstruction.Cancel, connection, wallet, new PublicKey(id), null)
+    const success = await sendTransaction(
+      ProgramInstruction.Cancel,
+      connection,
+      wallet,
+      new PublicKey(id),
+      null
+    );
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /

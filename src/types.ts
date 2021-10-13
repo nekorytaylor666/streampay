@@ -1,5 +1,6 @@
 import { TokenInfo } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
+import { BN } from "@project-serum/anchor";
 
 export interface WalletType {
   name: string;
@@ -12,6 +13,17 @@ export enum StreamStatus {
   streaming = "streaming",
   complete = "complete",
   canceled = "canceled",
+}
+
+export interface CreateStreamInstructionData {
+  deposited_amount: BN;
+  start_time: BN;
+  end_time: BN;
+  period: BN;
+  cliff: BN;
+  cliff_amount: BN;
+  mint: PublicKey;
+  recipient: PublicKey;
 }
 
 export interface CreateStreamsFormType {
@@ -38,7 +50,7 @@ export interface CreateStreamsFormType {
   timePeriodMultiplier: number;
   setTimePeriodMultiplier: (value: number) => void;
   advanced: any;
-  setAdvanced: any;//todo add correct type.
+  setAdvanced: any; //todo add correct type.
   token: TokenInfo | null;
   setToken: (token: TokenInfo | null) => void;
 }

@@ -32,7 +32,8 @@ export default function DateTime(props: {
         updateDate(format(minEndDate, DATE_FORMAT));
       }
 
-      if (startDate && startDate === date && time <= startTime) {
+      if (startDate && startDate === date && startTime && time <= startTime) {
+        console.log("start time", startTime);
         updateTime(
           format(
             add(new Date(startDate + "T" + startTime), { minutes: 5 }),

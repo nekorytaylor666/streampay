@@ -9,23 +9,29 @@ import { XIcon } from "@heroicons/react/outline";
 import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
 import { Address, Link } from "./index";
 import { StreamStatus } from "../types";
-import {Stream as StreamType} from "@timelock/layout"
+import { PublicKey } from "@solana/web3.js";
 
 export default function Stream(props: {
-  data: StreamType;
+  data: any;
   myAddress: string;
   id: string;
   removeStream: () => void;
   onStatusUpdate: (status: StreamStatus) => void;
   onCancel: () => void;
-
-  onWithdraw: () => void;
+  onWithdraw: () => void; //TODO: add support for input
+  onTransfer: (value: PublicKey) => void; //TODO: pass real data.
 }) {
-  // @ts-ignore
   const { start, end, withdrawn, amount, receiver, sender, status } =
     props.data;
-  const { myAddress, removeStream, onStatusUpdate, onCancel, onWithdraw, id } =
-    props;
+  const {
+    myAddress,
+    removeStream,
+    onStatusUpdate,
+    onCancel,
+    onWithdraw,
+    onTransfer,
+    id,
+  } = props;
 
   // @ts-ignore
   const color = STREAM_STATUS_COLOR[status];
@@ -103,6 +109,11 @@ export default function Stream(props: {
                 title="Withdraw"
                 action={onWithdraw}
                 color={STREAM_STATUS_COLOR[StreamStatus.streaming]}
+              />
+              <ActionButton
+                title="Transfer"
+                action={() => onTransfer(new PublicKey(""))}
+                color={STREAM_STATUS_COLOR[StreamStatus.complete]}
               />
             </>
           )}
