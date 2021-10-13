@@ -29,7 +29,7 @@ import "fs";
 import "buffer-layout";
 import { BN } from "@project-serum/anchor";
 import sendTransaction from "../Actions/sendTransaction";
-import { CreateStreamInstructionData } from "../types";
+import { CreateStreamData } from "../types";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -47,7 +47,7 @@ export default function CreateStreamForm({
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
 }) {
-  const pda = Keypair.generate();
+  const newStream = Keypair.generate();
   const {
     amount,
     setAmount,
@@ -170,22 +170,26 @@ export default function CreateStreamForm({
         advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
       ),
       cliff_amount: new BN(advanced ? (cliffAmount / 100) * amount : 0),
-    } as CreateStreamInstructionData;
-    const escrow = Keypair.generate();
-    const success = await sendTransaction(
-      ProgramInstruction.Create,
-      connection,
-      wallet,
-      new PublicKey(escrow.publicKey),
-      data,
-      escrow
-    );
+      new_stream_keypair: newStream,
+    } as CreateStreamData;
+    const success = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
     if (success) {
-      streamCreated(pda.publicKey.toBase58());
+      streamCreated(newStream.publicKey.toBase58());
       const fee = await connection.getMinimumBalanceForRentExemption(96);
       setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
-      addStream(pda.publicKey.toBase58(), data);
+      addStream(newStream.publicKey.toBase58(), {
+        ...data,
+        cancel_time: new BN(0),
+        created_at: new BN(+new Date() / 1000),
+        escrow_tokens: undefined as any,
+        magic: new BN(0),
+        recipient_tokens: undefined as any,
+        sender: wallet.publicKey,
+        sender_tokens: undefined as any,
+        total_amount: new BN(amount),
+        withdrawn: new BN(0),
+      });
     }
   }
 

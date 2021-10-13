@@ -12,11 +12,14 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import useStore, { StoreType } from "../Stores";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import {} from "@timelock/layout";
 import sendTransaction from "../Actions/sendTransaction";
-import { StreamStatus } from "../types";
 import { BN } from "@project-serum/anchor";
 import { decode } from "@streamflow/timelock/dist/layout";
+import {
+  CancelStreamData,
+  TransferStreamData,
+  WithdrawStreamData,
+} from "../types";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -97,13 +100,10 @@ export default function StreamsList() {
       return;
     }
     //TODO: enable withdrawing arbitrary amount via UI
-    const success = await sendTransaction(
-      ProgramInstruction.Withdraw,
-      connection,
-      wallet,
-      new PublicKey(id),
-      new BN(0)
-    );
+    const success = await sendTransaction(ProgramInstruction.Withdraw, {
+      stream: new PublicKey(id),
+      amount: new BN(0),
+    } as WithdrawStreamData);
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
@@ -127,24 +127,19 @@ export default function StreamsList() {
     const { deposited_amount } = streams[id];
     const now = new Date();
     const oldBalance = balance;
-    const success = await sendTransaction(
-      ProgramInstruction.Cancel,
-      connection,
-      wallet,
-      new PublicKey(id),
-      null
-    );
+    const success = await sendTransaction(ProgramInstruction.Cancel, {
+      stream: new PublicKey(id),
+    } as CancelStreamData);
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
         LAMPORTS_PER_SOL;
-      const newWithdrawn = deposited_amount - (newBalance - oldBalance);
+      const newWithdrawn = deposited_amount.subn(newBalance - oldBalance);
       setBalance(newBalance);
       addStream(id, {
         ...streams[id],
         withdrawn: newWithdrawn,
-        canceled_at: getUnixTime(now),
-        status: StreamStatus.canceled,
+        magic: new BN(getUnixTime(now)), //magic field is used as canceled_at until we update account structure
       });
     }
   }
@@ -162,13 +157,22 @@ export default function StreamsList() {
     return <EmptyStreams />;
   }
   const entries = Object.entries(streams)
-    .sort(([, stream1], [, stream2]) => stream2.start_time - stream1.start_time)
+    .sort(
+      ([, stream1], [, stream2]) =>
+        stream2.start_time.toNumber() - stream1.start_time.toNumber()
+    )
     .map(([id, data]) => (
       <Stream
         key={id}
-        onStatusUpdate={(status) => addStream(id, { ...streams[id], status })}
+        // onStatusUpdate={(status) => addStream(id, { ...streams[id], status })}
         onWithdraw={() => withdrawStream(id)}
         onCancel={() => cancelStream(id)}
+        onTransfer={(newRecipient) =>
+          sendTransaction(ProgramInstruction.TransferRecipient, {
+            stream: new PublicKey(id),
+            new_recipient: newRecipient,
+          } as TransferStreamData)
+        }
         id={id}
         data={data}
         myAddress={wallet?.publicKey?.toBase58() as string}

@@ -9,17 +9,23 @@ import {
 } from "../constants";
 import { getExplorerLink } from "../utils/helpers";
 import Timelock from "@streamflow/timelock";
+import useStore from "../Stores";
+import {
+  CreateStreamData,
+  TransactionData,
+  WithdrawStreamData,
+} from "../types";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
-  connection: Connection,
-  wallet: Wallet,
-  stream: PublicKey,
-  data: any,
-  newStreamAccount?: Keypair
+  data: TransactionData
 ) {
+  const connection = useStore.getState().connection();
+  const wallet = useStore.getState().wallet;
+  let d;
+
   try {
-    if (wallet.publicKey !== null) {
+    if (wallet?.publicKey !== null || !connection) {
       throw ERR_NOT_CONNECTED;
     }
 
@@ -27,24 +33,26 @@ export default async function sendTransaction(
     let tx;
     switch (instruction) {
       case ProgramInstruction.Create:
+        d = data as CreateStreamData;
         tx = await Timelock.create(
           connection,
           // @ts-ignore
           wallet,
-          newStreamAccount,
-          data.recipient,
-          data.mint,
-          data.deposited_amount,
-          data.start_time,
-          data.end_time,
-          data.period,
-          data.cliff,
-          data.cliff_amount
+          d.new_stream_keypair,
+          d.recipient,
+          d.mint,
+          d.deposited_amount,
+          d.start_time,
+          d.end_time,
+          d.period,
+          d.cliff,
+          d.cliff_amount
         );
         break;
       case ProgramInstruction.Withdraw:
+        d = data as WithdrawStreamData;
         // @ts-ignore
-        tx = await Timelock.withdraw(connection, wallet, stream, data);
+        tx = await Timelock.withdraw(connection, wallet, d.stream, d.amount);
         break;
       case ProgramInstruction.Cancel:
         // @ts-ignore

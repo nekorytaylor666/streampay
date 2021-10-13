@@ -1,5 +1,5 @@
 import { TokenInfo } from "@solana/spl-token-registry";
-import { PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "@project-serum/anchor";
 
 export interface WalletType {
@@ -15,7 +15,13 @@ export enum StreamStatus {
   canceled = "canceled",
 }
 
-export interface CreateStreamInstructionData {
+export type TransactionData =
+  | CreateStreamData
+  | WithdrawStreamData
+  | TransferStreamData
+  | CancelStreamData;
+
+export interface CreateStreamData {
   deposited_amount: BN;
   start_time: BN;
   end_time: BN;
@@ -24,6 +30,21 @@ export interface CreateStreamInstructionData {
   cliff_amount: BN;
   mint: PublicKey;
   recipient: PublicKey;
+  new_stream_keypair: Keypair;
+}
+
+export interface WithdrawStreamData {
+  amount: BN;
+  stream: PublicKey;
+}
+
+export interface TransferStreamData {
+  new_recipient: PublicKey;
+  stream: PublicKey;
+}
+
+export interface CancelStreamData {
+  stream: PublicKey;
 }
 
 export interface CreateStreamsFormType {

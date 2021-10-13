@@ -16,7 +16,7 @@ export default function Stream(props: {
   myAddress: string;
   id: string;
   removeStream: () => void;
-  onStatusUpdate: (status: StreamStatus) => void;
+  // onStatusUpdate: (status: StreamStatus) => void;
   onCancel: () => void;
   onWithdraw: () => void; //TODO: add support for input
   onTransfer: (value: PublicKey) => void; //TODO: pass real data.
@@ -26,7 +26,7 @@ export default function Stream(props: {
   const {
     myAddress,
     removeStream,
-    onStatusUpdate,
+    // onStatusUpdate,
     onCancel,
     onWithdraw,
     onTransfer,
@@ -50,10 +50,10 @@ export default function Stream(props: {
     const interval = setInterval(() => {
       setStreamed(getStreamed(start, end, amount));
       setAvailable(streamed - withdrawn);
-      const tmpStatus = updateStatus(status, start, end);
-      if (tmpStatus !== status) {
-        onStatusUpdate(tmpStatus);
-      }
+      // const tmpStatus = updateStatus(status, start, end);
+      // if (tmpStatus !== status) {
+      // onStatusUpdate(tmpStatus);
+      // }
     }, 1000);
     return () => clearInterval(interval);
   });
