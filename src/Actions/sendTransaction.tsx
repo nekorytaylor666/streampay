@@ -1,70 +1,68 @@
-import { toast } from "react-toastify";
-import { Connection, Keypair, Transaction } from "@solana/web3.js";
+import {toast} from "react-toastify";
+import {Connection, Keypair, PublicKey} from "@solana/web3.js";
 import ToastrLink from "../Components/ToastrLink";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import {
-  ERR_NOT_CONNECTED,
-  INSTRUCTION_CREATE_STREAM,
-  TX_FINALITY_CONFIRMED,
-} from "../constants";
-import { getExplorerLink } from "../utils/helpers";
+import {ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED,} from "../constants";
+import {getExplorerLink} from "../utils/helpers";
+// @ts-ignore
+import Timelock from "@timelock/timelock"
 
 export default async function sendTransaction(
-  type: number,
-  transaction: Transaction,
-  connection: Connection,
-  wallet: Wallet,
-  pda?: Keypair
+    instruction: ProgramInstruction,
+    connection: Connection,
+    wallet: Wallet,
+    stream: PublicKey,
+    data: any,
+    newStreamAccount?: Keypair,
 ) {
-  try {
-    if (!wallet.publicKey) {
-      throw ERR_NOT_CONNECTED;
-    }
-    transaction.recentBlockhash = (
-      await connection.getRecentBlockhash()
-    ).blockhash;
-    toast.info("Please confirm transaction in your wallet.", {
-      autoClose: 10000,
-    });
-    transaction.feePayer = wallet.publicKey;
-
-    if (type === INSTRUCTION_CREATE_STREAM) {
-      if (pda === undefined) {
-        throw new Error("PDA keypair missing - can't create a stream");
-      }
-      transaction.partialSign(pda);
-    }
-
-    const signed = await wallet.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(signed.serialize());
-    toast.dismiss();
-    toast.info("Submitted transaction. Awaiting confirmation...", {
-      autoClose: 10000,
-    });
-
-    // can use 'finalized' which gives 100% certainty, but requires much longer waiting.
-    const finality = TX_FINALITY_CONFIRMED;
-    await connection.confirmTransaction(signature, finality);
-    const url = getExplorerLink("tx", signature);
-    toast.dismiss();
-    toast.success(
-      <ToastrLink
-        url={url}
-        urlText="View on explorer"
-        nonUrlText={
-          `Transaction ${finality}!` +
-          (finality === TX_FINALITY_CONFIRMED
-            ? " Please allow it few seconds to finalize."
-            : "")
+    try {
+        if (!wallet.publicKey) {
+            throw ERR_NOT_CONNECTED;
         }
-      />,
-      { autoClose: 15000, closeOnClick: true }
-    );
-    return true;
-  } catch (e: any) {
-    console.warn(e);
-    //todo log these errors somewhere for our reference
-    toast.error("Error: " + e.message);
-    return false;
-  }
+
+        toast.info("Please confirm transaction in your wallet.");
+        let tx;
+        switch (instruction) {
+            case ProgramInstruction.Create:
+                const {recipient, mint, deposited_amount, start_time, end_time, period, cliff, cliff_amount} = data;
+                // @ts-ignore
+                tx = await Timelock.create(connection, wallet, newStreamAccount, recipient, mint, deposited_amount, start_time, end_time, period, cliff, cliff_amount)
+                break;
+            case ProgramInstruction.Withdraw:
+                // @ts-ignore
+                tx = await Timelock.withdraw(connection, wallet, stream, data)
+                break;
+            case ProgramInstruction.Cancel:
+                // @ts-ignore
+                tx = await Timelock.cancel(connection, wallet, stream)
+                break;
+            case ProgramInstruction.TransferRecipient:
+                // @ts-ignore
+                tx = await Timelock.transferRecipient(connection, wallet, stream, data)
+                break;
+        }
+        // toast.dismiss();
+        // toast.info("Submitted transaction. Awaiting confirmation...");
+        const url = getExplorerLink("tx", tx);//todo print transaction here.
+        toast.dismiss();
+        toast.success(
+            <ToastrLink
+                url={url}
+                urlText="View on explorer"
+                nonUrlText={
+                    `Transaction ${connection.commitment}!` +
+                    (connection.commitment !== TX_FINALITY_FINALIZED
+                        ? " Please allow it few seconds to finalize."
+                        : "")
+                }
+            />,
+            {autoClose: 15000, closeOnClick: true}
+        );
+        return true;
+    } catch (e: any) {
+        console.warn(e);
+        //todo log these errors somewhere for our reference
+        toast.error("Error: " + e.message);
+        return false;
+    }
 }

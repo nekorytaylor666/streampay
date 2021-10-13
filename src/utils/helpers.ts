@@ -4,52 +4,7 @@ import { u64 } from "@solana/spl-token";
 import { getUnixTime } from "date-fns";
 import swal from "sweetalert";
 import useStore from "../Stores";
-import { Account, StreamStatus } from "../types";
-
-export const publicKey = (property = "publicKey"): BufferLayout.Layout => {
-  return BufferLayout.blob(32, property);
-};
-
-export const uint64 = (property = "uint64"): BufferLayout.Layout => {
-  return BufferLayout.blob(8, property);
-};
-
-const DataLayout = BufferLayout.struct([
-  uint64("starttime"),
-  uint64("endtime"),
-  uint64("amount"),
-  uint64("withdrawn"),
-  publicKey("sender"),
-  publicKey("recipient"),
-]);
-
-export function getDecodedAccountData(buffer: Buffer) {
-  const accountData = DataLayout.decode(buffer) as Account;
-
-  const start = Number(u64.fromBuffer(accountData.starttime));
-  const end = Number(u64.fromBuffer(accountData.endtime));
-  const amount = Number(u64.fromBuffer(accountData.amount)) / LAMPORTS_PER_SOL;
-  const withdrawn =
-    Number(u64.fromBuffer(accountData.withdrawn)) / LAMPORTS_PER_SOL;
-  const sender = new PublicKey(accountData.sender).toBase58();
-  const recipient = new PublicKey(accountData.recipient).toBase58();
-
-  const status = getStreamStatus(
-    Number(start),
-    Number(end),
-    getUnixTime(new Date())
-  ); //in milliseconds
-
-  return new StreamData(
-    sender,
-    recipient,
-    amount,
-    start,
-    end,
-    withdrawn,
-    status
-  );
-}
+import { StreamStatus } from "../types";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore
@@ -57,31 +12,14 @@ export function getExplorerLink(type: string, id: string): string {
     .explorerUrl()}`;
 }
 
-export function getStreamStatus(start: number, end: number, now: number) {
+//todo: add cancelled
+export function getStreamStatus(start: number, end: number, now: number)  {
   if (now < start) {
     return StreamStatus.scheduled;
   } else if (now < end) {
     return StreamStatus.streaming;
   } else {
     return StreamStatus.complete;
-  }
-}
-
-export class StreamData {
-  constructor(
-    public sender: string,
-    public receiver: string,
-    public amount: number,
-    public start: number,
-    public end: number,
-    public withdrawn?: number,
-    public status?: StreamStatus,
-    public canceled_at?: number
-  ) {
-    this.withdrawn = withdrawn || 0;
-    this.status = canceled_at
-      ? StreamStatus.canceled
-      : status || StreamStatus.scheduled;
   }
 }
 
