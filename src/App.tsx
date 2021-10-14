@@ -13,7 +13,7 @@ function App() {
   return (
     <div>
       <div className={"mx-auto bg-blend-darken px-4 my-4"}>
-        <div className="text-center text-white mb-6">
+        <div className="text-center text-white mb-6 flex sm:block">
           {products.map((prod) => (
             <span
               key={prod}
@@ -21,7 +21,7 @@ function App() {
                 setAdvanced(prod === PRODUCT_VESTING);
                 setProduct(prod);
               }}
-              className={`cursor-pointer capitalize inline-block mx-4 
+              className={`cursor-pointer capitalize flex-1 sm:inline-block sm:mx-4
                               ${
                                 prod === product
                                   ? "text-white"
