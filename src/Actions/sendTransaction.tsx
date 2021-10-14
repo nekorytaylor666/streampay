@@ -5,14 +5,17 @@ import Wallet from "@project-serum/sol-wallet-adapter";
 import {
   ERR_NOT_CONNECTED,
   ProgramInstruction,
+  TIMELOCK_PROGRAM_ID,
   TX_FINALITY_FINALIZED,
 } from "../constants";
 import { getExplorerLink } from "../utils/helpers";
 import Timelock from "@streamflow/timelock";
 import useStore from "../Stores";
 import {
+  CancelStreamData,
   CreateStreamData,
   TransactionData,
+  TransferStreamData,
   WithdrawStreamData,
 } from "../types";
 
@@ -23,21 +26,25 @@ export default async function sendTransaction(
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
   let d;
-
+  console.log("cnwl", connection, wallet);
   try {
     if (wallet?.publicKey === null || !connection) {
       throw ERR_NOT_CONNECTED;
     }
-
+    console.log("pass 1");
     toast.info("Please confirm transaction in your wallet.");
     let tx;
     switch (instruction) {
       case ProgramInstruction.Create:
+        console.log("pass 2");
         d = data as CreateStreamData;
+        console.log("conn wallet", connection, wallet);
+        console.log("params", data);
         tx = await Timelock.create(
           connection,
           // @ts-ignore
           wallet,
+          TIMELOCK_PROGRAM_ID,
           d.new_stream_keypair,
           d.recipient,
           d.mint,
@@ -51,16 +58,36 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Withdraw:
         d = data as WithdrawStreamData;
-        // @ts-ignore
-        tx = await Timelock.withdraw(connection, wallet, d.stream, d.amount);
+        console.log("conn wallet", connection, TIMELOCK_PROGRAM_ID, wallet);
+        tx = await Timelock.withdraw(
+          connection,
+          // @ts-ignore
+          wallet,
+          TIMELOCK_PROGRAM_ID,
+          d.stream,
+          d.amount
+        );
         break;
       case ProgramInstruction.Cancel:
-        // @ts-ignore
-        tx = await Timelock.cancel(connection, wallet, stream);
+        d = data as CancelStreamData;
+        tx = await Timelock.cancel(
+          connection,
+          // @ts-ignore
+          wallet,
+          TIMELOCK_PROGRAM_ID,
+          d.stream
+        );
         break;
       case ProgramInstruction.TransferRecipient:
-        // @ts-ignore
-        tx = await Timelock.transferRecipient(connection, wallet, stream, data);
+        d = data as TransferStreamData;
+        tx = await Timelock.transferRecipient(
+          connection,
+          // @ts-ignore
+          wallet,
+          TIMELOCK_PROGRAM_ID,
+          d.stream,
+          data
+        );
         break;
     }
     // toast.dismiss();
