@@ -75,10 +75,10 @@ export default function SelectToken({
       //     return mappedTokenAccounts.indexOf(token.address) !== -1
       //         || token.address === "So11111111111111111111111111111111111111112"
       // });
-      tokenList[0].address = "AFgvWAzeGo7QdGXta2aVxGk1NTU5fMo289gEeMv4MKph";
-      tokenList[1].address = "So11111111111111111111111111111111111111112"; //NATIVE_MINT;
-      tokenList[2].address = "3TDDUtCVyHPhbLXGYjefaPjCPGDp4cuwyhDBrPZYAbBf";
-      tokenList[3].address = "4KNdRPuMrkCiGRJvSjsMhto58DcAgkReQoKzTdHoSyRw";
+      // tokenList[0].address = "AFgvWAzeGo7QdGXta2aVxGk1NTU5fMo289gEeMv4MKph";
+      // tokenList[1].address = "So11111111111111111111111111111111111111112"; //NATIVE_MINT;
+      // tokenList[2].address = "3TDDUtCVyHPhbLXGYjefaPjCPGDp4cuwyhDBrPZYAbBf";
+      // tokenList[3].address = "4KNdRPuMrkCiGRJvSjsMhto58DcAgkReQoKzTdHoSyRw";
 
       console.log("tokenlist", tokenList);
       setTokenArray(tokenList);
