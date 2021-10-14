@@ -22,12 +22,7 @@ export default function Main() {
         )}
         <CreateStreamForm loading={loading} setLoading={setLoading} />
       </div>
-      <div>
-        <strong className="text-white text-center text-2xl block">
-          My Streams
-        </strong>
-        {wallet?.connected ? <StreamsList /> : <EmptyStreams />}
-      </div>
+      <div>{wallet?.connected ? <StreamsList /> : <EmptyStreams />}</div>
     </div>
   );
 }

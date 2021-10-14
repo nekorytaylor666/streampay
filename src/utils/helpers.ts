@@ -5,6 +5,7 @@ import { getUnixTime } from "date-fns";
 import swal from "sweetalert";
 import useStore from "../Stores";
 import { StreamStatus } from "../types";
+import { BN } from "@project-serum/anchor";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore
@@ -13,10 +14,10 @@ export function getExplorerLink(type: string, id: string): string {
 }
 
 //todo: add cancelled
-export function getStreamStatus(start: number, end: number, now: number)  {
-  if (now < start) {
+export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
+  if (now.cmp(start) === -1) {
     return StreamStatus.scheduled;
-  } else if (now < end) {
+  } else if (now.cmp(end) === -1) {
     return StreamStatus.streaming;
   } else {
     return StreamStatus.complete;

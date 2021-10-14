@@ -100,10 +100,15 @@ export default function StreamsList() {
       return;
     }
     //TODO: enable withdrawing arbitrary amount via UI
-    const success = await sendTransaction(ProgramInstruction.Withdraw, {
-      stream: new PublicKey(id),
-      amount: new BN(0),
-    } as WithdrawStreamData);
+    const success = await sendTransaction(
+      connection,
+      wallet,
+      ProgramInstruction.Withdraw,
+      {
+        stream: new PublicKey(id),
+        amount: new BN(0),
+      } as WithdrawStreamData
+    );
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
@@ -127,9 +132,14 @@ export default function StreamsList() {
     const { deposited_amount } = streams[id];
     const now = new Date();
     const oldBalance = balance;
-    const success = await sendTransaction(ProgramInstruction.Cancel, {
-      stream: new PublicKey(id),
-    } as CancelStreamData);
+    const success = await sendTransaction(
+      connection,
+      wallet,
+      ProgramInstruction.Cancel,
+      {
+        stream: new PublicKey(id),
+      } as CancelStreamData
+    );
     if (success) {
       const newBalance =
         (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
@@ -168,10 +178,15 @@ export default function StreamsList() {
         onWithdraw={() => withdrawStream(id)}
         onCancel={() => cancelStream(id)}
         onTransfer={(newRecipient) =>
-          sendTransaction(ProgramInstruction.TransferRecipient, {
-            stream: new PublicKey(id),
-            new_recipient: newRecipient,
-          } as TransferStreamData)
+          sendTransaction(
+            connection,
+            wallet,
+            ProgramInstruction.TransferRecipient,
+            {
+              stream: new PublicKey(id),
+              new_recipient: newRecipient,
+            } as TransferStreamData
+          )
         }
         id={id}
         data={data}

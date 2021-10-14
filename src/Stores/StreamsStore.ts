@@ -1,8 +1,8 @@
-import { Stream } from "@streamflow/timelock/dist/layout";
+import { Stream as StreamType } from "@streamflow/timelock/dist/layout";
 
 const useStreamStore = (set: Function, get: Function) => ({
-  streams: {} as { [s: string]: Stream },
-  addStream: (id: string, stream: Stream) =>
+  streams: {} as { [s: string]: StreamType },
+  addStream: (id: string, stream: StreamType) =>
     set({ streams: { ...get().streams, [id]: stream } }),
   deleteStream: (id: string) => {
     const streams = { ...get().streams };

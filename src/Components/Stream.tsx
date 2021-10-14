@@ -4,15 +4,17 @@ import { getUnixTime } from "date-fns";
 import Duration from "./Stream/Duration";
 import Progress from "./Stream/Progress";
 import { useEffect, useState } from "react";
-import { getExplorerLink } from "../utils/helpers";
+import { getExplorerLink, getStreamStatus } from "../utils/helpers";
 import { XIcon } from "@heroicons/react/outline";
 import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
 import { Address, Link } from "./index";
 import { StreamStatus } from "../types";
 import { PublicKey } from "@solana/web3.js";
+import { Stream as StreamType } from "@streamflow/timelock/dist/layout";
+import { BN } from "@project-serum/anchor";
 
 export default function Stream(props: {
-  data: any;
+  data: StreamType;
   myAddress: string;
   id: string;
   removeStream: () => void;
@@ -21,8 +23,14 @@ export default function Stream(props: {
   onWithdraw: () => void; //TODO: add support for input
   onTransfer: (value: PublicKey) => void; //TODO: pass real data.
 }) {
-  const { start, end, withdrawn, amount, receiver, sender, status } =
-    props.data;
+  const {
+    start_time,
+    end_time,
+    withdrawn,
+    deposited_amount,
+    recipient,
+    sender,
+  } = props.data;
   const {
     myAddress,
     removeStream,
@@ -33,24 +41,45 @@ export default function Stream(props: {
     id,
   } = props;
 
-  // @ts-ignore
-  const color = STREAM_STATUS_COLOR[status];
+  const [streamed, setStreamed] = useState(
+    new BN(0)
+    // getStreamed(
+    //   start_time.toNumber(),
+    //   end_time.toNumber(),
+    //   deposited_amount.toNumber()
+    // )
+  );
+  const status_enum = getStreamStatus(
+    start_time,
+    end_time,
+    new BN(+new Date() / 1000)
+  );
 
-  const [streamed, setStreamed] = useState(getStreamed(start, end, amount));
-  const [available, setAvailable] = useState(streamed - withdrawn);
+  const [status, setStatus] = useState(status_enum);
+
+  const color = STREAM_STATUS_COLOR[status_enum];
+  const [available, setAvailable] = useState(
+    streamed.toNumber() - withdrawn.toNumber()
+  );
 
   const showWithdraw =
     (status === StreamStatus.streaming ||
-      (status === StreamStatus.complete && withdrawn < amount)) &&
-    myAddress === receiver;
+      (status === StreamStatus.complete && withdrawn < deposited_amount)) &&
+    myAddress === recipient.toBase58();
   const showCancel =
     (status === StreamStatus.streaming || status === StreamStatus.scheduled) &&
-    myAddress === sender;
+    myAddress === sender.toBase58();
   useEffect(() => {
     const interval = setInterval(() => {
-      setStreamed(getStreamed(start, end, amount));
-      setAvailable(streamed - withdrawn);
-      // const tmpStatus = updateStatus(status, start, end);
+      setStreamed(
+        getStreamed(
+          start_time.toNumber(),
+          end_time.toNumber(),
+          deposited_amount.toNumber()
+        )
+      );
+      setAvailable(streamed.toNumber() - withdrawn.toNumber());
+      // const tmpStatus = updateStatus(status, start_time, end_time);
       // if (tmpStatus !== status) {
       // onStatusUpdate(tmpStatus);
       // }
@@ -71,30 +100,38 @@ export default function Stream(props: {
           <XIcon className="float-right w-3 h-3" />
         </button>
       </div>
-      <Duration start={start} end={end} />
+      <Duration start_time={start_time} end_time={end_time} />
       <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"ID"} />
       <Address address={id} className="col-span-2 text-sm text-gray-400" />
       <Link
-        url={getExplorerLink(EXPLORER_TYPE_ADDR, receiver)}
+        url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())}
         title={"Recipient"}
       />
       <Address
-        address={receiver}
+        address={recipient.toBase58()}
         className="col-span-2 text-sm text-gray-400"
       />
-      <Progress title="Withdrawn" value={withdrawn} max={amount} />
+      <Progress
+        title="Withdrawn"
+        value={withdrawn.toNumber()}
+        max={deposited_amount}
+      />
 
       {status === StreamStatus.canceled && (
         <Progress
           title="Returned"
-          value={amount - withdrawn}
-          max={amount}
+          value={deposited_amount.toNumber() - withdrawn.toNumber()}
+          max={deposited_amount}
           rtl={true}
         />
       )}
       {status !== StreamStatus.canceled && (
         <>
-          <Progress title="Streamed" value={streamed} max={amount} />
+          <Progress
+            title="Streamed"
+            value={streamed.toNumber()}
+            max={deposited_amount}
+          />
           {showWithdraw && (
             <>
               <dt>
@@ -104,7 +141,7 @@ export default function Stream(props: {
                   for withdrawal
                 </sup>
               </dt>
-              <dd className="col-span-2">◎{available.toFixed(2)}</dd>
+              <dd className="col-span-2">◎{available}</dd>
               <ActionButton
                 title="Withdraw"
                 action={onWithdraw}
@@ -131,28 +168,30 @@ export default function Stream(props: {
 }
 
 export function getStreamed(
-  start: number,
-  end: number,
-  amount: number,
+  start_time: number,
+  end_time: number,
+  deposited_amount: number,
   timestamp?: number
-) {
+): BN {
   timestamp = timestamp || getUnixTime(new Date());
 
-  if (timestamp < start) return 0;
-  if (timestamp > end) return amount;
-
-  return ((timestamp - start) / (end - start)) * amount;
+  if (timestamp < start_time) return new BN(0);
+  if (timestamp > end_time) return new BN(deposited_amount);
+  console.log("streamed");
+  return new BN(
+    ((timestamp - start_time) / (end_time - start_time)) * deposited_amount
+  );
 }
 
 function updateStatus(
   status: StreamStatus,
-  start: number,
-  end: number
+  start_time: number,
+  end_time: number
 ): StreamStatus {
   const now = getUnixTime(new Date());
-  if (status === StreamStatus.scheduled && now >= start) {
+  if (status === StreamStatus.scheduled && now >= start_time) {
     return StreamStatus.streaming;
-  } else if (status === StreamStatus.streaming && now >= end) {
+  } else if (status === StreamStatus.streaming && now >= end_time) {
     return StreamStatus.complete;
   } else {
     return status;

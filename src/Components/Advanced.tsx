@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { getStreamed } from "./Stream";
 
 export default function Advanced({
   visible,

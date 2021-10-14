@@ -20,11 +20,13 @@ import {
 } from "../types";
 
 export default async function sendTransaction(
+  connection: Connection | null,
+  wallet: Wallet | null,
   instruction: ProgramInstruction,
   data: TransactionData
 ) {
-  const connection = useStore.getState().connection();
-  const wallet = useStore.getState().wallet;
+  // const connection = useStore.getState().connection();
+  // const wallet = useStore.getState().wallet;
   let d;
   console.log("cnwl", connection, wallet);
   try {
@@ -109,6 +111,7 @@ export default async function sendTransaction(
     );
     return true;
   } catch (e: any) {
+    console.log(e);
     console.warn(e);
     //todo log these errors somewhere for our reference
     toast.error("Error: " + e.message);

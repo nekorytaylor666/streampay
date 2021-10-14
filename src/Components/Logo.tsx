@@ -5,7 +5,7 @@ export default function Logo(props: { src: string }) {
         <img
           src={props.src}
           alt="StreamFlow Finance logo"
-          className="w-7 inline"
+          className="w-10 mr-1 inline-block"
         />
         Stream<strong>Flow</strong>
       </h1>
