@@ -25,7 +25,11 @@ export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
 }
 
 export function _swal(): Promise<void> {
-  return swal({ text: "Are you sure?", icon: "warning", buttons: [true] });
+  return swal({
+    text: "Are you sure?",
+    icon: "warning",
+    buttons: { cancel: true, confirm: true },
+  });
 }
 
 export function copyToClipboard(value: string): void {
