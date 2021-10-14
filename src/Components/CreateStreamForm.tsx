@@ -45,7 +45,7 @@ export default function CreateStreamForm({
   setLoading,
 }: {
   loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
+  setLoading: (value: boolean) => void;
 }) {
   const newStream = Keypair.generate();
   const {
@@ -191,6 +191,7 @@ export default function CreateStreamForm({
         withdrawn: new BN(0),
       });
     }
+    console.log("last command");
   }
 
   return (
