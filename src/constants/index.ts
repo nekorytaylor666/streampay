@@ -1,4 +1,4 @@
-import {StreamStatus} from "../types";
+import { StreamStatus } from "../types";
 
 export * from "./ids";
 
@@ -12,10 +12,10 @@ export const INSTRUCTION_WITHDRAW_STREAM = 1;
 export const INSTRUCTION_CANCEL_STREAM = 2;
 export const INSTRUCTION_TRANSFER_RECIPIENT = 3;
 export enum ProgramInstruction {
-Create,
-Withdraw,
-Cancel,
-TransferRecipient,
+  Create,
+  Withdraw,
+  Cancel,
+  TransferRecipient,
 }
 // export const INSTRUCTIONS = [INSTRUCTION_CREATE_STREAM, INSTRUCTION_WITHDRAW_STREAM, INSTRUCTION_CANCEL_STREAM, INSTRUCTION_TRANSFER_RECIPIENT];
 
@@ -31,27 +31,27 @@ export const END = "end";
 
 //might move to a separate class if it becomes clunky
 export const ERR_NO_STREAM =
-    "Specified stream doesn't exist. Please double check with the sender.";
+  "Specified stream doesn't exist. Please double check with the sender.";
 export const ERR_NOT_CONNECTED =
-    "There was an issue with the connection - please try to refresh the page.";
+  "There was an issue with the connection - please try to refresh the page.";
 export const ERR_NO_TOKEN_SELECTED = "Please select the token";
 
+export const PRODUCT_VESTING = "vesting";
 export const PRODUCT_STREAMS = "streams";
-export const PRODUCT_VESTING = "token vesting";
-export const PRODUCT_PAYROLL = "payroll";
+export const PRODUCT_MULTIPAY = "multipay";
 export const PRODUCT_MULTISIG = "multisig";
 
 export const products = [
-    PRODUCT_STREAMS,
-    PRODUCT_VESTING,
-    PRODUCT_PAYROLL,
-    PRODUCT_MULTISIG,
+  PRODUCT_VESTING,
+  PRODUCT_STREAMS,
+  PRODUCT_MULTIPAY,
+  PRODUCT_MULTISIG,
 ];
 
 //don't forget to update tailwind.config.js to safelist dynamically generated classes
 export const STREAM_STATUS_COLOR = {
-    [StreamStatus.scheduled]: "gray", // now < start
-    [StreamStatus.streaming]: "green", // start <= now < end
-    [StreamStatus.complete]: "blue", //now >= end;
-    [StreamStatus.canceled]: "red",
+  [StreamStatus.scheduled]: "gray", // now < start
+  [StreamStatus.streaming]: "green", // start <= now < end
+  [StreamStatus.complete]: "blue", //now >= end;
+  [StreamStatus.canceled]: "red",
 };

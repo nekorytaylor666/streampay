@@ -1,7 +1,7 @@
 import { Main } from "./index";
 import {
   PRODUCT_MULTISIG,
-  PRODUCT_PAYROLL,
+  PRODUCT_MULTIPAY,
   PRODUCT_STREAMS,
   PRODUCT_VESTING,
 } from "../constants";
@@ -21,7 +21,7 @@ export default function Products({ product }: { product: string }) {
     case PRODUCT_STREAMS:
     case PRODUCT_VESTING:
       return <Main />;
-    case PRODUCT_PAYROLL:
+    case PRODUCT_MULTIPAY:
       return (
         <div className="mx-auto relative max-w-lg grid gap-2 xl:grid-cols-5 xl:max-w-2xl">
           <div

@@ -5,7 +5,7 @@ import { DATE_FORMAT } from "../constants";
 import { TokenInfo } from "@solana/spl-token-registry";
 
 const FormContext = createContext<CreateStreamsFormType>(
-  undefined as unknown as CreateStreamsFormType// TODO: typo.
+  undefined as unknown as CreateStreamsFormType // TODO: typo.
 );
 
 export function FormProvider(props: { children: React.ReactNode }) {
@@ -19,12 +19,12 @@ export function FormProvider(props: { children: React.ReactNode }) {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState(startDate);
   const [endTime, setEndTime] = useState("");
-  const [advanced, setAdvanced] = useState(false);
+  const [advanced, setAdvanced] = useState(true);
   const [cliffDate, setCliffDate] = useState(startDate);
   const [cliffTime, setCliffTime] = useState("00:00");
   const [cliffAmount, setCliffAmount] = useState(0);
-  const [timePeriod, setTimePeriod] = useState(1)
-  const [timePeriodMultiplier, setTimePeriodMultiplier] = useState(1)
+  const [timePeriod, setTimePeriod] = useState(1);
+  const [timePeriodMultiplier, setTimePeriodMultiplier] = useState(1);
   const [token, setToken] = useState<TokenInfo | null>(null);
 
   return (
@@ -46,14 +46,16 @@ export function FormProvider(props: { children: React.ReactNode }) {
         setAdvanced,
         token,
         setToken,
-          cliffDate,
-          setCliffDate,
-          cliffTime,
-          setCliffTime,
-          cliffAmount, setCliffAmount,
-          timePeriod,
-          setTimePeriod,
-          timePeriodMultiplier, setTimePeriodMultiplier,
+        cliffDate,
+        setCliffDate,
+        cliffTime,
+        setCliffTime,
+        cliffAmount,
+        setCliffAmount,
+        timePeriod,
+        setTimePeriod,
+        timePeriodMultiplier,
+        setTimePeriodMultiplier,
       }}
     >
       {props.children}

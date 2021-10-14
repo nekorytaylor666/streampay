@@ -5,11 +5,11 @@ import logo from "./logo.png";
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { useFormContext } from "./Contexts/FormContext";
-import { PRODUCT_STREAMS, PRODUCT_VESTING, products } from "./constants";
+import { PRODUCT_VESTING, products } from "./constants";
 
 function App() {
   const { setAdvanced } = useFormContext();
-  const [product, setProduct] = useState(PRODUCT_STREAMS);
+  const [product, setProduct] = useState(PRODUCT_VESTING);
   return (
     <div>
       <div className={"mx-auto bg-blend-darken px-4 my-4"}>
