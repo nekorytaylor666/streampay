@@ -31,6 +31,10 @@ export default function Advanced({
   updateTimePeriod: (value: number) => void;
   updateTimePeriodMultiplier: (value: number) => void;
 }) {
+  const inputClassName =
+    "text-white text-bold p-0.5 ml-2 h-6 text-right bg-transparent border-primary border-0 border-b-2 inline focus:border-secondary focus:ring-0";
+  const [s, setS] = useState(timePeriodMultiplier > 1 ? "s" : "");
+
   if (!endDate || !endTime) {
     return (
       <span hidden={!visible} className="text-white">
@@ -38,9 +42,6 @@ export default function Advanced({
       </span>
     );
   }
-  const inputClassName =
-    "text-white text-bold p-0.5 ml-2 h-6 text-right bg-transparent border-primary border-0 border-b-2 inline focus:border-secondary focus:ring-0";
-  const [s, setS] = useState(timePeriodMultiplier > 1 ? "s" : "");
 
   const lengthSeconds =
     (+new Date(endDate + "T" + endTime) -

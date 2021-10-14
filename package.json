@@ -13,6 +13,7 @@
     "@solana/wallet-adapter-base": "^0.5.1",
     "@solana/wallet-adapter-wallets": "^0.7.4",
     "@solana/web3.js": "^1.20.0",
+    "@streamflow/timelock": "^0.3.0",
     "@tailwindcss/forms": "^0.3.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.1.0",

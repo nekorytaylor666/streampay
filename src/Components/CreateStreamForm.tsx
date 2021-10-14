@@ -11,7 +11,12 @@ import {
 import { useFormContext } from "../Contexts/FormContext";
 import { getUnixTime } from "date-fns";
 import { streamCreated } from "../utils/helpers";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import {
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+} from "@solana/web3.js";
 import {
   END,
   ERR_NO_TOKEN_SELECTED,
@@ -20,7 +25,6 @@ import {
   START,
   TIME_SUFFIX,
 } from "../constants";
-import { Dispatch, SetStateAction } from "react";
 import useStore, { StoreType } from "../Stores";
 import Toggle from "./Toggle";
 import { toast } from "react-toastify";
@@ -30,6 +34,7 @@ import "buffer-layout";
 import { BN } from "@project-serum/anchor";
 import sendTransaction from "../Actions/sendTransaction";
 import { CreateStreamData } from "../types";
+import swal from "sweetalert";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -177,6 +182,26 @@ export default function CreateStreamForm({
       cliff_amount: new BN(advanced ? (cliffAmount / 100) * amount : 0),
       new_stream_keypair: newStream,
     } as CreateStreamData;
+
+    let receiverAccount = await connection.getAccountInfo(data.recipient);
+    if (
+      !receiverAccount?.lamports ||
+      !receiverAccount?.owner?.equals(SystemProgram.programId) ||
+      receiverAccount?.executable
+    ) {
+      const confirmed = await swal({
+        text: "Are you sure the address is correct?",
+        icon: "warning",
+        buttons: {
+          cancel: true,
+          confirm: true,
+        },
+      });
+      if (!confirmed) {
+        setLoading(false);
+        return false;
+      }
+    }
     console.log("trying");
     const success = await sendTransaction(
       connection,
