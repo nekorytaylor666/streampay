@@ -42,6 +42,16 @@ export default async function sendTransaction(
         d = data as CreateStreamData;
         console.log("conn wallet", connection, wallet);
         console.log("params", data);
+        console.log("sending this data: ", {
+          start_time: d.start_time.toString(),
+          end_time: d.end_time.toString(),
+          deposited_amount: d.deposited_amount.toString(),
+          period: d.period.toString(),
+          cliff: d.cliff.toString(),
+          cliff_amount: d.cliff_amount.toString(),
+          recipient: d.recipient.toString(),
+          mint: d.mint.toString(),
+        });
         tx = await Timelock.create(
           connection,
           // @ts-ignore

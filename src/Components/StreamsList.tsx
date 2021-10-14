@@ -6,6 +6,7 @@ import {
   ERR_NO_STREAM,
   ERR_NOT_CONNECTED,
   ProgramInstruction,
+  TIMELOCK_PROGRAM_ID,
   TX_FINALITY_CONFIRMED,
 } from "../constants";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
@@ -20,6 +21,7 @@ import {
   TransferStreamData,
   WithdrawStreamData,
 } from "../types";
+import { u64 } from "@solana/spl-token";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -67,6 +69,45 @@ export default function StreamsList() {
       }
     }
 
+    connection
+      ?.getProgramAccounts(new PublicKey(TIMELOCK_PROGRAM_ID), {
+        filters: [
+          {
+            memcmp: {
+              offset: 88, //sender offset
+              // @ts-ignore
+              bytes: wallet?.publicKey?.toBase58(),
+            },
+          },
+          // {
+          //   memcmp: {
+          //     offset: 152, //recipient offset
+          //     // @ts-ignore
+          //     bytes: wallet?.publicKey?.toBase58(),
+          //   },
+          // },
+        ],
+      })
+      .then((accounts) => {
+        console.log("accounts fetched from chain", accounts);
+        for (let i = 0; i < accounts.length; i++) {
+          let decoded = decode(accounts[i].account.data);
+          console.log(
+            accounts[i].pubkey.toBase58(),
+            decode(accounts[i].account.data)
+          );
+          for (const prop in decoded) {
+            console.log(
+              prop,
+              // @ts-ignore
+              decoded[prop].toString(),
+              // @ts-ignore
+              u64.fromBuffer(decoded[prop].toBuffer())
+            );
+          }
+        }
+      });
+
     for (const id in newStreams) {
       if (newStreams.hasOwnProperty(id)) {
         //first, the cleanup
@@ -81,7 +122,28 @@ export default function StreamsList() {
         if (pk) {
           connection?.getAccountInfo(new PublicKey(id)).then((result) => {
             if (result?.data) {
-              addStream(id, decode(result.data));
+              const d = decode(result.data);
+              console.log("data fetched from chain: ", {
+                magic: d.magic.toString(),
+                start_time: d.start_time.toString(),
+                end_time: d.end_time.toString(),
+                deposited_amount: d.deposited_amount.toString(),
+                total_amount: d.total_amount.toString(),
+                period: d.period.toString(),
+                cliff: d.cliff.toString(),
+                cliff_amount: d.cliff_amount.toString(),
+                created_at: d.created_at.toString(),
+                withdrawn: d.withdrawn.toString(),
+                cancel_time: d.cancel_time.toString(),
+                sender: d.sender.toString(),
+                sender_tokens: d.sender_tokens.toString(),
+                recipient: d.recipient.toString(),
+                recipient_tokens: d.recipient_tokens.toString(),
+                mint: d.mint.toString(),
+                escrow_tokens: d.escrow_tokens.toString(),
+              });
+
+              //addStream(id, decode(result.data));
             } else {
               if (id === streamID) {
                 toast.error(ERR_NO_STREAM);

@@ -13,7 +13,7 @@ const clusterUrls: { [s: string]: () => string } = {
 };
 
 const programIds: { [s: string]: () => string | null } = {
-  [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa",// prompt("Program ID?"),
+  [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa", // prompt("Program ID?"),
   [CLUSTER_DEVNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_MAINNET]: () => null, // TODO: publish the program to mainnet
@@ -21,8 +21,8 @@ const programIds: { [s: string]: () => string | null } = {
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: (localStorage.cluster || CLUSTER_DEVNET) as string,
-  programId: programIds[localStorage.cluster || CLUSTER_DEVNET]() as string,
+  cluster: CLUSTER_LOCAL as string, //todo set mainnet
+  programId: programIds[CLUSTER_LOCAL]() as string,
   tokenAccounts: {} as { [key: string]: string },
 
   // actions
