@@ -25,7 +25,7 @@ export default async function sendTransaction(
   let d;
 
   try {
-    if (wallet?.publicKey !== null || !connection) {
+    if (wallet?.publicKey === null || !connection) {
       throw ERR_NOT_CONNECTED;
     }
 
