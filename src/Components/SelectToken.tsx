@@ -113,7 +113,11 @@ export default function SelectToken({
         generateKey={(token) => token.address}
         onSelect={(token) => {
           setToken(token);
-          setBalance(tokenAccounts[token.address].amount as number);
+          if (tokenAccounts[token.address]) {
+            setBalance(tokenAccounts[token.address].amount as number);
+          } else {
+            setBalance(0);
+          }
         }}
       />
     </div>

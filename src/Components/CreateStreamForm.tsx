@@ -235,7 +235,11 @@ export default function CreateStreamForm({
   return (
     <form onSubmit={createStream} id="form">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
-        <Amount onChange={setAmount} value={amount} max={balance} />
+        <Amount
+          onChange={setAmount}
+          value={amount}
+          max={token ? balance * 10 ** token.decimals : 0}
+        />
         {wallet?.publicKey ? (
           <SelectToken token={token} setToken={setToken} />
         ) : (
