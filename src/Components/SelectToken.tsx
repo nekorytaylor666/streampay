@@ -14,7 +14,9 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   connection: state.connection(),
   wallet: state.wallet,
-  setTokenAccounts: state.setTokenAccounts,
+  refreshTokenAccounts: state.refreshTokenAccounts,
+  tokenAccounts: state.tokenAccounts,
+  setBalance: state.setBalance,
 });
 
 export default function SelectToken({
@@ -24,43 +26,21 @@ export default function SelectToken({
   token: TokenInfo | null;
   setToken: (token: TokenInfo) => void;
 }) {
-  const { cluster, connection, wallet, setTokenAccounts } =
-    useStore(storeGetter);
+  const {
+    cluster,
+    connection,
+    wallet,
+    refreshTokenAccounts,
+    setBalance,
+    tokenAccounts,
+  } = useStore(storeGetter);
   const [tokenArray, setTokenArray] = useState<TokenInfo[]>([]);
 
   if (connection === null || !wallet?.publicKey) {
     throw ERR_NOT_CONNECTED;
   }
   useEffect(() => {
-    if (wallet.publicKey) {
-      connection
-        .getTokenAccountsByOwner(wallet.publicKey, {
-          programId: TOKEN_PROGRAM_ID,
-        })
-        .then((result) => console.log("token accs", result));
-    }
-    Promise.all([
-      new TokenListProvider().resolve(Strategy.Static),
-      connection
-        .getParsedTokenAccountsByOwner(wallet.publicKey as PublicKey, {
-          programId: TOKEN_PROGRAM_ID,
-        })
-        .then((result) => result.value),
-    ]).then(([tokens, tokenAccounts]) => {
-      console.log("accs", tokenAccounts);
-      setTokenAccounts(
-        tokenAccounts.reduce(
-          (pr, cu) => ({
-            ...pr,
-            [cu.account.data.parsed.info.mint]: cu.pubkey,
-          }),
-          {}
-        )
-      );
-      const mappedTokenAccounts = tokenAccounts.map(
-        (tokAcc) => tokAcc.account.data.parsed.info.mint
-      );
-      console.log("mapped", mappedTokenAccounts);
+    new TokenListProvider().resolve(Strategy.Static).then((tokens) => {
       console.log(
         "all tokens",
         tokens
@@ -85,6 +65,15 @@ export default function SelectToken({
       const solTokenInfo =
         tokenList.find((i) => i.symbol === "SOL") || tokenList[0];
       console.log("sol token", solTokenInfo);
+
+      refreshTokenAccounts(connection, wallet.publicKey as PublicKey).then(
+        (tokenAccounts) => {
+          if (solTokenInfo) {
+            setBalance(tokenAccounts[solTokenInfo.address].amount as number);
+          }
+        }
+      );
+
       if (solTokenInfo) {
         setToken(solTokenInfo);
       }
@@ -122,7 +111,10 @@ export default function SelectToken({
         options={tokenArray}
         generateOption={(token) => `${token.symbol} (${token.name})`}
         generateKey={(token) => token.address}
-        onSelect={(token) => setToken(token)}
+        onSelect={(token) => {
+          setToken(token);
+          setBalance(tokenAccounts[token.address].amount as number);
+        }}
       />
     </div>
   );

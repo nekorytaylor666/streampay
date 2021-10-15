@@ -1,6 +1,7 @@
 import { TokenInfo } from "@solana/spl-token-registry";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "@project-serum/anchor";
+import BufferLayout from "buffer-layout";
 
 export interface WalletType {
   name: string;
@@ -80,10 +81,6 @@ export interface TokenAccount {
   token: TokenInfo;
   account: PublicKey;
 }
-
-import BufferLayout from "buffer-layout";
-import { PublicKey } from "@solana/web3.js";
-import { BN } from "@project-serum/anchor";
 
 const instructionsFields = [
   BufferLayout.blob(8, "start_time"),

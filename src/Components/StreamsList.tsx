@@ -3,11 +3,12 @@ import { _swal } from "../utils/helpers";
 import { Stream } from "../Components";
 import { getUnixTime } from "date-fns";
 import {
-  ERR_NO_STREAM,
+  ERR_TOKEN_ACCOUNT_NONEXISTENT,
   ERR_NOT_CONNECTED,
   ProgramInstruction,
   TIMELOCK_PROGRAM_ID,
   TX_FINALITY_CONFIRMED,
+  ERR_NO_STREAM,
 } from "../constants";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import useStore, { StoreType } from "../Stores";
@@ -22,6 +23,7 @@ import {
   WithdrawStreamData,
 } from "../types";
 import { u64 } from "@solana/spl-token";
+import { useFormContext } from "../Contexts/FormContext";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -33,6 +35,7 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   wallet: state.wallet,
   connection: state.connection(),
+  refreshTokenAccounts: state.refreshTokenAccounts,
 });
 
 export default function StreamsList() {
@@ -46,7 +49,10 @@ export default function StreamsList() {
     deleteStream,
     clearStreams,
     cluster,
+    refreshTokenAccounts,
   } = useStore(storeGetter);
+
+  const { token } = useFormContext();
 
   //componentWillMount
   useEffect(() => {
@@ -69,44 +75,43 @@ export default function StreamsList() {
       }
     }
 
-    connection
-      ?.getProgramAccounts(new PublicKey(TIMELOCK_PROGRAM_ID), {
-        filters: [
-          {
-            memcmp: {
-              offset: 88, //sender offset
-              // @ts-ignore
-              bytes: wallet?.publicKey?.toBase58(),
-            },
+    connection?.getProgramAccounts(new PublicKey(TIMELOCK_PROGRAM_ID), {
+      filters: [
+        {
+          memcmp: {
+            offset: 88, //sender offset
+            // @ts-ignore
+            bytes: wallet?.publicKey?.toBase58(),
           },
-          // {
-          //   memcmp: {
-          //     offset: 152, //recipient offset
-          //     // @ts-ignore
-          //     bytes: wallet?.publicKey?.toBase58(),
-          //   },
-          // },
-        ],
-      })
-      .then((accounts) => {
-        console.log("accounts fetched from chain", accounts);
-        for (let i = 0; i < accounts.length; i++) {
-          let decoded = decode(accounts[i].account.data);
-          console.log(
-            accounts[i].pubkey.toBase58(),
-            decode(accounts[i].account.data)
-          );
-          for (const prop in decoded) {
-            console.log(
-              prop,
-              // @ts-ignore
-              decoded[prop].toString(),
-              // @ts-ignore
-              u64.fromBuffer(decoded[prop].toBuffer())
-            );
-          }
-        }
-      });
+        },
+        // {
+        //   memcmp: {
+        //     offset: 152, //recipient offset
+        //     // @ts-ignore
+        //     bytes: wallet?.publicKey?.toBase58(),
+        //   },
+        // },
+      ],
+    });
+    // .then((accounts) => {
+    //   console.log("accounts fetched from chain", accounts);
+    //   for (let i = 0; i < accounts.length; i++) {
+    //     let decoded = decode(accounts[i].account.data);
+    //     console.log(
+    //       accounts[i].pubkey.toBase58(),
+    //       decode(accounts[i].account.data)
+    //     );
+    //     for (const prop in decoded) {
+    //       console.log(
+    //         prop,
+    //         // @ts-ignore
+    //         decoded[prop].toString(),
+    //         // @ts-ignore
+    //         u64.fromBuffer(decoded[prop].toBuffer())
+    //       );
+    //     }
+    //   }
+    // });
 
     for (const id in newStreams) {
       if (newStreams.hasOwnProperty(id)) {
@@ -172,14 +177,22 @@ export default function StreamsList() {
       } as WithdrawStreamData
     );
     if (success) {
-      const newBalance =
-        (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
-        LAMPORTS_PER_SOL;
+      const tokenAccounts = await refreshTokenAccounts(
+        connection,
+        wallet.publicKey as PublicKey
+      );
+      if (token === null) {
+        throw ERR_TOKEN_ACCOUNT_NONEXISTENT;
+      }
+      const newBalance = tokenAccounts[token.address].amount;
       const stream = await connection.getAccountInfo(
         new PublicKey(id),
         TX_FINALITY_CONFIRMED
       );
-      setBalance(newBalance);
+      if (streams[id].mint.equals(new PublicKey(token.address))) {
+        // if the stream was in the same "currency" as currently selected => update visible balance
+        setBalance(newBalance);
+      }
       if (stream !== null) {
         addStream(id, decode(stream.data));
       }
@@ -203,11 +216,19 @@ export default function StreamsList() {
       } as CancelStreamData
     );
     if (success) {
-      const newBalance =
-        (await connection.getBalance(wallet.publicKey, TX_FINALITY_CONFIRMED)) /
-        LAMPORTS_PER_SOL;
+      const tokenAccounts = await refreshTokenAccounts(
+        connection,
+        wallet.publicKey as PublicKey
+      );
+      if (token === null) {
+        throw ERR_TOKEN_ACCOUNT_NONEXISTENT;
+      }
+      const newBalance = tokenAccounts[token.address].amount;
       const newWithdrawn = deposited_amount.subn(newBalance - oldBalance);
-      setBalance(newBalance);
+      if (streams[id].mint.equals(new PublicKey(token.address))) {
+        // if the stream was in the same "currency" as currently selected => update visible balance
+        setBalance(newBalance);
+      }
       addStream(id, {
         ...streams[id],
         withdrawn: newWithdrawn,

@@ -35,6 +35,8 @@ export const ERR_NO_STREAM =
 export const ERR_NOT_CONNECTED =
   "There was an issue with the connection - please try to refresh the page.";
 export const ERR_NO_TOKEN_SELECTED = "Please select the token";
+export const ERR_TOKEN_ACCOUNT_NONEXISTENT =
+  "The specified token account doesn't exist";
 
 export const PRODUCT_VESTING = "vesting";
 export const PRODUCT_STREAMS = "streams";

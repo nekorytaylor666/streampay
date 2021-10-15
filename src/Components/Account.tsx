@@ -36,7 +36,6 @@ export default function Account({
     connection,
     wallet,
     balance,
-    setBalance,
     isMainnet,
     disconnectWallet,
     setWalletType,
@@ -50,7 +49,6 @@ export default function Account({
           if (result.value.err) {
             toast.error("Airdrop failed!");
           } else {
-            setBalance(balance + AIRDROP_AMOUNT);
             toast.success("Airdrop confirmed. Balance updated!");
           }
         });
