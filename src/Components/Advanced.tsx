@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { format, fromUnixTime } from "date-fns";
 
 export default function Advanced({
   visible,
@@ -53,11 +54,13 @@ export default function Advanced({
   return (
     <div
       hidden={!visible}
-      className="relative text-gray-400 -mx-2 p-2 rounded-md"
+      className="relative text-gray-400 -mx-2 p-2 rounded-md mt-4"
     >
       First
       <input
+        required={visible}
         id="cliff_amount"
+        name="cliff_amount"
         type="number"
         min={0}
         max={100}
@@ -67,14 +70,18 @@ export default function Advanced({
       />
       <small className="text-white">%</small> released at
       <input
+        required={visible}
         id="cliff_date"
+        name="cliff_date"
         type="date"
         value={cliffDate}
         onChange={(e) => updateCliffDate(e.target.value)}
         className={inputClassName}
       />
       <input
+        required={visible}
         id="cliff_time"
+        name="cliff_time"
         type="time"
         value={cliffTime}
         onChange={(e) => updateCliffTime(e.target.value)}
@@ -114,7 +121,7 @@ export default function Advanced({
       <hr className="my-2 border-0" />
       until{" "}
       <span className="text-white">
-        {new Date(endDate + "T" + endTime).toLocaleString()}
+        {format(new Date(endDate + "T" + endTime), "ccc do MMM, yy — HH:mm")}
       </span>
       {/*
       <br />

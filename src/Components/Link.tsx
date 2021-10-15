@@ -16,7 +16,8 @@ export default function Link(props: {
   return (
     <strong className={"text-gray-300 hover:text-white " + className}>
       <a href={url} target="_blank" rel="noopener noreferrer">
-        {title || url} {icon}
+        {title || url}
+        {icon}
       </a>
     </strong>
   );

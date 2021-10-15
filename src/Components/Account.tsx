@@ -76,10 +76,7 @@ export default function Account({
   let myAddress = null;
   if (walletPubKey) {
     myWalletLink = (
-      <Link
-        url={getExplorerLink("address", walletPubKey)}
-        title="My Wallet Address"
-      />
+      <Link url={getExplorerLink("address", walletPubKey)} title="Address" />
     );
     myAddress = <Address address={walletPubKey} className="block truncate" />;
   }

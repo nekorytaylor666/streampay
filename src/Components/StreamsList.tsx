@@ -148,7 +148,7 @@ export default function StreamsList() {
                 escrow_tokens: d.escrow_tokens.toString(),
               });
 
-              //addStream(id, decode(result.data));
+              addStream(id, decode(result.data));
             } else {
               if (id === streamID) {
                 toast.error(ERR_NO_STREAM);

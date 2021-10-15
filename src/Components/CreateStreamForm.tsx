@@ -85,7 +85,7 @@ export default function CreateStreamForm({
   const { connection, wallet, balance, setBalance, addStream, tokenAccounts } =
     useStore(storeGetter);
 
-  function validate(element: HTMLFormElement) {
+  async function validate(element: HTMLFormElement) {
     const { name, value } = element;
     let start, end, cliff;
     let msg = "";
@@ -110,24 +110,33 @@ export default function CreateStreamForm({
         end = new Date(endDate + "T" + value);
         msg = end < start ? "Err... end time before the start time?" : "";
         break;
-        // case "cliff_date":
-        //   start = new Date(startDate + TIME_SUFFIX);
-        //   cliff = new Date(value + TIME_SUFFIX);
-        //   end = new Date(endDate + TIME_SUFFIX);
-        //   msg =
-        //     cliff < start || cliff > end
-        //       ? "Cliff must be between start and end date."
-        //       : "";
-        //   break;
-        // case "cliff_time":
-        //   start = new Date(startDate + "T" + startTime);
-        //   cliff = new Date(cliffDate + "T" + value);
-        //   end = new Date(endDate + "T" + endTime);
-        //   msg =
-        //     cliff < start || cliff > end
-        //       ? "Cliff must be between start and end date."
-        //       : "";
+      case "cliff_date":
+        start = new Date(startDate + TIME_SUFFIX);
+        cliff = new Date(value + TIME_SUFFIX);
+        end = new Date(endDate + TIME_SUFFIX);
+        msg =
+          cliff < start || cliff > end
+            ? "Cliff must be between start and end date."
+            : "";
         break;
+      case "cliff_time":
+        start = new Date(startDate + "T" + startTime);
+        cliff = new Date(cliffDate + "T" + value);
+        end = new Date(endDate + "T" + endTime);
+        msg =
+          cliff < start || cliff > end
+            ? "Cliff must be between start and end date."
+            : "";
+        break;
+      // case "recipient":
+      //   let acc = await connection?.getAccountInfo(new PublicKey(value));
+      //   msg =
+      //     !acc?.lamports ||
+      //     !acc?.owner?.equals(SystemProgram.programId) ||
+      //     acc?.executable
+      //       ? "This account doesn't seem correct."
+      //       : "";
+      //   break;
       default:
     }
     element.setCustomValidity(msg);
@@ -135,24 +144,27 @@ export default function CreateStreamForm({
 
   async function createStream(e: any) {
     e.preventDefault();
-    console.log(e);
+
     if (!wallet?.publicKey || !connection) {
       console.log(ERR_NOT_CONNECTED);
       toast.error(ERR_NOT_CONNECTED);
       return false;
     }
+
     if (token === null) {
       console.log(ERR_NO_TOKEN_SELECTED);
       toast.error(ERR_NO_TOKEN_SELECTED);
       return false;
     }
+
     const form = document.getElementById("form") as HTMLFormElement;
+
     if (!form) {
-      console.log("smtng");
       return false;
     }
+
     for (let i = 0; i < form.elements.length; i++) {
-      validate(form.elements[i] as HTMLFormElement);
+      await validate(form.elements[i] as HTMLFormElement);
     }
 
     if (!form.checkValidity()) {
@@ -170,7 +182,7 @@ export default function CreateStreamForm({
 
     setLoading(true);
     const data = {
-      deposited_amount: new BN(amount),
+      deposited_amount: new BN(amount * 10 ** token.decimals),
       recipient: new PublicKey(receiver),
       mint: new PublicKey(token.address),
       start_time: new BN(start),
@@ -179,7 +191,9 @@ export default function CreateStreamForm({
       cliff: new BN(
         advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
       ),
-      cliff_amount: new BN(advanced ? (cliffAmount / 100) * amount : 0),
+      cliff_amount: new BN(
+        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.decimals
+      ),
       new_stream_keypair: newStream,
     } as CreateStreamData;
 
@@ -202,7 +216,7 @@ export default function CreateStreamForm({
         return false;
       }
     }
-    console.log("trying");
+
     const success = await sendTransaction(
       connection,
       wallet,
@@ -273,22 +287,22 @@ export default function CreateStreamForm({
         />
       </div>
       <Toggle enabled={advanced} setEnabled={setAdvanced} label="Advanced" />
-      {/*<Advanced*/}
-      {/*  visible={advanced}*/}
-      {/*  amount={amount}*/}
-      {/*  endDate={endDate}*/}
-      {/*  endTime={endTime}*/}
-      {/*  cliffDate={cliffDate}*/}
-      {/*  updateCliffDate={setCliffDate}*/}
-      {/*  cliffTime={cliffTime}*/}
-      {/*  updateCliffTime={setCliffTime}*/}
-      {/*  timePeriod={timePeriod}*/}
-      {/*  updateTimePeriod={setTimePeriod}*/}
-      {/*  timePeriodMultiplier={timePeriodMultiplier}*/}
-      {/*  updateTimePeriodMultiplier={setTimePeriodMultiplier}*/}
-      {/*  cliffAmount={cliffAmount}*/}
-      {/*  updateCliffAmount={setCliffAmount}*/}
-      {/*/>*/}
+      <Advanced
+        visible={advanced}
+        amount={amount}
+        endDate={endDate}
+        endTime={endTime}
+        cliffDate={cliffDate}
+        updateCliffDate={setCliffDate}
+        cliffTime={cliffTime}
+        updateCliffTime={setCliffTime}
+        timePeriod={timePeriod}
+        updateTimePeriod={setTimePeriod}
+        timePeriodMultiplier={timePeriodMultiplier}
+        updateTimePeriodMultiplier={setTimePeriodMultiplier}
+        cliffAmount={cliffAmount}
+        updateCliffAmount={setCliffAmount}
+      />
       {wallet?.connected ? (
         <ButtonPrimary
           className="font-bold text-2xl my-5"

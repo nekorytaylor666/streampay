@@ -97,11 +97,11 @@ export default function Stream(props: {
           onClick={removeStream}
           className={`p-1.5 h-6 w-6 float-right align-top rounded-sm hover:bg-${color}-100 focus:outline-none focus:ring-1`}
         >
-          <XIcon className="float-right w-3 h-3" />
+          {/*<XIcon className="float-right w-3 h-3" />*/}
         </button>
       </div>
       <Duration start_time={start_time} end_time={end_time} />
-      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"ID"} />
+      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"Stream ID"} />
       <Address address={id} className="col-span-2 text-sm text-gray-400" />
       <Link
         url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())}
