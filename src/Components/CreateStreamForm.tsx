@@ -214,8 +214,7 @@ export default function CreateStreamForm({
 
     if (success) {
       streamCreated(newStream.publicKey.toBase58());
-      const fee = await connection.getMinimumBalanceForRentExemption(96);
-      setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
+      setBalance(balance - amount / 10 ** token.decimals);
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancel_time: new BN(0),

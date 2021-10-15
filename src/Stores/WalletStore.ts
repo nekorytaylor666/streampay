@@ -41,20 +41,6 @@ const walletStore = (set: Function, get: Function) => ({
     if (wallet) {
       wallet.on("connect", async () => {
         set({ walletType, wallet });
-        state
-          .connection()
-          .getBalance(wallet.publicKey)
-          .then(async (result: number) => {
-            state.setBalance(result / LAMPORTS_PER_SOL);
-            console.log(wallet);
-            console.log(wallet.publicKey);
-            //let accs = await getConnection(clusterApiUrl(CLUSTER_MAINNET))?.getTokenAccountsByOwner(wallet.publicKey, {programId: TOKEN_PROGRAM_ID});
-            // @ts-ignore
-            // for( let i = 0; i < 50; i++) {
-            //       // @ts-ignore
-            //       console.log("https://explorer.solana.com/address/" + accs.value[i].pubkey.toBase58());
-            //     }
-          });
         const provider = new Provider(
           getConnection(get().clusterUrl()) as Connection,
           wallet,
