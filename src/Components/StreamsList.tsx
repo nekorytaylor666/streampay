@@ -24,6 +24,7 @@ import {
 } from "../types";
 import { u64 } from "@solana/spl-token";
 import { useFormContext } from "../Contexts/FormContext";
+import swal from "sweetalert";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -238,6 +239,34 @@ export default function StreamsList() {
     }
   }
 
+  async function transferStream(id: string) {
+    const input = await swal({
+      title: "Transfer recipient:",
+      content: {
+        element: "input",
+        attributes: {
+          placeholder: "New recipient address",
+          type: "text",
+        },
+      },
+    });
+
+    try {
+      const newRecipient = new PublicKey(input);
+      await sendTransaction(
+        connection,
+        wallet,
+        ProgramInstruction.TransferRecipient,
+        {
+          stream: new PublicKey(id),
+          new_recipient: new PublicKey(newRecipient),
+        } as TransferStreamData
+      );
+    } catch (e) {
+      toast.error("Invalid address");
+    }
+  }
+
   async function removeStream(id: string, skipPrompt?: boolean) {
     if (!skipPrompt && (await _swal())) {
       deleteStream(id);
@@ -261,17 +290,7 @@ export default function StreamsList() {
         // onStatusUpdate={(status) => addStream(id, { ...streams[id], status })}
         onWithdraw={() => withdrawStream(id)}
         onCancel={() => cancelStream(id)}
-        onTransfer={(newRecipient) =>
-          sendTransaction(
-            connection,
-            wallet,
-            ProgramInstruction.TransferRecipient,
-            {
-              stream: new PublicKey(id),
-              new_recipient: newRecipient,
-            } as TransferStreamData
-          )
-        }
+        onTransfer={() => transferStream(id)}
         id={id}
         data={data}
         myAddress={wallet?.publicKey?.toBase58() as string}
