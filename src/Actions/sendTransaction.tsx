@@ -98,7 +98,7 @@ export default async function sendTransaction(
           wallet,
           TIMELOCK_PROGRAM_ID,
           d.stream,
-          data
+          d.new_recipient
         );
         break;
     }

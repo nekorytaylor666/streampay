@@ -82,11 +82,12 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, balance, setBalance, addStream, tokenAccounts } =
+  const { connection, wallet, balance, setBalance, addStream } =
     useStore(storeGetter);
 
-  async function validate(element: HTMLFormElement) {
+  function validate(element: HTMLFormElement) {
     const { name, value } = element;
+    console.log("validating ", name);
     let start, end, cliff;
     let msg = "";
     switch (name) {
@@ -115,7 +116,7 @@ export default function CreateStreamForm({
         cliff = new Date(value + TIME_SUFFIX);
         end = new Date(endDate + TIME_SUFFIX);
         msg =
-          cliff < start || cliff > end
+          advanced && (cliff < start || cliff > end)
             ? "Cliff must be between start and end date."
             : "";
         break;
@@ -124,7 +125,7 @@ export default function CreateStreamForm({
         cliff = new Date(cliffDate + "T" + value);
         end = new Date(endDate + "T" + endTime);
         msg =
-          cliff < start || cliff > end
+          advanced && (cliff < start || cliff > end)
             ? "Cliff must be between start and end date."
             : "";
         break;
@@ -146,13 +147,11 @@ export default function CreateStreamForm({
     e.preventDefault();
 
     if (!wallet?.publicKey || !connection) {
-      console.log(ERR_NOT_CONNECTED);
       toast.error(ERR_NOT_CONNECTED);
       return false;
     }
 
     if (token === null) {
-      console.log(ERR_NO_TOKEN_SELECTED);
       toast.error(ERR_NO_TOKEN_SELECTED);
       return false;
     }
@@ -164,7 +163,7 @@ export default function CreateStreamForm({
     }
 
     for (let i = 0; i < form.elements.length; i++) {
-      await validate(form.elements[i] as HTMLFormElement);
+      validate(form.elements[i] as HTMLFormElement);
     }
 
     if (!form.checkValidity()) {
@@ -187,7 +186,7 @@ export default function CreateStreamForm({
       mint: new PublicKey(token.address),
       start_time: new BN(start),
       end_time: new BN(end),
-      period: new BN(timePeriod * timePeriodMultiplier),
+      period: new BN(advanced ? timePeriod * timePeriodMultiplier : 1),
       cliff: new BN(
         advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
       ),
@@ -203,14 +202,15 @@ export default function CreateStreamForm({
       !receiverAccount?.owner?.equals(SystemProgram.programId) ||
       receiverAccount?.executable
     ) {
-      const confirmed = await swal({
-        text: "Are you sure the address is correct?",
-        icon: "warning",
-        buttons: {
-          cancel: true,
-          confirm: true,
-        },
-      });
+      const confirmed = true;
+      // const confirmed = await swal({
+      //   text: "Are you sure the address is correct?",
+      //   icon: "warning",
+      //   buttons: {
+      //     cancel: true,
+      //     confirm: true,
+      //   },
+      // });
       if (!confirmed) {
         setLoading(false);
         return false;
@@ -231,7 +231,10 @@ export default function CreateStreamForm({
       setBalance(balance - amount / 10 ** token.decimals);
       addStream(newStream.publicKey.toBase58(), {
         ...data,
-        cancel_time: new BN(0),
+        cancellable_at: new BN(end),
+        last_withdrawn_at: new BN(0),
+        withdrawn_amount: new BN(0),
+        canceled_at: new BN(0),
         created_at: new BN(+new Date() / 1000),
         escrow_tokens: undefined as any,
         magic: new BN(0),
@@ -239,7 +242,6 @@ export default function CreateStreamForm({
         sender: wallet.publicKey,
         sender_tokens: undefined as any,
         total_amount: new BN(amount),
-        withdrawn: new BN(0),
       });
     }
     console.log("last command");
@@ -252,7 +254,7 @@ export default function CreateStreamForm({
         <Amount
           onChange={setAmount}
           value={amount}
-          max={token ? balance * 10 ** token.decimals : 0}
+          max={token ? balance / 10 ** token.decimals : 0}
         />
         {wallet?.publicKey ? (
           <SelectToken token={token} setToken={setToken} />
@@ -266,7 +268,7 @@ export default function CreateStreamForm({
               className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
               defaultValue="1"
             >
-              <option value="1">Wallet not connected</option>
+              <option value="1">&nbsp;</option>
             </select>
           </div>
         )}

@@ -26,6 +26,7 @@ export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
 
 export function _swal(): Promise<void> {
   return swal({
+    dangerMode: true,
     text: "Are you sure?",
     icon: "warning",
     buttons: { cancel: true, confirm: true },
@@ -46,24 +47,24 @@ export function copyToClipboard(value: string): void {
 
 export function streamCreated(id: string) {
   const url = window.location.origin + "#" + id;
-  swal({
-    buttons: ["Copy Stream URL"],
-    icon: "success",
-    title: "Stream created!",
-    //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
-    content: {
-      element: "a",
-      attributes: {
-        className: "text-primary block truncate max-w-full",
-        href: url,
-        target: "_blank",
-        innerHTML: url,
-      },
-    },
-  }).then((clicked) => {
-    if (clicked) {
-      copyToClipboard(url);
-      swal("Link copied to clipboard!", "Send it to the recipient!", "success");
-    }
-  });
+  // swal({
+  //   buttons: { confirm: { text: "Copy Stream URL" } },
+  //   icon: "success",
+  //   title: "Stream created!",
+  //   //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
+  //   content: {
+  //     element: "a",
+  //     attributes: {
+  //       className: "text-primary block truncate max-w-full",
+  //       href: url,
+  //       target: "_blank",
+  //       innerHTML: url,
+  //     },
+  //   },
+  // }).then((clicked) => {
+  //   if (clicked) {
+  //     copyToClipboard(url);
+  //     swal("Link copied to clipboard!", "Send it to the recipient!", "success");
+  //   }
+  // });
 }

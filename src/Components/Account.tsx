@@ -10,6 +10,7 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import useStore, { StoreType } from "../Stores";
 import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
+import { useFormContext } from "../Contexts/FormContext";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -41,6 +42,8 @@ export default function Account({
     setWalletType,
   } = useStore(storeGetter);
 
+  const { token } = useFormContext();
+
   useEffect(() => {
     if (airdropTxSignature && connection) {
       connection
@@ -49,6 +52,7 @@ export default function Account({
           if (result.value.err) {
             toast.error("Airdrop failed!");
           } else {
+            //setBalance(balance + AIRDROP_AMOUNT);
             toast.success("Airdrop confirmed. Balance updated!");
           }
         });
@@ -88,8 +92,12 @@ export default function Account({
         {myAddress}
       </div>
       <div className="mb-4 clearfix text-white">
-        <strong className="block">Balance</strong>
-        <span>◎{Number(balance).toFixed(4)}</span>
+        {token && (
+          <>
+            <strong className="block">Balance</strong>
+            {Number(balance / 10 ** token?.decimals).toFixed(4)} {token?.symbol}
+          </>
+        )}
         <button
           type="button"
           onClick={() => {

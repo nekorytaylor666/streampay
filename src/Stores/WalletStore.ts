@@ -18,7 +18,7 @@ const getConnection = (clusterUrl: string | null) => {
   }
   const key = clusterUrl;
   if (!memoizedConnection[key]) {
-    memoizedConnection = { [key]: new Connection(clusterUrl) };
+    memoizedConnection = { [key]: new Connection(clusterUrl, "confirmed") };
   }
   return memoizedConnection[key];
 };

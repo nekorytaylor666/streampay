@@ -49,8 +49,7 @@ export default function SelectToken({
       );
       const tokenList = tokens
         .filterByClusterSlug(cluster === "local" ? "devnet" : cluster)
-        .getList()
-        .slice(0, 4);
+        .getList();
       // .filter((token) => {
       //     return mappedTokenAccounts.indexOf(token.address) !== -1
       //         || token.address === "So11111111111111111111111111111111111111112"
@@ -62,21 +61,23 @@ export default function SelectToken({
 
       console.log("tokenlist", tokenList);
       setTokenArray(tokenList);
-      const solTokenInfo =
-        tokenList.find((i) => i.symbol === "SOL") || tokenList[0];
-      console.log("sol token", solTokenInfo);
+      // const solTokenInfo =
+      //   tokenList.find((i) => i.symbol === "SOL") || tokenList[0];
+      // console.log("sol token", solTokenInfo);
 
       refreshTokenAccounts(connection, wallet.publicKey as PublicKey).then(
         (tokenAccounts) => {
-          if (solTokenInfo) {
-            setBalance(tokenAccounts[solTokenInfo.address].amount as number);
-          }
+          console.log("tokenaccounts", tokenAccounts);
+          setBalance(
+            tokenAccounts[Object.keys(tokenAccounts)[0]].amount as number
+          );
+          setToken(tokenList[0]);
         }
       );
 
-      if (solTokenInfo) {
-        setToken(solTokenInfo);
-      }
+      // if (solTokenInfo) {
+      //   setToken(solTokenInfo);
+      // }
     });
   }, [setToken, setTokenArray, cluster]);
 
@@ -94,10 +95,7 @@ export default function SelectToken({
   const dropdownValue = (
     <div className="flex">
       {token.logoURI && icon}
-      <span className="flex-1">
-        {token.symbol}
-        {token.name}
-      </span>
+      <span className="flex-1">{token.symbol}</span>
     </div>
   );
   return (
@@ -109,7 +107,7 @@ export default function SelectToken({
         value={dropdownValue}
         textValue={token.symbol}
         options={tokenArray}
-        generateOption={(token) => `${token.symbol} (${token.name})`}
+        generateOption={(token) => `${token.symbol}`}
         generateKey={(token) => token.address}
         onSelect={(token) => {
           setToken(token);
