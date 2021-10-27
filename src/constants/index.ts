@@ -55,3 +55,6 @@ export const STREAM_STATUS_COLOR = {
   [StreamStatus.complete]: "blue", //now >= end;
   [StreamStatus.canceled]: "red",
 };
+
+export const TIMELOCK_STRUCT_OFFSET_SENDER = 48;
+export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 112;
