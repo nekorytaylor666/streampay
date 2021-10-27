@@ -10,11 +10,10 @@ import { Address, Link } from "./index";
 import { StreamStatus } from "../types";
 import { TokenStreamData } from "@streamflow/timelock/dist/layout";
 import { BN } from "@project-serum/anchor";
-import useStore, { StoreType } from "../Stores";
 
-const storeGetter = (state: StoreType) => ({
-  tokensStreaming: state.tokensStreaming,
-});
+// const storeGetter = (state: StoreType) => ({
+//   tokensStreaming: state.tokensStreaming,
+// });
 
 export default function Stream(props: {
   data: TokenStreamData;
@@ -34,7 +33,6 @@ export default function Stream(props: {
     deposited_amount,
     recipient,
     sender,
-    mint,
   } = props.data;
   const {
     myAddress,
@@ -46,7 +44,7 @@ export default function Stream(props: {
     id,
   } = props;
 
-  const { tokensStreaming } = useStore(storeGetter);
+  // const { tokensStreaming } = useStore(storeGetter);
 
   const [streamed, setStreamed] = useState(
     getStreamed(

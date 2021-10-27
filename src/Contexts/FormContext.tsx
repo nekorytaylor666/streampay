@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { createContext, useContext, useState } from "react";
 import { CreateStreamsFormType } from "../types";
 import { DATE_FORMAT } from "../constants";
-import { TokenInfo } from "@solana/spl-token-registry";
 
 const FormContext = createContext<CreateStreamsFormType>(
   undefined as unknown as CreateStreamsFormType // TODO: typo.

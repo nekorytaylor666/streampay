@@ -1,7 +1,5 @@
 import { toast } from "react-toastify";
-import { Connection } from "@solana/web3.js";
 import ToastrLink from "../Components/ToastrLink";
-import Wallet from "@project-serum/sol-wallet-adapter";
 import {
   ERR_NOT_CONNECTED,
   ProgramInstruction,

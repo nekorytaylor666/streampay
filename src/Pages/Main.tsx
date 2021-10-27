@@ -23,19 +23,8 @@ const storeGetter = (state: StoreType) => ({
   setTokensStreaming: state.setTokensStreaming,
 });
 export default function Main() {
-  const {
-    wallet,
-    connection,
-    myTokenAccounts,
-    setMyTokenAccounts,
-    cluster,
-    token,
-    setToken,
-    streams,
-    streamingMints,
-    tokensStreaming,
-    setTokensStreaming,
-  } = useStore(storeGetter);
+  const { wallet, connection, setMyTokenAccounts, cluster, setToken } =
+    useStore(storeGetter);
   const [loading, setLoading] = useState(false);
 
   //componentWillMount
@@ -123,6 +112,7 @@ export default function Main() {
 
       fun();
     }
+    // eslint-disable-next-line
   }, [wallet, connection]);
 
   return (

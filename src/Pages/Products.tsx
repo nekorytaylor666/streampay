@@ -1,21 +1,14 @@
 import { Main } from "./index";
 import {
-  PRODUCT_MULTISIG,
   PRODUCT_MULTIPAY,
+  PRODUCT_MULTISIG,
   PRODUCT_STREAMS,
   PRODUCT_VESTING,
 } from "../constants";
-import { ButtonPrimary, Recipient, SelectToken } from "../Components";
+import { ButtonPrimary, Recipient } from "../Components";
 import { ClockIcon, UploadIcon } from "@heroicons/react/outline";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
-const exampleToken = {
-  chainId: 0,
-  address: " ",
-  name: " ",
-  decimals: 0,
-  symbol: "SOL",
-};
 export default function Products({ product }: { product: string }) {
   switch (product) {
     case PRODUCT_STREAMS:
@@ -38,7 +31,6 @@ export default function Products({ product }: { product: string }) {
           <div className="col-span-3">
             <Recipient onChange={() => null} value="1337...c0de" />
           </div>
-          <SelectToken token={exampleToken} setToken={() => null} />
           <div>
             <label htmlFor="amount" className="block font-medium text-gray-100">
               Amount

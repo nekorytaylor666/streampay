@@ -42,7 +42,7 @@ export function copyToClipboard(value: string): void {
 }
 
 export function streamCreated(id: string) {
-  const url = window.location.origin + "#" + id;
+  // const url = window.location.origin + "#" + id;
   // swal({
   //   buttons: { confirm: { text: "Copy Stream URL" } },
   //   icon: "success",

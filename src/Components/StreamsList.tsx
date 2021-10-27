@@ -42,7 +42,6 @@ export default function StreamsList() {
   const {
     wallet,
     connection,
-    balance,
     setBalance,
     streams,
     addStream,
@@ -231,9 +230,7 @@ export default function StreamsList() {
       toast.error(ERR_NOT_CONNECTED);
       return;
     }
-    const { deposited_amount } = streams[id];
-    const now = new Date();
-    const oldBalance = balance;
+
     const success = await sendTransaction(ProgramInstruction.Cancel, {
       stream: new PublicKey(id),
     } as CancelStreamData);

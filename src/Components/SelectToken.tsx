@@ -14,8 +14,7 @@ const storeGetter = (state: StoreType) => ({
 });
 
 export default function SelectToken() {
-  const { token, setToken, myTokenAccounts, setBalance } =
-    useStore(storeGetter);
+  const { token, setToken, myTokenAccounts } = useStore(storeGetter);
   if (Object.entries(token).length === 0) {
     return null;
   }

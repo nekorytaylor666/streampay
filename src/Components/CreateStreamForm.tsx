@@ -10,7 +10,6 @@ import {
 } from "./index";
 import { useFormContext } from "../Contexts/FormContext";
 import { getUnixTime } from "date-fns";
-import { streamCreated } from "../utils/helpers";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
   END,
@@ -223,7 +222,7 @@ export default function CreateStreamForm({
     setLoading(false);
 
     if (success) {
-      streamCreated(newStream.publicKey.toBase58());
+      //streamCreated(newStream.publicKey.toBase58());
       setBalance(balance - amount);
       addStream(newStream.publicKey.toBase58(), {
         ...data,
