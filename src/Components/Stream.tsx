@@ -5,28 +5,28 @@ import Duration from "./Stream/Duration";
 import Progress from "./Stream/Progress";
 import { useEffect, useState } from "react";
 import { getExplorerLink, getStreamStatus } from "../utils/helpers";
-import { XIcon } from "@heroicons/react/outline";
 import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
 import { Address, Link } from "./index";
 import { StreamStatus } from "../types";
-import { PublicKey } from "@solana/web3.js";
-import { Stream as StreamType } from "@streamflow/timelock/dist/layout";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { TokenStreamData } from "@streamflow/timelock/dist/layout";
 import { BN } from "@project-serum/anchor";
 
 export default function Stream(props: {
-  data: StreamType;
+  data: TokenStreamData;
   myAddress: string;
   id: string;
   removeStream: () => void;
   // onStatusUpdate: (status: StreamStatus) => void;
   onCancel: () => void;
   onWithdraw: () => void; //TODO: add support for input
-  onTransfer: (value: PublicKey) => void; //TODO: pass real data.
+  onTransfer: () => void; //TODO: pass real data.
 }) {
   const {
+    magic,
     start_time,
     end_time,
-    withdrawn,
+    withdrawn_amount,
     deposited_amount,
     recipient,
     sender,
@@ -42,29 +42,32 @@ export default function Stream(props: {
   } = props;
 
   const [streamed, setStreamed] = useState(
-    new BN(0)
-    // getStreamed(
-    //   start_time.toNumber(),
-    //   end_time.toNumber(),
-    //   deposited_amount.toNumber()
-    // )
+    getStreamed(
+      start_time.toNumber(),
+      end_time.toNumber(),
+      deposited_amount.toNumber()
+    )
   );
-  const status_enum = getStreamStatus(
+  let status_enum = getStreamStatus(
     start_time,
     end_time,
     new BN(+new Date() / 1000)
   );
+  if (magic.toNumber() > 0) {
+    status_enum = StreamStatus.canceled;
+  }
 
   const [status, setStatus] = useState(status_enum);
 
   const color = STREAM_STATUS_COLOR[status_enum];
   const [available, setAvailable] = useState(
-    streamed.toNumber() - withdrawn.toNumber()
+    streamed.toNumber() - withdrawn_amount.toNumber()
   );
 
   const showWithdraw =
     (status === StreamStatus.streaming ||
-      (status === StreamStatus.complete && withdrawn < deposited_amount)) &&
+      (status === StreamStatus.complete &&
+        withdrawn_amount < deposited_amount)) &&
     myAddress === recipient.toBase58();
   const showCancel =
     (status === StreamStatus.streaming || status === StreamStatus.scheduled) &&
@@ -78,11 +81,16 @@ export default function Stream(props: {
           deposited_amount.toNumber()
         )
       );
-      setAvailable(streamed.toNumber() - withdrawn.toNumber());
-      // const tmpStatus = updateStatus(status, start_time, end_time);
-      // if (tmpStatus !== status) {
-      // onStatusUpdate(tmpStatus);
-      // }
+      setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
+      const tmpStatus = updateStatus(
+        status,
+        start_time.toNumber(),
+        end_time.toNumber(),
+        magic.toNumber()
+      );
+      if (tmpStatus !== status) {
+        setStatus(tmpStatus);
+      }
     }, 1000);
     return () => clearInterval(interval);
   });
@@ -113,14 +121,14 @@ export default function Stream(props: {
       />
       <Progress
         title="Withdrawn"
-        value={withdrawn.toNumber()}
+        value={withdrawn_amount.toNumber()}
         max={deposited_amount}
       />
 
       {status === StreamStatus.canceled && (
         <Progress
           title="Returned"
-          value={deposited_amount.toNumber() - withdrawn.toNumber()}
+          value={deposited_amount.toNumber() - withdrawn_amount.toNumber()}
           max={deposited_amount}
           rtl={true}
         />
@@ -141,7 +149,7 @@ export default function Stream(props: {
                   for withdrawal
                 </sup>
               </dt>
-              <dd className="col-span-2">◎{available}</dd>
+              <dd className="col-span-2">{available}</dd>
               <ActionButton
                 title="Withdraw"
                 action={onWithdraw}
@@ -149,7 +157,7 @@ export default function Stream(props: {
               />
               <ActionButton
                 title="Transfer"
-                action={() => onTransfer(new PublicKey(""))}
+                action={onTransfer}
                 color={STREAM_STATUS_COLOR[StreamStatus.complete]}
               />
             </>
@@ -184,16 +192,20 @@ export function getStreamed(
 }
 
 function updateStatus(
-  status: StreamStatus,
+  current_status: StreamStatus,
   start_time: number,
-  end_time: number
+  end_time: number,
+  canceled_time?: number
 ): StreamStatus {
+  if (canceled_time) {
+    return StreamStatus.canceled;
+  }
   const now = getUnixTime(new Date());
-  if (status === StreamStatus.scheduled && now >= start_time) {
+  if (current_status === StreamStatus.scheduled && now >= start_time) {
     return StreamStatus.streaming;
-  } else if (status === StreamStatus.streaming && now >= end_time) {
+  } else if (current_status === StreamStatus.streaming && now >= end_time) {
     return StreamStatus.complete;
   } else {
-    return status;
+    return current_status;
   }
 }
