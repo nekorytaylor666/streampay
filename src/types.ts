@@ -1,5 +1,5 @@
 import { TokenInfo } from "@solana/spl-token-registry";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey, TokenAmount } from "@solana/web3.js";
 import { BN } from "@project-serum/anchor";
 
 export interface WalletType {
@@ -72,11 +72,16 @@ export interface CreateStreamsFormType {
   setTimePeriodMultiplier: (value: number) => void;
   advanced: any;
   setAdvanced: any; //todo add correct type.
-  token: TokenInfo | null;
-  setToken: (token: TokenInfo | null) => void;
+  // token: TokenInfo | null;
+  // setToken: (token: TokenInfo | null) => void;
 }
 
 export interface TokenAccount {
   token: TokenInfo;
   account: PublicKey;
+}
+
+export interface Token {
+  info: TokenInfo;
+  uiTokenAmount: TokenAmount;
 }
