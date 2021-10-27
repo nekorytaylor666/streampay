@@ -11,12 +11,7 @@ import {
 import { useFormContext } from "../Contexts/FormContext";
 import { getUnixTime } from "date-fns";
 import { streamCreated } from "../utils/helpers";
-import {
-  Keypair,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  SystemProgram,
-} from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {
   END,
   ERR_NO_TOKEN_SELECTED,
@@ -34,7 +29,6 @@ import "buffer-layout";
 import { BN } from "@project-serum/anchor";
 import sendTransaction from "../Actions/sendTransaction";
 import { CreateStreamData } from "../types";
-import swal from "sweetalert";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
@@ -224,12 +218,7 @@ export default function CreateStreamForm({
       }
     }
 
-    const success = await sendTransaction(
-      connection,
-      wallet,
-      ProgramInstruction.Create,
-      data
-    );
+    const success = await sendTransaction(ProgramInstruction.Create, data);
     console.log("after send transaction");
     setLoading(false);
 

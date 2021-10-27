@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 import ToastrLink from "../Components/ToastrLink";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import {
@@ -10,7 +10,6 @@ import {
 } from "../constants";
 import { getExplorerLink } from "../utils/helpers";
 import Timelock from "@streamflow/timelock";
-import useStore from "../Stores";
 import {
   CancelStreamData,
   CreateStreamData,
@@ -18,15 +17,14 @@ import {
   TransferStreamData,
   WithdrawStreamData,
 } from "../types";
+import useStore from "../Stores";
 
 export default async function sendTransaction(
-  connection: Connection | null,
-  wallet: Wallet | null,
   instruction: ProgramInstruction,
   data: TransactionData
 ) {
-  // const connection = useStore.getState().connection();
-  // const wallet = useStore.getState().wallet;
+  const connection = useStore.getState().connection();
+  const wallet = useStore.getState().wallet;
   let d;
   console.log("cnwl", connection, wallet);
   try {
