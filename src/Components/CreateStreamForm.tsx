@@ -40,6 +40,7 @@ const storeGetter = (state: StoreType) => ({
   balance: state.balance,
   setBalance: state.setBalance,
   addStream: state.addStream,
+  addStreamingMint: state.addStreamingMint,
   connection: state.connection(),
   wallet: state.wallet,
   tokenAccounts: state.tokenAccounts,
@@ -82,8 +83,14 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, balance, setBalance, addStream } =
-    useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    balance,
+    setBalance,
+    addStream,
+    addStreamingMint,
+  } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
@@ -228,7 +235,7 @@ export default function CreateStreamForm({
 
     if (success) {
       streamCreated(newStream.publicKey.toBase58());
-      setBalance(balance - amount / 10 ** token.decimals);
+      setBalance(balance - amount);
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancellable_at: new BN(end),
@@ -243,6 +250,7 @@ export default function CreateStreamForm({
         sender_tokens: undefined as any,
         total_amount: new BN(amount),
       });
+      addStreamingMint(token.address);
     }
     console.log("last command");
     return false;
@@ -268,7 +276,7 @@ export default function CreateStreamForm({
               className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
               defaultValue="1"
             >
-              <option value="1">&nbsp;</option>
+              <option value="1">Connect the wallet</option>
             </select>
           </div>
         )}
