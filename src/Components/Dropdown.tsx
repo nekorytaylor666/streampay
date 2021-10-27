@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
+import { Token } from "../types";
 
 const escapeRegExp = (str: string) =>
   str.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&");
@@ -14,9 +15,9 @@ export default function Dropdown({
 }: {
   value: React.ReactNode;
   textValue: string;
-  options: any[];
-  generateOption: (value: any) => any;
-  generateKey: (value: any) => string | number;
+  options: Token[];
+  generateOption: (value: Token) => string;
+  generateKey: (value: Token) => string;
   onSelect: (value: any) => void;
 }) {
   const fieldRef = useRef<HTMLInputElement>(null);

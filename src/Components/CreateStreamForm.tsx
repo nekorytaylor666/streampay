@@ -37,7 +37,9 @@ const storeGetter = (state: StoreType) => ({
   addStreamingMint: state.addStreamingMint,
   connection: state.connection(),
   wallet: state.wallet,
-  tokenAccounts: state.tokenAccounts,
+  token: state.token,
+  setToken: state.setToken,
+  // tokenAccounts: state.tokenAccounts,
 });
 
 export default function CreateStreamForm({
@@ -63,8 +65,6 @@ export default function CreateStreamForm({
     setEndTime,
     advanced,
     setAdvanced,
-    token,
-    setToken,
     cliffDate,
     setCliffDate,
     cliffTime,
@@ -84,11 +84,11 @@ export default function CreateStreamForm({
     setBalance,
     addStream,
     addStreamingMint,
+    token,
   } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
-    console.log("validating ", name);
     let start, end, cliff;
     let msg = "";
     switch (name) {
@@ -182,9 +182,9 @@ export default function CreateStreamForm({
 
     setLoading(true);
     const data = {
-      deposited_amount: new BN(amount * 10 ** token.decimals),
+      deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(receiver),
-      mint: new PublicKey(token.address),
+      mint: new PublicKey(token.info.address),
       start_time: new BN(start),
       end_time: new BN(end),
       period: new BN(advanced ? timePeriod * timePeriodMultiplier : 1),
@@ -192,7 +192,8 @@ export default function CreateStreamForm({
         advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
       ),
       cliff_amount: new BN(
-        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.decimals
+        (advanced ? (cliffAmount / 100) * amount : 0) *
+          10 ** token.uiTokenAmount.decimals
       ),
       new_stream_keypair: newStream,
     } as CreateStreamData;
@@ -219,7 +220,6 @@ export default function CreateStreamForm({
     }
 
     const success = await sendTransaction(ProgramInstruction.Create, data);
-    console.log("after send transaction");
     setLoading(false);
 
     if (success) {
@@ -239,9 +239,8 @@ export default function CreateStreamForm({
         sender_tokens: undefined as any,
         total_amount: new BN(amount),
       });
-      addStreamingMint(token.address);
+      addStreamingMint(token.info.address);
     }
-    console.log("last command");
     return false;
   }
 
@@ -251,10 +250,12 @@ export default function CreateStreamForm({
         <Amount
           onChange={setAmount}
           value={amount}
-          max={token ? balance / 10 ** token.decimals : 0}
+          max={
+            token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0
+          }
         />
         {wallet?.publicKey ? (
-          <SelectToken token={token} setToken={setToken} />
+          <SelectToken />
         ) : (
           <div className="col-span-2 sm:col-span-1">
             <label htmlFor="token" className="block font-medium text-gray-100">

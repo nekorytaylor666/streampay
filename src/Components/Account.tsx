@@ -13,7 +13,7 @@ import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
 import { useFormContext } from "../Contexts/FormContext";
 
 const storeGetter = (state: StoreType) => ({
-  balance: state.balance,
+  // balance: state.balance,
   setBalance: state.setBalance,
   isMainnet: state.cluster === CLUSTER_MAINNET,
   connection: state.connection(),
@@ -21,6 +21,7 @@ const storeGetter = (state: StoreType) => ({
   connectWallet: state.connectWallet,
   disconnectWallet: state.disconnectWallet,
   setWalletType: state.setWalletType,
+  token: state.token,
 });
 
 export default function Account({
@@ -36,13 +37,12 @@ export default function Account({
   const {
     connection,
     wallet,
-    balance,
+    // balance,
     isMainnet,
     disconnectWallet,
     setWalletType,
+    token,
   } = useStore(storeGetter);
-
-  const { token } = useFormContext();
 
   useEffect(() => {
     if (airdropTxSignature && connection) {
@@ -53,7 +53,7 @@ export default function Account({
             toast.error("Airdrop failed!");
           } else {
             //setBalance(balance + AIRDROP_AMOUNT);
-            toast.success("Airdrop confirmed. Balance updated!");
+            toast.success("Airdrop confirmed!");
           }
         });
     }
@@ -95,7 +95,7 @@ export default function Account({
         {token && (
           <>
             <strong className="block">Balance</strong>
-            {Number(balance / 10 ** token.decimals).toFixed(3)} {token?.symbol}
+            {token?.uiTokenAmount?.uiAmountString} {token?.info?.symbol}
           </>
         )}
         <button
