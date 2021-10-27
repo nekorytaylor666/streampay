@@ -57,7 +57,10 @@ const useNetworkStore = (set: Function, get: Function) => ({
               ...pr,
               [cu.account.data.parsed.info.mint]: {
                 key: cu.pubkey,
-                amount: cu.account.data.parsed.info.tokenAmount.uiAmount,
+                amount: cu.account.data.parsed.info.tokenAmount.amount,
+                uiAmount: cu.account.data.parsed.info.tokenAmount.uiAmount,
+                uiAmountString:
+                  cu.account.data.parsed.info.tokenAmount.uiAmountString,
               },
             }),
             {}
