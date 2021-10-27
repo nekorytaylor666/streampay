@@ -20,7 +20,7 @@ export default function Progress(props: {
         />
       </div>
       <label className="ml-2 text-right truncate">
-        ◎{Number(value).toFixed(2)}
+        {Number(value).toFixed(2)}
         <small className="text-gray-400">/{Number(max).toFixed(2)}</small>
       </label>
     </div>
