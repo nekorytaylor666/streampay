@@ -95,7 +95,7 @@ export default function Account({
         {token && (
           <>
             <strong className="block">Balance</strong>
-            {Number(balance / 10 ** token?.decimals).toFixed(4)} {token?.symbol}
+            {Number(balance / 10 ** token.decimals).toFixed(3)} {token?.symbol}
           </>
         )}
         <button
