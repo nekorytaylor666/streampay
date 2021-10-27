@@ -10,6 +10,11 @@ import { Address, Link } from "./index";
 import { StreamStatus } from "../types";
 import { TokenStreamData } from "@streamflow/timelock/dist/layout";
 import { BN } from "@project-serum/anchor";
+import useStore, { StoreType } from "../Stores";
+
+const storeGetter = (state: StoreType) => ({
+  tokensStreaming: state.tokensStreaming,
+});
 
 export default function Stream(props: {
   data: TokenStreamData;
@@ -29,6 +34,7 @@ export default function Stream(props: {
     deposited_amount,
     recipient,
     sender,
+    mint,
   } = props.data;
   const {
     myAddress,
@@ -39,6 +45,8 @@ export default function Stream(props: {
     onTransfer,
     id,
   } = props;
+
+  const { tokensStreaming } = useStore(storeGetter);
 
   const [streamed, setStreamed] = useState(
     getStreamed(
@@ -148,7 +156,11 @@ export default function Stream(props: {
                   for withdrawal
                 </sup>
               </dt>
-              <dd className="col-span-2">{available}</dd>
+              <dd className="col-span-2">
+                {available}
+                {/*{available / 10 ** tokensStreaming[mint.toBase58()].decimals}{" "}*/}
+                {/*{tokensStreaming[mint.toBase58()].symbol}*/}
+              </dd>
               <ActionButton
                 title="Withdraw"
                 action={onWithdraw}

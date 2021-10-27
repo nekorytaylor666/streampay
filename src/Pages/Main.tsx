@@ -17,6 +17,10 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   token: state.token,
   setToken: state.setToken,
+  streams: state.streams,
+  streamingMints: state.streamingMints,
+  tokensStreaming: state.tokensStreaming,
+  setTokensStreaming: state.setTokensStreaming,
 });
 export default function Main() {
   const {
@@ -27,6 +31,10 @@ export default function Main() {
     cluster,
     token,
     setToken,
+    streams,
+    streamingMints,
+    tokensStreaming,
+    setTokensStreaming,
   } = useStore(storeGetter);
   const [loading, setLoading] = useState(false);
 
@@ -97,10 +105,23 @@ export default function Main() {
           myTokenAccountsDerived[Object.keys(myTokenAccountsDerived)[0]]
         );
 
+        // console.log("mints: ", streamingMints);
+        // const streamingTokens = tokenList
+        //   .concat([ourToken])
+        //   .reduce((prev, curr) => {
+        //     if (streamingMints.indexOf(curr.address) !== -1) {
+        //       return {
+        //         ...prev,
+        //         [curr.address]: curr,
+        //       };
+        //     }
+        //     return prev;
+        //   }, {});
+        // console.log("streaming tokens: ", streamingTokens);
+        // setTokensStreaming(streamingTokens);
+      };
 
-      //invoke async function
-      fun().then(() => {
-      });
+      fun();
     }
   }, [wallet, connection]);
 
