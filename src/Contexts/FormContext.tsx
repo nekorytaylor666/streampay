@@ -25,7 +25,6 @@ export function FormProvider(props: { children: React.ReactNode }) {
   const [cliffAmount, setCliffAmount] = useState(0);
   const [timePeriod, setTimePeriod] = useState(1);
   const [timePeriodMultiplier, setTimePeriodMultiplier] = useState(1);
-  const [token, setToken] = useState<TokenInfo | null>(null);
 
   return (
     <FormContext.Provider
@@ -44,8 +43,6 @@ export function FormProvider(props: { children: React.ReactNode }) {
         setEndTime,
         advanced,
         setAdvanced,
-        token,
-        setToken,
         cliffDate,
         setCliffDate,
         cliffTime,

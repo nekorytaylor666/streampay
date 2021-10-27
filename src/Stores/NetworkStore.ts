@@ -1,5 +1,4 @@
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { clusterApiUrl } from "@solana/web3.js";
 
 export const CLUSTER_LOCAL = "local";
 export const CLUSTER_DEVNET = "devnet";
