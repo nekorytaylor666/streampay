@@ -24,7 +24,6 @@ const useNetworkStore = (set: Function, get: Function) => ({
   // state
   cluster: CLUSTER_LOCAL as string, //todo set mainnet
   programId: programIds[CLUSTER_LOCAL]() as string,
-  tokenAccounts: {} as { [key: string]: any },
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),
@@ -43,31 +42,6 @@ const useNetworkStore = (set: Function, get: Function) => ({
       set({ cluster: CLUSTER_DEVNET, programId: programIds[CLUSTER_DEVNET]() });
     }
   },
-  setTokenAccounts: (tokenAccounts: { [key: string]: string }) =>
-    set({ tokenAccounts }),
-  refreshTokenAccounts: (connection: Connection, owner: PublicKey) =>
-    connection
-      .getParsedTokenAccountsByOwner(owner, {
-        programId: TOKEN_PROGRAM_ID,
-      })
-      .then((tokenAccountList) => {
-        const tokenAccounts: { [key: string]: any } =
-          tokenAccountList.value.reduce(
-            (pr, cu) => ({
-              ...pr,
-              [cu.account.data.parsed.info.mint]: {
-                key: cu.pubkey,
-                amount: cu.account.data.parsed.info.tokenAmount.amount,
-                uiAmount: cu.account.data.parsed.info.tokenAmount.uiAmount,
-                uiAmountString:
-                  cu.account.data.parsed.info.tokenAmount.uiAmountString,
-              },
-            }),
-            {}
-          );
-        set({ tokenAccounts });
-        return tokenAccounts;
-      }),
 });
 
 export default useNetworkStore;
