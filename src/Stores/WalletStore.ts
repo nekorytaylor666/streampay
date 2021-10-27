@@ -1,14 +1,8 @@
-import { clusterApiUrl, Connection } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { WalletNotFoundError } from "@solana/wallet-adapter-base";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletType } from "../types";
-import { CLUSTER_MAINNET } from "./NetworkStore";
-import { NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { createMintAndVault, Provider } from "@project-serum/common";
-import { BN } from "@project-serum/anchor";
-import { AIRDROP_AMOUNT } from "../constants";
 
 let memoizedConnection: { [s: string]: Connection } = {};
 
@@ -41,23 +35,12 @@ const walletStore = (set: Function, get: Function) => ({
     if (wallet) {
       wallet.on("connect", async () => {
         set({ walletType, wallet });
-        const provider = new Provider(
-          getConnection(get().clusterUrl()) as Connection,
-          wallet,
-          {}
-        );
-        // await getConnection(get().clusterUrl())?.requestAirdrop(
-        //   wallet.publicKey,
-        //   AIRDROP_AMOUNT * LAMPORTS_PER_SOL
-        // );
-        // const [mint, senderTokens] = await createMintAndVault(
-        //   provider,
-        //   new BN(100_000_000_000),
-        //   wallet.publicKey,
-        //   4
-        // );
+        state
+          .connection()
+          .getBalance(wallet.publicKey)
+          .then(async (result: number) => state.setBalance(result));
 
-        toast.success("Connected to wallet!");
+        toast.success("Wallet connected!");
       });
       wallet.on("disconnect", () => {
         set({ walletType: null, wallet: null });
