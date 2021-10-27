@@ -8,7 +8,6 @@ import { getExplorerLink, getStreamStatus } from "../utils/helpers";
 import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
 import { Address, Link } from "./index";
 import { StreamStatus } from "../types";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { TokenStreamData } from "@streamflow/timelock/dist/layout";
 import { BN } from "@project-serum/anchor";
 
