@@ -194,7 +194,6 @@ export function getStreamed(
 
   if (timestamp < start_time) return new BN(0);
   if (timestamp > end_time) return new BN(deposited_amount);
-  console.log("streamed");
   return new BN(
     ((timestamp - start_time) / (end_time - start_time)) * deposited_amount
   );
