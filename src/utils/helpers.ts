@@ -9,7 +9,7 @@ export function getExplorerLink(type: string, id: string): string {
     .explorerUrl()}`;
 }
 
-//todo: add cancelled
+//todo: add canceled
 export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
   if (now.cmp(start) === -1) {
     return StreamStatus.scheduled;

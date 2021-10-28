@@ -45,7 +45,7 @@ const walletStore = (set: Function, get: Function) => ({
         set({ walletType: null, wallet: null });
         toast.error(
           e instanceof WalletNotFoundError
-            ? "Wallet extension not installed" //todo: add link
+            ? "Wallet extension not installed" //todo: add link to install
             : "Wallet not connected, try again"
         );
       });

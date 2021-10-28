@@ -29,7 +29,7 @@ export default function Main() {
   useEffect(() => {
     if (connection && wallet) {
       const fun = async () => {
-        //todo: is default Strategy (in resolve()) way to go?
+        //is default Strategy (in resolve()) way to go?
         const tokenListContainer = await new TokenListProvider().resolve();
 
         const myTokenAccountsList =
@@ -65,7 +65,7 @@ export default function Main() {
           .filterByClusterSlug(cluster === "local" ? "devnet" : cluster)
           .getList();
 
-        //todo: for localhost development add our token with tokenList.concat([ourToken])
+        //for localhost development add our token with tokenList.concat([ourToken])
         const myTokenAccountsDerived = tokenList
           .concat([ourToken])
           .reduce((previous, current) => {

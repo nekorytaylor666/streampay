@@ -23,7 +23,7 @@ export default function Stream(props: {
   // onStatusUpdate: (status: StreamStatus) => void;
   onCancel: () => void;
   onWithdraw: () => void; //TODO: add support for input
-  onTransfer: () => void; //TODO: pass real data.
+  onTransfer: () => void;
 }) {
   const {
     magic,
