@@ -5,23 +5,23 @@ import logo from "./logo.png";
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { useFormContext } from "./Contexts/FormContext";
-import { PRODUCT_STREAMS, PRODUCT_VESTING, products } from "./constants";
+import { PRODUCT_VESTING, products } from "./constants";
 
 function App() {
-  const { setVesting } = useFormContext();
-  const [product, setProduct] = useState(PRODUCT_STREAMS);
+  const { setAdvanced } = useFormContext();
+  const [product, setProduct] = useState(PRODUCT_VESTING);
   return (
     <div>
       <div className={"mx-auto bg-blend-darken px-4 my-4"}>
-        <div className="text-center text-white mb-6">
+        <div className="text-center text-white mb-6 flex sm:block">
           {products.map((prod) => (
             <span
               key={prod}
               onClick={() => {
-                setVesting(prod === PRODUCT_VESTING);
+                setAdvanced(prod === PRODUCT_VESTING);
                 setProduct(prod);
               }}
-              className={`cursor-pointer capitalize inline-block mx-4 
+              className={`cursor-pointer capitalize flex-1 sm:inline-block sm:mx-4
                               ${
                                 prod === product
                                   ? "text-white"

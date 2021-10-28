@@ -7,6 +7,7 @@ import {
   getSolflareWallet,
   getSolletWallet,
 } from "@solana/wallet-adapter-wallets";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import ButtonPrimary from "./ButtonPrimary";
 import { WalletType } from "../types";
 
@@ -62,9 +63,9 @@ export default function WalletPicker() {
   const walletTypes = useMemo(
     () => [
       getPhantomWallet(),
-      getSolflareWebWallet({ network: cluster }),
+      getSolflareWebWallet({ network: cluster as WalletAdapterNetwork }),
       getSolflareWallet(),
-      getSolletWallet({ network: cluster }),
+      getSolletWallet({ network: cluster as WalletAdapterNetwork }),
     ],
     [cluster]
   );

@@ -2,7 +2,6 @@ import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { WalletNotFoundError } from "@solana/wallet-adapter-base";
 import Wallet from "@project-serum/sol-wallet-adapter";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { WalletType } from "../types";
 
 let memoizedConnection: { [s: string]: Connection } = {};
@@ -13,7 +12,7 @@ const getConnection = (clusterUrl: string | null) => {
   }
   const key = clusterUrl;
   if (!memoizedConnection[key]) {
-    memoizedConnection = { [key]: new Connection(clusterUrl) };
+    memoizedConnection = { [key]: new Connection(clusterUrl, "confirmed") };
   }
   return memoizedConnection[key];
 };
@@ -25,7 +24,7 @@ const walletStore = (set: Function, get: Function) => ({
   connection: () => getConnection(get().clusterUrl()),
 
   // actions
-  setWalletType: (walletType: WalletType | null) => {
+  setWalletType: async (walletType: WalletType | null) => {
     const state = get();
     if (walletType?.name === state.walletType?.name) {
       return;
@@ -34,15 +33,14 @@ const walletStore = (set: Function, get: Function) => ({
 
     const wallet = walletType?.adapter();
     if (wallet) {
-      wallet.on("connect", () => {
+      wallet.on("connect", async () => {
         set({ walletType, wallet });
-        state
-          .connection()
-          .getBalance(wallet.publicKey)
-          .then((result: number) =>
-            state.setBalance(result / LAMPORTS_PER_SOL)
-          );
-        toast.success("Connected to wallet!");
+        console.log("type", walletType);
+        // state
+        //   .connection()
+        //   .getBalance(wallet.publicKey)
+        //   .then(async (result: number) => state.setBalance(result));
+        toast.success("Wallet connected!");
       });
       wallet.on("disconnect", () => {
         set({ walletType: null, wallet: null });
@@ -52,7 +50,7 @@ const walletStore = (set: Function, get: Function) => ({
         set({ walletType: null, wallet: null });
         toast.error(
           e instanceof WalletNotFoundError
-            ? "Wallet extension not installed"
+            ? "Wallet extension not installed" //todo: add link
             : "Wallet not connected, try again"
         );
       });

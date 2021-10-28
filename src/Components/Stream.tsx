@@ -4,46 +4,97 @@ import { getUnixTime } from "date-fns";
 import Duration from "./Stream/Duration";
 import Progress from "./Stream/Progress";
 import { useEffect, useState } from "react";
-import { getExplorerLink } from "../utils/helpers";
-import { XIcon } from "@heroicons/react/outline";
+import { getExplorerLink, getStreamStatus } from "../utils/helpers";
 import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
 import { Address, Link } from "./index";
-import { Stream as StreamType, StreamStatus } from "../types";
+import { StreamStatus } from "../types";
+import { TokenStreamData } from "@streamflow/timelock/dist/layout";
+import { BN } from "@project-serum/anchor";
+
+// const storeGetter = (state: StoreType) => ({
+//   tokensStreaming: state.tokensStreaming,
+// });
 
 export default function Stream(props: {
-  data: StreamType;
+  data: TokenStreamData;
   myAddress: string;
   id: string;
   removeStream: () => void;
-  onStatusUpdate: (status: StreamStatus) => void;
+  // onStatusUpdate: (status: StreamStatus) => void;
   onCancel: () => void;
-
-  onWithdraw: () => void;
+  onWithdraw: () => void; //TODO: add support for input
+  onTransfer: () => void; //TODO: pass real data.
 }) {
-  const { start, end, withdrawn, amount, receiver, sender, status } =
-    props.data;
-  const { myAddress, removeStream, onStatusUpdate, onCancel, onWithdraw, id } =
-    props;
+  const {
+    magic,
+    start_time,
+    end_time,
+    withdrawn_amount,
+    deposited_amount,
+    recipient,
+    sender,
+  } = props.data;
+  const {
+    myAddress,
+    removeStream,
+    // onStatusUpdate,
+    onCancel,
+    onWithdraw,
+    onTransfer,
+    id,
+  } = props;
 
-  const color = STREAM_STATUS_COLOR[status];
+  // const { tokensStreaming } = useStore(storeGetter);
 
-  const [streamed, setStreamed] = useState(getStreamed(start, end, amount));
-  const [available, setAvailable] = useState(streamed - withdrawn);
+  const [streamed, setStreamed] = useState(
+    getStreamed(
+      start_time.toNumber(),
+      end_time.toNumber(),
+      deposited_amount.toNumber()
+    )
+  );
+  let status_enum = getStreamStatus(
+    start_time,
+    end_time,
+    new BN(+new Date() / 1000)
+  );
+  if (magic.toNumber() > 0) {
+    status_enum = StreamStatus.canceled;
+  }
+
+  const [status, setStatus] = useState(status_enum);
+
+  const color = STREAM_STATUS_COLOR[status_enum];
+  const [available, setAvailable] = useState(
+    streamed.toNumber() - withdrawn_amount.toNumber()
+  );
 
   const showWithdraw =
     (status === StreamStatus.streaming ||
-      (status === StreamStatus.complete && withdrawn < amount)) &&
-    myAddress === receiver;
+      (status === StreamStatus.complete &&
+        withdrawn_amount < deposited_amount)) &&
+    myAddress === recipient.toBase58();
   const showCancel =
     (status === StreamStatus.streaming || status === StreamStatus.scheduled) &&
-    myAddress === sender;
+    myAddress === sender.toBase58();
   useEffect(() => {
     const interval = setInterval(() => {
-      setStreamed(getStreamed(start, end, amount));
-      setAvailable(streamed - withdrawn);
-      const tmpStatus = updateStatus(status, start, end);
+      setStreamed(
+        getStreamed(
+          start_time.toNumber(),
+          end_time.toNumber(),
+          deposited_amount.toNumber()
+        )
+      );
+      setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
+      const tmpStatus = updateStatus(
+        status,
+        start_time.toNumber(),
+        end_time.toNumber(),
+        magic.toNumber()
+      );
       if (tmpStatus !== status) {
-        onStatusUpdate(tmpStatus);
+        setStatus(tmpStatus);
       }
     }, 1000);
     return () => clearInterval(interval);
@@ -59,33 +110,41 @@ export default function Stream(props: {
           onClick={removeStream}
           className={`p-1.5 h-6 w-6 float-right align-top rounded-sm hover:bg-${color}-100 focus:outline-none focus:ring-1`}
         >
-          <XIcon className="float-right w-3 h-3" />
+          {/*<XIcon className="float-right w-3 h-3" />*/}
         </button>
       </div>
-      <Duration start={start} end={end} />
-      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"ID"} />
+      <Duration start_time={start_time} end_time={end_time} />
+      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"Stream ID"} />
       <Address address={id} className="col-span-2 text-sm text-gray-400" />
       <Link
-        url={getExplorerLink(EXPLORER_TYPE_ADDR, receiver)}
+        url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())}
         title={"Recipient"}
       />
       <Address
-        address={receiver}
+        address={recipient.toBase58()}
         className="col-span-2 text-sm text-gray-400"
       />
-      <Progress title="Withdrawn" value={withdrawn} max={amount} />
+      <Progress
+        title="Withdrawn"
+        value={withdrawn_amount.toNumber()}
+        max={deposited_amount}
+      />
 
       {status === StreamStatus.canceled && (
         <Progress
           title="Returned"
-          value={amount - withdrawn}
-          max={amount}
+          value={deposited_amount.toNumber() - withdrawn_amount.toNumber()}
+          max={deposited_amount}
           rtl={true}
         />
       )}
       {status !== StreamStatus.canceled && (
         <>
-          <Progress title="Streamed" value={streamed} max={amount} />
+          <Progress
+            title="Streamed"
+            value={streamed.toNumber()}
+            max={deposited_amount}
+          />
           {showWithdraw && (
             <>
               <dt>
@@ -95,11 +154,20 @@ export default function Stream(props: {
                   for withdrawal
                 </sup>
               </dt>
-              <dd className="col-span-2">◎{available.toFixed(2)}</dd>
+              <dd className="col-span-2">
+                {available}
+                {/*{available / 10 ** tokensStreaming[mint.toBase58()].decimals}{" "}*/}
+                {/*{tokensStreaming[mint.toBase58()].symbol}*/}
+              </dd>
               <ActionButton
                 title="Withdraw"
                 action={onWithdraw}
                 color={STREAM_STATUS_COLOR[StreamStatus.streaming]}
+              />
+              <ActionButton
+                title="Transfer"
+                action={onTransfer}
+                color={STREAM_STATUS_COLOR[StreamStatus.complete]}
               />
             </>
           )}
@@ -117,30 +185,36 @@ export default function Stream(props: {
 }
 
 export function getStreamed(
-  start: number,
-  end: number,
-  amount: number,
+  start_time: number,
+  end_time: number,
+  deposited_amount: number,
   timestamp?: number
-) {
+): BN {
   timestamp = timestamp || getUnixTime(new Date());
 
-  if (timestamp < start) return 0;
-  if (timestamp > end) return amount;
-
-  return ((timestamp - start) / (end - start)) * amount;
+  if (timestamp < start_time) return new BN(0);
+  if (timestamp > end_time) return new BN(deposited_amount);
+  console.log("streamed");
+  return new BN(
+    ((timestamp - start_time) / (end_time - start_time)) * deposited_amount
+  );
 }
 
 function updateStatus(
-  status: StreamStatus,
-  start: number,
-  end: number
+  current_status: StreamStatus,
+  start_time: number,
+  end_time: number,
+  canceled_time?: number
 ): StreamStatus {
+  if (canceled_time) {
+    return StreamStatus.canceled;
+  }
   const now = getUnixTime(new Date());
-  if (status === StreamStatus.scheduled && now >= start) {
+  if (current_status === StreamStatus.scheduled && now >= start_time) {
     return StreamStatus.streaming;
-  } else if (status === StreamStatus.streaming && now >= end) {
+  } else if (current_status === StreamStatus.streaming && now >= end_time) {
     return StreamStatus.complete;
   } else {
-    return status;
+    return current_status;
   }
 }

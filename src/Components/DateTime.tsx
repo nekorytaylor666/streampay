@@ -1,14 +1,13 @@
 import { add, format } from "date-fns";
 import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from "../constants";
-import { Dispatch, SetStateAction } from "react";
 import { useFormContext } from "../Contexts/FormContext";
 
 export default function DateTime(props: {
   title: string;
   date: string;
-  updateDate: Dispatch<SetStateAction<string>>;
+  updateDate: (value: string) => void;
   time: string;
-  updateTime: Dispatch<SetStateAction<string>>;
+  updateTime: (value: string) => void;
 }) {
   const { title, date, updateDate, time, updateTime } = props;
   const { startDate, startTime } = useFormContext();
@@ -22,7 +21,7 @@ export default function DateTime(props: {
   }
 
   function initializeTime() {
-    const now = format(add(new Date(), { minutes: 1 }), TIME_FORMAT);
+    const now = format(add(new Date(), { minutes: 2 }), TIME_FORMAT);
 
     if (title === END) {
       const minEndDate = startDate
@@ -33,7 +32,7 @@ export default function DateTime(props: {
         updateDate(format(minEndDate, DATE_FORMAT));
       }
 
-      if (startDate && startDate === date && time <= startTime) {
+      if (startDate && startDate === date && startTime && time <= startTime) {
         updateTime(
           format(
             add(new Date(startDate + "T" + startTime), { minutes: 5 }),

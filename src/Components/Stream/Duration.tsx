@@ -1,12 +1,35 @@
 import { memo } from "react";
 import { format, fromUnixTime } from "date-fns";
+import { BN } from "@project-serum/anchor";
 
-function Duration(props: { start: number; end: number }) {
+function Duration(props: { start_time: BN; end_time: BN }) {
+  console.log("start", props.start_time.toString());
+  console.log("end", props.end_time.toString());
   return (
-    <dt className="col-span-full text-center">
-      {format(fromUnixTime(props.start), "yyyy-MM-dd HH:mm")} &ndash;{" "}
-      {format(fromUnixTime(props.end), "yyyy-MM-dd HH:mm")}
-    </dt>
+    <div className="col-span-full grid grid-cols-2 gap-x-4 text-center">
+      <dd className="text-secondary">Start</dd>
+      <dd className="text-secondary">End</dd>
+      <dt>
+        {format(
+          fromUnixTime(Number(props.start_time.toString())),
+          "ccc do MMM, yy"
+        )}
+        <br />
+        <span className="font-bold">
+          {format(fromUnixTime(Number(props.start_time.toString())), "HH:mm")}
+        </span>
+      </dt>
+      <dt>
+        {format(
+          fromUnixTime(Number(props.end_time.toString())),
+          "ccc do MMM, yy"
+        )}
+        <br />
+        <span className="font-bold">
+          {format(fromUnixTime(Number(props.end_time.toString())), "HH:mm")}
+        </span>
+      </dt>
+    </div>
   );
 }
 

@@ -1,55 +1,7 @@
-import BufferLayout from "buffer-layout";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { u64 } from "@solana/spl-token";
-import { getUnixTime } from "date-fns";
 import swal from "sweetalert";
 import useStore from "../Stores";
-import { Account, StreamStatus } from "../types";
-
-export const publicKey = (property = "publicKey"): BufferLayout.Layout => {
-  return BufferLayout.blob(32, property);
-};
-
-export const uint64 = (property = "uint64"): BufferLayout.Layout => {
-  return BufferLayout.blob(8, property);
-};
-
-const DataLayout = BufferLayout.struct([
-  uint64("starttime"),
-  uint64("endtime"),
-  uint64("amount"),
-  uint64("withdrawn"),
-  publicKey("sender"),
-  publicKey("recipient"),
-]);
-
-export function getDecodedAccountData(buffer: Buffer) {
-  const accountData = DataLayout.decode(buffer) as Account;
-
-  const start = Number(u64.fromBuffer(accountData.starttime));
-  const end = Number(u64.fromBuffer(accountData.endtime));
-  const amount = Number(u64.fromBuffer(accountData.amount)) / LAMPORTS_PER_SOL;
-  const withdrawn =
-    Number(u64.fromBuffer(accountData.withdrawn)) / LAMPORTS_PER_SOL;
-  const sender = new PublicKey(accountData.sender).toBase58();
-  const recipient = new PublicKey(accountData.recipient).toBase58();
-
-  const status = getStreamStatus(
-    Number(start),
-    Number(end),
-    getUnixTime(new Date())
-  ); //in milliseconds
-
-  return new StreamData(
-    sender,
-    recipient,
-    amount,
-    start,
-    end,
-    withdrawn,
-    status
-  );
-}
+import { StreamStatus } from "../types";
+import { BN } from "@project-serum/anchor";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore
@@ -57,36 +9,24 @@ export function getExplorerLink(type: string, id: string): string {
     .explorerUrl()}`;
 }
 
-export function getStreamStatus(start: number, end: number, now: number) {
-  if (now < start) {
+//todo: add cancelled
+export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
+  if (now.cmp(start) === -1) {
     return StreamStatus.scheduled;
-  } else if (now < end) {
+  } else if (now.cmp(end) === -1) {
     return StreamStatus.streaming;
   } else {
     return StreamStatus.complete;
   }
 }
 
-export class StreamData {
-  constructor(
-    public sender: string,
-    public receiver: string,
-    public amount: number,
-    public start: number,
-    public end: number,
-    public withdrawn?: number,
-    public status?: StreamStatus,
-    public canceled_at?: number
-  ) {
-    this.withdrawn = withdrawn || 0;
-    this.status = canceled_at
-      ? StreamStatus.canceled
-      : status || StreamStatus.scheduled;
-  }
-}
-
 export function _swal(): Promise<void> {
-  return swal({ text: "Are you sure?", icon: "warning", buttons: [true] });
+  return swal({
+    dangerMode: true,
+    text: "Are you sure?",
+    icon: "warning",
+    buttons: { cancel: true, confirm: true },
+  });
 }
 
 export function copyToClipboard(value: string): void {
@@ -102,25 +42,25 @@ export function copyToClipboard(value: string): void {
 }
 
 export function streamCreated(id: string) {
-  const url = window.location.origin + "#" + id;
-  swal({
-    buttons: ["Copy Stream URL"],
-    icon: "success",
-    title: "Stream created!",
-    //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
-    content: {
-      element: "a",
-      attributes: {
-        className: "text-primary block truncate max-w-full",
-        href: url,
-        target: "_blank",
-        innerHTML: url,
-      },
-    },
-  }).then((clicked) => {
-    if (clicked) {
-      copyToClipboard(url);
-      swal("Link copied to clipboard!", "Send it to the recipient!", "success");
-    }
-  });
+  // const url = window.location.origin + "#" + id;
+  // swal({
+  //   buttons: { confirm: { text: "Copy Stream URL" } },
+  //   icon: "success",
+  //   title: "Stream created!",
+  //   //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
+  //   content: {
+  //     element: "a",
+  //     attributes: {
+  //       className: "text-primary block truncate max-w-full",
+  //       href: url,
+  //       target: "_blank",
+  //       innerHTML: url,
+  //     },
+  //   },
+  // }).then((clicked) => {
+  //   if (clicked) {
+  //     copyToClipboard(url);
+  //     swal("Link copied to clipboard!", "Send it to the recipient!", "success");
+  //   }
+  // });
 }

@@ -1,30 +1,44 @@
 import {
+  Advanced,
   Amount,
   ButtonPrimary,
   DateTime,
   Recipient,
   SelectCluster,
   SelectToken,
-  Vesting,
   WalletPicker,
 } from "./index";
 import { useFormContext } from "../Contexts/FormContext";
 import { getUnixTime } from "date-fns";
-import { streamCreated, StreamData } from "../utils/helpers";
-import { _createStream } from "../Actions";
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { END, ERR_NOT_CONNECTED, START, TIME_SUFFIX } from "../constants";
-import { Dispatch, SetStateAction } from "react";
+import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import {
+  END,
+  ERR_NO_TOKEN_SELECTED,
+  ERR_NOT_CONNECTED,
+  ProgramInstruction,
+  START,
+  TIME_SUFFIX,
+} from "../constants";
 import useStore, { StoreType } from "../Stores";
 import Toggle from "./Toggle";
 import { toast } from "react-toastify";
+
+import "fs";
+import "buffer-layout";
+import { BN } from "@project-serum/anchor";
+import sendTransaction from "../Actions/sendTransaction";
+import { CreateStreamData } from "../types";
 
 const storeGetter = (state: StoreType) => ({
   balance: state.balance,
   setBalance: state.setBalance,
   addStream: state.addStream,
+  addStreamingMint: state.addStreamingMint,
   connection: state.connection(),
   wallet: state.wallet,
+  token: state.token,
+  setToken: state.setToken,
+  // tokenAccounts: state.tokenAccounts,
 });
 
 export default function CreateStreamForm({
@@ -32,9 +46,9 @@ export default function CreateStreamForm({
   setLoading,
 }: {
   loading: boolean;
-  setLoading: Dispatch<SetStateAction<boolean>>;
+  setLoading: (value: boolean) => void;
 }) {
-  const pda = Keypair.generate();
+  const newStream = Keypair.generate();
   const {
     amount,
     setAmount,
@@ -48,16 +62,33 @@ export default function CreateStreamForm({
     setEndDate,
     endTime,
     setEndTime,
-    vesting,
-    setVesting,
+    advanced,
+    setAdvanced,
+    cliffDate,
+    setCliffDate,
+    cliffTime,
+    setCliffTime,
+    cliffAmount,
+    setCliffAmount,
+    timePeriod,
+    setTimePeriod,
+    timePeriodMultiplier,
+    setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, balance, setBalance, addStream } =
-    useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    balance,
+    setBalance,
+    addStream,
+    addStreamingMint,
+    token,
+  } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
-    let start;
+    let start, end, cliff;
     let msg = "";
     switch (name) {
       case "start":
@@ -77,23 +108,60 @@ export default function CreateStreamForm({
         break;
       case "end_time":
         start = new Date(startDate + "T" + startTime);
-        const end = new Date(endDate + "T" + value);
+        end = new Date(endDate + "T" + value);
         msg = end < start ? "Err... end time before the start time?" : "";
         break;
+      case "cliff_date":
+        start = new Date(startDate + TIME_SUFFIX);
+        cliff = new Date(value + TIME_SUFFIX);
+        end = new Date(endDate + TIME_SUFFIX);
+        msg =
+          advanced && (cliff < start || cliff > end)
+            ? "Cliff must be between start and end date."
+            : "";
+        break;
+      case "cliff_time":
+        start = new Date(startDate + "T" + startTime);
+        cliff = new Date(cliffDate + "T" + value);
+        end = new Date(endDate + "T" + endTime);
+        msg =
+          advanced && (cliff < start || cliff > end)
+            ? "Cliff must be between start and end date."
+            : "";
+        break;
+      // case "recipient":
+      //   let acc = await connection?.getAccountInfo(new PublicKey(value));
+      //   msg =
+      //     !acc?.lamports ||
+      //     !acc?.owner?.equals(SystemProgram.programId) ||
+      //     acc?.executable
+      //       ? "This account doesn't seem correct."
+      //       : "";
+      //   break;
       default:
     }
     element.setCustomValidity(msg);
   }
 
-  async function createStream() {
+  async function createStream(e: any) {
+    e.preventDefault();
+
     if (!wallet?.publicKey || !connection) {
       toast.error(ERR_NOT_CONNECTED);
       return false;
     }
+
+    if (token === null) {
+      toast.error(ERR_NO_TOKEN_SELECTED);
+      return false;
+    }
+
     const form = document.getElementById("form") as HTMLFormElement;
+
     if (!form) {
       return false;
     }
+
     for (let i = 0; i < form.elements.length; i++) {
       validate(form.elements[i] as HTMLFormElement);
     }
@@ -112,29 +180,95 @@ export default function CreateStreamForm({
     }
 
     setLoading(true);
-    const data = new StreamData(
-      wallet.publicKey.toBase58(),
-      receiver,
-      amount,
-      start,
-      end
-    );
-    const success = await _createStream(data, connection, wallet, pda);
+    const data = {
+      deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
+      recipient: new PublicKey(receiver),
+      mint: new PublicKey(token.info.address),
+      start_time: new BN(start),
+      end_time: new BN(end),
+      period: new BN(advanced ? timePeriod * timePeriodMultiplier : 1),
+      cliff: new BN(
+        advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
+      ),
+      cliff_amount: new BN(
+        (advanced ? (cliffAmount / 100) * amount : 0) *
+          10 ** token.uiTokenAmount.decimals
+      ),
+      new_stream_keypair: newStream,
+    } as CreateStreamData;
+
+    let receiverAccount = await connection.getAccountInfo(data.recipient);
+    if (
+      !receiverAccount?.lamports ||
+      !receiverAccount?.owner?.equals(SystemProgram.programId) ||
+      receiverAccount?.executable
+    ) {
+      const confirmed = true;
+      // const confirmed = await swal({
+      //   text: "Are you sure the address is correct?",
+      //   icon: "warning",
+      //   buttons: {
+      //     cancel: true,
+      //     confirm: true,
+      //   },
+      // });
+      if (!confirmed) {
+        setLoading(false);
+        return false;
+      }
+    }
+
+    const success = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
 
     if (success) {
-      streamCreated(pda.publicKey.toBase58());
-      const fee = await connection.getMinimumBalanceForRentExemption(96);
-      setBalance(balance - amount - fee / LAMPORTS_PER_SOL);
-      addStream(pda.publicKey.toBase58(), data);
+      //streamCreated(newStream.publicKey.toBase58());
+      setBalance(balance - amount);
+      addStream(newStream.publicKey.toBase58(), {
+        ...data,
+        cancellable_at: new BN(end),
+        last_withdrawn_at: new BN(0),
+        withdrawn_amount: new BN(0),
+        canceled_at: new BN(0),
+        created_at: new BN(+new Date() / 1000),
+        escrow_tokens: undefined as any,
+        magic: new BN(0),
+        recipient_tokens: undefined as any,
+        sender: wallet.publicKey,
+        sender_tokens: undefined as any,
+        total_amount: new BN(amount),
+      });
+      addStreamingMint(token.info.address);
     }
+    return false;
   }
 
   return (
     <form onSubmit={createStream} id="form">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
-        <Amount onChange={setAmount} value={amount} max={balance} />
-        <SelectToken />
+        <Amount
+          onChange={setAmount}
+          value={amount}
+          max={
+            token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0
+          }
+        />
+        {wallet?.publicKey ? (
+          <SelectToken />
+        ) : (
+          <div className="col-span-2 sm:col-span-1">
+            <label htmlFor="token" className="block font-medium text-gray-100">
+              Token
+            </label>
+            <select
+              disabled={true}
+              className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+              defaultValue="1"
+            >
+              <option value="1">Connect the wallet</option>
+            </select>
+          </div>
+        )}
         <Recipient onChange={setReceiver} value={receiver} />
         <DateTime
           title={START}
@@ -151,8 +285,23 @@ export default function CreateStreamForm({
           updateTime={setEndTime}
         />
       </div>
-      <Toggle enabled={vesting} setEnabled={setVesting} label="Vesting" />
-      <Vesting visible={vesting} />
+      <Toggle enabled={advanced} setEnabled={setAdvanced} label="Advanced" />
+      <Advanced
+        visible={advanced}
+        amount={amount}
+        endDate={endDate}
+        endTime={endTime}
+        cliffDate={cliffDate}
+        updateCliffDate={setCliffDate}
+        cliffTime={cliffTime}
+        updateCliffTime={setCliffTime}
+        timePeriod={timePeriod}
+        updateTimePeriod={setTimePeriod}
+        timePeriodMultiplier={timePeriodMultiplier}
+        updateTimePeriodMultiplier={setTimePeriodMultiplier}
+        cliffAmount={cliffAmount}
+        updateCliffAmount={setCliffAmount}
+      />
       {wallet?.connected ? (
         <ButtonPrimary
           className="font-bold text-2xl my-5"

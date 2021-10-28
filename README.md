@@ -3,10 +3,8 @@
 
 Web application client for the **StreamFlow streaming payments protocol**.
 
-Serverless. Realtime. Free and open-source. Built on Solana.
+Serverless. Realtime. Built on Solana.
 
-- [Short demo](https://www.youtube.com/watch?v=7HWzcxu-De0) [[Extended demo](https://www.youtube.com/watch?v=7hrv7HDK3oE)]
-- [Slides](https://streamflow.finance/public/streamflow_slides.pdf)
 - [Website](https://streamflow.finance)
 - [App](https://app.streamflow.finance)
 - [GitHub](https://github.com/streamflow-finance)
@@ -17,3 +15,14 @@ To run locally, git clone the repository and then:
 ```
   npm i
   npm run start
+```
+To add a token account to the account connected to the local network:
+```
+solana airdrop 1
+spl-token create-token
+token=<TOKEN> #save token mint address for later use
+spl-token create-account <TOKEN>
+acc=<TOKEN_ACCOUNT> #save token account address for later use
+spl-token mint <TOKEN> <AMOUNT>
+spl-token transfer <TOKEN> <AMOUNT> <WALLET_ADDRESS> --fund-recipient --allow-unfunded-recipient
+```

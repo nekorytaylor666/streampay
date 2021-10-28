@@ -12,7 +12,7 @@ import useStore, { StoreType } from "../Stores";
 import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
 
 const storeGetter = (state: StoreType) => ({
-  balance: state.balance,
+  // balance: state.balance,
   setBalance: state.setBalance,
   isMainnet: state.cluster === CLUSTER_MAINNET,
   connection: state.connection(),
@@ -20,6 +20,7 @@ const storeGetter = (state: StoreType) => ({
   connectWallet: state.connectWallet,
   disconnectWallet: state.disconnectWallet,
   setWalletType: state.setWalletType,
+  token: state.token,
 });
 
 export default function Account({
@@ -35,11 +36,11 @@ export default function Account({
   const {
     connection,
     wallet,
-    balance,
-    setBalance,
+    // balance,
     isMainnet,
     disconnectWallet,
     setWalletType,
+    token,
   } = useStore(storeGetter);
 
   useEffect(() => {
@@ -50,8 +51,8 @@ export default function Account({
           if (result.value.err) {
             toast.error("Airdrop failed!");
           } else {
-            setBalance(balance + AIRDROP_AMOUNT);
-            toast.success("Airdrop confirmed. Balance updated!");
+            //setBalance(balance + AIRDROP_AMOUNT);
+            toast.success("Airdrop confirmed!");
           }
         });
     }
@@ -78,10 +79,7 @@ export default function Account({
   let myAddress = null;
   if (walletPubKey) {
     myWalletLink = (
-      <Link
-        url={getExplorerLink("address", walletPubKey)}
-        title="My Wallet Address"
-      />
+      <Link url={getExplorerLink("address", walletPubKey)} title="Address" />
     );
     myAddress = <Address address={walletPubKey} className="block truncate" />;
   }
@@ -93,8 +91,12 @@ export default function Account({
         {myAddress}
       </div>
       <div className="mb-4 clearfix text-white">
-        <strong className="block">Balance</strong>
-        <span>◎{Number(balance).toFixed(4)}</span>
+        {token && (
+          <>
+            <strong className="block">Balance</strong>
+            {token?.uiTokenAmount?.uiAmountString} {token?.info?.symbol}
+          </>
+        )}
         <button
           type="button"
           onClick={() => {
