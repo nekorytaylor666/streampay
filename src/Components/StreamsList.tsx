@@ -5,7 +5,6 @@ import {
   ERR_NO_STREAM,
   ERR_NOT_CONNECTED,
   ProgramInstruction,
-  TIMELOCK_PROGRAM_ID,
   TIMELOCK_STRUCT_OFFSET_RECIPIENT,
   TIMELOCK_STRUCT_OFFSET_SENDER,
   TX_FINALITY_CONFIRMED,
@@ -25,8 +24,6 @@ import {
 import swal from "sweetalert";
 
 const storeGetter = (state: StoreType) => ({
-  balance: state.balance,
-  setBalance: state.setBalance,
   streamingMints: state.streamingMints,
   streams: state.streams,
   addStream: state.addStream,
@@ -42,7 +39,6 @@ export default function StreamsList() {
   const {
     wallet,
     connection,
-    setBalance,
     streams,
     addStream,
     addStreamingMint,
@@ -222,7 +218,6 @@ export default function StreamsList() {
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
-      setBalance(newBalance + tokenAmount);
     }
   }
 
@@ -255,7 +250,6 @@ export default function StreamsList() {
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
-      setBalance(newBalance + tokenAmount);
     }
   }
 

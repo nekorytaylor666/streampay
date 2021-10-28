@@ -12,8 +12,6 @@ const storeGetter = (state: StoreType) => ({
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   wallet: state.wallet,
-  balance: state.balance,
-  setBalance: state.setBalance,
   cluster: state.cluster,
   token: state.token,
   setToken: state.setToken,

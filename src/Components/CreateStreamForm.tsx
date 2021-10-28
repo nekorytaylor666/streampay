@@ -30,8 +30,6 @@ import sendTransaction from "../Actions/sendTransaction";
 import { CreateStreamData } from "../types";
 
 const storeGetter = (state: StoreType) => ({
-  balance: state.balance,
-  setBalance: state.setBalance,
   addStream: state.addStream,
   addStreamingMint: state.addStreamingMint,
   connection: state.connection(),
@@ -76,15 +74,8 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const {
-    connection,
-    wallet,
-    balance,
-    setBalance,
-    addStream,
-    addStreamingMint,
-    token,
-  } = useStore(storeGetter);
+  const { connection, wallet, addStream, addStreamingMint, token } =
+    useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
@@ -223,7 +214,6 @@ export default function CreateStreamForm({
 
     if (success) {
       //streamCreated(newStream.publicKey.toBase58());
-      setBalance(balance - amount);
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancellable_at: new BN(end),

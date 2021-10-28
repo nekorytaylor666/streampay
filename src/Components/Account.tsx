@@ -12,8 +12,6 @@ import useStore, { StoreType } from "../Stores";
 import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
 
 const storeGetter = (state: StoreType) => ({
-  // balance: state.balance,
-  setBalance: state.setBalance,
   isMainnet: state.cluster === CLUSTER_MAINNET,
   connection: state.connection(),
   wallet: state.wallet,
@@ -51,7 +49,6 @@ export default function Account({
           if (result.value.err) {
             toast.error("Airdrop failed!");
           } else {
-            //setBalance(balance + AIRDROP_AMOUNT);
             toast.success("Airdrop confirmed!");
           }
         });

@@ -35,11 +35,6 @@ const walletStore = (set: Function, get: Function) => ({
     if (wallet) {
       wallet.on("connect", async () => {
         set({ walletType, wallet });
-        console.log("type", walletType);
-        // state
-        //   .connection()
-        //   .getBalance(wallet.publicKey)
-        //   .then(async (result: number) => state.setBalance(result));
         toast.success("Wallet connected!");
       });
       wallet.on("disconnect", () => {

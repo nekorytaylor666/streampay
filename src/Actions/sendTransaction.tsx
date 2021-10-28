@@ -69,7 +69,6 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Withdraw:
         d = data as WithdrawStreamData;
-        console.log("conn wallet", connection, TIMELOCK_PROGRAM_ID, wallet);
         tx = await Timelock.withdraw(
           connection,
           // @ts-ignore
@@ -85,7 +84,6 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          // TIMELOCK_PROGRAM_ID,
           programId,
           d.stream
         );

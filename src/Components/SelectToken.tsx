@@ -7,7 +7,6 @@ const storeGetter = (state: StoreType) => ({
   wallet: state.wallet,
   // refreshTokenAccounts: state.refreshTokenAccounts,
   // tokenAccounts: state.tokenAccounts,
-  setBalance: state.setBalance,
   myTokenAccounts: state.myTokenAccounts,
   token: state.token,
   setToken: state.setToken,
