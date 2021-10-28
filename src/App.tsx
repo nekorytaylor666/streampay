@@ -1,38 +1,82 @@
+import { Dispatch, SetStateAction } from "react";
 import { ToastContainer } from "react-toastify";
 import { Products } from "./Pages";
-import { Footer, Logo } from "./Components";
+import { WalletPicker, Footer, Logo, Toggle } from "./Components";
 import logo from "./logo.png";
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { useFormContext } from "./Contexts/FormContext";
 import { PRODUCT_VESTING, products } from "./constants";
+import { CLUSTER_MAINNET, CLUSTER_DEVNET } from "./Stores/NetworkStore";
+import useStore, { StoreType } from "./Stores";
+
+const storeGetter = (state: StoreType) => ({
+  cluster: state.cluster,
+  setCluster: state.setCluster,
+});
 
 function App() {
   const { setAdvanced } = useFormContext();
   const [product, setProduct] = useState(PRODUCT_VESTING);
-  return (
-    <div>
-      <div className={"mx-auto bg-blend-darken px-4 my-4"}>
-        <div className="text-center text-white mb-6 flex sm:block">
-          {products.map((prod) => (
-            <span
-              key={prod}
-              onClick={() => {
-                setAdvanced(prod === PRODUCT_VESTING);
-                setProduct(prod);
-              }}
-              className={`cursor-pointer capitalize flex-1 sm:inline-block sm:mx-4
+
+  const { cluster, setCluster } = useStore(storeGetter);
+
+  const toggleCluster = (
+    isMainnet: boolean
+  ): Dispatch<SetStateAction<{ cluster: string; programId: string }>> => {
+    console.log("is", isMainnet);
+    return isMainnet ? setCluster(CLUSTER_MAINNET) : setCluster(CLUSTER_DEVNET);
+  };
+
+  const renderProducts = () =>
+    products.map((prod) => (
+      <span
+        key={prod}
+        onClick={() => {
+          setAdvanced(prod === PRODUCT_VESTING);
+          setProduct(prod);
+        }}
+        className={`cursor-pointer text-sm sm:text-base capitalize flex-1 sm:inline-block mx-3 sm:mx-5
                               ${
                                 prod === product
                                   ? "text-white"
                                   : "text-gray-400"
                               }`}
-            >
-              {prod}
-            </span>
-          ))}
+      >
+        {prod}
+      </span>
+    ));
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <div className="bg-blend-darken flex-grow px-3.5 sm:px-5">
+        <div className="flex justify-between items-center py-4 lg:mb-20 sticky top-0 bg-gray-900 bg-opacity-90 z-10">
+          <Logo src={logo} />
+          <div className="hidden lg:block text-center text-white flex">
+            {renderProducts()}
+          </div>
+          <div className="flex items-center">
+            <WalletPicker
+              title="Connect"
+              classes="px-3 py-1 sm:px-6 sm:py-2 sm:mr-3"
+            />
+            <Toggle
+              enabled={cluster === CLUSTER_MAINNET}
+              setEnabled={toggleCluster}
+              label="mainnet"
+              classes="hidden sm:flex"
+            />
+          </div>
         </div>
-        <Logo src={logo} />
+        <Toggle
+          enabled={cluster === CLUSTER_MAINNET}
+          setEnabled={toggleCluster}
+          label="mainnet"
+          classes="sm:hidden justify-center mb-4"
+        />
+        <div className="block lg:hidden text-center text-white flex mb-8 max-w-max mx-auto">
+          {renderProducts()}
+        </div>
         <Products product={product} />
       </div>
       <ToastContainer hideProgressBar position="bottom-left" limit={5} />

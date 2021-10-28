@@ -4,7 +4,6 @@ import {
   ButtonPrimary,
   DateTime,
   Recipient,
-  SelectCluster,
   SelectToken,
   WalletPicker,
 } from "./index";
@@ -279,18 +278,14 @@ export default function CreateStreamForm({
       />
       {wallet?.connected ? (
         <ButtonPrimary
-          className="font-bold text-2xl my-5"
+          className="px-8 py-4 font-bold text-2xl my-5"
           onClick={createStream}
           disabled={loading}
         >
           Stream!
         </ButtonPrimary>
       ) : (
-        <>
-          <hr className="my-4 sm:hidden" />
-          <SelectCluster />
-          <WalletPicker />
-        </>
+        <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" />
       )}
     </form>
   );
