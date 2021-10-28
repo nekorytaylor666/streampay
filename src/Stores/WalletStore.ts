@@ -35,11 +35,11 @@ const walletStore = (set: Function, get: Function) => ({
     if (wallet) {
       wallet.on("connect", async () => {
         set({ walletType, wallet });
-        state
-          .connection()
-          .getBalance(wallet.publicKey)
-          .then(async (result: number) => state.setBalance(result));
-
+        console.log("type", walletType);
+        // state
+        //   .connection()
+        //   .getBalance(wallet.publicKey)
+        //   .then(async (result: number) => state.setBalance(result));
         toast.success("Wallet connected!");
       });
       wallet.on("disconnect", () => {
@@ -50,7 +50,7 @@ const walletStore = (set: Function, get: Function) => ({
         set({ walletType: null, wallet: null });
         toast.error(
           e instanceof WalletNotFoundError
-            ? "Wallet extension not installed"
+            ? "Wallet extension not installed" //todo: add link
             : "Wallet not connected, try again"
         );
       });

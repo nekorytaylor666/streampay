@@ -74,7 +74,7 @@ export default function StreamsList() {
 
     //TODO: handle messy code later!
     connection
-      ?.getProgramAccounts(new PublicKey(TIMELOCK_PROGRAM_ID), {
+      ?.getProgramAccounts(new PublicKey(useStore.getState().programId), {
         filters: [
           {
             memcmp: {
@@ -109,11 +109,12 @@ export default function StreamsList() {
             );
           }
           addStream(accounts[i].pubkey.toBase58(), decoded);
+          console.log("mint isssssss", decoded.mint.toString());
           addStreamingMint(decoded.mint.toString());
         }
       });
     connection
-      ?.getProgramAccounts(new PublicKey(TIMELOCK_PROGRAM_ID), {
+      ?.getProgramAccounts(new PublicKey(useStore.getState().programId), {
         filters: [
           {
             memcmp: {
@@ -199,10 +200,10 @@ export default function StreamsList() {
       toast.error(ERR_NOT_CONNECTED);
       return;
     }
-    //TODO: enable withdrawing arbitrary amount via UI
+
     const success = await sendTransaction(ProgramInstruction.Withdraw, {
       stream: new PublicKey(id),
-      amount: new BN(0),
+      amount: new BN(0), //TODO: enable withdrawing arbitrary amount via UI
     } as WithdrawStreamData);
     if (success) {
       const newBalance = await connection.getBalance(

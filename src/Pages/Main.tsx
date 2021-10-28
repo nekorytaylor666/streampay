@@ -55,7 +55,7 @@ export default function Main() {
         //add our SPL token from the localhost:
         const ourToken = {
           chainId: 103, //devnet
-          address: "E9j2TymWxtXwDoNPxStrz4A4gyGhM7XzMoDnZjZoNCrp", //ADD YOUR LOCAL TOKEN HERE
+          address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
           symbol: "STRM",
           name: "STREAMFLOW",
           decimals: 9, //default is 9

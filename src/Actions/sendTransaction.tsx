@@ -3,7 +3,6 @@ import ToastrLink from "../Components/ToastrLink";
 import {
   ERR_NOT_CONNECTED,
   ProgramInstruction,
-  TIMELOCK_PROGRAM_ID,
   TX_FINALITY_FINALIZED,
 } from "../constants";
 import { getExplorerLink } from "../utils/helpers";
@@ -16,6 +15,7 @@ import {
   WithdrawStreamData,
 } from "../types";
 import useStore from "../Stores";
+import { decode } from "@streamflow/timelock/dist/layout";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
@@ -23,6 +23,9 @@ export default async function sendTransaction(
 ) {
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
+  const programId = useStore.getState().programId;
+  const cluster = useStore.getState().cluster;
+
   let d;
   console.log("cnwl", connection, wallet);
   try {
@@ -52,7 +55,7 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          TIMELOCK_PROGRAM_ID,
+          programId,
           d.new_stream_keypair,
           d.recipient,
           d.mint,
@@ -71,7 +74,7 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          TIMELOCK_PROGRAM_ID,
+          programId,
           d.stream,
           d.amount
         );
@@ -82,7 +85,8 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          TIMELOCK_PROGRAM_ID,
+          // TIMELOCK_PROGRAM_ID,
+          programId,
           d.stream
         );
         break;
@@ -92,7 +96,7 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          TIMELOCK_PROGRAM_ID,
+          programId,
           d.stream,
           d.new_recipient
         );
