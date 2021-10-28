@@ -15,7 +15,6 @@ import {
   WithdrawStreamData,
 } from "../types";
 import useStore from "../Stores";
-import { decode } from "@streamflow/timelock/dist/layout";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
@@ -24,7 +23,6 @@ export default async function sendTransaction(
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
   const programId = useStore.getState().programId;
-  const cluster = useStore.getState().cluster;
 
   let d;
   console.log("cnwl", connection, wallet);

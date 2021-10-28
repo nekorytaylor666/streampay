@@ -214,6 +214,7 @@ export default function CreateStreamForm({
 
     if (success) {
       //streamCreated(newStream.publicKey.toBase58());
+      //todo: update token balances on create, withdraw, cancel
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancellable_at: new BN(end),

@@ -34,7 +34,6 @@ export default function Account({
   const {
     connection,
     wallet,
-    // balance,
     isMainnet,
     disconnectWallet,
     setWalletType,

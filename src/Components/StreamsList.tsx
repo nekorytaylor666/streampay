@@ -79,6 +79,7 @@ export default function StreamsList() {
               bytes: wallet?.publicKey?.toBase58(),
             },
           },
+          //todo: issue #12, handle in one call https://github.com/StreamFlow-Finance/streamflow-app/issues/12
           // {
           //   memcmp: {
           //     offset: 152, //recipient offset
@@ -109,6 +110,7 @@ export default function StreamsList() {
           addStreamingMint(decoded.mint.toString());
         }
       });
+    //todo: issue #12 https://github.com/StreamFlow-Finance/streamflow-app/issues/12
     connection
       ?.getProgramAccounts(new PublicKey(useStore.getState().programId), {
         filters: [
@@ -141,6 +143,8 @@ export default function StreamsList() {
           addStreamingMint(decoded.mint.toString());
         }
       });
+
+    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/1
 
     // for (const id in newStreams) {
     //   if (newStreams.hasOwnProperty(id)) {
@@ -202,19 +206,16 @@ export default function StreamsList() {
       amount: new BN(0), //TODO: enable withdrawing arbitrary amount via UI
     } as WithdrawStreamData);
     if (success) {
-      const newBalance = await connection.getBalance(
-        wallet.publicKey,
-        TX_FINALITY_CONFIRMED
-      );
       const stream = await connection.getAccountInfo(
         new PublicKey(id),
         TX_FINALITY_CONFIRMED
       );
 
-      let tokenAmount = 0;
+      // let tokenAmount = 0;
       if (stream !== null) {
         const decoded = decode(stream.data);
-        tokenAmount = decoded.withdrawn_amount.toNumber();
+        // tokenAmount = decoded.withdrawn_amount.toNumber();
+        //todo: update token balance on withdraw
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
@@ -231,22 +232,18 @@ export default function StreamsList() {
       stream: new PublicKey(id),
     } as CancelStreamData);
     if (success) {
-      const newBalance = await connection.getBalance(
-        wallet.publicKey,
-        TX_FINALITY_CONFIRMED
-      );
-      //const newWithdrawn = deposited_amount.toNumber() - (newBalance - oldBalance);
       const stream = await connection.getAccountInfo(
         new PublicKey(id),
         TX_FINALITY_CONFIRMED
       );
 
-      let tokenAmount = 0;
+      // let tokenAmount = 0;
       if (stream !== null) {
         const decoded = decode(stream.data);
-        tokenAmount =
-          decoded.deposited_amount.toNumber() -
-          decoded.withdrawn_amount.toNumber();
+        //todo update token account balance
+        // tokenAmount =
+        //   decoded.deposited_amount.toNumber() -
+        //   decoded.withdrawn_amount.toNumber();
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
