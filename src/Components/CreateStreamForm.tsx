@@ -243,22 +243,7 @@ export default function CreateStreamForm({
             token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0
           }
         />
-        {wallet?.publicKey ? (
-          <SelectToken />
-        ) : (
-          <div className="col-span-2 sm:col-span-1">
-            <label htmlFor="token" className="block font-medium text-gray-100">
-              Token
-            </label>
-            <select
-              disabled={true}
-              className="mt-1 text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
-              defaultValue="1"
-            >
-              <option value="1">Connect the wallet</option>
-            </select>
-          </div>
-        )}
+        <SelectToken />
         <Recipient onChange={setReceiver} value={receiver} />
         <DateTime
           title={START}
