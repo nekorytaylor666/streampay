@@ -20,9 +20,9 @@ export default function Toggle({
   classes?: string;
 }) {
   return (
-    <Switch.Group as='div' className={cx(classes, "flex items-center")}>
-      <Switch.Label as='span' className='mr-2'>
-        <span className='text-white text-sm sm:text-base flex-grow'>{label}</span>
+    <Switch.Group as="div" className={cx(classes, "flex items-center")}>
+      <Switch.Label as="span" className="mr-2">
+        <span className="text-white text-sm sm:text-base flex-grow">{label}</span>
       </Switch.Label>
       <Switch
         checked={enabled}
@@ -33,7 +33,7 @@ export default function Toggle({
         )}
       >
         <span
-          aria-hidden='true'
+          aria-hidden="true"
           className={classNames(
             enabled ? "translate-x-5" : "translate-x-0",
             "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200",

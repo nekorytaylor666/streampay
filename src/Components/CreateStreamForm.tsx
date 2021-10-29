@@ -233,8 +233,8 @@ export default function CreateStreamForm({
   }
 
   return (
-    <form onSubmit={createStream} id='form' className='mb-0 lg:mb-11'>
-      <div className='my-4 grid gap-4 grid-cols-5 sm:grid-cols-2'>
+    <form onSubmit={createStream} id="form" className="mb-0 lg:mb-11">
+      <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
         <Amount
           onChange={setAmount}
           value={amount}
@@ -257,7 +257,7 @@ export default function CreateStreamForm({
           updateTime={setEndTime}
         />
       </div>
-      <Toggle enabled={advanced} setEnabled={setAdvanced} label='Advanced' />
+      <Toggle enabled={advanced} setEnabled={setAdvanced} label="Advanced" />
       <Advanced
         visible={advanced}
         amount={amount}
@@ -276,14 +276,14 @@ export default function CreateStreamForm({
       />
       {wallet?.connected ? (
         <ButtonPrimary
-          className='px-8 py-4 font-bold text-2xl my-5'
+          className="px-8 py-4 font-bold text-2xl my-5"
           onClick={createStream}
           disabled={loading}
         >
           Stream!
         </ButtonPrimary>
       ) : (
-        <WalletPicker classes='px-8 py-4 font-bold text-2xl my-5' />
+        <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" />
       )}
     </form>
   );

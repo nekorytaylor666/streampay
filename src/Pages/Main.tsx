@@ -107,7 +107,7 @@ export default function Main() {
   }, [wallet, connection]);
 
   return (
-    <div className='mx-auto grid grid-cols-1 gap-16 max-w-lg xl:grid-cols-2 xl:max-w-5xl'>
+    <div className="mx-auto grid grid-cols-1 gap-16 max-w-lg xl:grid-cols-2 xl:max-w-5xl">
       <div>
         <Curtain visible={loading} />
         {wallet?.connected && (

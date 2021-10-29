@@ -38,7 +38,7 @@ export default function Advanced({
 
   if (!endDate || !endTime) {
     return (
-      <span hidden={!visible} className='text-white'>
+      <span hidden={!visible} className="text-white">
         Please specify start and end time.
       </span>
     );
@@ -50,47 +50,47 @@ export default function Advanced({
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
   return (
-    <div hidden={!visible} className='relative text-gray-400 -mx-2 p-2 rounded-md mt-4'>
+    <div hidden={!visible} className="relative text-gray-400 -mx-2 p-2 rounded-md mt-4">
       First
       <input
         required={visible}
-        id='cliff_amount'
-        name='cliff_amount'
-        type='number'
+        id="cliff_amount"
+        name="cliff_amount"
+        type="number"
         min={0}
         max={100}
         value={cliffAmount.toString()}
         onChange={(e) => updateCliffAmount(Number(e.target.value))}
         className={inputClassName + " w-8"}
       />
-      <small className='text-white'>%</small> released at
+      <small className="text-white">%</small> released at
       <input
         required={visible}
-        id='cliff_date'
-        name='cliff_date'
-        type='date'
+        id="cliff_date"
+        name="cliff_date"
+        type="date"
         value={cliffDate}
         onChange={(e) => updateCliffDate(e.target.value)}
         className={inputClassName}
       />
       <input
         required={visible}
-        id='cliff_time'
-        name='cliff_time'
-        type='time'
+        id="cliff_time"
+        name="cliff_time"
+        type="time"
         value={cliffTime}
         onChange={(e) => updateCliffTime(e.target.value)}
         className={inputClassName}
       />
-      <hr className='my-2 border-0' />
+      <hr className="my-2 border-0" />
       and then{" "}
-      <span className='text-white'>
+      <span className="text-white">
         {releaseRate.toFixed(3)}
         <small>%</small>
       </span>{" "}
       released every
       <input
-        type='number'
+        type="number"
         min={1}
         value={timePeriodMultiplier.toString()}
         onChange={(e) => {
@@ -113,9 +113,9 @@ export default function Advanced({
         <option value={60 * 60 * 24 * 30}>month{s}</option>
         <option value={60 * 60 * 24 * 365}>year{s}</option>
       </select>
-      <hr className='my-2 border-0' />
+      <hr className="my-2 border-0" />
       until{" "}
-      <span className='text-white'>
+      <span className="text-white">
         {format(new Date(endDate + "T" + endTime), "ccc do MMM, yy — HH:mm")}
       </span>
       {/*

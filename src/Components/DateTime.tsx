@@ -43,13 +43,13 @@ export default function DateTime(props: {
 
   return (
     <>
-      <div className='col-span-3 sm:col-span-1'>
-        <label htmlFor={title} className='block font-medium text-gray-100 capitalize'>
+      <div className="col-span-3 sm:col-span-1">
+        <label htmlFor={title} className="block font-medium text-gray-100 capitalize">
           {title} Date
         </label>
-        <div className='mt-1'>
+        <div className="mt-1">
           <input
-            type='date'
+            type="date"
             name={title}
             id={title}
             value={date}
@@ -58,28 +58,28 @@ export default function DateTime(props: {
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateDate(e.target.value)}
-            className='text-white bg-gray-800 border-primary block w-full h-10.5 border-black rounded-md focus:ring-secondary focus:border-secondary'
-            placeholder=''
+            className="text-white bg-gray-800 border-primary block w-full h-10.5 border-black rounded-md focus:ring-secondary focus:border-secondary"
+            placeholder=""
             aria-describedby={title + `-description`}
             required
           />
         </div>
       </div>
-      <div className='col-span-2 sm:col-span-1'>
-        <label htmlFor={title + `_time`} className='block font-medium text-gray-100 capitalize'>
+      <div className="col-span-2 sm:col-span-1">
+        <label htmlFor={title + `_time`} className="block font-medium text-gray-100 capitalize">
           {title} time
         </label>
-        <div className='mt-1'>
+        <div className="mt-1">
           <input
-            type='time'
+            type="time"
             name={title + `_time`}
             id={title + `_time`}
             value={time}
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateTime(e.target.value)}
-            className='text-white bg-gray-800 border-primary block w-full h-10.5 border-black rounded-md focus:ring-secondary focus:border-secondary'
-            placeholder=''
+            className="text-white bg-gray-800 border-primary block w-full h-10.5 border-black rounded-md focus:ring-secondary focus:border-secondary"
+            placeholder=""
             aria-describedby={title + `_time-description`}
             required
           />

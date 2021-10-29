@@ -84,7 +84,7 @@ export default function Stream(props: {
     <dl
       className={`text-white my-4 grid gap-y-4 gap-x-2 grid-cols-3 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
     >
-      <div className='col-span-full'>
+      <div className="col-span-full">
         <Badge type={status} color={color} />
         <button
           onClick={removeStream}
@@ -95,14 +95,14 @@ export default function Stream(props: {
       </div>
       <Duration start_time={start_time} end_time={end_time} />
       <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"Stream ID"} />
-      <Address address={id} className='col-span-2 text-sm text-gray-400' />
+      <Address address={id} className="col-span-2 text-sm text-gray-400" />
       <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())} title={"Recipient"} />
-      <Address address={recipient.toBase58()} className='col-span-2 text-sm text-gray-400' />
-      <Progress title='Withdrawn' value={withdrawn_amount.toNumber()} max={deposited_amount} />
+      <Address address={recipient.toBase58()} className="col-span-2 text-sm text-gray-400" />
+      <Progress title="Withdrawn" value={withdrawn_amount.toNumber()} max={deposited_amount} />
 
       {status === StreamStatus.canceled && (
         <Progress
-          title='Returned'
+          title="Returned"
           value={deposited_amount.toNumber() - withdrawn_amount.toNumber()}
           max={deposited_amount}
           rtl={true}
@@ -110,26 +110,26 @@ export default function Stream(props: {
       )}
       {status !== StreamStatus.canceled && (
         <>
-          <Progress title='Streamed' value={streamed.toNumber()} max={deposited_amount} />
+          <Progress title="Streamed" value={streamed.toNumber()} max={deposited_amount} />
           {showWithdraw && (
             <>
               <dt>
                 Available
                 <br />
-                <sup className='text-xs text-gray-300 align-top'>for withdrawal</sup>
+                <sup className="text-xs text-gray-300 align-top">for withdrawal</sup>
               </dt>
-              <dd className='col-span-2'>
+              <dd className="col-span-2">
                 {available}
                 {/*{available / 10 ** tokensStreaming[mint.toBase58()].decimals}{" "}*/}
                 {/*{tokensStreaming[mint.toBase58()].symbol}*/}
               </dd>
               <ActionButton
-                title='Withdraw'
+                title="Withdraw"
                 action={onWithdraw}
                 color={STREAM_STATUS_COLOR[StreamStatus.streaming]}
               />
               <ActionButton
-                title='Transfer'
+                title="Transfer"
                 action={onTransfer}
                 color={STREAM_STATUS_COLOR[StreamStatus.complete]}
               />

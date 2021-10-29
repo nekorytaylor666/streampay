@@ -98,7 +98,7 @@ export default async function sendTransaction(
     toast.success(
       <ToastrLink
         url={url}
-        urlText='View on explorer'
+        urlText="View on explorer"
         nonUrlText={
           `Transaction ${connection.commitment}!` +
           (connection.commitment !== TX_FINALITY_FINALIZED

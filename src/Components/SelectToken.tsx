@@ -15,22 +15,22 @@ export default function SelectToken() {
   let select;
 
   if (!wallet?.publicKey) {
-    select = <div className='pt-2'>Please connect.</div>;
+    select = <div className="pt-2">Please connect.</div>;
   } else if (!token || Object.entries(token).length === 0) {
-    select = <div className='pt-2'>No SPL tokens available. :(</div>;
+    select = <div className="pt-2">No SPL tokens available. :(</div>;
   } else {
     const icon = (
       <div
-        className='bg-no-repeat bg-center bg-contain w-4 mr-2 inline-block'
+        className="bg-no-repeat bg-center bg-contain w-4 mr-2 inline-block"
         style={{
           backgroundImage: `url('${token.info.logoURI}')`,
         }}
       />
     );
     const dropdownValue = (
-      <div className='flex'>
+      <div className="flex">
         {token.info.logoURI && icon}
-        <span className='flex-1'>{token.info.symbol}</span>
+        <span className="flex-1">{token.info.symbol}</span>
       </div>
     );
     select = (
@@ -45,8 +45,8 @@ export default function SelectToken() {
     );
   }
   return (
-    <div className='col-span-2 sm:col-span-1 text-white'>
-      <label htmlFor='token' className='block font-medium text-gray-100'>
+    <div className="col-span-2 sm:col-span-1 text-white">
+      <label htmlFor="token" className="block font-medium text-gray-100">
         Token
       </label>
       {select}

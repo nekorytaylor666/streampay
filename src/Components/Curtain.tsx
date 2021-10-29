@@ -5,7 +5,7 @@ export default function Curtain(props: { visible: boolean }) {
         props.visible ? "block" : "hidden"
       }`}
     >
-      <div className='loader'> </div>
+      <div className="loader"> </div>
     </div>
   );
 }

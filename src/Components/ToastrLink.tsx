@@ -6,9 +6,9 @@ export default function ToastrLink(props: { url: string; urlText: string; nonUrl
     <span>
       {nonUrlText}
       <br />
-      <a className='font-bold' href={url} rel='noopener noreferrer' target='_blank'>
+      <a className="font-bold" href={url} rel="noopener noreferrer" target="_blank">
         {urlText}
-        <ExternalLinkIcon className='ml-1 w-4 h-4 inline' />
+        <ExternalLinkIcon className="ml-1 w-4 h-4 inline" />
       </a>
     </span>
   );

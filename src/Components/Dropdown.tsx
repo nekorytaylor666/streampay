@@ -39,12 +39,12 @@ export default function Dropdown({
       tabIndex={0}
       onBlur={() => setWrapperHidden(true)}
       onFocus={() => setWrapperHidden(false)}
-      className='relative px-3 py-2 mt-1 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary border leading-snug'
+      className="relative px-3 py-2 mt-1 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary border leading-snug"
     >
       <div
         title={textValue}
         onClick={() => setWrapperHidden(false)}
-        className='overflow-ellipsis overflow-hidden block cursor-pointer'
+        className="overflow-ellipsis overflow-hidden block cursor-pointer"
       >
         {value || "Select..."}
       </div>
@@ -56,8 +56,8 @@ export default function Dropdown({
       >
         <input
           ref={fieldRef}
-          type='text'
-          className='mb-2 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary'
+          type="text"
+          className="mb-2 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary"
           onBlur={() => setSearchBoxHidden(true)}
           onFocus={() => setSearchBoxHidden(false)}
           onMouseDown={() => setSearchBoxHidden(false)}
@@ -71,10 +71,10 @@ export default function Dropdown({
             }
           }, 100)}
         />
-        <ul className='max-h-96 overflow-auto'>
+        <ul className="max-h-96 overflow-auto">
           {filteredOptions.map((token) => (
             <li
-              className='py-1 px-2 odd:bg-gray-800 cursor-pointer'
+              className="py-1 px-2 odd:bg-gray-800 cursor-pointer"
               key={generateKey(token)}
               onMouseDown={(e) => {
                 e.preventDefault();

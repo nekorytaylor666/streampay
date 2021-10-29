@@ -62,30 +62,30 @@ export default function Account({
   let myWalletLink = null;
   let myAddress = null;
   if (walletPubKey) {
-    myWalletLink = <Link url={getExplorerLink("address", walletPubKey)} title='Address' />;
-    myAddress = <Address address={walletPubKey} className='block truncate' />;
+    myWalletLink = <Link url={getExplorerLink("address", walletPubKey)} title="Address" />;
+    myAddress = <Address address={walletPubKey} className="block truncate" />;
   }
 
   return (
     <>
-      <div className='mb-4 text-white'>
+      <div className="mb-4 text-white">
         {myWalletLink}
         {myAddress}
       </div>
-      <div className='mb-4 clearfix text-white'>
+      <div className="mb-4 clearfix text-white">
         {token && (
           <>
-            <strong className='block'>Balance</strong>
+            <strong className="block">Balance</strong>
             {token?.uiTokenAmount?.uiAmountString} {token?.info?.symbol}
           </>
         )}
         <button
-          type='button'
+          type="button"
           onClick={() => {
             disconnectWallet();
             setWalletType(null);
           }}
-          className='float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary'
+          className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           Disconnect
         </button>

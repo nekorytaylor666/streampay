@@ -46,32 +46,32 @@ function App() {
     ));
 
   return (
-    <div className='min-h-screen flex flex-col'>
-      <div className='bg-blend-darken flex-grow px-3.5 sm:px-5'>
-        <div className='flex justify-between items-center py-4 lg:mb-20 sticky top-0 bg-gray-900 bg-opacity-90 z-10'>
+    <div className="min-h-screen flex flex-col">
+      <div className="bg-blend-darken flex-grow px-3.5 sm:px-5">
+        <div className="flex justify-between items-center py-4 lg:mb-20 sticky top-0 bg-gray-900 bg-opacity-90 z-10">
           <Logo src={logo} />
-          <div className='hidden lg:block text-center text-white flex'>{renderProducts()}</div>
-          <div className='flex items-center'>
+          <div className="hidden lg:block text-center text-white flex">{renderProducts()}</div>
+          <div className="flex items-center">
             <Toggle
               enabled={cluster === CLUSTER_MAINNET}
               setEnabled={toggleCluster}
-              label='devnet'
-              classes='hidden sm:flex mr-2'
+              label="devnet"
+              classes="hidden sm:flex mr-2"
             />
             <WalletPicker
-              title='Connect'
+              title="Connect"
               classes={cx("px-3 py-1 sm:px-6 sm:py-2 sm:mr-3", {
                 hidden: wallet?.connected,
               })}
             />
           </div>
         </div>
-        <div className='block lg:hidden text-center text-white flex mb-8 max-w-max mx-auto'>
+        <div className="block lg:hidden text-center text-white flex mb-8 max-w-max mx-auto">
           {renderProducts()}
         </div>
         <Products product={product} />
       </div>
-      <ToastContainer hideProgressBar position='bottom-left' limit={5} />
+      <ToastContainer hideProgressBar position="bottom-left" limit={5} />
       <Footer />
     </div>
   );
