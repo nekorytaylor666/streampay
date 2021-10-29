@@ -15,7 +15,7 @@ import { getExplorerLink } from "../utils/helpers";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
-  data: TransactionData,
+  data: TransactionData
 ) {
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
@@ -55,7 +55,7 @@ export default async function sendTransaction(
           d.end_time,
           d.period,
           d.cliff,
-          d.cliff_amount,
+          d.cliff_amount
         );
         break;
       case ProgramInstruction.Withdraw:
@@ -66,7 +66,7 @@ export default async function sendTransaction(
           wallet,
           programId,
           d.stream,
-          d.amount,
+          d.amount
         );
         break;
       case ProgramInstruction.Cancel:
@@ -76,7 +76,7 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           programId,
-          d.stream,
+          d.stream
         );
         break;
       case ProgramInstruction.TransferRecipient:
@@ -87,7 +87,7 @@ export default async function sendTransaction(
           wallet,
           programId,
           d.stream,
-          d.new_recipient,
+          d.new_recipient
         );
         break;
     }
@@ -106,7 +106,7 @@ export default async function sendTransaction(
             : "")
         }
       />,
-      { autoClose: 15000, closeOnClick: true },
+      { autoClose: 15000, closeOnClick: true }
     );
     return true;
   } catch (e: any) {

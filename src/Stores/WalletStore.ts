@@ -47,7 +47,7 @@ const walletStore = (set: Function, get: Function) => ({
         toast.error(
           e instanceof WalletNotFoundError
             ? "Wallet extension not installed" //todo: add link to install
-            : "Wallet not connected, try again",
+            : "Wallet not connected, try again"
         );
       });
     } else {
@@ -62,7 +62,7 @@ const walletStore = (set: Function, get: Function) => ({
         toast.error(
           e instanceof WalletNotFoundError
             ? "Wallet extension not installed"
-            : "Wallet not connected, please try again",
+            : "Wallet not connected, please try again"
         );
       }),
   disconnectWallet: () => {

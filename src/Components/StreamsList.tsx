@@ -96,7 +96,7 @@ export default function StreamsList() {
             console.log(
               prop,
               // @ts-ignore
-              decoded[prop].toString(),
+              decoded[prop].toString()
               // @ts-ignore
             );
           }
@@ -127,7 +127,7 @@ export default function StreamsList() {
             console.log(
               prop,
               // @ts-ignore
-              decoded[prop].toString(),
+              decoded[prop].toString()
               // @ts-ignore
             );
           }
@@ -274,7 +274,7 @@ export default function StreamsList() {
   }
   const entries = Object.entries(streams)
     .sort(
-      ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber(),
+      ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
     )
     .map(([id, data]) => (
       <Stream

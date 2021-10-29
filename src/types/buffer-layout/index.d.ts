@@ -51,13 +51,13 @@ declare module "buffer-layout" {
   export function struct<T>(
     fields: Layout<any>[],
     property?: string,
-    decodePrefixes?: boolean,
+    decodePrefixes?: boolean
   ): Layout<T>;
   export function bits(word: Layout<number>, msb?: boolean, property?: string): any;
   export function seq<T>(
     elementLayout: Layout<T>,
     count: number | Layout<number>,
-    property?: string,
+    property?: string
   ): Layout<T[]>;
   export function union(discr: Layout<any>, defaultLayout?: any, property?: string): any;
   export function unionLayoutDiscriminator(layout: Layout<any>, property?: string): any;

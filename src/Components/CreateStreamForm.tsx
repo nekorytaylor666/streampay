@@ -181,7 +181,7 @@ export default function CreateStreamForm({
       period: new BN(advanced ? timePeriod * timePeriodMultiplier : 1),
       cliff: new BN(advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start),
       cliff_amount: new BN(
-        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals,
+        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals
       ),
       new_stream_keypair: newStream,
     } as CreateStreamData;

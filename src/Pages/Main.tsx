@@ -35,7 +35,7 @@ export default function Main() {
 
         const myTokenAccountsList = await connection.getParsedTokenAccountsByOwner(
           wallet.publicKey as PublicKey,
-          { programId: TOKEN_PROGRAM_ID },
+          { programId: TOKEN_PROGRAM_ID }
         );
 
         const myTokenAccountsObj = myTokenAccountsList.value.reduce((previous, current) => {
@@ -82,7 +82,7 @@ export default function Main() {
         setMyTokenAccounts(myTokenAccountsDerived);
         setToken(
           //@ts-ignore
-          myTokenAccountsDerived[Object.keys(myTokenAccountsDerived)[0]],
+          myTokenAccountsDerived[Object.keys(myTokenAccountsDerived)[0]]
         );
 
         // console.log("mints: ", streamingMints);

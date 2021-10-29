@@ -51,7 +51,7 @@ export default function Account({
     setLoading(true);
     const signature = await connection.requestAirdrop(
       wallet.publicKey,
-      AIRDROP_AMOUNT * LAMPORTS_PER_SOL,
+      AIRDROP_AMOUNT * LAMPORTS_PER_SOL
     );
     setAirdropTxSignature(signature);
     setLoading(false);

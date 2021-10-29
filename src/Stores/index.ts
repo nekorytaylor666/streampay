@@ -43,7 +43,7 @@ const useStore = create<StoreType>(
     ...useStreamStore(set, get),
     ...useWalletStore(set, get),
     persistStoreToLocalStorage,
-  })),
+  }))
 );
 
 window.addEventListener("beforeunload", persistStoreToLocalStorage);

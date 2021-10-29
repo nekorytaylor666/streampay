@@ -71,7 +71,7 @@ export default function WalletPicker({
       getSolflareWallet(),
       getSolletWallet({ network: cluster as WalletAdapterNetwork }),
     ],
-    [cluster],
+    [cluster]
   );
 
   useEffect(() => {

@@ -25,7 +25,7 @@ function App() {
   const { cluster, setCluster, wallet } = useStore(storeGetter);
 
   const toggleCluster = (
-    isMainnet: boolean,
+    isMainnet: boolean
   ): Dispatch<SetStateAction<{ cluster: string; programId: string }>> => {
     return isMainnet ? setCluster(CLUSTER_MAINNET) : setCluster(CLUSTER_DEVNET);
   };

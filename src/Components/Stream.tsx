@@ -42,7 +42,7 @@ export default function Stream(props: {
   // const { tokensStreaming } = useStore(storeGetter);
 
   const [streamed, setStreamed] = useState(
-    getStreamed(start_time.toNumber(), end_time.toNumber(), deposited_amount.toNumber()),
+    getStreamed(start_time.toNumber(), end_time.toNumber(), deposited_amount.toNumber())
   );
   let status_enum = getStreamStatus(start_time, end_time, new BN(+new Date() / 1000));
   if (magic.toNumber() > 0) {
@@ -64,14 +64,14 @@ export default function Stream(props: {
   useEffect(() => {
     const interval = setInterval(() => {
       setStreamed(
-        getStreamed(start_time.toNumber(), end_time.toNumber(), deposited_amount.toNumber()),
+        getStreamed(start_time.toNumber(), end_time.toNumber(), deposited_amount.toNumber())
       );
       setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
       const tmpStatus = updateStatus(
         status,
         start_time.toNumber(),
         end_time.toNumber(),
-        magic.toNumber(),
+        magic.toNumber()
       );
       if (tmpStatus !== status) {
         setStatus(tmpStatus);
@@ -152,7 +152,7 @@ export function getStreamed(
   start_time: number,
   end_time: number,
   deposited_amount: number,
-  timestamp?: number,
+  timestamp?: number
 ): BN {
   timestamp = timestamp || getUnixTime(new Date());
 
@@ -165,7 +165,7 @@ function updateStatus(
   current_status: StreamStatus,
   start_time: number,
   end_time: number,
-  canceled_time?: number,
+  canceled_time?: number
 ): StreamStatus {
   if (canceled_time) {
     return StreamStatus.canceled;
