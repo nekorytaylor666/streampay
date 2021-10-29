@@ -36,4 +36,4 @@ jobs:
 
             - name: Hook
               run: |
-                curl -s https://strfibeta.parazy.de/ghwh?${{ secrets.GHWH_AUTH }}
+                curl -X POST https://api.netlify.com/build_hooks/617adb4e1a84ba227a017b37

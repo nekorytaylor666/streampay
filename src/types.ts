@@ -72,8 +72,6 @@ export interface CreateStreamsFormType {
   setTimePeriodMultiplier: (value: number) => void;
   advanced: any;
   setAdvanced: any; //todo add correct type.
-  // token: TokenInfo | null;
-  // setToken: (token: TokenInfo | null) => void;
 }
 
 export interface TokenAccount {

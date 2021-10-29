@@ -4,7 +4,7 @@ import { CreateStreamsFormType } from "../types";
 import { DATE_FORMAT } from "../constants";
 
 const FormContext = createContext<CreateStreamsFormType>(
-  undefined as unknown as CreateStreamsFormType // TODO: typo.
+  undefined as unknown as CreateStreamsFormType
 );
 
 export function FormProvider(props: { children: React.ReactNode }) {

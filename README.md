@@ -11,6 +11,8 @@ Serverless. Realtime. **Built on Solana.**
 - [Telegram](https://t.me/streamflow_fi)
 - [Twitter](https://twitter.com/streamflow_fi)
 
+Dev build available at https://streamflow-dev.netlify.app/
+
 To run locally, git clone the repository and then:
 ```
   npm i

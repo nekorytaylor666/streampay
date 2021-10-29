@@ -15,7 +15,6 @@ import {
   WithdrawStreamData,
 } from "../types";
 import useStore from "../Stores";
-import { decode } from "@streamflow/timelock/dist/layout";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
@@ -24,7 +23,6 @@ export default async function sendTransaction(
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
   const programId = useStore.getState().programId;
-  const cluster = useStore.getState().cluster;
 
   let d;
   console.log("cnwl", connection, wallet);
@@ -32,15 +30,11 @@ export default async function sendTransaction(
     if (wallet?.publicKey === null || !connection) {
       throw ERR_NOT_CONNECTED;
     }
-    console.log("pass 1");
     toast.info("Please confirm transaction in your wallet.");
     let tx;
     switch (instruction) {
       case ProgramInstruction.Create:
-        console.log("pass 2");
         d = data as CreateStreamData;
-        console.log("conn wallet", connection, wallet);
-        console.log("params", data);
         console.log("sending this data: ", {
           start_time: d.start_time.toString(),
           end_time: d.end_time.toString(),
