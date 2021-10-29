@@ -119,6 +119,9 @@ export default function CreateStreamForm({
             ? "Cliff must be between start and end date."
             : "";
         break;
+      case "amount":
+        msg = amount === 0 ? "Please enter amount larger than 0." : "";
+        break;
       // case "recipient":
       //   let acc = await connection?.getAccountInfo(new PublicKey(value));
       //   msg =
