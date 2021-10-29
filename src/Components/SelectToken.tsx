@@ -15,7 +15,7 @@ export default function SelectToken() {
   let select;
 
   if (!wallet?.publicKey) {
-    select = <div className='pt-2'>Please connect first.</div>;
+    select = <div className='pt-2'>Please connect.</div>;
   } else if (!token || Object.entries(token).length === 0) {
     select = <div className='pt-2'>No SPL tokens available. :(</div>;
   } else {

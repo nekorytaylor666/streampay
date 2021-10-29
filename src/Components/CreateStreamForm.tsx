@@ -23,7 +23,6 @@ import {
   ButtonPrimary,
   DateTime,
   Recipient,
-  SelectCluster,
   SelectToken,
   WalletPicker,
   Toggle,
@@ -118,6 +117,9 @@ export default function CreateStreamForm({
           advanced && (cliff < start || cliff > end)
             ? 'Cliff must be between start and end date.'
             : '';
+        break;
+      case 'amount':
+        msg = amount === 0 ? 'Please enter amount larger than 0.' : '';
         break;
       // case "recipient":
       //   let acc = await connection?.getAccountInfo(new PublicKey(value));
@@ -231,7 +233,7 @@ export default function CreateStreamForm({
   }
 
   return (
-    <form onSubmit={createStream} id='form'>
+    <form onSubmit={createStream} id='form' className='mb-0 lg:mb-11'>
       <div className='my-4 grid gap-4 grid-cols-5 sm:grid-cols-2'>
         <Amount
           onChange={setAmount}
@@ -274,18 +276,14 @@ export default function CreateStreamForm({
       />
       {wallet?.connected ? (
         <ButtonPrimary
-          className='font-bold text-2xl my-5'
+          className='px-8 py-4 font-bold text-2xl my-5'
           onClick={createStream}
           disabled={loading}
         >
           Stream!
         </ButtonPrimary>
       ) : (
-        <>
-          <hr className='my-4 sm:hidden' />
-          <SelectCluster />
-          <WalletPicker />
-        </>
+        <WalletPicker classes='px-8 py-4 font-bold text-2xl my-5' />
       )}
     </form>
   );
