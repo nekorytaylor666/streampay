@@ -115,7 +115,7 @@ export default function Main() {
 
   return (
     <div className="mx-auto grid grid-cols-1 gap-16 max-w-lg xl:grid-cols-2 xl:max-w-5xl">
-      <div className="mb-8">
+      <div>
         <Curtain visible={loading} />
         {wallet?.connected && (
           <>

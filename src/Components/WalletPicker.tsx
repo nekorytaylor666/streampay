@@ -58,7 +58,13 @@ const pickWallet = (
 
 let walletInitialized = false;
 
-export default function WalletPicker() {
+export default function WalletPicker({
+  classes,
+  title = "Connect wallet",
+}: {
+  classes: string;
+  title?: string;
+}) {
   const { setWalletType, cluster } = useStore(storeGetter);
   const walletTypes = useMemo(
     () => [
@@ -86,10 +92,10 @@ export default function WalletPicker() {
   }, [setWalletType, walletTypes]);
   return (
     <ButtonPrimary
-      className="font-bold text-2xl my-5"
+      className={classes}
       onClick={() => pickWallet(walletTypes, setWalletType)}
     >
-      Connect
+      {title}
     </ButtonPrimary>
   );
 }

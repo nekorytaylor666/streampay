@@ -15,3 +15,4 @@ export { default as SelectCluster } from "./SelectCluster";
 export { default as Banner } from "./Banner";
 export { default as WalletPicker } from "./WalletPicker";
 export { default as Advanced } from "./Advanced";
+export { default as Toggle } from "./Toggle";

@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 import { clusterApiUrl } from "@solana/web3.js";
 
 export const CLUSTER_LOCAL = "local";
@@ -32,14 +33,19 @@ const useNetworkStore = (set: Function, get: Function) => ({
       ? `custom&customUrl=http%3A%2F%2Flocalhost%3A8899`
       : cluster;
   },
-  setCluster: (cluster: string) => {
+  setCluster: (
+    cluster: string
+  ): Dispatch<SetStateAction<{ cluster: string; programId: string }>> => {
     get().persistStoreToLocalStorage();
     const programId = programIds[cluster]();
+
     if (programId) {
-      set({ cluster, programId });
-    } else {
-      set({ cluster: CLUSTER_DEVNET, programId: programIds[CLUSTER_DEVNET]() });
+      return set({ cluster, programId });
     }
+    return set({
+      cluster: CLUSTER_DEVNET,
+      programId: programIds[CLUSTER_DEVNET](),
+    });
   },
 });
 

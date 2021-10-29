@@ -21,7 +21,7 @@ export default function Products({ product }: { product: string }) {
             className={`absolute text-primary bg-gray-900 opacity-60 top-0 bottom-0 left-0 right-0 z-10 block`}
           ></div>
           <ButtonPrimary
-            className="col-span-5 block m-auto my-10 w-80"
+            className=" px-8 py-4 col-span-5 block m-auto my-10 w-80"
             children={
               <span>
                 Upload CSV <UploadIcon className="inline w-6" />
@@ -108,7 +108,7 @@ export default function Products({ product }: { product: string }) {
                 <ClockIcon className="text-red-200 w-6 inline" />
               </li>
               <br />
-              <ButtonPrimary>Sign</ButtonPrimary>
+              <ButtonPrimary className="px-8 py-4">Sign</ButtonPrimary>
             </ul>
           </div>
         </div>
