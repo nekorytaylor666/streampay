@@ -58,7 +58,7 @@ function App() {
             <Toggle
               enabled={cluster === CLUSTER_MAINNET}
               setEnabled={toggleCluster}
-              label="mainnet"
+              label="devnet"
               classes="hidden sm:flex mr-2"
             />
             <WalletPicker
