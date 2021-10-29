@@ -4,7 +4,6 @@ import { format } from 'date-fns';
 
 export default function Advanced({
   visible,
-  amount,
   endDate,
   endTime,
   cliffDate,

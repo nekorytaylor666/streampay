@@ -3,7 +3,7 @@ import type { TokenAmount } from '@solana/web3.js';
 
 import { Token } from '../types';
 
-const useTokenStore = (set: Function, get: Function) => ({
+const useTokenStore = (set: Function) => ({
   //state
   token: {} as Token,
   myTokenAccounts: {} as { [mint: string]: Token },
