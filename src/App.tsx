@@ -59,7 +59,7 @@ function App() {
               enabled={cluster === CLUSTER_MAINNET}
               setEnabled={toggleCluster}
               label="mainnet"
-              classes="hidden sm:flex"
+              classes="hidden sm:flex mr-2"
             />
             <WalletPicker
               title="Connect"
