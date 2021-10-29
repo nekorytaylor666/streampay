@@ -18,25 +18,11 @@ const Footer = () => (
       />
     </div>
     <small className="block mt-4">
-      {/*Copyleft{" "}*/}
-      {/*<span className="inline-block" style={{ transform: "rotate(180deg)" }}>*/}
-      {/*  &copy;*/}
-      {/*</span>{" "}*/}
-      {/*2021,{" "}*/}
       <Link
         url="https://streamflow.finance"
         title="StreamFlow Finance"
         hideIcon={true}
       />
-      {/*<br />*/}
-      {/*<small>*/}
-      {/*  Code available under{" "}*/}
-      {/*  <Link*/}
-      {/*    url="https://www.gnu.org/licenses/agpl-3.0.en.html"*/}
-      {/*    title="AGPLv3"*/}
-      {/*    hideIcon={true}*/}
-      {/*  />*/}
-      {/*</small>*/}
     </small>
   </footer>
 );
