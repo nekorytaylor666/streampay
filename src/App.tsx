@@ -9,17 +9,19 @@ import { useFormContext } from "./Contexts/FormContext";
 import { PRODUCT_VESTING, products } from "./constants";
 import { CLUSTER_MAINNET, CLUSTER_DEVNET } from "./Stores/NetworkStore";
 import useStore, { StoreType } from "./Stores";
+import cx from "classnames";
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   setCluster: state.setCluster,
+  wallet: state.wallet,
 });
 
 function App() {
   const { setAdvanced } = useFormContext();
   const [product, setProduct] = useState(PRODUCT_VESTING);
 
-  const { cluster, setCluster } = useStore(storeGetter);
+  const { cluster, setCluster, wallet } = useStore(storeGetter);
 
   const toggleCluster = (
     isMainnet: boolean
@@ -63,7 +65,9 @@ function App() {
             />
             <WalletPicker
               title="Connect"
-              classes="px-3 py-1 sm:px-6 sm:py-2 sm:mr-3"
+              classes={cx("px-3 py-1 sm:px-6 sm:py-2 sm:mr-3", {
+                hidden: wallet?.connected,
+              })}
             />
           </div>
         </div>
