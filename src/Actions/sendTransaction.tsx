@@ -1,41 +1,38 @@
-import { toast } from "react-toastify";
-import ToastrLink from "../Components/ToastrLink";
-import {
-  ERR_NOT_CONNECTED,
-  ProgramInstruction,
-  TX_FINALITY_FINALIZED,
-} from "../constants";
-import { getExplorerLink } from "../utils/helpers";
-import Timelock from "@streamflow/timelock";
+import Timelock from '@streamflow/timelock';
+import { toast } from 'react-toastify';
+
+import ToastrLink from '../Components/ToastrLink';
+import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from '../constants';
+import useStore from '../Stores';
 import {
   CancelStreamData,
   CreateStreamData,
   TransactionData,
   TransferStreamData,
   WithdrawStreamData,
-} from "../types";
-import useStore from "../Stores";
+} from '../types';
+import { getExplorerLink } from '../utils/helpers';
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
-  data: TransactionData
+  data: TransactionData,
 ) {
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
   const programId = useStore.getState().programId;
 
   let d;
-  console.log("cnwl", connection, wallet);
+  console.log('cnwl', connection, wallet);
   try {
     if (wallet?.publicKey === null || !connection) {
-      throw ERR_NOT_CONNECTED;
+      throw new Error(ERR_NOT_CONNECTED);
     }
-    toast.info("Please confirm transaction in your wallet.");
+    toast.info('Please confirm transaction in your wallet.');
     let tx;
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        console.log("sending this data: ", {
+        console.log('sending this data: ', {
           start_time: d.start_time.toString(),
           end_time: d.end_time.toString(),
           deposited_amount: d.deposited_amount.toString(),
@@ -58,7 +55,7 @@ export default async function sendTransaction(
           d.end_time,
           d.period,
           d.cliff,
-          d.cliff_amount
+          d.cliff_amount,
         );
         break;
       case ProgramInstruction.Withdraw:
@@ -69,7 +66,7 @@ export default async function sendTransaction(
           wallet,
           programId,
           d.stream,
-          d.amount
+          d.amount,
         );
         break;
       case ProgramInstruction.Cancel:
@@ -79,7 +76,7 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           programId,
-          d.stream
+          d.stream,
         );
         break;
       case ProgramInstruction.TransferRecipient:
@@ -90,33 +87,33 @@ export default async function sendTransaction(
           wallet,
           programId,
           d.stream,
-          d.new_recipient
+          d.new_recipient,
         );
         break;
     }
     // toast.dismiss();
     // toast.info("Submitted transaction. Awaiting confirmation...");
-    const url = getExplorerLink("tx", tx); //todo print transaction here.
+    const url = getExplorerLink('tx', tx); //todo print transaction here.
     toast.dismiss();
     toast.success(
       <ToastrLink
         url={url}
-        urlText="View on explorer"
+        urlText='View on explorer'
         nonUrlText={
           `Transaction ${connection.commitment}!` +
           (connection.commitment !== TX_FINALITY_FINALIZED
-            ? " Please allow it few seconds to finalize."
-            : "")
+            ? ' Please allow it few seconds to finalize.'
+            : '')
         }
       />,
-      { autoClose: 15000, closeOnClick: true }
+      { autoClose: 15000, closeOnClick: true },
     );
     return true;
   } catch (e: any) {
     console.log(e);
     console.warn(e);
     //todo log these errors somewhere for our reference
-    toast.error("Error: " + e.message);
+    toast.error('Error: ' + e.message);
     return false;
   }
 }

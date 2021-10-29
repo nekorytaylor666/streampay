@@ -1,6 +1,14 @@
-import EmptyStreams from "../Components/EmptyStreams";
-import { _swal } from "../utils/helpers";
-import { Stream } from "../Components";
+import { useEffect } from 'react';
+
+import { BN } from '@project-serum/anchor';
+import { PublicKey } from '@solana/web3.js';
+import { decode } from '@streamflow/timelock/dist/layout';
+import { toast } from 'react-toastify';
+import swal from 'sweetalert';
+
+import sendTransaction from '../Actions/sendTransaction';
+import { Stream } from '../Components';
+import EmptyStreams from '../Components/EmptyStreams';
 import {
   ERR_NO_STREAM,
   ERR_NOT_CONNECTED,
@@ -8,20 +16,10 @@ import {
   TIMELOCK_STRUCT_OFFSET_RECIPIENT,
   TIMELOCK_STRUCT_OFFSET_SENDER,
   TX_FINALITY_CONFIRMED,
-} from "../constants";
-import { PublicKey } from "@solana/web3.js";
-import useStore, { StoreType } from "../Stores";
-import { toast } from "react-toastify";
-import { useEffect } from "react";
-import sendTransaction from "../Actions/sendTransaction";
-import { BN } from "@project-serum/anchor";
-import { decode } from "@streamflow/timelock/dist/layout";
-import {
-  CancelStreamData,
-  TransferStreamData,
-  WithdrawStreamData,
-} from "../types";
-import swal from "sweetalert";
+} from '../constants';
+import useStore, { StoreType } from '../Stores';
+import { CancelStreamData, TransferStreamData, WithdrawStreamData } from '../types';
+import { _swal } from '../utils/helpers';
 
 const storeGetter = (state: StoreType) => ({
   streamingMints: state.streamingMints,
@@ -50,7 +48,7 @@ export default function StreamsList() {
   //componentWillMount
   useEffect(() => {
     clearStreams();
-    const savedStreams = JSON.parse(localStorage.streams || "{}");
+    const savedStreams = JSON.parse(localStorage.streams || '{}');
     const publicKey = wallet?.publicKey?.toBase58();
     if (publicKey === undefined) {
       toast.error(ERR_NOT_CONNECTED);
@@ -90,23 +88,20 @@ export default function StreamsList() {
         ],
       })
       .then((accounts) => {
-        console.log("accounts fetched from chain", accounts);
+        console.log('accounts fetched from chain', accounts);
         for (let i = 0; i < accounts.length; i++) {
-          let decoded = decode(accounts[i].account.data);
-          console.log(
-            accounts[i].pubkey.toBase58(),
-            decode(accounts[i].account.data)
-          );
+          const decoded = decode(accounts[i].account.data);
+          console.log(accounts[i].pubkey.toBase58(), decode(accounts[i].account.data));
           for (const prop in decoded) {
             console.log(
               prop,
               // @ts-ignore
-              decoded[prop].toString()
+              decoded[prop].toString(),
               // @ts-ignore
             );
           }
           addStream(accounts[i].pubkey.toBase58(), decoded);
-          console.log("mint isssssss", decoded.mint.toString());
+          console.log('mint isssssss', decoded.mint.toString());
           addStreamingMint(decoded.mint.toString());
         }
       });
@@ -124,18 +119,15 @@ export default function StreamsList() {
         ],
       })
       .then((accounts) => {
-        console.log("accounts fetched from chain", accounts);
+        console.log('accounts fetched from chain', accounts);
         for (let i = 0; i < accounts.length; i++) {
-          let decoded = decode(accounts[i].account.data);
-          console.log(
-            accounts[i].pubkey.toBase58(),
-            decode(accounts[i].account.data)
-          );
+          const decoded = decode(accounts[i].account.data);
+          console.log(accounts[i].pubkey.toBase58(), decode(accounts[i].account.data));
           for (const prop in decoded) {
             console.log(
               prop,
               // @ts-ignore
-              decoded[prop].toString()
+              decoded[prop].toString(),
               // @ts-ignore
             );
           }
@@ -206,10 +198,7 @@ export default function StreamsList() {
       amount: new BN(0), //TODO: enable withdrawing arbitrary amount via UI
     } as WithdrawStreamData);
     if (success) {
-      const stream = await connection.getAccountInfo(
-        new PublicKey(id),
-        TX_FINALITY_CONFIRMED
-      );
+      const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
 
       // let tokenAmount = 0;
       if (stream !== null) {
@@ -232,10 +221,7 @@ export default function StreamsList() {
       stream: new PublicKey(id),
     } as CancelStreamData);
     if (success) {
-      const stream = await connection.getAccountInfo(
-        new PublicKey(id),
-        TX_FINALITY_CONFIRMED
-      );
+      const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
 
       // let tokenAmount = 0;
       if (stream !== null) {
@@ -252,31 +238,28 @@ export default function StreamsList() {
 
   async function transferStream(id: string) {
     const input = await swal({
-      title: "Transfer recipient:",
+      title: 'Transfer recipient:',
       content: {
-        element: "input",
+        element: 'input',
         attributes: {
-          placeholder: "New recipient address",
-          type: "text",
+          placeholder: 'New recipient address',
+          type: 'text',
         },
       },
     });
 
     try {
       const newRecipient = new PublicKey(input);
-      const success = await sendTransaction(
-        ProgramInstruction.TransferRecipient,
-        {
-          stream: new PublicKey(id),
-          new_recipient: new PublicKey(newRecipient),
-        } as TransferStreamData
-      );
+      const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
+        stream: new PublicKey(id),
+        new_recipient: new PublicKey(newRecipient),
+      } as TransferStreamData);
       if (success) {
-        toast.success("Stream transferred to " + input);
+        toast.success('Stream transferred to ' + input);
         deleteStream(id); //todo: let's keep it there, just as readonly.
       }
     } catch (e) {
-      toast.error("Invalid address");
+      toast.error('Invalid address');
     }
   }
 
@@ -286,16 +269,12 @@ export default function StreamsList() {
     }
   }
 
-  if (
-    Object.keys(streams).length === 0 ||
-    wallet?.publicKey?.toBase58() === undefined
-  ) {
+  if (Object.keys(streams).length === 0 || wallet?.publicKey?.toBase58() === undefined) {
     return <EmptyStreams />;
   }
   const entries = Object.entries(streams)
     .sort(
-      ([, stream1], [, stream2]) =>
-        stream2.start_time.toNumber() - stream1.start_time.toNumber()
+      ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber(),
     )
     .map(([id, data]) => (
       <Stream

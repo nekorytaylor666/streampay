@@ -1,3 +1,22 @@
+import 'fs';
+import 'buffer-layout';
+import { BN } from '@project-serum/anchor';
+import { Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
+import { getUnixTime } from 'date-fns';
+import { toast } from 'react-toastify';
+
+import sendTransaction from '../Actions/sendTransaction';
+import {
+  END,
+  ERR_NO_TOKEN_SELECTED,
+  ERR_NOT_CONNECTED,
+  ProgramInstruction,
+  START,
+  TIME_SUFFIX,
+} from '../constants';
+import { useFormContext } from '../Contexts/FormContext';
+import useStore, { StoreType } from '../Stores';
+import { CreateStreamData } from '../types';
 import {
   Advanced,
   Amount,
@@ -7,27 +26,8 @@ import {
   SelectCluster,
   SelectToken,
   WalletPicker,
-} from "./index";
-import { useFormContext } from "../Contexts/FormContext";
-import { getUnixTime } from "date-fns";
-import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
-import {
-  END,
-  ERR_NO_TOKEN_SELECTED,
-  ERR_NOT_CONNECTED,
-  ProgramInstruction,
-  START,
-  TIME_SUFFIX,
-} from "../constants";
-import useStore, { StoreType } from "../Stores";
-import Toggle from "./Toggle";
-import { toast } from "react-toastify";
-
-import "fs";
-import "buffer-layout";
-import { BN } from "@project-serum/anchor";
-import sendTransaction from "../Actions/sendTransaction";
-import { CreateStreamData } from "../types";
+  Toggle,
+} from './index';
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
@@ -74,51 +74,50 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, addStream, addStreamingMint, token } =
-    useStore(storeGetter);
+  const { connection, wallet, addStream, addStreamingMint, token } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
     let start, end, cliff;
-    let msg = "";
+    let msg = '';
     switch (name) {
-      case "start":
+      case 'start':
         start = new Date(value + TIME_SUFFIX);
         const now = new Date(new Date().toDateString());
-        msg = start < now ? "Cannot start the stream in the past." : "";
+        msg = start < now ? 'Cannot start the stream in the past.' : '';
         break;
-      case "start_time":
-        start = new Date(startDate + "T" + value);
-        msg = start < new Date() ? "Cannot start the stream in the past." : "";
+      case 'start_time':
+        start = new Date(startDate + 'T' + value);
+        msg = start < new Date() ? 'Cannot start the stream in the past.' : '';
         break;
-      case "end":
+      case 'end':
         msg =
           new Date(value + TIME_SUFFIX) < new Date(startDate + TIME_SUFFIX)
-            ? "Umm... end date before the start date?"
-            : "";
+            ? 'Umm... end date before the start date?'
+            : '';
         break;
-      case "end_time":
-        start = new Date(startDate + "T" + startTime);
-        end = new Date(endDate + "T" + value);
-        msg = end < start ? "Err... end time before the start time?" : "";
+      case 'end_time':
+        start = new Date(startDate + 'T' + startTime);
+        end = new Date(endDate + 'T' + value);
+        msg = end < start ? 'Err... end time before the start time?' : '';
         break;
-      case "cliff_date":
+      case 'cliff_date':
         start = new Date(startDate + TIME_SUFFIX);
         cliff = new Date(value + TIME_SUFFIX);
         end = new Date(endDate + TIME_SUFFIX);
         msg =
           advanced && (cliff < start || cliff > end)
-            ? "Cliff must be between start and end date."
-            : "";
+            ? 'Cliff must be between start and end date.'
+            : '';
         break;
-      case "cliff_time":
-        start = new Date(startDate + "T" + startTime);
-        cliff = new Date(cliffDate + "T" + value);
-        end = new Date(endDate + "T" + endTime);
+      case 'cliff_time':
+        start = new Date(startDate + 'T' + startTime);
+        cliff = new Date(cliffDate + 'T' + value);
+        end = new Date(endDate + 'T' + endTime);
         msg =
           advanced && (cliff < start || cliff > end)
-            ? "Cliff must be between start and end date."
-            : "";
+            ? 'Cliff must be between start and end date.'
+            : '';
         break;
       // case "recipient":
       //   let acc = await connection?.getAccountInfo(new PublicKey(value));
@@ -147,7 +146,7 @@ export default function CreateStreamForm({
       return false;
     }
 
-    const form = document.getElementById("form") as HTMLFormElement;
+    const form = document.getElementById('form') as HTMLFormElement;
 
     if (!form) {
       return false;
@@ -162,8 +161,8 @@ export default function CreateStreamForm({
       return false;
     }
 
-    const start = getUnixTime(new Date(startDate + "T" + startTime));
-    let end = getUnixTime(new Date(endDate + "T" + endTime));
+    const start = getUnixTime(new Date(startDate + 'T' + startTime));
+    let end = getUnixTime(new Date(endDate + 'T' + endTime));
 
     // Make sure that end time is always AFTER start time
     if (end === start) {
@@ -178,17 +177,14 @@ export default function CreateStreamForm({
       start_time: new BN(start),
       end_time: new BN(end),
       period: new BN(advanced ? timePeriod * timePeriodMultiplier : 1),
-      cliff: new BN(
-        advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
-      ),
+      cliff: new BN(advanced ? +new Date(cliffDate + 'T' + cliffTime) / 1000 : start),
       cliff_amount: new BN(
-        (advanced ? (cliffAmount / 100) * amount : 0) *
-          10 ** token.uiTokenAmount.decimals
+        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals,
       ),
       new_stream_keypair: newStream,
     } as CreateStreamData;
 
-    let receiverAccount = await connection.getAccountInfo(data.recipient);
+    const receiverAccount = await connection.getAccountInfo(data.recipient);
     if (
       !receiverAccount?.lamports ||
       !receiverAccount?.owner?.equals(SystemProgram.programId) ||
@@ -235,14 +231,12 @@ export default function CreateStreamForm({
   }
 
   return (
-    <form onSubmit={createStream} id="form">
-      <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
+    <form onSubmit={createStream} id='form'>
+      <div className='my-4 grid gap-4 grid-cols-5 sm:grid-cols-2'>
         <Amount
           onChange={setAmount}
           value={amount}
-          max={
-            token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0
-          }
+          max={token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0}
         />
         <SelectToken />
         <Recipient onChange={setReceiver} value={receiver} />
@@ -261,7 +255,7 @@ export default function CreateStreamForm({
           updateTime={setEndTime}
         />
       </div>
-      <Toggle enabled={advanced} setEnabled={setAdvanced} label="Advanced" />
+      <Toggle enabled={advanced} setEnabled={setAdvanced} label='Advanced' />
       <Advanced
         visible={advanced}
         amount={amount}
@@ -280,7 +274,7 @@ export default function CreateStreamForm({
       />
       {wallet?.connected ? (
         <ButtonPrimary
-          className="font-bold text-2xl my-5"
+          className='font-bold text-2xl my-5'
           onClick={createStream}
           disabled={loading}
         >
@@ -288,7 +282,7 @@ export default function CreateStreamForm({
         </ButtonPrimary>
       ) : (
         <>
-          <hr className="my-4 sm:hidden" />
+          <hr className='my-4 sm:hidden' />
           <SelectCluster />
           <WalletPicker />
         </>

@@ -1,6 +1,7 @@
-import { TokenInfo } from "@solana/spl-token-registry";
-import { TokenAmount } from "@solana/web3.js";
-import { Token } from "../types";
+import type { TokenInfo } from '@solana/spl-token-registry';
+import type { TokenAmount } from '@solana/web3.js';
+
+import { Token } from '../types';
 
 const useTokenStore = (set: Function, get: Function) => ({
   //state
@@ -10,8 +11,7 @@ const useTokenStore = (set: Function, get: Function) => ({
 
   //actions
   setToken: (token: Token) => set({ token }),
-  setMyTokenAccounts: (myTokenAccounts: { [mint: string]: Token }) =>
-    set({ myTokenAccounts }),
+  setMyTokenAccounts: (myTokenAccounts: { [mint: string]: Token }) => set({ myTokenAccounts }),
 
   setTokensStreaming: (tokensStreaming: {
     [mint: string]: { info: TokenInfo; uiTokenAmount: TokenAmount };

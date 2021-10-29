@@ -1,26 +1,26 @@
-import { format } from "date-fns";
-import { createContext, useContext, useState } from "react";
-import { CreateStreamsFormType } from "../types";
-import { DATE_FORMAT } from "../constants";
+import { createContext, useContext, useState } from 'react';
+
+import { format } from 'date-fns';
+
+import { DATE_FORMAT } from '../constants';
+import { CreateStreamsFormType } from '../types';
 
 const FormContext = createContext<CreateStreamsFormType>(
-  undefined as unknown as CreateStreamsFormType
+  undefined as unknown as CreateStreamsFormType,
 );
 
 export function FormProvider(props: { children: React.ReactNode }) {
   const now = new Date();
 
   const [amount, setAmount] = useState<number>(undefined as unknown as number);
-  const [receiver, setReceiver] = useState<string>(
-    undefined as unknown as string
-  );
+  const [receiver, setReceiver] = useState<string>(undefined as unknown as string);
   const [startDate, setStartDate] = useState(format(now, DATE_FORMAT));
-  const [startTime, setStartTime] = useState("");
+  const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState(startDate);
-  const [endTime, setEndTime] = useState("");
+  const [endTime, setEndTime] = useState('');
   const [advanced, setAdvanced] = useState(true);
   const [cliffDate, setCliffDate] = useState(startDate);
-  const [cliffTime, setCliffTime] = useState("00:00");
+  const [cliffTime, setCliffTime] = useState('00:00');
   const [cliffAmount, setCliffAmount] = useState(0);
   const [timePeriod, setTimePeriod] = useState(1);
   const [timePeriodMultiplier, setTimePeriodMultiplier] = useState(1);
