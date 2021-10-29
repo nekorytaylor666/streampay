@@ -18,7 +18,7 @@ export function FormProvider(props: { children: React.ReactNode }) {
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState(startDate);
   const [endTime, setEndTime] = useState("");
-  const [advanced, setAdvanced] = useState(true);
+  const [advanced, setAdvanced] = useState(false);
   const [cliffDate, setCliffDate] = useState(startDate);
   const [cliffTime, setCliffTime] = useState("00:00");
   const [cliffAmount, setCliffAmount] = useState(0);

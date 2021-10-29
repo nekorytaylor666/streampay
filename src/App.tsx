@@ -24,7 +24,6 @@ function App() {
   const toggleCluster = (
     isMainnet: boolean
   ): Dispatch<SetStateAction<{ cluster: string; programId: string }>> => {
-    console.log("is", isMainnet);
     return isMainnet ? setCluster(CLUSTER_MAINNET) : setCluster(CLUSTER_DEVNET);
   };
 
@@ -56,24 +55,18 @@ function App() {
             {renderProducts()}
           </div>
           <div className="flex items-center">
-            <WalletPicker
-              title="Connect"
-              classes="px-3 py-1 sm:px-6 sm:py-2 sm:mr-3"
-            />
             <Toggle
               enabled={cluster === CLUSTER_MAINNET}
               setEnabled={toggleCluster}
               label="mainnet"
               classes="hidden sm:flex"
             />
+            <WalletPicker
+              title="Connect"
+              classes="px-3 py-1 sm:px-6 sm:py-2 sm:mr-3"
+            />
           </div>
         </div>
-        <Toggle
-          enabled={cluster === CLUSTER_MAINNET}
-          setEnabled={toggleCluster}
-          label="mainnet"
-          classes="sm:hidden justify-center mb-4"
-        />
         <div className="block lg:hidden text-center text-white flex mb-8 max-w-max mx-auto">
           {renderProducts()}
         </div>
