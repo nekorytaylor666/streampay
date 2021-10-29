@@ -1,10 +1,10 @@
-import create, { SetState, GetState } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import create, { SetState, GetState } from "zustand";
+import { devtools } from "zustand/middleware";
 
-import useNetworkStore from './NetworkStore';
-import useStreamStore from './StreamsStore';
-import useTokenStore from './TokenStore';
-import useWalletStore from './WalletStore';
+import useNetworkStore from "./NetworkStore";
+import useStreamStore from "./StreamsStore";
+import useTokenStore from "./TokenStore";
+import useWalletStore from "./WalletStore";
 
 const persistStoreToLocalStorage = () => {
   const state = useStore.getState() as StoreType;
@@ -12,7 +12,7 @@ const persistStoreToLocalStorage = () => {
   localStorage.programId = state.programId;
   localStorage.walletType = state.walletType?.name;
 
-  const existingStreams = JSON.parse(localStorage.streams || '{}');
+  const existingStreams = JSON.parse(localStorage.streams || "{}");
   const walletKey = state.wallet?.publicKey;
   if (walletKey) {
     // put current streams in localStorage without overwriting
@@ -46,6 +46,6 @@ const useStore = create<StoreType>(
   })),
 );
 
-window.addEventListener('beforeunload', persistStoreToLocalStorage);
+window.addEventListener("beforeunload", persistStoreToLocalStorage);
 
 export default useStore;

@@ -1,23 +1,23 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from "react";
 
-import { clusterApiUrl } from '@solana/web3.js';
+import { clusterApiUrl } from "@solana/web3.js";
 
-export const CLUSTER_LOCAL = 'local';
-export const CLUSTER_DEVNET = 'devnet';
-export const CLUSTER_TESTNET = 'testnet';
-export const CLUSTER_MAINNET = 'mainnet-beta';
+export const CLUSTER_LOCAL = "local";
+export const CLUSTER_DEVNET = "devnet";
+export const CLUSTER_TESTNET = "testnet";
+export const CLUSTER_MAINNET = "mainnet-beta";
 
 const clusterUrls: { [s: string]: () => string } = {
-  [CLUSTER_LOCAL]: () => 'http://localhost:8899', //http://127.0.0.1:8899",
+  [CLUSTER_LOCAL]: () => "http://localhost:8899", //http://127.0.0.1:8899",
   [CLUSTER_DEVNET]: () => clusterApiUrl(CLUSTER_DEVNET),
   [CLUSTER_TESTNET]: () => clusterApiUrl(CLUSTER_TESTNET),
   [CLUSTER_MAINNET]: () => clusterApiUrl(CLUSTER_MAINNET),
 };
 
 const programIds: { [s: string]: () => string | null } = {
-  [CLUSTER_LOCAL]: () => 'BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa', // prompt("Program ID?"),
-  [CLUSTER_DEVNET]: () => 'BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa',
-  [CLUSTER_TESTNET]: () => '8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR',
+  [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa", // prompt("Program ID?"),
+  [CLUSTER_DEVNET]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa",
+  [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_MAINNET]: () => null, // TODO: publish the program to mainnet
 };
 

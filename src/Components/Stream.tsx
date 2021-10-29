@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { BN } from '@project-serum/anchor';
-import { TokenStreamData } from '@streamflow/timelock/dist/layout';
-import { getUnixTime } from 'date-fns';
+import { BN } from "@project-serum/anchor";
+import { TokenStreamData } from "@streamflow/timelock/dist/layout";
+import { getUnixTime } from "date-fns";
 
-import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from '../constants';
-import { StreamStatus } from '../types';
-import { getExplorerLink, getStreamStatus } from '../utils/helpers';
-import { Address, Link } from './index';
-import ActionButton from './Stream/ActionButton';
-import Badge from './Stream/Badge';
-import Duration from './Stream/Duration';
-import Progress from './Stream/Progress';
+import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../constants";
+import { StreamStatus } from "../types";
+import { getExplorerLink, getStreamStatus } from "../utils/helpers";
+import { Address, Link } from "./index";
+import ActionButton from "./Stream/ActionButton";
+import Badge from "./Stream/Badge";
+import Duration from "./Stream/Duration";
+import Progress from "./Stream/Progress";
 
 // const storeGetter = (state: StoreType) => ({
 //   tokensStreaming: state.tokensStreaming,
@@ -94,9 +94,9 @@ export default function Stream(props: {
         </button>
       </div>
       <Duration start_time={start_time} end_time={end_time} />
-      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={'Stream ID'} />
+      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"Stream ID"} />
       <Address address={id} className='col-span-2 text-sm text-gray-400' />
-      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())} title={'Recipient'} />
+      <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())} title={"Recipient"} />
       <Address address={recipient.toBase58()} className='col-span-2 text-sm text-gray-400' />
       <Progress title='Withdrawn' value={withdrawn_amount.toNumber()} max={deposited_amount} />
 
@@ -137,7 +137,7 @@ export default function Stream(props: {
           )}
           {showCancel && (
             <ActionButton
-              title={'Cancel'}
+              title={"Cancel"}
               action={onCancel}
               color={STREAM_STATUS_COLOR[StreamStatus.canceled]}
             />

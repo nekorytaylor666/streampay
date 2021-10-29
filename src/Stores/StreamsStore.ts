@@ -1,4 +1,4 @@
-import { TokenStreamData } from '@streamflow/timelock/dist/layout';
+import { TokenStreamData } from "@streamflow/timelock/dist/layout";
 
 const useStreamStore = (set: Function, get: Function) => ({
   streams: {} as { [s: string]: TokenStreamData },

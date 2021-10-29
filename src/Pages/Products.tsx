@@ -1,9 +1,9 @@
-import { ClockIcon, UploadIcon } from '@heroicons/react/outline';
-import { CheckCircleIcon } from '@heroicons/react/solid';
+import { ClockIcon, UploadIcon } from "@heroicons/react/outline";
+import { CheckCircleIcon } from "@heroicons/react/solid";
 
-import { ButtonPrimary, Recipient } from '../Components';
-import { PRODUCT_MULTIPAY, PRODUCT_MULTISIG, PRODUCT_STREAMS, PRODUCT_VESTING } from '../constants';
-import { Main } from './index';
+import { ButtonPrimary, Recipient } from "../Components";
+import { PRODUCT_MULTIPAY, PRODUCT_MULTISIG, PRODUCT_STREAMS, PRODUCT_VESTING } from "../constants";
+import { Main } from "./index";
 
 export default function Products({ product }: { product: string }) {
   switch (product) {

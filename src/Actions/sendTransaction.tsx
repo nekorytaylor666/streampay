@@ -1,17 +1,17 @@
-import Timelock from '@streamflow/timelock';
-import { toast } from 'react-toastify';
+import Timelock from "@streamflow/timelock";
+import { toast } from "react-toastify";
 
-import ToastrLink from '../Components/ToastrLink';
-import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from '../constants';
-import useStore from '../Stores';
+import ToastrLink from "../Components/ToastrLink";
+import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from "../constants";
+import useStore from "../Stores";
 import {
   CancelStreamData,
   CreateStreamData,
   TransactionData,
   TransferStreamData,
   WithdrawStreamData,
-} from '../types';
-import { getExplorerLink } from '../utils/helpers';
+} from "../types";
+import { getExplorerLink } from "../utils/helpers";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
@@ -22,17 +22,17 @@ export default async function sendTransaction(
   const programId = useStore.getState().programId;
 
   let d;
-  console.log('cnwl', connection, wallet);
+  console.log("cnwl", connection, wallet);
   try {
     if (wallet?.publicKey === null || !connection) {
       throw new Error(ERR_NOT_CONNECTED);
     }
-    toast.info('Please confirm transaction in your wallet.');
+    toast.info("Please confirm transaction in your wallet.");
     let tx;
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        console.log('sending this data: ', {
+        console.log("sending this data: ", {
           start_time: d.start_time.toString(),
           end_time: d.end_time.toString(),
           deposited_amount: d.deposited_amount.toString(),
@@ -93,7 +93,7 @@ export default async function sendTransaction(
     }
     // toast.dismiss();
     // toast.info("Submitted transaction. Awaiting confirmation...");
-    const url = getExplorerLink('tx', tx); //todo print transaction here.
+    const url = getExplorerLink("tx", tx); //todo print transaction here.
     toast.dismiss();
     toast.success(
       <ToastrLink
@@ -102,8 +102,8 @@ export default async function sendTransaction(
         nonUrlText={
           `Transaction ${connection.commitment}!` +
           (connection.commitment !== TX_FINALITY_FINALIZED
-            ? ' Please allow it few seconds to finalize.'
-            : '')
+            ? " Please allow it few seconds to finalize."
+            : "")
         }
       />,
       { autoClose: 15000, closeOnClick: true },
@@ -113,7 +113,7 @@ export default async function sendTransaction(
     console.log(e);
     console.warn(e);
     //todo log these errors somewhere for our reference
-    toast.error('Error: ' + e.message);
+    toast.error("Error: " + e.message);
     return false;
   }
 }

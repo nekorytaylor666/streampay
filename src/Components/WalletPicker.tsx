@@ -1,17 +1,17 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect } from "react";
 
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   getPhantomWallet,
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
-} from '@solana/wallet-adapter-wallets';
-import swal from 'sweetalert';
+} from "@solana/wallet-adapter-wallets";
+import swal from "sweetalert";
 
-import useStore, { StoreType } from '../Stores';
-import { WalletType } from '../types';
-import ButtonPrimary from './ButtonPrimary';
+import useStore, { StoreType } from "../Stores";
+import { WalletType } from "../types";
+import ButtonPrimary from "./ButtonPrimary";
 
 const storeGetter = (state: StoreType) => ({
   walletType: state.walletType,
@@ -19,17 +19,17 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
 });
 
-const div = document.createElement('div');
+const div = document.createElement("div");
 
 const addWalletOption = (walletType: WalletType) => {
-  const button = document.createElement('div');
-  const p = document.createElement('p');
-  const img = document.createElement('img');
+  const button = document.createElement("div");
+  const p = document.createElement("p");
+  const img = document.createElement("img");
   img.src = walletType.icon;
-  img.className = 'h-8 inline-block mr-4';
+  img.className = "h-8 inline-block mr-4";
   p.innerHTML = walletType.name;
-  p.className = 'inline-block';
-  button.className = 'border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md';
+  p.className = "inline-block";
+  button.className = "border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md";
   button.onclick = () => {
     if (swal.setActionValue && swal.close) {
       //@ts-ignore
@@ -43,14 +43,14 @@ const addWalletOption = (walletType: WalletType) => {
 };
 
 const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => any) => {
-  div.innerHTML = '';
+  div.innerHTML = "";
   for (const w of walletTypes) {
     addWalletOption(w);
   }
   swal({
     buttons: {},
     content: { element: div },
-    className: 'bg-gray-800',
+    className: "bg-gray-800",
   }).then(setWalletType);
 };
 
@@ -58,7 +58,7 @@ let walletInitialized = false;
 
 export default function WalletPicker({
   classes,
-  title = 'Connect wallet',
+  title = "Connect wallet",
 }: {
   classes: string;
   title?: string;

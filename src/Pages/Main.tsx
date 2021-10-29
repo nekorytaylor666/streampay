@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { TokenListProvider } from '@solana/spl-token-registry';
-import { PublicKey } from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TokenListProvider } from "@solana/spl-token-registry";
+import { PublicKey } from "@solana/web3.js";
 
-import { Account, CreateStreamForm, Curtain } from '../Components';
-import EmptyStreams from '../Components/EmptyStreams';
-import StreamsList from '../Components/StreamsList';
-import useStore, { StoreType } from '../Stores';
+import { Account, CreateStreamForm, Curtain } from "../Components";
+import EmptyStreams from "../Components/EmptyStreams";
+import StreamsList from "../Components/StreamsList";
+import useStore, { StoreType } from "../Stores";
 
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
@@ -50,16 +50,16 @@ export default function Main() {
         //add our SPL token from the localhost:
         const ourToken = {
           chainId: 103, //devnet
-          address: '3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E', //ADD YOUR LOCAL TOKEN HERE
-          symbol: 'STRM',
-          name: 'STREAMFLOW',
+          address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
+          symbol: "STRM",
+          name: "STREAMFLOW",
           decimals: 9, //default is 9
           logoURI:
-            'https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png',
+            "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
           tags: [],
         };
         const tokenList = tokenListContainer
-          .filterByClusterSlug(cluster === 'local' ? 'devnet' : cluster)
+          .filterByClusterSlug(cluster === "local" ? "devnet" : cluster)
           .getList();
 
         //for localhost development add our token with tokenList.concat([ourToken])

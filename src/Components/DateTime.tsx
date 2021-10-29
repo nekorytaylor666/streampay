@@ -1,7 +1,7 @@
-import { add, format } from 'date-fns';
+import { add, format } from "date-fns";
 
-import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from '../constants';
-import { useFormContext } from '../Contexts/FormContext';
+import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from "../constants";
+import { useFormContext } from "../Contexts/FormContext";
 
 export default function DateTime(props: {
   title: string;
@@ -32,7 +32,7 @@ export default function DateTime(props: {
       }
 
       if (startDate && startDate === date && startTime && time <= startTime) {
-        updateTime(format(add(new Date(startDate + 'T' + startTime), { minutes: 5 }), TIME_FORMAT));
+        updateTime(format(add(new Date(startDate + "T" + startTime), { minutes: 5 }), TIME_FORMAT));
       } else if (!startTime) {
         updateTime(now);
       }

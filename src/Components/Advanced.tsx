@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState } from "react";
 
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 export default function Advanced({
   visible,
@@ -33,8 +33,8 @@ export default function Advanced({
   updateTimePeriodMultiplier: (value: number) => void;
 }) {
   const inputClassName =
-    'text-white text-bold p-0.5 ml-2 h-6 text-right bg-transparent border-primary border-0 border-b-2 inline focus:border-secondary focus:ring-0';
-  const [s, setS] = useState(timePeriodMultiplier > 1 ? 's' : '');
+    "text-white text-bold p-0.5 ml-2 h-6 text-right bg-transparent border-primary border-0 border-b-2 inline focus:border-secondary focus:ring-0";
+  const [s, setS] = useState(timePeriodMultiplier > 1 ? "s" : "");
 
   if (!endDate || !endTime) {
     return (
@@ -45,7 +45,7 @@ export default function Advanced({
   }
 
   const lengthSeconds =
-    (+new Date(endDate + 'T' + endTime) - +new Date(cliffDate + 'T' + cliffTime)) / 1000;
+    (+new Date(endDate + "T" + endTime) - +new Date(cliffDate + "T" + cliffTime)) / 1000;
   const numPeriods = lengthSeconds / (timePeriodMultiplier * timePeriod);
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
@@ -61,7 +61,7 @@ export default function Advanced({
         max={100}
         value={cliffAmount.toString()}
         onChange={(e) => updateCliffAmount(Number(e.target.value))}
-        className={inputClassName + ' w-8'}
+        className={inputClassName + " w-8"}
       />
       <small className='text-white'>%</small> released at
       <input
@@ -83,11 +83,11 @@ export default function Advanced({
         className={inputClassName}
       />
       <hr className='my-2 border-0' />
-      and then{' '}
+      and then{" "}
       <span className='text-white'>
         {releaseRate.toFixed(3)}
         <small>%</small>
-      </span>{' '}
+      </span>{" "}
       released every
       <input
         type='number'
@@ -95,12 +95,12 @@ export default function Advanced({
         value={timePeriodMultiplier.toString()}
         onChange={(e) => {
           updateTimePeriodMultiplier(Number(e.target.value));
-          setS(Number(e.target.value) > 1 ? 's' : '');
+          setS(Number(e.target.value) > 1 ? "s" : "");
         }}
-        className={inputClassName + ' w-6'}
+        className={inputClassName + " w-6"}
       />
       <select
-        className={inputClassName + ' pr-7 pb-0 h-auto text-left'}
+        className={inputClassName + " pr-7 pb-0 h-auto text-left"}
         value={timePeriod}
         onChange={(e) => updateTimePeriod(Number(e.target.value))}
       >
@@ -114,9 +114,9 @@ export default function Advanced({
         <option value={60 * 60 * 24 * 365}>year{s}</option>
       </select>
       <hr className='my-2 border-0' />
-      until{' '}
+      until{" "}
       <span className='text-white'>
-        {format(new Date(endDate + 'T' + endTime), 'ccc do MMM, yy — HH:mm')}
+        {format(new Date(endDate + "T" + endTime), "ccc do MMM, yy — HH:mm")}
       </span>
       {/*
       <br />

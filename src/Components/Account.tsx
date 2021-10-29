@@ -1,13 +1,13 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { toast } from 'react-toastify';
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { toast } from "react-toastify";
 
-import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from '../constants';
-import useStore, { StoreType } from '../Stores';
-import { CLUSTER_MAINNET } from '../Stores/NetworkStore';
-import { getExplorerLink } from '../utils/helpers';
-import { Address, ButtonPrimary, Link } from './index';
+import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
+import useStore, { StoreType } from "../Stores";
+import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
+import { getExplorerLink } from "../utils/helpers";
+import { Address, ButtonPrimary, Link } from "./index";
 
 const storeGetter = (state: StoreType) => ({
   isMainnet: state.cluster === CLUSTER_MAINNET,
@@ -34,9 +34,9 @@ export default function Account({
     if (airdropTxSignature && connection) {
       connection.confirmTransaction(airdropTxSignature, TX_FINALITY_CONFIRMED).then((result) => {
         if (result.value.err) {
-          toast.error('Airdrop failed!');
+          toast.error("Airdrop failed!");
         } else {
-          toast.success('Airdrop confirmed!');
+          toast.success("Airdrop confirmed!");
         }
       });
     }
@@ -55,14 +55,14 @@ export default function Account({
     );
     setAirdropTxSignature(signature);
     setLoading(false);
-    toast.success('Airdrop requested!');
+    toast.success("Airdrop requested!");
   }
 
   const walletPubKey = wallet?.publicKey?.toBase58();
   let myWalletLink = null;
   let myAddress = null;
   if (walletPubKey) {
-    myWalletLink = <Link url={getExplorerLink('address', walletPubKey)} title='Address' />;
+    myWalletLink = <Link url={getExplorerLink("address", walletPubKey)} title='Address' />;
     myAddress = <Address address={walletPubKey} className='block truncate' />;
   }
 
@@ -93,8 +93,8 @@ export default function Account({
           <ButtonPrimary
             onClick={requestAirdrop}
             className={
-              'float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white' +
-              (isMainnet ? ' hidden' : '')
+              "float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" +
+              (isMainnet ? " hidden" : "")
             }
             disabled={loading}
           >

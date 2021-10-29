@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@heroicons/react/outline';
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 export default function Link(props: {
   url: string;
@@ -14,7 +14,7 @@ export default function Link(props: {
   );
 
   return (
-    <strong className={'text-gray-300 hover:text-white ' + className}>
+    <strong className={"text-gray-300 hover:text-white " + className}>
       <a href={url} target='_blank' rel='noopener noreferrer'>
         {title || url}
         {icon}

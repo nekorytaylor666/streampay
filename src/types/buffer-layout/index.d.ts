@@ -1,4 +1,4 @@
-declare module 'buffer-layout' {
+declare module "buffer-layout" {
   // TODO: remove `any`.
   export class Layout<T = any> {
     span: number;

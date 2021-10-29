@@ -1,6 +1,6 @@
-import { Component } from 'react';
+import { Component } from "react";
 
-import { XIcon } from '@heroicons/react/outline';
+import { XIcon } from "@heroicons/react/outline";
 
 interface BannerProps {
   title: string;
@@ -18,7 +18,7 @@ export default class Banner extends Component<BannerProps, BannerState> {
 
   render() {
     return (
-      <div className={`relative bg-primary ${this.state.hidden && 'hidden'}`}>
+      <div className={`relative bg-primary ${this.state.hidden && "hidden"}`}>
         <div className='max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8'>
           <div className='pr-16 sm:text-center sm:px-16'>
             <p className='font-small text-white'>

@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
 
-import { Token } from '../types';
+import { Token } from "../types";
 
-const escapeRegExp = (str: string) => str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+const escapeRegExp = (str: string) => str.replace(/[-[\]/{}()*+?.\\^$|]/g, "\\$&");
 
 export default function Dropdown({
   value,
@@ -46,12 +46,12 @@ export default function Dropdown({
         onClick={() => setWrapperHidden(false)}
         className='overflow-ellipsis overflow-hidden block cursor-pointer'
       >
-        {value || 'Select...'}
+        {value || "Select..."}
       </div>
       <div
         className={
-          'absolute -top-0.5 -left-0.5 -right-0.5 bg-gray-900 border border-primary rounded-md' +
-          (wrapperHidden && searchBoxHidden ? ' hidden' : '')
+          "absolute -top-0.5 -left-0.5 -right-0.5 bg-gray-900 border border-primary rounded-md" +
+          (wrapperHidden && searchBoxHidden ? " hidden" : "")
         }
       >
         <input
@@ -64,7 +64,7 @@ export default function Dropdown({
           onChange={debounce((e) => {
             const search = e.target.value;
             if (search.length > 0) {
-              const reg = new RegExp(escapeRegExp(search), 'i');
+              const reg = new RegExp(escapeRegExp(search), "i");
               setFilteredOptions(options.filter((i) => reg.test(generateOption(i))));
             } else {
               setFilteredOptions(options);

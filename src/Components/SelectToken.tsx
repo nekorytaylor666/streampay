@@ -1,5 +1,5 @@
-import useStore, { StoreType } from '../Stores';
-import Dropdown from './Dropdown';
+import useStore, { StoreType } from "../Stores";
+import Dropdown from "./Dropdown";
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,

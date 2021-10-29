@@ -1,16 +1,16 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from "react";
 
-import 'react-toastify/dist/ReactToastify.css';
-import cx from 'classnames';
-import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
+import cx from "classnames";
+import { ToastContainer } from "react-toastify";
 
-import { WalletPicker, Footer, Logo, Toggle } from './Components';
-import { PRODUCT_VESTING, products } from './constants';
-import { useFormContext } from './Contexts/FormContext';
-import logo from './logo.png';
-import { Products } from './Pages';
-import useStore, { StoreType } from './Stores';
-import { CLUSTER_MAINNET, CLUSTER_DEVNET } from './Stores/NetworkStore';
+import { WalletPicker, Footer, Logo, Toggle } from "./Components";
+import { PRODUCT_VESTING, products } from "./constants";
+import { useFormContext } from "./Contexts/FormContext";
+import logo from "./logo.png";
+import { Products } from "./Pages";
+import useStore, { StoreType } from "./Stores";
+import { CLUSTER_MAINNET, CLUSTER_DEVNET } from "./Stores/NetworkStore";
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
@@ -39,7 +39,7 @@ function App() {
           setProduct(prod);
         }}
         className={`cursor-pointer text-sm sm:text-base capitalize flex-1 sm:inline-block mx-3 sm:mx-5
-                              ${prod === product ? 'text-white' : 'text-gray-400'}`}
+                              ${prod === product ? "text-white" : "text-gray-400"}`}
       >
         {prod}
       </span>
@@ -60,7 +60,7 @@ function App() {
             />
             <WalletPicker
               title='Connect'
-              classes={cx('px-3 py-1 sm:px-6 sm:py-2 sm:mr-3', {
+              classes={cx("px-3 py-1 sm:px-6 sm:py-2 sm:mr-3", {
                 hidden: wallet?.connected,
               })}
             />

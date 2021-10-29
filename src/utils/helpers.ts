@@ -1,8 +1,8 @@
-import { BN } from '@project-serum/anchor';
-import swal from 'sweetalert';
+import { BN } from "@project-serum/anchor";
+import swal from "sweetalert";
 
-import useStore from '../Stores';
-import { StreamStatus } from '../types';
+import useStore from "../Stores";
+import { StreamStatus } from "../types";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -22,21 +22,21 @@ export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
 export function _swal(): Promise<void> {
   return swal({
     dangerMode: true,
-    text: 'Are you sure?',
-    icon: 'warning',
+    text: "Are you sure?",
+    icon: "warning",
     buttons: { cancel: true, confirm: true },
   });
 }
 
 export function copyToClipboard(value: string): void {
-  const el = document.createElement('textarea');
+  const el = document.createElement("textarea");
   el.value = value;
-  el.setAttribute('readonly', '');
-  el.style.position = 'absolute';
-  el.style.left = '-9999px';
+  el.setAttribute("readonly", "");
+  el.style.position = "absolute";
+  el.style.left = "-9999px";
   document.body.appendChild(el);
   el.select();
-  document.execCommand('copy');
+  document.execCommand("copy");
   document.body.removeChild(el);
 }
 

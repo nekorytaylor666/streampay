@@ -1,4 +1,4 @@
-import { ExternalLinkIcon } from '@heroicons/react/outline';
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 export default function ToastrLink(props: { url: string; urlText: string; nonUrlText: string }) {
   const { url, urlText, nonUrlText } = props;

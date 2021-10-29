@@ -1,6 +1,6 @@
-import { BN } from '@project-serum/anchor';
-import type { TokenInfo } from '@solana/spl-token-registry';
-import type { Keypair, PublicKey, TokenAmount } from '@solana/web3.js';
+import { BN } from "@project-serum/anchor";
+import type { TokenInfo } from "@solana/spl-token-registry";
+import type { Keypair, PublicKey, TokenAmount } from "@solana/web3.js";
 
 export interface WalletType {
   name: string;
@@ -9,10 +9,10 @@ export interface WalletType {
 }
 
 export enum StreamStatus {
-  scheduled = 'scheduled',
-  streaming = 'streaming',
-  complete = 'complete',
-  canceled = 'canceled',
+  scheduled = "scheduled",
+  streaming = "streaming",
+  complete = "complete",
+  canceled = "canceled",
 }
 
 export type TransactionData =

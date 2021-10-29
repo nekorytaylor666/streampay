@@ -1,7 +1,7 @@
-import type { TokenInfo } from '@solana/spl-token-registry';
-import type { TokenAmount } from '@solana/web3.js';
+import type { TokenInfo } from "@solana/spl-token-registry";
+import type { TokenAmount } from "@solana/web3.js";
 
-import { Token } from '../types';
+import { Token } from "../types";
 
 const useTokenStore = (set: Function) => ({
   //state

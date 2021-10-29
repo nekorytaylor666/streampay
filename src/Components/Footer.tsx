@@ -1,4 +1,4 @@
-import { Link } from './index';
+import { Link } from "./index";
 
 const Footer = () => (
   <footer className='pb-4 text-center text-sm font-mono text-gray-400'>
