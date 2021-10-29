@@ -234,7 +234,7 @@ export default function CreateStreamForm({
   }
 
   return (
-    <form onSubmit={createStream} id="form">
+    <form onSubmit={createStream} id="form" className="mb-0 lg:mb-11">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
         <Amount
           onChange={setAmount}
