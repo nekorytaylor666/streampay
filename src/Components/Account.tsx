@@ -65,6 +65,8 @@ const Account: FC<AccountProps> = ({ loading, setLoading }) => {
     myAddress = <Address address={walletPubKey} classes="block truncate" />;
   }
 
+  const tokenSymbol = token?.info?.symbol;
+
   return (
     <>
       <div className="mb-4 text-white">
@@ -75,7 +77,8 @@ const Account: FC<AccountProps> = ({ loading, setLoading }) => {
         {token && (
           <>
             <p className="font-bold">
-              Balance <span className="font-light text-sm">{`( ${token?.info?.symbol} )`}</span>
+              Balance
+              {tokenSymbol && <span className="font-light text-sm">{`( ${tokenSymbol} )`}</span>}
             </p>
             {token?.uiTokenAmount?.uiAmountString}
           </>

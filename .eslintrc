@@ -53,11 +53,7 @@
           }
         ],
         "pathGroupsExcludedImportTypes": ["react"],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
+        "newlines-between": "always"
       }
     ],
     "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }],

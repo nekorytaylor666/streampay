@@ -1,8 +1,7 @@
-import React, { Suspense } from "react";
+import React from "react";
 
 import ReactDOM from "react-dom";
 
-import "./i18n";
 import "./index.css";
 import App from "./App";
 // import reportWebVitals from './reportWebVitals';
@@ -10,11 +9,9 @@ import { FormProvider } from "./contexts/FormContext";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Suspense fallback={null}>
-      <FormProvider>
-        <App />
-      </FormProvider>
-    </Suspense>
+    <FormProvider>
+      <App />
+    </FormProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

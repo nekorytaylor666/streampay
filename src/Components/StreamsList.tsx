@@ -19,11 +19,9 @@ import {
   TX_FINALITY_CONFIRMED,
 } from "../constants";
 import useStore, { StoreType } from "../stores";
-import { CancelStreamData, TransferStreamData, WithdrawStreamData } from "../types";
-import { Cluster } from "../types";
-import { _swal, getTokenAccounts } from "../utils/helpers";
+import { CancelStreamData, TransferStreamData, WithdrawStreamData, Token } from "../types";
+import { _swal, getTokenAmount } from "../utils/helpers";
 
-// pravo stanje cita se sa chaina, nije
 const storeGetter = (state: StoreType) => ({
   streamingMints: state.streamingMints,
   streams: state.streams,
@@ -34,6 +32,8 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   wallet: state.wallet,
   connection: state.connection(),
+  token: state.token,
+  myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
 });
@@ -48,14 +48,20 @@ export default function StreamsList() {
     deleteStream,
     clearStreams,
     cluster,
+    token,
+    myTokenAccounts,
     setMyTokenAccounts,
     setToken,
   } = useStore(storeGetter);
 
-  const updateTokenAccounts = async (connection: Connection, wallet: Wallet, cluster: Cluster) => {
-    const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
-    setMyTokenAccounts(myTokenAccounts);
-    setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
+  const updateToken = async (connection: Connection, wallet: Wallet, token: Token) => {
+    const address = token.info.address;
+    const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
+    setMyTokenAccounts({
+      ...myTokenAccounts,
+      [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
+    });
+    setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
   //componentWillMount
@@ -217,7 +223,7 @@ export default function StreamsList() {
       if (stream !== null) {
         const decoded = decode(stream.data);
         // tokenAmount = decoded.withdrawn_amount.toNumber();
-        updateTokenAccounts(connection, wallet, cluster);
+        updateToken(connection, wallet, token);
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
@@ -239,7 +245,7 @@ export default function StreamsList() {
       // let tokenAmount = 0;
       if (stream !== null) {
         const decoded = decode(stream.data);
-        updateTokenAccounts(connection, wallet, cluster);
+        updateToken(connection, wallet, token);
         // tokenAmount =
         //   decoded.deposited_amount.toNumber() -
         //   decoded.withdrawn_amount.toNumber();

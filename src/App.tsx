@@ -3,7 +3,6 @@ import { Dispatch, SetStateAction, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import cx from "classnames";
-import { useTranslation } from "react-i18next";
 import { ToastContainer } from "react-toastify";
 
 import logo from "./assets/icons/logo.png";
@@ -21,7 +20,6 @@ const storeGetter = (state: StoreType) => ({
 });
 
 function App() {
-  const { t } = useTranslation();
   const { setAdvanced } = useFormContext();
   const [product, setProduct] = useState(PRODUCT_VESTING);
 
@@ -64,7 +62,7 @@ function App() {
               classes="hidden sm:flex mr-2"
             />
             <WalletPicker
-              title={t("wallet_picker_cta_short_title")}
+              title="Connect"
               classes={cx("px-3 py-1 sm:px-6 sm:py-2 sm:mr-3", {
                 hidden: wallet?.connected,
               })}
