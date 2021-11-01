@@ -1,9 +1,9 @@
 import Timelock from "@streamflow/timelock";
 import { toast } from "react-toastify";
 
-import ToastrLink from "../Components/ToastrLink";
+import ToastrLink from "../components/ToastrLink";
 import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from "../constants";
-import useStore from "../Stores";
+import useStore from "../stores";
 import {
   CancelStreamData,
   CreateStreamData,

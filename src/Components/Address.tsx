@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState, FC } from "react";
 
 import { DuplicateIcon, CheckIcon } from "@heroicons/react/outline";
+import cx from "classnames";
 
 import { copyToClipboard } from "../utils/helpers";
 
-export default function Address(props: { address: string; className: string }) {
-  const { address, className } = props;
-  const iconClassName = "h-4 inline mr-1 cursor-pointer hover:opacity-80 align-text-bottom ";
+interface AddressProps {
+  address: string;
+  classes: string;
+}
+
+const iconClassName = "h-4 inline mr-1 cursor-pointer hover:opacity-80 align-text-bottom ";
+
+const Address: FC<AddressProps> = ({ address, classes }) => {
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -18,7 +24,7 @@ export default function Address(props: { address: string; className: string }) {
   }
 
   return (
-    <span className={"block truncate " + className}>
+    <span className={cx("block truncate", classes)}>
       {copied ? (
         <span className="text-green-300 mr-1">
           <CheckIcon className={iconClassName} />
@@ -30,4 +36,6 @@ export default function Address(props: { address: string; className: string }) {
       {address}
     </span>
   );
-}
+};
+
+export default Address;

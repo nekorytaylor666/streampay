@@ -1,16 +1,18 @@
 import { Dispatch, SetStateAction, useState } from "react";
 
 import "react-toastify/dist/ReactToastify.css";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import cx from "classnames";
+import { useTranslation } from "react-i18next";
 import { ToastContainer } from "react-toastify";
 
-import { WalletPicker, Footer, Logo, Toggle } from "./Components";
+import logo from "./assets/icons/logo.png";
+import { WalletPicker, Footer, Logo, Toggle } from "./components";
 import { PRODUCT_VESTING, products } from "./constants";
-import { useFormContext } from "./Contexts/FormContext";
-import logo from "./logo.png";
-import { Products } from "./Pages";
-import useStore, { StoreType } from "./Stores";
-import { CLUSTER_MAINNET, CLUSTER_DEVNET } from "./Stores/NetworkStore";
+import { useFormContext } from "./contexts/FormContext";
+import { Products } from "./pages";
+import useStore, { StoreType } from "./stores";
+import type { Cluster } from "./types";
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
@@ -19,6 +21,7 @@ const storeGetter = (state: StoreType) => ({
 });
 
 function App() {
+  const { t } = useTranslation();
   const { setAdvanced } = useFormContext();
   const [product, setProduct] = useState(PRODUCT_VESTING);
 
@@ -26,8 +29,10 @@ function App() {
 
   const toggleCluster = (
     isMainnet: boolean
-  ): Dispatch<SetStateAction<{ cluster: string; programId: string }>> => {
-    return isMainnet ? setCluster(CLUSTER_MAINNET) : setCluster(CLUSTER_DEVNET);
+  ): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> => {
+    return isMainnet
+      ? setCluster(WalletAdapterNetwork.Mainnet)
+      : setCluster(WalletAdapterNetwork.Devnet);
   };
 
   const renderProducts = () =>
@@ -53,13 +58,13 @@ function App() {
           <div className="hidden lg:block text-center text-white flex">{renderProducts()}</div>
           <div className="flex items-center">
             <Toggle
-              enabled={cluster === CLUSTER_MAINNET}
+              enabled={cluster === WalletAdapterNetwork.Mainnet}
               setEnabled={toggleCluster}
               label="devnet"
               classes="hidden sm:flex mr-2"
             />
             <WalletPicker
-              title="Connect"
+              title={t("wallet_picker_cta_short_title")}
               classes={cx("px-3 py-1 sm:px-6 sm:py-2 sm:mr-3", {
                 hidden: wallet?.connected,
               })}

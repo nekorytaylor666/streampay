@@ -1,17 +1,20 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import ReactDOM from "react-dom";
 
+import "./i18n";
 import "./index.css";
 import App from "./App";
 // import reportWebVitals from './reportWebVitals';
-import { FormProvider } from "./Contexts/FormContext";
+import { FormProvider } from "./contexts/FormContext";
 
 ReactDOM.render(
   <React.StrictMode>
-    <FormProvider>
-      <App />
-    </FormProvider>
+    <Suspense fallback={null}>
+      <FormProvider>
+        <App />
+      </FormProvider>
+    </Suspense>
   </React.StrictMode>,
   document.getElementById("root")
 );

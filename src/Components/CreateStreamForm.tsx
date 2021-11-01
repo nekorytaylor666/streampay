@@ -3,9 +3,10 @@ import "buffer-layout";
 import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import sendTransaction from "../Actions/sendTransaction";
+import sendTransaction from "../actions/sendTransaction";
 import {
   END,
   ERR_NO_TOKEN_SELECTED,
@@ -14,9 +15,10 @@ import {
   START,
   TIME_SUFFIX,
 } from "../constants";
-import { useFormContext } from "../Contexts/FormContext";
-import useStore, { StoreType } from "../Stores";
+import { useFormContext } from "../contexts/FormContext";
+import useStore, { StoreType } from "../stores";
 import { CreateStreamData } from "../types";
+import { getTokenAccounts } from "../utils/helpers";
 import {
   Advanced,
   Amount,
@@ -28,14 +30,24 @@ import {
   Toggle,
 } from "./index";
 
-const storeGetter = (state: StoreType) => ({
-  addStream: state.addStream,
-  addStreamingMint: state.addStreamingMint,
-  connection: state.connection(),
-  wallet: state.wallet,
-  token: state.token,
-  setToken: state.setToken,
-  // tokenAccounts: state.tokenAccounts,
+const storeGetter = ({
+  connection,
+  addStream,
+  addStreamingMint,
+  wallet,
+  token,
+  setToken,
+  setMyTokenAccounts,
+  cluster,
+}: StoreType) => ({
+  addStream,
+  addStreamingMint,
+  connection: connection(),
+  wallet,
+  token,
+  setToken,
+  setMyTokenAccounts,
+  cluster,
 });
 
 export default function CreateStreamForm({
@@ -45,6 +57,7 @@ export default function CreateStreamForm({
   loading: boolean;
   setLoading: (value: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const newStream = Keypair.generate();
   const {
     amount,
@@ -73,7 +86,16 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, addStream, addStreamingMint, token } = useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    addStream,
+    addStreamingMint,
+    token,
+    cluster,
+    setMyTokenAccounts,
+    setToken,
+  } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
@@ -213,6 +235,9 @@ export default function CreateStreamForm({
     if (success) {
       //streamCreated(newStream.publicKey.toBase58());
       //todo: update token balances on create, withdraw, cancel
+      console.log("am", amount);
+      console.log("token", token);
+
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancellable_at: new BN(end),
@@ -228,8 +253,12 @@ export default function CreateStreamForm({
         total_amount: new BN(amount),
       });
       addStreamingMint(token.info.address);
+
+      const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+
+      setMyTokenAccounts(myTokenAccounts);
+      setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
     }
-    return false;
   }
 
   return (
@@ -283,7 +312,10 @@ export default function CreateStreamForm({
           Stream!
         </ButtonPrimary>
       ) : (
-        <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" />
+        <WalletPicker
+          classes="px-8 py-4 font-bold text-2xl my-5"
+          title={t("wallet_picker_cta_title")}
+        />
       )}
     </form>
   );

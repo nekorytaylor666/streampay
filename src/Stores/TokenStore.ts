@@ -11,8 +11,8 @@ const useTokenStore = (set: Function) => ({
 
   //actions
   setToken: (token: Token) => set({ token }),
-  setMyTokenAccounts: (myTokenAccounts: { [mint: string]: Token }) => set({ myTokenAccounts }),
 
+  setMyTokenAccounts: (myTokenAccounts: { [mint: string]: Token }) => set({ myTokenAccounts }),
   setTokensStreaming: (tokensStreaming: {
     [mint: string]: { info: TokenInfo; uiTokenAmount: TokenAmount };
   }) => set({ tokensStreaming }),

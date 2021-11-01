@@ -9,6 +9,7 @@ export const INSTRUCTION_CREATE_STREAM = 0;
 export const INSTRUCTION_WITHDRAW_STREAM = 1;
 export const INSTRUCTION_CANCEL_STREAM = 2;
 export const INSTRUCTION_TRANSFER_RECIPIENT = 3;
+
 export enum ProgramInstruction {
   Create,
   Withdraw,

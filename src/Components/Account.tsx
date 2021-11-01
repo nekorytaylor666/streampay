@@ -1,34 +1,31 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState, FC } from "react";
 
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import cx from "classnames";
 import { toast } from "react-toastify";
 
 import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
-import useStore, { StoreType } from "../Stores";
-import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
+import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
-import { Address, ButtonPrimary, Link } from "./index";
+import { Address, ButtonPrimary, Link } from "./";
 
-const storeGetter = (state: StoreType) => ({
-  isMainnet: state.cluster === CLUSTER_MAINNET,
-  connection: state.connection(),
-  wallet: state.wallet,
-  connectWallet: state.connectWallet,
-  disconnectWallet: state.disconnectWallet,
-  setWalletType: state.setWalletType,
-  token: state.token,
+const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
+  isMainnet: cluster === WalletAdapterNetwork.Mainnet,
+  connection: connection(),
+  wallet,
+  disconnectWallet,
+  token,
 });
 
-export default function Account({
-  loading,
-  setLoading,
-}: {
+interface AccountProps {
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
-}) {
+}
+
+const Account: FC<AccountProps> = ({ loading, setLoading }) => {
   const [airdropTxSignature, setAirdropTxSignature] = useState<string | undefined>(undefined);
-  const { connection, wallet, isMainnet, disconnectWallet, setWalletType, token } =
-    useStore(storeGetter);
+  const { connection, wallet, isMainnet, disconnectWallet, token } = useStore(storeGetter);
 
   useEffect(() => {
     if (airdropTxSignature && connection) {
@@ -53,6 +50,7 @@ export default function Account({
       wallet.publicKey,
       AIRDROP_AMOUNT * LAMPORTS_PER_SOL
     );
+
     setAirdropTxSignature(signature);
     setLoading(false);
     toast.success("Airdrop requested!");
@@ -61,9 +59,10 @@ export default function Account({
   const walletPubKey = wallet?.publicKey?.toBase58();
   let myWalletLink = null;
   let myAddress = null;
+
   if (walletPubKey) {
     myWalletLink = <Link url={getExplorerLink("address", walletPubKey)} title="Address" />;
-    myAddress = <Address address={walletPubKey} className="block truncate" />;
+    myAddress = <Address address={walletPubKey} classes="block truncate" />;
   }
 
   return (
@@ -72,19 +71,17 @@ export default function Account({
         {myWalletLink}
         {myAddress}
       </div>
-      <div className="mb-4 clearfix text-white">
+      <div className="pb-4 border-b border-gray-500 clearfix text-white">
         {token && (
           <>
-            <strong className="block">Balance</strong>
-            {token?.uiTokenAmount?.uiAmountString} {token?.info?.symbol}
+            <p className="font-bold">
+              Balance <span className="font-light text-sm">{`( ${token?.info?.symbol} )`}</span>
+            </p>
+            {token?.uiTokenAmount?.uiAmountString}
           </>
         )}
         <button
-          type="button"
-          onClick={() => {
-            disconnectWallet();
-            setWalletType(null);
-          }}
+          onClick={disconnectWallet}
           className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           Disconnect
@@ -92,10 +89,9 @@ export default function Account({
         {wallet?.connected && (
           <ButtonPrimary
             onClick={requestAirdrop}
-            className={
-              "float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white" +
-              (isMainnet ? " hidden" : "")
-            }
+            className={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+              hidden: isMainnet,
+            })}
             disabled={loading}
           >
             Gimme SOL!
@@ -104,4 +100,6 @@ export default function Account({
       </div>
     </>
   );
-}
+};
+
+export default Account;

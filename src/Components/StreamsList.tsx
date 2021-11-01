@@ -1,14 +1,15 @@
 import { useEffect } from "react";
 
 import { BN } from "@project-serum/anchor";
+import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
+import type { Connection } from "@solana/web3.js";
 import { decode } from "@streamflow/timelock/dist/layout";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 
-import sendTransaction from "../Actions/sendTransaction";
-import { Stream } from "../Components";
-import EmptyStreams from "../Components/EmptyStreams";
+import { Stream, EmptyStreams } from ".";
+import sendTransaction from "../actions/sendTransaction";
 import {
   ERR_NO_STREAM,
   ERR_NOT_CONNECTED,
@@ -17,10 +18,12 @@ import {
   TIMELOCK_STRUCT_OFFSET_SENDER,
   TX_FINALITY_CONFIRMED,
 } from "../constants";
-import useStore, { StoreType } from "../Stores";
+import useStore, { StoreType } from "../stores";
 import { CancelStreamData, TransferStreamData, WithdrawStreamData } from "../types";
-import { _swal } from "../utils/helpers";
+import { Cluster } from "../types";
+import { _swal, getTokenAccounts } from "../utils/helpers";
 
+// pravo stanje cita se sa chaina, nije
 const storeGetter = (state: StoreType) => ({
   streamingMints: state.streamingMints,
   streams: state.streams,
@@ -31,6 +34,8 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   wallet: state.wallet,
   connection: state.connection(),
+  setMyTokenAccounts: state.setMyTokenAccounts,
+  setToken: state.setToken,
 });
 
 export default function StreamsList() {
@@ -43,7 +48,15 @@ export default function StreamsList() {
     deleteStream,
     clearStreams,
     cluster,
+    setMyTokenAccounts,
+    setToken,
   } = useStore(storeGetter);
+
+  const updateTokenAccounts = async (connection: Connection, wallet: Wallet, cluster: Cluster) => {
+    const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+    setMyTokenAccounts(myTokenAccounts);
+    setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
+  };
 
   //componentWillMount
   useEffect(() => {
@@ -204,7 +217,7 @@ export default function StreamsList() {
       if (stream !== null) {
         const decoded = decode(stream.data);
         // tokenAmount = decoded.withdrawn_amount.toNumber();
-        //todo: update token balance on withdraw
+        updateTokenAccounts(connection, wallet, cluster);
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
@@ -226,7 +239,7 @@ export default function StreamsList() {
       // let tokenAmount = 0;
       if (stream !== null) {
         const decoded = decode(stream.data);
-        //todo update token account balance
+        updateTokenAccounts(connection, wallet, cluster);
         // tokenAmount =
         //   decoded.deposited_amount.toNumber() -
         //   decoded.withdrawn_amount.toNumber();
