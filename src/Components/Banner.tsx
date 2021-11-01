@@ -1,5 +1,6 @@
-import { XIcon } from "@heroicons/react/outline";
 import { Component } from "react";
+
+import { XIcon } from "@heroicons/react/outline";
 
 interface BannerProps {
   title: string;

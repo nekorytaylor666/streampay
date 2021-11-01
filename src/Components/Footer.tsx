@@ -18,11 +18,7 @@ const Footer = () => (
       />
     </div>
     <small className="block mt-4">
-      <Link
-        url="https://streamflow.finance"
-        title="StreamFlow Finance"
-        hideIcon={true}
-      />
+      <Link url="https://streamflow.finance" title="StreamFlow Finance" hideIcon={true} />
     </small>
   </footer>
 );

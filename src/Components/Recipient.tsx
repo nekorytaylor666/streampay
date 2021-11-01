@@ -1,7 +1,4 @@
-export default function Recipient(props: {
-  onChange: (val: string) => void;
-  value: string;
-}) {
+export default function Recipient(props: { onChange: (val: string) => void; value: string }) {
   return (
     <div className="col-span-full">
       <label htmlFor="account" className="block font-medium text-gray-100">

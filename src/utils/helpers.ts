@@ -1,12 +1,11 @@
+import { BN } from "@project-serum/anchor";
 import swal from "sweetalert";
+
 import useStore from "../Stores";
 import { StreamStatus } from "../types";
-import { BN } from "@project-serum/anchor";
 
 export function getExplorerLink(type: string, id: string): string {
-  return `https://explorer.solana.com/${type}/${id}?cluster=${useStore
-    .getState()
-    .explorerUrl()}`;
+  return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
 }
 
 //todo: add canceled
@@ -41,26 +40,26 @@ export function copyToClipboard(value: string): void {
   document.body.removeChild(el);
 }
 
-export function streamCreated(id: string) {
-  // const url = window.location.origin + "#" + id;
-  // swal({
-  //   buttons: { confirm: { text: "Copy Stream URL" } },
-  //   icon: "success",
-  //   title: "Stream created!",
-  //   //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
-  //   content: {
-  //     element: "a",
-  //     attributes: {
-  //       className: "text-primary block truncate max-w-full",
-  //       href: url,
-  //       target: "_blank",
-  //       innerHTML: url,
-  //     },
-  //   },
-  // }).then((clicked) => {
-  //   if (clicked) {
-  //     copyToClipboard(url);
-  //     swal("Link copied to clipboard!", "Send it to the recipient!", "success");
-  //   }
-  // });
-}
+// export function streamCreated(id: string) {
+// const url = window.location.origin + "#" + id;
+// swal({
+//   buttons: { confirm: { text: "Copy Stream URL" } },
+//   icon: "success",
+//   title: "Stream created!",
+//   //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
+//   content: {
+//     element: "a",
+//     attributes: {
+//       className: "text-primary block truncate max-w-full",
+//       href: url,
+//       target: "_blank",
+//       innerHTML: url,
+//     },
+//   },
+// }).then((clicked) => {
+//   if (clicked) {
+//     copyToClipboard(url);
+//     swal("Link copied to clipboard!", "Send it to the recipient!", "success");
+//   }
+// });
+// }

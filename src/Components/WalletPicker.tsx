@@ -1,15 +1,17 @@
 import { useMemo, useEffect } from "react";
-import useStore, { StoreType } from "../Stores";
-import swal from "sweetalert";
+
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   getPhantomWallet,
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
 } from "@solana/wallet-adapter-wallets";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import ButtonPrimary from "./ButtonPrimary";
+import swal from "sweetalert";
+
+import useStore, { StoreType } from "../Stores";
 import { WalletType } from "../types";
+import ButtonPrimary from "./ButtonPrimary";
 
 const storeGetter = (state: StoreType) => ({
   walletType: state.walletType,
@@ -27,8 +29,7 @@ const addWalletOption = (walletType: WalletType) => {
   img.className = "h-8 inline-block mr-4";
   p.innerHTML = walletType.name;
   p.className = "inline-block";
-  button.className =
-    "border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md";
+  button.className = "border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md";
   button.onclick = () => {
     if (swal.setActionValue && swal.close) {
       //@ts-ignore
@@ -41,10 +42,7 @@ const addWalletOption = (walletType: WalletType) => {
   div.appendChild(button);
 };
 
-const pickWallet = (
-  walletTypes: WalletType[],
-  setWalletType: (value: any) => any
-) => {
+const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => any) => {
   div.innerHTML = "";
   for (const w of walletTypes) {
     addWalletOption(w);
@@ -91,10 +89,7 @@ export default function WalletPicker({
     }
   }, [setWalletType, walletTypes]);
   return (
-    <ButtonPrimary
-      className={classes}
-      onClick={() => pickWallet(walletTypes, setWalletType)}
-    >
+    <ButtonPrimary className={classes} onClick={() => pickWallet(walletTypes, setWalletType)}>
       {title}
     </ButtonPrimary>
   );

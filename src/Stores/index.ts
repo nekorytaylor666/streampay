@@ -1,9 +1,10 @@
 import create, { SetState, GetState } from "zustand";
 import { devtools } from "zustand/middleware";
+
 import useNetworkStore from "./NetworkStore";
 import useStreamStore from "./StreamsStore";
-import useWalletStore from "./WalletStore";
 import useTokenStore from "./TokenStore";
+import useWalletStore from "./WalletStore";
 
 const persistStoreToLocalStorage = () => {
   const state = useStore.getState() as StoreType;
@@ -37,7 +38,7 @@ export type StoreType = ReturnType<typeof useTokenStore> &
 
 const useStore = create<StoreType>(
   devtools((set: SetState<StoreType>, get: GetState<StoreType>) => ({
-    ...useTokenStore(set, get),
+    ...useTokenStore(set),
     ...useNetworkStore(set, get),
     ...useStreamStore(set, get),
     ...useWalletStore(set, get),

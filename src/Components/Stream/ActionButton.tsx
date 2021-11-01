@@ -1,8 +1,4 @@
-export default function ActionButton(props: {
-  title: string;
-  action: () => void;
-  color: string;
-}) {
+export default function ActionButton(props: { title: string; action: () => void; color: string }) {
   const { title, action, color } = props;
 
   return (

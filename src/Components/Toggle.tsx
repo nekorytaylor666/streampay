@@ -1,10 +1,10 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Dispatch, SetStateAction } from "react";
+
 import { Switch } from "@headlessui/react";
 import cx from "classnames";
 
 function classNames(...classes: string[]) {
-  // why this? TODO: DP
   return classes.filter(Boolean).join(" ");
 }
 
@@ -22,9 +22,7 @@ export default function Toggle({
   return (
     <Switch.Group as="div" className={cx(classes, "flex items-center")}>
       <Switch.Label as="span" className="mr-2">
-        <span className="text-white text-sm sm:text-base flex-grow">
-          {label}
-        </span>
+        <span className="text-white text-sm sm:text-base flex-grow">{label}</span>
       </Switch.Label>
       <Switch
         checked={enabled}

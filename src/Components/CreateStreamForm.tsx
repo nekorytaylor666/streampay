@@ -1,15 +1,11 @@
-import {
-  Advanced,
-  Amount,
-  ButtonPrimary,
-  DateTime,
-  Recipient,
-  SelectToken,
-  WalletPicker,
-} from "./index";
-import { useFormContext } from "../Contexts/FormContext";
-import { getUnixTime } from "date-fns";
+import "fs";
+import "buffer-layout";
+import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import { getUnixTime } from "date-fns";
+import { toast } from "react-toastify";
+
+import sendTransaction from "../Actions/sendTransaction";
 import {
   END,
   ERR_NO_TOKEN_SELECTED,
@@ -18,15 +14,19 @@ import {
   START,
   TIME_SUFFIX,
 } from "../constants";
+import { useFormContext } from "../Contexts/FormContext";
 import useStore, { StoreType } from "../Stores";
-import Toggle from "./Toggle";
-import { toast } from "react-toastify";
-
-import "fs";
-import "buffer-layout";
-import { BN } from "@project-serum/anchor";
-import sendTransaction from "../Actions/sendTransaction";
 import { CreateStreamData } from "../types";
+import {
+  Advanced,
+  Amount,
+  ButtonPrimary,
+  DateTime,
+  Recipient,
+  SelectToken,
+  WalletPicker,
+  Toggle,
+} from "./index";
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
@@ -73,8 +73,7 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, addStream, addStreamingMint, token } =
-    useStore(storeGetter);
+  const { connection, wallet, addStream, addStreamingMint, token } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
@@ -180,17 +179,14 @@ export default function CreateStreamForm({
       start_time: new BN(start),
       end_time: new BN(end),
       period: new BN(advanced ? timePeriod * timePeriodMultiplier : 1),
-      cliff: new BN(
-        advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start
-      ),
+      cliff: new BN(advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start),
       cliff_amount: new BN(
-        (advanced ? (cliffAmount / 100) * amount : 0) *
-          10 ** token.uiTokenAmount.decimals
+        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals
       ),
       new_stream_keypair: newStream,
     } as CreateStreamData;
 
-    let receiverAccount = await connection.getAccountInfo(data.recipient);
+    const receiverAccount = await connection.getAccountInfo(data.recipient);
     if (
       !receiverAccount?.lamports ||
       !receiverAccount?.owner?.equals(SystemProgram.programId) ||
@@ -242,9 +238,7 @@ export default function CreateStreamForm({
         <Amount
           onChange={setAmount}
           value={amount}
-          max={
-            token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0
-          }
+          max={token?.uiTokenAmount?.uiAmount ? token.uiTokenAmount.uiAmount : 0}
         />
         <SelectToken />
         <Recipient onChange={setReceiver} value={receiver} />

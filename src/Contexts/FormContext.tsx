@@ -1,7 +1,9 @@
-import { format } from "date-fns";
 import { createContext, useContext, useState } from "react";
-import { CreateStreamsFormType } from "../types";
+
+import { format } from "date-fns";
+
 import { DATE_FORMAT } from "../constants";
+import { CreateStreamsFormType } from "../types";
 
 const FormContext = createContext<CreateStreamsFormType>(
   undefined as unknown as CreateStreamsFormType
@@ -11,9 +13,7 @@ export function FormProvider(props: { children: React.ReactNode }) {
   const now = new Date();
 
   const [amount, setAmount] = useState<number>(undefined as unknown as number);
-  const [receiver, setReceiver] = useState<string>(
-    undefined as unknown as string
-  );
+  const [receiver, setReceiver] = useState<string>(undefined as unknown as string);
   const [startDate, setStartDate] = useState(format(now, DATE_FORMAT));
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState(startDate);

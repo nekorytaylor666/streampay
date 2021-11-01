@@ -1,13 +1,9 @@
-import { Main } from "./index";
-import {
-  PRODUCT_MULTIPAY,
-  PRODUCT_MULTISIG,
-  PRODUCT_STREAMS,
-  PRODUCT_VESTING,
-} from "../constants";
-import { ButtonPrimary, Recipient } from "../Components";
 import { ClockIcon, UploadIcon } from "@heroicons/react/outline";
 import { CheckCircleIcon } from "@heroicons/react/solid";
+
+import { ButtonPrimary, Recipient } from "../Components";
+import { PRODUCT_MULTIPAY, PRODUCT_MULTISIG, PRODUCT_STREAMS, PRODUCT_VESTING } from "../constants";
+import { Main } from "./index";
 
 export default function Products({ product }: { product: string }) {
   switch (product) {
@@ -91,21 +87,17 @@ export default function Products({ product }: { product: string }) {
             <hr />
             <ul className="text-white mt-4">
               <li>
-                1. signature (<b>1337...code</b>) signed at{" "}
-                {new Date().toLocaleString()}
+                1. signature (<b>1337...code</b>) signed at {new Date().toLocaleString()}
                 <CheckCircleIcon className="text-green-200 w-6 inline" />
               </li>
               <li>
-                2. signature — WAITING{" "}
-                <ClockIcon className="text-red-200 w-6 inline" />
+                2. signature — WAITING <ClockIcon className="text-red-200 w-6 inline" />
               </li>
               <li>
-                3. signature — WAITING{" "}
-                <ClockIcon className="text-red-200 w-6 inline" />
+                3. signature — WAITING <ClockIcon className="text-red-200 w-6 inline" />
               </li>
               <li>
-                Execution — WAITING{" "}
-                <ClockIcon className="text-red-200 w-6 inline" />
+                Execution — WAITING <ClockIcon className="text-red-200 w-6 inline" />
               </li>
               <br />
               <ButtonPrimary className="px-8 py-4">Sign</ButtonPrimary>

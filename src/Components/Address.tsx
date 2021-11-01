@@ -1,11 +1,12 @@
-import { copyToClipboard } from "../utils/helpers";
-import { DuplicateIcon, CheckIcon } from "@heroicons/react/outline";
 import { useState } from "react";
+
+import { DuplicateIcon, CheckIcon } from "@heroicons/react/outline";
+
+import { copyToClipboard } from "../utils/helpers";
 
 export default function Address(props: { address: string; className: string }) {
   const { address, className } = props;
-  const iconClassName =
-    "h-4 inline mr-1 cursor-pointer hover:opacity-80 align-text-bottom ";
+  const iconClassName = "h-4 inline mr-1 cursor-pointer hover:opacity-80 align-text-bottom ";
   const [copied, setCopied] = useState(false);
 
   function copy() {

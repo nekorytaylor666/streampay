@@ -1,7 +1,8 @@
+import Wallet from "@project-serum/sol-wallet-adapter";
+import { WalletNotFoundError } from "@solana/wallet-adapter-base";
 import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { WalletNotFoundError } from "@solana/wallet-adapter-base";
-import Wallet from "@project-serum/sol-wallet-adapter";
+
 import { WalletType } from "../types";
 
 let memoizedConnection: { [s: string]: Connection } = {};

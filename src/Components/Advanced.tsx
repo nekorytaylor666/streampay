@@ -1,9 +1,9 @@
 import { useState } from "react";
+
 import { format } from "date-fns";
 
 export default function Advanced({
   visible,
-  amount,
   endDate,
   endTime,
   cliffDate,
@@ -45,17 +45,12 @@ export default function Advanced({
   }
 
   const lengthSeconds =
-    (+new Date(endDate + "T" + endTime) -
-      +new Date(cliffDate + "T" + cliffTime)) /
-    1000;
+    (+new Date(endDate + "T" + endTime) - +new Date(cliffDate + "T" + cliffTime)) / 1000;
   const numPeriods = lengthSeconds / (timePeriodMultiplier * timePeriod);
-  let releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
+  const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
   return (
-    <div
-      hidden={!visible}
-      className="relative text-gray-400 -mx-2 p-2 rounded-md mt-4"
-    >
+    <div hidden={!visible} className="relative text-gray-400 -mx-2 p-2 rounded-md mt-4">
       First
       <input
         required={visible}

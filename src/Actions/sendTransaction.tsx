@@ -1,12 +1,9 @@
-import { toast } from "react-toastify";
-import ToastrLink from "../Components/ToastrLink";
-import {
-  ERR_NOT_CONNECTED,
-  ProgramInstruction,
-  TX_FINALITY_FINALIZED,
-} from "../constants";
-import { getExplorerLink } from "../utils/helpers";
 import Timelock from "@streamflow/timelock";
+import { toast } from "react-toastify";
+
+import ToastrLink from "../Components/ToastrLink";
+import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from "../constants";
+import useStore from "../Stores";
 import {
   CancelStreamData,
   CreateStreamData,
@@ -14,7 +11,7 @@ import {
   TransferStreamData,
   WithdrawStreamData,
 } from "../types";
-import useStore from "../Stores";
+import { getExplorerLink } from "../utils/helpers";
 
 export default async function sendTransaction(
   instruction: ProgramInstruction,
@@ -28,7 +25,7 @@ export default async function sendTransaction(
   console.log("cnwl", connection, wallet);
   try {
     if (wallet?.publicKey === null || !connection) {
-      throw ERR_NOT_CONNECTED;
+      throw new Error(ERR_NOT_CONNECTED);
     }
     toast.info("Please confirm transaction in your wallet.");
     let tx;

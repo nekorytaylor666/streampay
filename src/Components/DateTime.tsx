@@ -1,4 +1,5 @@
 import { add, format } from "date-fns";
+
 import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from "../constants";
 import { useFormContext } from "../Contexts/FormContext";
 
@@ -24,21 +25,14 @@ export default function DateTime(props: {
     const now = format(add(new Date(), { minutes: 2 }), TIME_FORMAT);
 
     if (title === END) {
-      const minEndDate = startDate
-        ? new Date(startDate + TIME_SUFFIX)
-        : new Date();
+      const minEndDate = startDate ? new Date(startDate + TIME_SUFFIX) : new Date();
 
       if (!startDate || !date || date < startDate) {
         updateDate(format(minEndDate, DATE_FORMAT));
       }
 
       if (startDate && startDate === date && startTime && time <= startTime) {
-        updateTime(
-          format(
-            add(new Date(startDate + "T" + startTime), { minutes: 5 }),
-            TIME_FORMAT
-          )
-        );
+        updateTime(format(add(new Date(startDate + "T" + startTime), { minutes: 5 }), TIME_FORMAT));
       } else if (!startTime) {
         updateTime(now);
       }
@@ -50,10 +44,7 @@ export default function DateTime(props: {
   return (
     <>
       <div className="col-span-3 sm:col-span-1">
-        <label
-          htmlFor={title}
-          className="block font-medium text-gray-100 capitalize"
-        >
+        <label htmlFor={title} className="block font-medium text-gray-100 capitalize">
           {title} Date
         </label>
         <div className="mt-1">
@@ -75,10 +66,7 @@ export default function DateTime(props: {
         </div>
       </div>
       <div className="col-span-2 sm:col-span-1">
-        <label
-          htmlFor={title + `_time`}
-          className="block font-medium text-gray-100 capitalize"
-        >
+        <label htmlFor={title + `_time`} className="block font-medium text-gray-100 capitalize">
           {title} time
         </label>
         <div className="mt-1">

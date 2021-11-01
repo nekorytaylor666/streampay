@@ -1,12 +1,7 @@
 import { BN } from "@project-serum/anchor";
 
-export default function Progress(props: {
-  title: string;
-  value: number;
-  max: BN;
-  rtl?: boolean;
-}) {
-  let { title, value, max, rtl } = props;
+export default function Progress(props: { title: string; value: number; max: BN; rtl?: boolean }) {
+  const { title, value, max, rtl } = props;
   return (
     <div className="col-span-full grid grid-cols-4">
       <dt className="overflow-hidden">{title}</dt>

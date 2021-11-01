@@ -1,6 +1,6 @@
-import { TokenInfo } from "@solana/spl-token-registry";
-import { Keypair, PublicKey, TokenAmount } from "@solana/web3.js";
 import { BN } from "@project-serum/anchor";
+import type { TokenInfo } from "@solana/spl-token-registry";
+import type { Keypair, PublicKey, TokenAmount } from "@solana/web3.js";
 
 export interface WalletType {
   name: string;

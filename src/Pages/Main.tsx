@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Account, CreateStreamForm, Curtain } from "../Components";
-import StreamsList from "../Components/StreamsList";
-import EmptyStreams from "../Components/EmptyStreams";
-import useStore, { StoreType } from "../Stores";
+
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+
+import { Account, CreateStreamForm, Curtain } from "../Components";
+import EmptyStreams from "../Components/EmptyStreams";
+import StreamsList from "../Components/StreamsList";
+import useStore, { StoreType } from "../Stores";
 
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
@@ -21,8 +23,7 @@ const storeGetter = (state: StoreType) => ({
   setTokensStreaming: state.setTokensStreaming,
 });
 export default function Main() {
-  const { wallet, connection, setMyTokenAccounts, cluster, setToken } =
-    useStore(storeGetter);
+  const { wallet, connection, setMyTokenAccounts, cluster, setToken } = useStore(storeGetter);
   const [loading, setLoading] = useState(false);
 
   //componentWillMount
@@ -32,22 +33,18 @@ export default function Main() {
         //is default Strategy (in resolve()) way to go?
         const tokenListContainer = await new TokenListProvider().resolve();
 
-        const myTokenAccountsList =
-          await connection.getParsedTokenAccountsByOwner(
-            wallet.publicKey as PublicKey,
-            { programId: TOKEN_PROGRAM_ID }
-          );
-
-        const myTokenAccountsObj = myTokenAccountsList.value.reduce(
-          (previous, current) => {
-            const { info } = current.account.data.parsed;
-            return {
-              ...previous,
-              [info.mint]: { uiTokenAmount: info.tokenAmount },
-            };
-          },
-          {}
+        const myTokenAccountsList = await connection.getParsedTokenAccountsByOwner(
+          wallet.publicKey as PublicKey,
+          { programId: TOKEN_PROGRAM_ID }
         );
+
+        const myTokenAccountsObj = myTokenAccountsList.value.reduce((previous, current) => {
+          const { info } = current.account.data.parsed;
+          return {
+            ...previous,
+            [info.mint]: { uiTokenAmount: info.tokenAmount },
+          };
+        }, {});
         //todo test adding more tokens
 
         //add our SPL token from the localhost:
@@ -66,25 +63,21 @@ export default function Main() {
           .getList();
 
         //for localhost development add our token with tokenList.concat([ourToken])
-        const myTokenAccountsDerived = tokenList
-          .concat([ourToken])
-          .reduce((previous, current) => {
-            if (
-              Object.keys(myTokenAccountsObj).indexOf(current.address) !== -1
-            ) {
-              let uiTokenAmount =
-                // @ts-ignore
-                myTokenAccountsObj[current.address].uiTokenAmount;
-              return {
-                ...previous,
-                [current.address]: {
-                  uiTokenAmount: uiTokenAmount,
-                  info: current,
-                },
-              };
-            }
-            return previous;
-          }, {});
+        const myTokenAccountsDerived = tokenList.concat([ourToken]).reduce((previous, current) => {
+          if (Object.keys(myTokenAccountsObj).indexOf(current.address) !== -1) {
+            const uiTokenAmount =
+              // @ts-ignore
+              myTokenAccountsObj[current.address].uiTokenAmount;
+            return {
+              ...previous,
+              [current.address]: {
+                uiTokenAmount: uiTokenAmount,
+                info: current,
+              },
+            };
+          }
+          return previous;
+        }, {});
 
         setMyTokenAccounts(myTokenAccountsDerived);
         setToken(
