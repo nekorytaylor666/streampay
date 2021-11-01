@@ -38,7 +38,7 @@ export type StoreType = ReturnType<typeof useTokenStore> &
 
 const useStore = create<StoreType>(
   devtools((set: SetState<StoreType>, get: GetState<StoreType>) => ({
-    ...useTokenStore(set, get),
+    ...useTokenStore(set),
     ...useNetworkStore(set, get),
     ...useStreamStore(set, get),
     ...useWalletStore(set, get),
