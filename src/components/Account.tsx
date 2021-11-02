@@ -4,8 +4,8 @@ import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
-import useStore, { StoreType } from "../Stores";
-import { CLUSTER_MAINNET } from "../Stores/NetworkStore";
+import useStore, { StoreType } from "../stores";
+import { CLUSTER_MAINNET } from "../stores/NetworkStore";
 import { getExplorerLink } from "../utils/helpers";
 import { Address, ButtonPrimary, Link } from "./index";
 

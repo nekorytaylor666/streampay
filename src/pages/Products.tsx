@@ -1,7 +1,7 @@
 import { ClockIcon, UploadIcon } from "@heroicons/react/outline";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
-import { ButtonPrimary, Recipient } from "../Components";
+import { ButtonPrimary, Recipient } from "../components";
 import { PRODUCT_MULTIPAY, PRODUCT_MULTISIG, PRODUCT_STREAMS, PRODUCT_VESTING } from "../constants";
 import { Main } from "./index";
 

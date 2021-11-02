@@ -9,7 +9,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import swal from "sweetalert";
 
-import useStore, { StoreType } from "../Stores";
+import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
 import ButtonPrimary from "./ButtonPrimary";
 

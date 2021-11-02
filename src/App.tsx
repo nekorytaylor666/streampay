@@ -4,13 +4,13 @@ import "react-toastify/dist/ReactToastify.css";
 import cx from "classnames";
 import { ToastContainer } from "react-toastify";
 
-import { WalletPicker, Footer, Logo, Toggle } from "./Components";
+import { WalletPicker, Footer, Logo, Toggle } from "./components";
 import { PRODUCT_VESTING, products } from "./constants";
-import { useFormContext } from "./Contexts/FormContext";
+import { useFormContext } from "./contexts/FormContext";
 import logo from "./logo.png";
-import { Products } from "./Pages";
-import useStore, { StoreType } from "./Stores";
-import { CLUSTER_MAINNET, CLUSTER_DEVNET } from "./Stores/NetworkStore";
+import { Products } from "./pages";
+import useStore, { StoreType } from "./stores";
+import { CLUSTER_MAINNET, CLUSTER_DEVNET } from "./stores/NetworkStore";
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,

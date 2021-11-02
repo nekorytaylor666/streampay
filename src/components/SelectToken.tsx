@@ -1,4 +1,4 @@
-import useStore, { StoreType } from "../Stores";
+import useStore, { StoreType } from "../stores";
 import Dropdown from "./Dropdown";
 
 const storeGetter = (state: StoreType) => ({

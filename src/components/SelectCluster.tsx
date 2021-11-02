@@ -1,5 +1,5 @@
-import useStore, { StoreType } from "../Stores";
-import { CLUSTER_DEVNET, CLUSTER_LOCAL, CLUSTER_MAINNET } from "../Stores/NetworkStore";
+import useStore, { StoreType } from "../stores";
+import { CLUSTER_DEVNET, CLUSTER_LOCAL, CLUSTER_MAINNET } from "../stores/NetworkStore";
 
 const networkStore = (state: StoreType) => ({
   cluster: state.cluster,

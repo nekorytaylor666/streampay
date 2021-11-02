@@ -1,7 +1,7 @@
 import { add, format } from "date-fns";
 
 import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from "../constants";
-import { useFormContext } from "../Contexts/FormContext";
+import { useFormContext } from "../contexts/FormContext";
 
 export default function DateTime(props: {
   title: string;

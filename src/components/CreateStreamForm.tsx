@@ -5,7 +5,7 @@ import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
 
-import sendTransaction from "../Actions/sendTransaction";
+import sendTransaction from "../actions/sendTransaction";
 import {
   END,
   ERR_NO_TOKEN_SELECTED,
@@ -14,8 +14,8 @@ import {
   START,
   TIME_SUFFIX,
 } from "../constants";
-import { useFormContext } from "../Contexts/FormContext";
-import useStore, { StoreType } from "../Stores";
+import { useFormContext } from "../contexts/FormContext";
+import useStore, { StoreType } from "../stores";
 import { CreateStreamData } from "../types";
 import {
   Advanced,

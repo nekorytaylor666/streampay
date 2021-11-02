@@ -4,10 +4,10 @@ import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
 
-import { Account, CreateStreamForm, Curtain } from "../Components";
-import EmptyStreams from "../Components/EmptyStreams";
-import StreamsList from "../Components/StreamsList";
-import useStore, { StoreType } from "../Stores";
+import { Account, CreateStreamForm, Curtain } from "../components";
+import EmptyStreams from "../components/EmptyStreams";
+import StreamsList from "../components/StreamsList";
+import useStore, { StoreType } from "../stores";
 
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),

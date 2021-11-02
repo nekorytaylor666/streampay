@@ -6,9 +6,9 @@ import { decode } from "@streamflow/timelock/dist/layout";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 
-import sendTransaction from "../Actions/sendTransaction";
-import { Stream } from "../Components";
-import EmptyStreams from "../Components/EmptyStreams";
+import sendTransaction from "../actions/sendTransaction";
+import { Stream } from "../components";
+import EmptyStreams from "../components/EmptyStreams";
 import {
   ERR_NO_STREAM,
   ERR_NOT_CONNECTED,
@@ -17,7 +17,7 @@ import {
   TIMELOCK_STRUCT_OFFSET_SENDER,
   TX_FINALITY_CONFIRMED,
 } from "../constants";
-import useStore, { StoreType } from "../Stores";
+import useStore, { StoreType } from "../stores";
 import { CancelStreamData, TransferStreamData, WithdrawStreamData } from "../types";
 import { _swal } from "../utils/helpers";
 

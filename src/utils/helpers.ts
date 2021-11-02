@@ -1,7 +1,7 @@
 import { BN } from "@project-serum/anchor";
 import swal from "sweetalert";
 
-import useStore from "../Stores";
+import useStore from "../stores";
 import { StreamStatus } from "../types";
 
 export function getExplorerLink(type: string, id: string): string {
