@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
-import { Address, ButtonPrimary, Link } from "./";
+import { Address, ButtonPrimary, Link } from ".";
 
 const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
   isMainnet: cluster === WalletAdapterNetwork.Mainnet,
