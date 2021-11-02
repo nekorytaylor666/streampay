@@ -59,10 +59,10 @@
     "react-toastify": "^7.0.4",
     "sweetalert": "^2.1.2",
     "web-vitals": "^1.0.1",
-    "zustand": "^3.5.4"
+    "zustand": "^3.5.4",
+    "@heroicons/react": "^1.0.1"
   },
   "devDependencies": {
-    "@heroicons/react": "^1.0.1",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.1.0",
     "@types/jest": "^27.0.2",
