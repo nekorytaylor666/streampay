@@ -240,11 +240,11 @@ export default function CreateStreamForm({
       });
       addStreamingMint(token.info.address);
 
-      const address = token.info.address;
-      const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
+      const mint = token.info.address;
+      const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
       setMyTokenAccounts({
         ...myTokenAccounts,
-        [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
+        [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
     }

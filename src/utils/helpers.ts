@@ -130,9 +130,9 @@ export const getTokenAccounts = async (
   return myTokenAccountsDerived;
 };
 
-export const getTokenAmount = async (connection: Connection, wallet: Wallet, address: string) => {
+export const getTokenAmount = async (connection: Connection, wallet: Wallet, mint: string) => {
   const token = await connection.getParsedTokenAccountsByOwner(wallet.publicKey as PublicKey, {
-    mint: new PublicKey(address),
+    mint: new PublicKey(mint),
   });
 
   return token.value[0].account.data.parsed.info.tokenAmount;
