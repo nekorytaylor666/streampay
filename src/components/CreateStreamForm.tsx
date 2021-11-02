@@ -5,7 +5,7 @@ import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
 
-import sendTransaction from "../Actions/sendTransaction";
+import sendTransaction from "../actions/sendTransaction";
 import {
   END,
   ERR_NO_TOKEN_SELECTED,
@@ -14,8 +14,8 @@ import {
   START,
   TIME_SUFFIX,
 } from "../constants";
-import { useFormContext } from "../Contexts/FormContext";
-import useStore, { StoreType } from "../Stores";
+import { useFormContext } from "../contexts/FormContext";
+import useStore, { StoreType } from "../stores";
 import { CreateStreamData } from "../types";
 import {
   Advanced,
@@ -27,6 +27,7 @@ import {
   WalletPicker,
   Toggle,
 } from "./index";
+import { getTokenAmount } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
@@ -35,7 +36,8 @@ const storeGetter = (state: StoreType) => ({
   wallet: state.wallet,
   token: state.token,
   setToken: state.setToken,
-  // tokenAccounts: state.tokenAccounts,
+  myTokenAccounts: state.myTokenAccounts,
+  setMyTokenAccounts: state.setMyTokenAccounts,
 });
 
 export default function CreateStreamForm({
@@ -73,7 +75,16 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const { connection, wallet, addStream, addStreamingMint, token } = useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    addStream,
+    addStreamingMint,
+    token,
+    setToken,
+    myTokenAccounts,
+    setMyTokenAccounts,
+  } = useStore(storeGetter);
 
   function validate(element: HTMLFormElement) {
     const { name, value } = element;
@@ -228,8 +239,15 @@ export default function CreateStreamForm({
         total_amount: new BN(amount),
       });
       addStreamingMint(token.info.address);
+
+      const mint = token.info.address;
+      const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
+      setMyTokenAccounts({
+        ...myTokenAccounts,
+        [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
+      });
+      setToken({ ...token, uiTokenAmount: updatedTokenAmount });
     }
-    return false;
   }
 
   return (
@@ -283,7 +301,7 @@ export default function CreateStreamForm({
           Stream!
         </ButtonPrimary>
       ) : (
-        <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" />
+        <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" title="Connect wallet" />
       )}
     </form>
   );

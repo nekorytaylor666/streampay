@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, FC } from "react";
 
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
@@ -9,14 +9,14 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import swal from "sweetalert";
 
-import useStore, { StoreType } from "../Stores";
+import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
 import ButtonPrimary from "./ButtonPrimary";
 
-const storeGetter = (state: StoreType) => ({
-  walletType: state.walletType,
-  setWalletType: state.setWalletType,
-  cluster: state.cluster,
+const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
+  walletType,
+  setWalletType,
+  cluster,
 });
 
 const div = document.createElement("div");
@@ -56,13 +56,12 @@ const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => an
 
 let walletInitialized = false;
 
-export default function WalletPicker({
-  classes,
-  title = "Connect wallet",
-}: {
+interface WalletPickerProps {
   classes: string;
-  title?: string;
-}) {
+  title: string;
+}
+
+const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
   const { setWalletType, cluster } = useStore(storeGetter);
   const walletTypes = useMemo(
     () => [
@@ -88,9 +87,12 @@ export default function WalletPicker({
       }
     }
   }, [setWalletType, walletTypes]);
+
   return (
     <ButtonPrimary className={classes} onClick={() => pickWallet(walletTypes, setWalletType)}>
       {title}
     </ButtonPrimary>
   );
-}
+};
+
+export default WalletPicker;

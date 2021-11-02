@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 // import reportWebVitals from './reportWebVitals';
-import { FormProvider } from "./Contexts/FormContext";
+import { FormProvider } from "./contexts/FormContext";
 
 ReactDOM.render(
   <React.StrictMode>

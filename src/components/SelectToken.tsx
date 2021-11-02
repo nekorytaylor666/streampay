@@ -1,4 +1,4 @@
-import useStore, { StoreType } from "../Stores";
+import useStore, { StoreType } from "../stores";
 import Dropdown from "./Dropdown";
 
 const storeGetter = (state: StoreType) => ({
@@ -10,7 +10,7 @@ const storeGetter = (state: StoreType) => ({
   setToken: state.setToken,
 });
 
-export default function SelectToken() {
+const SelectToken = () => {
   const { token, setToken, myTokenAccounts, wallet } = useStore(storeGetter);
   let select;
 
@@ -52,4 +52,6 @@ export default function SelectToken() {
       {select}
     </div>
   );
-}
+};
+
+export default SelectToken;

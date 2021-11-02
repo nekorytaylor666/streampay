@@ -95,9 +95,9 @@ export default function Stream(props: {
       </div>
       <Duration start_time={start_time} end_time={end_time} />
       <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, id)} title={"Stream ID"} />
-      <Address address={id} className="col-span-2 text-sm text-gray-400" />
+      <Address address={id} classes="col-span-2 text-sm text-gray-400" />
       <Link url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())} title={"Recipient"} />
-      <Address address={recipient.toBase58()} className="col-span-2 text-sm text-gray-400" />
+      <Address address={recipient.toBase58()} classes="col-span-2 text-sm text-gray-400" />
       <Progress title="Withdrawn" value={withdrawn_amount.toNumber()} max={deposited_amount} />
 
       {status === StreamStatus.canceled && (

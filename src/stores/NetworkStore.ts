@@ -1,6 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
 
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
+
+import type { Cluster } from "../types";
 
 export const CLUSTER_LOCAL = "local";
 export const CLUSTER_DEVNET = "devnet";
@@ -23,8 +26,8 @@ const programIds: { [s: string]: () => string | null } = {
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: CLUSTER_DEVNET as string, //todo set mainnet
-  programId: programIds[CLUSTER_DEVNET]() as string,
+  cluster: WalletAdapterNetwork.Devnet as Cluster, //todo set mainnet
+  programId: programIds[WalletAdapterNetwork.Devnet]() as string,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),
@@ -33,8 +36,8 @@ const useNetworkStore = (set: Function, get: Function) => ({
     return cluster === CLUSTER_LOCAL ? `custom&customUrl=http%3A%2F%2Flocalhost%3A8899` : cluster;
   },
   setCluster: (
-    cluster: string
-  ): Dispatch<SetStateAction<{ cluster: string; programId: string }>> => {
+    cluster: Cluster
+  ): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> => {
     get().persistStoreToLocalStorage();
     const programId = programIds[cluster]();
 
@@ -42,8 +45,8 @@ const useNetworkStore = (set: Function, get: Function) => ({
       return set({ cluster, programId });
     }
     return set({
-      cluster: CLUSTER_DEVNET,
-      programId: programIds[CLUSTER_DEVNET](),
+      cluster: WalletAdapterNetwork.Devnet,
+      programId: programIds[WalletAdapterNetwork.Devnet](),
     });
   },
 });

@@ -1,14 +1,15 @@
 import { useEffect } from "react";
 
 import { BN } from "@project-serum/anchor";
+import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
+import type { Connection } from "@solana/web3.js";
 import { decode } from "@streamflow/timelock/dist/layout";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 
-import sendTransaction from "../Actions/sendTransaction";
-import { Stream } from "../Components";
-import EmptyStreams from "../Components/EmptyStreams";
+import { Stream, EmptyStreams } from ".";
+import sendTransaction from "../actions/sendTransaction";
 import {
   ERR_NO_STREAM,
   ERR_NOT_CONNECTED,
@@ -17,9 +18,9 @@ import {
   TIMELOCK_STRUCT_OFFSET_SENDER,
   TX_FINALITY_CONFIRMED,
 } from "../constants";
-import useStore, { StoreType } from "../Stores";
-import { CancelStreamData, TransferStreamData, WithdrawStreamData } from "../types";
-import { _swal } from "../utils/helpers";
+import useStore, { StoreType } from "../stores";
+import { CancelStreamData, TransferStreamData, WithdrawStreamData, Token } from "../types";
+import { _swal, getTokenAmount } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   streamingMints: state.streamingMints,
@@ -31,6 +32,10 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   wallet: state.wallet,
   connection: state.connection(),
+  token: state.token,
+  myTokenAccounts: state.myTokenAccounts,
+  setMyTokenAccounts: state.setMyTokenAccounts,
+  setToken: state.setToken,
 });
 
 export default function StreamsList() {
@@ -43,7 +48,21 @@ export default function StreamsList() {
     deleteStream,
     clearStreams,
     cluster,
+    token,
+    myTokenAccounts,
+    setMyTokenAccounts,
+    setToken,
   } = useStore(storeGetter);
+
+  const updateToken = async (connection: Connection, wallet: Wallet, token: Token) => {
+    const address = token.info.address;
+    const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
+    setMyTokenAccounts({
+      ...myTokenAccounts,
+      [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
+    });
+    setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+  };
 
   //componentWillMount
   useEffect(() => {
@@ -204,7 +223,7 @@ export default function StreamsList() {
       if (stream !== null) {
         const decoded = decode(stream.data);
         // tokenAmount = decoded.withdrawn_amount.toNumber();
-        //todo: update token balance on withdraw
+        updateToken(connection, wallet, token);
         addStream(id, decode(stream.data));
         addStreamingMint(decoded.mint.toString());
       }
@@ -226,7 +245,7 @@ export default function StreamsList() {
       // let tokenAmount = 0;
       if (stream !== null) {
         const decoded = decode(stream.data);
-        //todo update token account balance
+        updateToken(connection, wallet, token);
         // tokenAmount =
         //   decoded.deposited_amount.toNumber() -
         //   decoded.withdrawn_amount.toNumber();

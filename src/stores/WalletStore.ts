@@ -5,31 +5,42 @@ import { toast } from "react-toastify";
 
 import { WalletType } from "../types";
 
+interface WalletState {
+  walletType: WalletType | null;
+  wallet: Wallet | null;
+  connection: () => Connection | null;
+  setWalletType: (walletType: WalletType | null) => Promise<void>;
+  disconnectWallet: () => void;
+}
+
+type WalletStore = (set: Function, get: Function) => WalletState;
+
 let memoizedConnection: { [s: string]: Connection } = {};
 
 const getConnection = (clusterUrl: string | null) => {
   if (!clusterUrl) {
     return null;
   }
+
   const key = clusterUrl;
   if (!memoizedConnection[key]) {
     memoizedConnection = { [key]: new Connection(clusterUrl, "confirmed") };
   }
+
   return memoizedConnection[key];
 };
 
-const walletStore = (set: Function, get: Function) => ({
+const walletStore: WalletStore = (set, get) => ({
   // state
-  walletType: null as WalletType | null,
-  wallet: null as Wallet | null,
+  walletType: null,
+  wallet: null,
   connection: () => getConnection(get().clusterUrl()),
 
   // actions
-  setWalletType: async (walletType: WalletType | null) => {
+  setWalletType: async (walletType) => {
     const state = get();
-    if (walletType?.name === state.walletType?.name) {
-      return;
-    }
+    if (walletType?.name === state.walletType?.name) return;
+
     state.persistStoreToLocalStorage();
 
     const wallet = walletType?.adapter();
@@ -54,21 +65,10 @@ const walletStore = (set: Function, get: Function) => ({
       set({ walletType, wallet });
     }
   },
-  connectWallet: () =>
-    get()
-      .wallet?.connect()
-      .catch((e: Error) => {
-        get().setWalletType(null);
-        toast.error(
-          e instanceof WalletNotFoundError
-            ? "Wallet extension not installed"
-            : "Wallet not connected, please try again"
-        );
-      }),
   disconnectWallet: () => {
     const state = get();
-    // state.persistStoreToLocalStorage()
     state.wallet?.disconnect();
+    state.setWalletType(null);
   },
 });
 
