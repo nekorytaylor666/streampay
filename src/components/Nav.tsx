@@ -12,9 +12,8 @@ const Nav: FC<NavProps> = ({ classes }) => (
   <nav className={classes}>
     <ul className="text-center text-gray-400 flex justify-center">
       {routes.slice(1).map((route) => (
-        <li>
+        <li key={route.path}>
           <NavLink
-            key={route.path}
             to={route.path}
             className="text-sm sm:text-base capitalize mx-3 sm:mx-5"
             activeClassName="text-white"
