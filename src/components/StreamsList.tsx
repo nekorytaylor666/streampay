@@ -22,14 +22,10 @@ import { Token } from "../types";
 import { getTokenAmount } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
-  streamingMints: state.streamingMints,
   streams: state.streams,
   addStream: state.addStream,
-  addStreamingMint: state.addStreamingMint,
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
-  wallet: state.wallet,
-  connection: state.connection(),
   token: state.token,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
@@ -72,7 +68,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
   const {
     streams,
     addStream,
-    addStreamingMint,
     deleteStream,
     clearStreams,
     token,
@@ -99,7 +94,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     accounts.forEach((account) => {
       const decoded = decode(account.account.data);
       addStream(account.pubkey.toBase58(), decoded);
-      addStreamingMint(decoded.mint.toString());
     });
 
   useEffect(() => {
@@ -125,10 +119,8 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
 
       if (stream) {
-        const decoded = decode(stream.data);
         updateToken(connection, wallet, token);
         addStream(id, decode(stream.data));
-        addStreamingMint(decoded.mint.toString());
       }
     }
   }
@@ -137,17 +129,17 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     const isCancelled = await sendTransaction(ProgramInstruction.Cancel, {
       stream: new PublicKey(id),
     });
-    console.log("CANCEL", isCancelled);
+
     if (isCancelled) {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
-
+      console.log("STREAM", stream);
       if (stream) {
-        const decoded = decode(stream.data);
         updateToken(connection, wallet, token);
         addStream(id, decode(stream.data));
-        addStreamingMint(decoded.mint.toString());
       }
     }
+
+    return isCancelled;
   }
 
   async function transferStream(id: string) {

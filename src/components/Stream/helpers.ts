@@ -3,15 +3,11 @@ import { getUnixTime } from "date-fns";
 
 import { StreamStatus } from "../../types";
 
-//todo: add canceled
-export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
-  if (now.cmp(start) === -1) {
-    return StreamStatus.scheduled;
-  } else if (now.cmp(end) === -1) {
-    return StreamStatus.streaming;
-  } else {
-    return StreamStatus.complete;
-  }
+export function getStreamStatus(canceled_at: BN, start: BN, end: BN, now: BN): StreamStatus {
+  if (canceled_at.toNumber()) return StreamStatus.canceled;
+  if (now.cmp(start) === -1) return StreamStatus.scheduled;
+  if (now.cmp(end) === -1) return StreamStatus.streaming;
+  return StreamStatus.complete;
 }
 
 export function getStreamed(

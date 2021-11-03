@@ -9,6 +9,7 @@ interface ButtonProps {
   background?: string;
   primary?: boolean;
   classes?: string;
+  type?: "button" | "submit";
 }
 
 const Button: FC<ButtonProps> = ({
@@ -18,6 +19,7 @@ const Button: FC<ButtonProps> = ({
   disabled = false,
   primary = false,
   classes,
+  type = "button",
 }) => {
   const btnBackground = primary
     ? "bg-gradient-to-br from-primary via-primary to-secondary"
@@ -30,6 +32,7 @@ const Button: FC<ButtonProps> = ({
 
   return (
     <button
+      type={type}
       className={cx(baseClasses, btnBackground, classes)}
       onClick={onClick}
       disabled={disabled}
