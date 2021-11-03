@@ -106,6 +106,9 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     ]).then(([senderStreams, recepientStreams]) =>
       addStreams([...senderStreams, ...recepientStreams])
     );
+
+    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/1
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -176,7 +179,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
       {sortStreams(streams).map(([id, data]) => (
         <Stream
           key={id}
-          // onStatusUpdate={(status) => addStream(id, { ...streams[id], status })}
           onWithdraw={() => withdrawStream(id)}
           onCancel={() => cancelStream(id)}
           onTransfer={() => transferStream(id)}
@@ -190,53 +192,3 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
 };
 
 export default StreamsList;
-
-// on useEffect end:
-//todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/1
-
-// for (const id in newStreams) {
-//   if (newStreams.hasOwnProperty(id)) {
-//     //first, the cleanup
-//     let pk = undefined;
-//     try {
-//       pk = new PublicKey(id);
-//     } catch (e: any) {
-//       toast.error(e.message + id);
-//       //removeStream(id, true);
-//     }
-//
-//     if (pk) {
-//       connection?.getAccountInfo(new PublicKey(id)).then((result) => {
-//         if (result?.data) {
-//           const d = decode(result.data);
-//           console.log("data fetched from chain: ", {
-//             magic: d.magic.toString(),
-//             start_time: d.start_time.toString(),
-//             end_time: d.end_time.toString(),
-//             deposited_amount: d.deposited_amount.toString(),
-//             total_amount: d.total_amount.toString(),
-//             period: d.period.toString(),
-//             cliff: d.cliff.toString(),
-//             cliff_amount: d.cliff_amount.toString(),
-//             created_at: d.created_at.toString(),
-//             withdrawn_amount: d.withdrawn_amount.toString(),
-//             cancel_time: d.cancel_time.toString(),
-//             sender: d.sender.toString(),
-//             sender_tokens: d.sender_tokens.toString(),
-//             recipient: d.recipient.toString(),
-//             recipient_tokens: d.recipient_tokens.toString(),
-//             mint: d.mint.toString(),
-//             escrow_tokens: d.escrow_tokens.toString(),
-//           });
-//
-//           addStream(id, decode(result.data.toString()));
-//addStreamingMint(decoded.mint);
-//         } else {
-//           if (id === streamID) {
-//             toast.error(ERR_NO_STREAM);
-//           }
-//         }
-//       });
-//     }
-//   }
-// }
