@@ -1,14 +1,15 @@
 import { UploadIcon } from "@heroicons/react/outline";
 
-import { ButtonPrimary, Recipient } from "../components";
+import { Button, Recipient } from "../components";
 
 const MultipayPage = () => (
   <div className="mx-auto relative max-w-lg grid gap-2 xl:grid-cols-5 xl:max-w-2xl">
     <div
       className={`absolute text-primary bg-gray-900 opacity-60 top-0 bottom-0 left-0 right-0 z-10 block`}
     ></div>
-    <ButtonPrimary
-      className=" px-8 py-4 col-span-5 block m-auto my-10 w-80"
+    <Button
+      classes=" px-8 py-4 col-span-5 block m-auto my-10 w-80"
+      primary
       children={
         <span>
           Upload CSV <UploadIcon className="inline w-6" />

@@ -1,4 +1,3 @@
-import { BN } from "@project-serum/anchor";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
@@ -8,21 +7,10 @@ import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 
 import useStore from "../stores";
-import { StreamStatus, Cluster } from "../types";
+import { Cluster } from "../types";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
-}
-
-//todo: add canceled
-export function getStreamStatus(start: BN, end: BN, now: BN): StreamStatus {
-  if (now.cmp(start) === -1) {
-    return StreamStatus.scheduled;
-  } else if (now.cmp(end) === -1) {
-    return StreamStatus.streaming;
-  } else {
-    return StreamStatus.complete;
-  }
 }
 
 export function _swal(): Promise<void> {
@@ -148,3 +136,6 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
 
   return token.value[0].account.data.parsed.info.tokenAmount;
 };
+
+export const formatAmmount = (amount: number, decimals: number, decimalPlaces?: number) =>
+  (amount / 10 ** decimals).toFixed(decimalPlaces || decimals);

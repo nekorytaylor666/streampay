@@ -1,7 +1,7 @@
 import { ClockIcon } from "@heroicons/react/outline";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
-import { ButtonPrimary, Recipient } from "../components";
+import { Button, Recipient } from "../components";
 
 const MultisigPage = () => (
   <div className="mx-auto relative max-w-lg xl:max-w-xl">
@@ -29,7 +29,7 @@ const MultisigPage = () => (
           Execution — WAITING <ClockIcon className="text-red-200 w-6 inline" />
         </li>
         <br />
-        <ButtonPrimary className="px-8 py-4">Sign</ButtonPrimary>
+        <Button classes="px-8 py-4">Sign</Button>
       </ul>
     </div>
   </div>
