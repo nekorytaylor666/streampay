@@ -38,8 +38,6 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
     sender,
     mint,
   } = data;
-  console.log("STREEAM", start_time.toNumber());
-  console.log("MINT", mint.toBase58());
   const address = mint.toBase58();
   const { myTokenAccounts } = useStore(storeGetter);
   const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
