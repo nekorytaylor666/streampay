@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
-import { Address, ButtonPrimary, Link } from ".";
+import { Address, Button, Link } from ".";
 
 const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
   isMainnet: cluster === WalletAdapterNetwork.Mainnet,
@@ -78,27 +78,28 @@ const Account: FC<AccountProps> = ({ loading, setLoading }) => {
           <>
             <p className="font-bold">
               Balance
-              {tokenSymbol && <span className="font-light text-sm">{`( ${tokenSymbol} )`}</span>}
+              {tokenSymbol && <span className="font-light text-sm">{` ( ${tokenSymbol} )`}</span>}
             </p>
             {token?.uiTokenAmount?.uiAmountString}
           </>
         )}
-        <button
+        <Button
           onClick={disconnectWallet}
-          className="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           Disconnect
-        </button>
+        </Button>
         {wallet?.connected && (
-          <ButtonPrimary
+          <Button
+            primary
             onClick={requestAirdrop}
-            className={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+            classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
               hidden: isMainnet,
             })}
             disabled={loading}
           >
             Gimme SOL!
-          </ButtonPrimary>
+          </Button>
         )}
       </div>
     </>

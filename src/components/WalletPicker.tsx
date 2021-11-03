@@ -11,7 +11,7 @@ import swal from "sweetalert";
 
 import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
-import ButtonPrimary from "./ButtonPrimary";
+import Button from "./Button";
 
 const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
   walletType,
@@ -89,9 +89,9 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
   }, [setWalletType, walletTypes]);
 
   return (
-    <ButtonPrimary className={classes} onClick={() => pickWallet(walletTypes, setWalletType)}>
+    <Button primary classes={classes} onClick={() => pickWallet(walletTypes, setWalletType)}>
       {title}
-    </ButtonPrimary>
+    </Button>
   );
 };
 
