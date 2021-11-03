@@ -70,16 +70,27 @@ export function copyToClipboard(value: string): void {
 // });
 // }
 
-const ourToken = {
-  chainId: 103, //devnet
-  address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
-  symbol: "STRM",
-  name: "STREAMFLOW",
-  decimals: 9, //default is 9
-  logoURI:
-    "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
-  tags: [],
-};
+const ourTokens = [
+  {
+    chainId: 103, //devnet
+    address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "STRM",
+    name: "STREAMFLOW",
+    decimals: 9, //default is 9
+    logoURI: "https://streamflow.finance/public/img/icon.png",
+    tags: [],
+  },
+  {
+    chainId: 103, //devnet
+    address: "CMwtR53m7PUmM1tmMdfvPp5q8zEbZmwACmfkrbzCyN5D", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "DIDI",
+    name: "DIJANA",
+    decimals: 9, //default is 9
+    logoURI:
+      "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
+    tags: [],
+  },
+];
 
 export const getTokenAccounts = async (
   connection: Connection,
@@ -111,7 +122,7 @@ export const getTokenAccounts = async (
   //for localhost development add our token with tokenList.concat([ourToken])
   const myTokenAccountsDerived: {
     [mint: string]: { uiTokenAmount: TokenAmount; info: TokenInfo };
-  } = tokenList.concat([ourToken]).reduce((previous, current) => {
+  } = tokenList.concat(ourTokens).reduce((previous, current) => {
     if (Object.keys(myTokenAccountsObj).indexOf(current.address) !== -1) {
       const { uiTokenAmount } = myTokenAccountsObj[current.address];
 
