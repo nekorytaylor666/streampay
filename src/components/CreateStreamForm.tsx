@@ -20,7 +20,7 @@ import { CreateStreamData } from "../types";
 import {
   Advanced,
   Amount,
-  ButtonPrimary,
+  Button,
   DateTime,
   Recipient,
   SelectToken,
@@ -223,7 +223,6 @@ export default function CreateStreamForm({
 
     if (success) {
       //streamCreated(newStream.publicKey.toBase58());
-      //todo: update token balances on create, withdraw, cancel
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancellable_at: new BN(end),
@@ -238,9 +237,11 @@ export default function CreateStreamForm({
         sender_tokens: undefined as any,
         total_amount: new BN(amount),
       });
-      addStreamingMint(token.info.address);
 
       const mint = token.info.address;
+
+      addStreamingMint(mint);
+
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
       setMyTokenAccounts({
         ...myTokenAccounts,
@@ -293,13 +294,14 @@ export default function CreateStreamForm({
         updateCliffAmount={setCliffAmount}
       />
       {wallet?.connected ? (
-        <ButtonPrimary
-          className="px-8 py-4 font-bold text-2xl my-5"
+        <Button
+          primary
+          classes="px-8 py-4 font-bold text-2xl my-5"
           onClick={createStream}
           disabled={loading}
         >
           Stream!
-        </ButtonPrimary>
+        </Button>
       ) : (
         <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" title="Connect wallet" />
       )}

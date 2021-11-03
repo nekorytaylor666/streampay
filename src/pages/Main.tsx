@@ -13,10 +13,12 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   token: state.token,
   setToken: state.setToken,
+  myTokenAccounts: state.myTokenAccounts,
 });
 
 const Main = () => {
-  const { wallet, connection, setMyTokenAccounts, cluster, setToken } = useStore(storeGetter);
+  const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
+    useStore(storeGetter);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -31,13 +33,19 @@ const Main = () => {
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
   return (
-    <div className="mx-auto grid grid-cols-1 gap-16 max-w-lg xl:grid-cols-2 xl:max-w-5xl">
+    <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
       <div>
         <Curtain visible={loading} />
         {wallet?.connected && <Account loading={loading} setLoading={setLoading} />}
         <CreateStreamForm loading={loading} setLoading={setLoading} />
       </div>
-      <div>{wallet?.connected ? <StreamsList /> : <EmptyStreams />}</div>
+      <div>
+        {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (
+          <StreamsList connection={connection} wallet={wallet} />
+        ) : (
+          <EmptyStreams />
+        )}
+      </div>
     </div>
   );
 };
