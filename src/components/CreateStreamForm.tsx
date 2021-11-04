@@ -1,7 +1,7 @@
 import "fs";
 import "buffer-layout";
 import { BN } from "@project-serum/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
@@ -79,7 +79,7 @@ export default function CreateStreamForm({
   const { connection, wallet, addStream, token, setToken, myTokenAccounts, setMyTokenAccounts } =
     useStore(storeGetter);
 
-  function validate(element: HTMLFormElement) {
+  async function validate(element: HTMLFormElement) {
     const { name, value } = element;
     let start, end, cliff;
     let msg = "";
@@ -126,7 +126,23 @@ export default function CreateStreamForm({
         msg = amount === 0 ? "Please enter amount larger than 0." : "";
         break;
       case "account":
-        msg = bs58.decode(value).length != 32 ? "Enter valid address" : "";
+        if (bs58.decode(value).length != 32) {
+          msg = "Please enter a valid Solana wallet address.";
+        } else {
+          try {
+            //TODO: Not working! Error message is there, but validation passes.
+            const receiverAccount = await connection?.getAccountInfo(new PublicKey(value));
+            if (!receiverAccount?.owner?.equals(SystemProgram.programId)) {
+              msg = "Please enter a valid Solana wallet address";
+            } else if (receiverAccount?.executable) {
+              msg = "Recipient cannot be a program.";
+            } else {
+              msg = "";
+            }
+          } catch (e: any) {
+            msg = "Please enter a valid Solana wallet address";
+          }
+        }
         break;
       default:
     }
@@ -184,12 +200,10 @@ export default function CreateStreamForm({
       new_stream_keypair: newStream,
     } as CreateStreamData;
 
-    const receiverAccount = await connection.getAccountInfo(data.recipient);
-    console.log("receiverAccount", receiverAccount);
-
-    if (!receiverAccount) {
+    const receiverAccount = await connection?.getAccountInfo(new PublicKey(receiver));
+    if (receiverAccount?.lamports === 0) {
       await swal({
-        text: "This address does not exists.",
+        text: "This address has no funds. Are you sure it's a correct one?",
         icon: "warning",
         buttons: {
           confirm: true,
