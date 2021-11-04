@@ -4,8 +4,7 @@ import { BN } from "@project-serum/anchor";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode } from "@streamflow/timelock/dist/layout";
-import { TokenStreamData } from "@streamflow/timelock/dist/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
 
