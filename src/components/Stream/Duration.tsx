@@ -34,7 +34,7 @@ const Duration: FC<DurationProps> = ({ start_time, end_time, status }) => (
     {status === StreamStatus.canceled && (
       <>
         <dd className="text-secondary text-base sm:tetx-lg">Started</dd>
-        <dd className="text-secondary text-base sm:tetx-lg">Canceled</dd>
+        <dd className="text-red-500 text-base sm:tetx-lg">Canceled</dd>
       </>
     )}
     <dt className="text-sm sm:text-base">
