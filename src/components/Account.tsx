@@ -78,7 +78,7 @@ const Account: FC<AccountProps> = ({ loading, setLoading }) => {
           <>
             <p className="font-bold">
               Balance
-              {tokenSymbol && <span className="font-light text-sm">{` ( ${tokenSymbol} )`}</span>}
+              {tokenSymbol && <span className="font-light text-sm">{` (${tokenSymbol})`}</span>}
             </p>
             {token?.uiTokenAmount?.uiAmountString}
           </>
