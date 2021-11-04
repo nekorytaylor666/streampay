@@ -134,7 +134,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
 
     if (isCancelled) {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
-      console.log("STREAM", stream);
       if (stream) {
         updateToken(connection, wallet, token);
         addStream(id, decode(stream.data));
