@@ -5,7 +5,6 @@ import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
 import swal from "sweetalert";
-import bs58 from "bs58";
 
 import sendTransaction from "../actions/sendTransaction";
 import {
@@ -82,7 +81,7 @@ export default function CreateStreamForm({
   async function validate(element: HTMLFormElement) {
     const { name, value } = element;
     let start, end, cliff;
-    let msg = "";
+    let msg = "invalid";
     switch (name) {
       case "start":
         start = new Date(value + TIME_SUFFIX);
@@ -126,25 +125,31 @@ export default function CreateStreamForm({
         msg = amount === 0 ? "Please enter amount larger than 0." : "";
         break;
       case "account":
-        if (bs58.decode(value).length != 32) {
+        let pubKey = null;
+        try {
+          pubKey = new PublicKey(value);
+        } catch {
           msg = "Please enter a valid Solana wallet address.";
-        } else {
-          try {
-            //TODO: Not working! Error message is there, but validation passes.
-            const receiverAccount = await connection?.getAccountInfo(new PublicKey(value));
-            if (!receiverAccount?.owner?.equals(SystemProgram.programId)) {
-              msg = "Please enter a valid Solana wallet address";
-            } else if (receiverAccount?.executable) {
-              msg = "Recipient cannot be a program.";
-            } else {
-              msg = "";
-            }
-          } catch (e: any) {
-            msg = "Please enter a valid Solana wallet address";
-          }
+          break;
         }
+        const receiverAccount = await connection?.getAccountInfo(pubKey);
+        if (receiverAccount == null) {
+          msg = "";
+          break;
+        }
+        if (!receiverAccount.owner.equals(SystemProgram.programId)) {
+          msg = "Please enter a valid Solana wallet address";
+          break;
+        }
+        if (receiverAccount.executable) {
+          msg = "Recipient cannot be a program.";
+          break;
+        }
+        msg = "";
         break;
       default:
+        msg = "";
+        break;
     }
     element.setCustomValidity(msg);
   }
@@ -169,7 +174,7 @@ export default function CreateStreamForm({
     }
 
     for (let i = 0; i < form.elements.length; i++) {
-      validate(form.elements[i] as HTMLFormElement);
+      await validate(form.elements[i] as HTMLFormElement);
     }
 
     if (!form.checkValidity()) {
@@ -201,7 +206,7 @@ export default function CreateStreamForm({
     } as CreateStreamData;
 
     const receiverAccount = await connection?.getAccountInfo(new PublicKey(receiver));
-    if (receiverAccount?.lamports === 0) {
+    if (receiverAccount == null) {
       await swal({
         text: "This address has no funds. Are you sure it's a correct one?",
         icon: "warning",
