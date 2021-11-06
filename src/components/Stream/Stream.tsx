@@ -92,7 +92,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
 
   return (
     <dl
-      className={`text-white my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
+      className={`text-white text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
     >
       <Badge classes="col-span-full" type={status} color={color} />
       <Duration start_time={start_time} end_time={end_time} status={status} />
@@ -111,6 +111,18 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
         address={recipient.toBase58()}
         classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5"
       />
+      <dd className="col-span-3">Canceled at</dd>
+      <dt className="col-span-9 text-red-400">Sat 6th Nov, 21 09:21</dt>
+      <dd className="col-span-3">
+        Unlocked
+        <small className="text-xs block text-gray-300 align-top">at cliff date</small>
+      </dd>
+      <dt className="col-span-9 text-gray-400">666 STRM</dt>
+      <dd className="col-span-3">
+        Release rate
+        <small className="text-xs block text-gray-300 align-top">after cliff date</small>
+      </dd>
+      <dt className="col-span-9 text-gray-400">102.4 STRM per 3 hours</dt>
       <Progress
         title="Withdrawn"
         value={withdrawn_amount.toNumber()}
@@ -136,14 +148,14 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
           />
           {showWithdraw && (
             <>
-              <dt className="col-span-4">
+              <dd className="col-span-4">
                 Available
                 <br />
                 <sup className="text-xs text-gray-300 align-top">for withdrawal</sup>
-              </dt>
-              <dd className="col-span-8 pt-1.5">
-                {formatAmmount(available, decimals)} {symbol}
               </dd>
+              <dt className="col-span-8 pt-1.5">
+                {formatAmmount(available, decimals)} {symbol}
+              </dt>
               <Button
                 onClick={onWithdraw}
                 background={STREAM_STATUS_COLOR[StreamStatus.streaming]}
