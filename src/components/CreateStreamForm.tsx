@@ -151,7 +151,7 @@ export default function CreateStreamForm({
         msg = "";
         break;
     }
-   return msg;
+    return msg;
   }
 
   async function createStream(e: any) {
@@ -175,14 +175,14 @@ export default function CreateStreamForm({
     }
 
     for (let i = 0; i < form.elements.length; i++) {
-      let elem = form.elements[i] as HTMLObjectElement; //todo: this is not a valid type.
-      let errorMsg = await validate(form.elements[i] as HTMLFormElement);
+      const elem = form.elements[i] as HTMLObjectElement; //todo: this is not a valid type.
+      const errorMsg = await validate(form.elements[i] as HTMLFormElement);
       if (errorMsg) {
-       // console.log('error: ', errorMsg);
+        // console.log('error: ', errorMsg);
         elem.setCustomValidity(errorMsg);
         elem.reportValidity();
-        elem.setCustomValidity("")
-       // console.log('return false');
+        elem.setCustomValidity("");
+        // console.log('return false');
         return false;
       }
     }
