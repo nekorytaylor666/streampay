@@ -78,7 +78,7 @@ export default function CreateStreamForm({
   const { connection, wallet, addStream, token, setToken, myTokenAccounts, setMyTokenAccounts } =
     useStore(storeGetter);
 
-  async function validate(element: HTMLFormElement) {
+  async function validate(element: HTMLFormElement): Promise<string> {
     const { name, value } = element;
     let start, end, cliff;
     let msg = "invalid";
@@ -151,10 +151,11 @@ export default function CreateStreamForm({
         msg = "";
         break;
     }
-    element.setCustomValidity(msg);
+   return msg;
   }
 
   async function createStream(e: any) {
+    //console.log("usao u create stream (submit triggered)")
     e.preventDefault();
 
     if (!wallet?.publicKey || !connection) {
@@ -174,7 +175,16 @@ export default function CreateStreamForm({
     }
 
     for (let i = 0; i < form.elements.length; i++) {
-      await validate(form.elements[i] as HTMLFormElement);
+      let elem = form.elements[i] as HTMLObjectElement; //todo: this is not a valid type.
+      let errorMsg = await validate(form.elements[i] as HTMLFormElement);
+      if (errorMsg) {
+       // console.log('error: ', errorMsg);
+        elem.setCustomValidity(errorMsg);
+        elem.reportValidity();
+        elem.setCustomValidity("")
+       // console.log('return false');
+        return false;
+      }
     }
 
     if (!form.checkValidity()) {
