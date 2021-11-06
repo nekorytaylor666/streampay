@@ -129,7 +129,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
       {status !== StreamStatus.canceled && (
         <>
           <Progress
-            title="Streamed"
+            title="Unlocked"
             value={streamed.toNumber()}
             max={deposited_amount}
             decimals={decimals}
