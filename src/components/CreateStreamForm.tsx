@@ -4,6 +4,7 @@ import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
+import swal from "sweetalert";
 
 import sendTransaction from "../actions/sendTransaction";
 import {
@@ -31,7 +32,6 @@ import { getTokenAmount } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
-  addStreamingMint: state.addStreamingMint,
   connection: state.connection(),
   wallet: state.wallet,
   token: state.token,
@@ -75,21 +75,13 @@ export default function CreateStreamForm({
     setTimePeriodMultiplier,
   } = useFormContext();
 
-  const {
-    connection,
-    wallet,
-    addStream,
-    addStreamingMint,
-    token,
-    setToken,
-    myTokenAccounts,
-    setMyTokenAccounts,
-  } = useStore(storeGetter);
+  const { connection, wallet, addStream, token, setToken, myTokenAccounts, setMyTokenAccounts } =
+    useStore(storeGetter);
 
-  function validate(element: HTMLFormElement) {
+  async function validate(element: HTMLFormElement): Promise<string> {
     const { name, value } = element;
     let start, end, cliff;
-    let msg = "";
+    let msg = "invalid";
     switch (name) {
       case "start":
         start = new Date(value + TIME_SUFFIX);
@@ -132,21 +124,38 @@ export default function CreateStreamForm({
       case "amount":
         msg = amount === 0 ? "Please enter amount larger than 0." : "";
         break;
-      // case "recipient":
-      //   let acc = await connection?.getAccountInfo(new PublicKey(value));
-      //   msg =
-      //     !acc?.lamports ||
-      //     !acc?.owner?.equals(SystemProgram.programId) ||
-      //     acc?.executable
-      //       ? "This account doesn't seem correct."
-      //       : "";
-      //   break;
+      case "account":
+        let pubKey = null;
+        try {
+          pubKey = new PublicKey(value);
+        } catch {
+          msg = "Please enter a valid Solana wallet address.";
+          break;
+        }
+        const receiverAccount = await connection?.getAccountInfo(pubKey);
+        if (receiverAccount == null) {
+          msg = "";
+          break;
+        }
+        if (!receiverAccount.owner.equals(SystemProgram.programId)) {
+          msg = "Please enter a valid Solana wallet address";
+          break;
+        }
+        if (receiverAccount.executable) {
+          msg = "Recipient cannot be a program.";
+          break;
+        }
+        msg = "";
+        break;
       default:
+        msg = "";
+        break;
     }
-    element.setCustomValidity(msg);
+   return msg;
   }
 
   async function createStream(e: any) {
+    //console.log("usao u create stream (submit triggered)")
     e.preventDefault();
 
     if (!wallet?.publicKey || !connection) {
@@ -166,7 +175,16 @@ export default function CreateStreamForm({
     }
 
     for (let i = 0; i < form.elements.length; i++) {
-      validate(form.elements[i] as HTMLFormElement);
+      let elem = form.elements[i] as HTMLObjectElement; //todo: this is not a valid type.
+      let errorMsg = await validate(form.elements[i] as HTMLFormElement);
+      if (errorMsg) {
+       // console.log('error: ', errorMsg);
+        elem.setCustomValidity(errorMsg);
+        elem.reportValidity();
+        elem.setCustomValidity("")
+       // console.log('return false');
+        return false;
+      }
     }
 
     if (!form.checkValidity()) {
@@ -197,32 +215,23 @@ export default function CreateStreamForm({
       new_stream_keypair: newStream,
     } as CreateStreamData;
 
-    const receiverAccount = await connection.getAccountInfo(data.recipient);
-    if (
-      !receiverAccount?.lamports ||
-      !receiverAccount?.owner?.equals(SystemProgram.programId) ||
-      receiverAccount?.executable
-    ) {
-      const confirmed = true;
-      // const confirmed = await swal({
-      //   text: "Are you sure the address is correct?",
-      //   icon: "warning",
-      //   buttons: {
-      //     cancel: true,
-      //     confirm: true,
-      //   },
-      // });
-      if (!confirmed) {
-        setLoading(false);
-        return false;
-      }
+    const receiverAccount = await connection?.getAccountInfo(new PublicKey(receiver));
+    if (receiverAccount == null) {
+      await swal({
+        text: "This address has no funds. Are you sure it's a correct one?",
+        icon: "warning",
+        buttons: {
+          confirm: true,
+        },
+      });
+      setLoading(false);
+      return false;
     }
 
     const success = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
 
     if (success) {
-      //streamCreated(newStream.publicKey.toBase58());
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         cancellable_at: new BN(end),
@@ -239,8 +248,6 @@ export default function CreateStreamForm({
       });
 
       const mint = token.info.address;
-
-      addStreamingMint(mint);
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
       setMyTokenAccounts({
@@ -295,9 +302,9 @@ export default function CreateStreamForm({
       />
       {wallet?.connected ? (
         <Button
+          type="submit"
           primary
           classes="px-8 py-4 font-bold text-2xl my-5"
-          onClick={createStream}
           disabled={loading}
         >
           Stream!

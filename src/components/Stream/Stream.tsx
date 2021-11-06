@@ -7,8 +7,7 @@ import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR } from "../../constants";
 import { StreamStatus } from "../../types";
 import { getExplorerLink, formatAmmount } from "../../utils/helpers";
 import { getStreamStatus, getStreamed, updateStatus } from "./helpers";
-import { Address, Link } from "../index";
-import { Button } from "..";
+import { Address, Link, Button } from "../index";
 import Badge from "./Badge";
 import Duration from "./Duration";
 import Progress from "./Progress";
@@ -18,7 +17,7 @@ interface StreamProps {
   data: TokenStreamData;
   myAddress: string;
   id: string;
-  onCancel: () => void;
+  onCancel: () => Promise<boolean>;
   onWithdraw: () => void; //TODO: add support for input
   onTransfer: () => void;
 }
@@ -29,11 +28,11 @@ const storeGetter = ({ myTokenAccounts }: StoreType) => ({
 
 const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTransfer }) => {
   const {
-    magic,
     start_time,
     end_time,
     withdrawn_amount,
     deposited_amount,
+    canceled_at,
     recipient,
     sender,
     mint,
@@ -43,10 +42,12 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
   const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[address].info.symbol;
 
-  let status_enum = getStreamStatus(start_time, end_time, new BN(+new Date() / 1000));
-  if (magic.toNumber()) {
-    status_enum = StreamStatus.canceled;
-  }
+  const status_enum = getStreamStatus(
+    canceled_at,
+    start_time,
+    end_time,
+    new BN(+new Date() / 1000)
+  );
   const color = STREAM_STATUS_COLOR[status_enum];
 
   const [status, setStatus] = useState(status_enum);
@@ -77,7 +78,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
           status,
           start_time.toNumber(),
           end_time.toNumber(),
-          magic.toNumber()
+          canceled_at.toNumber()
         );
         if (tmpStatus !== status) {
           setStatus(tmpStatus);
@@ -87,14 +88,14 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
       return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, canceled_at]);
 
   return (
     <dl
       className={`text-white my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
     >
       <Badge classes="col-span-full" type={status} color={color} />
-      <Duration start_time={start_time} end_time={end_time} />
+      <Duration start_time={start_time} end_time={end_time} status={status} />
       <Link
         url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
         title={"Stream ID"}
