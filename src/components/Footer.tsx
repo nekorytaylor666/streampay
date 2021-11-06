@@ -20,6 +20,9 @@ const Footer = () => (
     <small className="block mt-4">
       <Link url="https://streamflow.finance" title="StreamFlow Finance" hideIcon={true} />
     </small>
+    <small className="block mt-4 text-gray-400">
+      This is (still) unaudited software. Please proceed with caution.
+    </small>
   </footer>
 );
 
