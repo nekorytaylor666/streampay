@@ -155,7 +155,6 @@ export default function CreateStreamForm({
   }
 
   async function createStream(e: any) {
-    //console.log("usao u create stream (submit triggered)")
     e.preventDefault();
 
     if (!wallet?.publicKey || !connection) {

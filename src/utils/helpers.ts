@@ -137,5 +137,40 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
   return token.value[0].account.data.parsed.info.tokenAmount;
 };
 
-export const formatAmmount = (amount: number, decimals: number, decimalPlaces?: number) =>
+export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
   (amount / 10 ** decimals).toFixed(decimalPlaces || decimals);
+
+const PERIOD = {
+  SECOND: 1,
+  MINUT: 60,
+  HOUR: 3600,
+  DAY: 86400,
+  WEEK: 604800,
+  MONTH: 2592000,
+  YEAR: 31536000,
+};
+
+const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
+
+export const formatPeriodOfTime = (period: number) => {
+  const years = period / PERIOD.YEAR;
+  if (Math.floor(years)) return `${years} year${isMoreThanOne(years)}`;
+
+  const months = period / PERIOD.MONTH;
+  if (Math.floor(months)) return `${months} month${isMoreThanOne(months)}`;
+
+  const weeks = period / PERIOD.WEEK;
+  if (Math.floor(weeks)) return `${weeks} week${isMoreThanOne(weeks)}`;
+
+  const days = period / PERIOD.DAY;
+  if (Math.floor(days)) return `${days} day${isMoreThanOne(days)}`;
+
+  const hours = period / PERIOD.HOUR;
+  if (Math.floor(hours)) return `${hours} hour${isMoreThanOne(hours)}`;
+
+  const minutes = period / PERIOD.MINUT;
+  if (Math.floor(minutes)) return `${minutes} minut${isMoreThanOne(minutes)}`;
+
+  const seconds = period / PERIOD.SECOND;
+  if (Math.floor(seconds)) return `${seconds} second${isMoreThanOne(seconds)}`;
+};
