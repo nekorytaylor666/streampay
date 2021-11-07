@@ -311,7 +311,7 @@ export default function CreateStreamForm({
           classes="px-8 py-4 font-bold text-2xl my-5"
           disabled={loading}
         >
-          Stream!
+          Create
         </Button>
       ) : (
         <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" title="Connect wallet" />
