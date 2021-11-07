@@ -153,7 +153,8 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
           </dd>
           <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">{`${formatAmount(
             cliff_amount.toNumber(),
-            decimals
+            decimals,
+            DECIMAL_PLACES
           )} ${symbol}`}</dt>
           <dd className="col-span-4 sm:col-span-3">
             Release rate
@@ -193,18 +194,17 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
       )}
       {status !== StreamStatus.canceled && (
         <>
-          {period.toNumber() > 59 &&
-            (status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
-              <>
-                <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
-                <dt className="col-span-8 sm:col-span-9 text-gray-400 text-sm">
-                  {format(
-                    fromUnixTime(getNextUnlockTime(cliff.toNumber(), period.toNumber())),
-                    "ccc do MMM, yy HH:mm"
-                  )}
-                </dt>
-              </>
-            )}
+          {(status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
+            <>
+              <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
+              <dt className="col-span-8 text-gray-400 text-sm">
+                {format(
+                  fromUnixTime(getNextUnlockTime(cliff.toNumber(), period.toNumber())),
+                  "ccc do MMM, yy HH:mm:ss"
+                )}
+              </dt>
+            </>
+          )}
           <Progress
             title="Unlocked"
             value={streamed.toNumber()}
@@ -220,7 +220,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
                 <sup className="text-xs text-gray-300 align-top">for withdrawal</sup>
               </dd>
               <dt className="col-span-8 pt-1.5">
-                {formatAmount(available, decimals)} {symbol}
+                {formatAmount(available, decimals, DECIMAL_PLACES)} {symbol}
               </dt>
               <Button
                 onClick={onWithdraw}
