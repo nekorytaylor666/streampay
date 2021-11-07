@@ -99,6 +99,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
             period.toNumber()
           )
         );
+
         setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
 
         const tmpStatus = updateStatus(
@@ -115,7 +116,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
       return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, canceled_at]);
+  }, [status, canceled_at, streamed, withdrawn_amount]);
 
   return (
     <dl
