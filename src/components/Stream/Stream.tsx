@@ -79,7 +79,8 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
 
   const showWithdraw =
     (status === StreamStatus.streaming ||
-      (status === StreamStatus.complete && withdrawn_amount < deposited_amount)) &&
+      (status === StreamStatus.complete &&
+        withdrawn_amount.toNumber() < deposited_amount.toNumber())) &&
     myAddress === recipient.toBase58();
 
   const showCancel =
