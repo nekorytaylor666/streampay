@@ -158,25 +158,27 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
             decimals,
             DECIMAL_PLACES
           )} ${symbol}`}</dt>
-          <dd className="col-span-4 sm:col-span-3">
-            Release rate
-            <small className="text-xs block text-gray-300 align-top">after cliff date</small>
-          </dd>
-          <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">
-            {`${formatAmount(
-              calculateReleaseRate(
-                end_time.toNumber(),
-                cliff.toNumber(),
-                deposited_amount.toNumber(),
-                cliff_amount.toNumber(),
-                period.toNumber()
-              ),
-              decimals,
-              DECIMAL_PLACES
-            )} ${symbol} per ${formatPeriodOfTime(period.toNumber())}`}
-          </dt>
         </>
       )}
+      <dd className="col-span-4 sm:col-span-3">
+        Release rate
+        {isAdvanced && (
+          <small className="text-xs block text-gray-300 align-top">after cliff date</small>
+        )}
+      </dd>
+      <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">
+        {`${formatAmount(
+          calculateReleaseRate(
+            end_time.toNumber(),
+            cliff.toNumber(),
+            deposited_amount.toNumber(),
+            cliff_amount.toNumber(),
+            period.toNumber()
+          ),
+          decimals,
+          DECIMAL_PLACES
+        )} ${symbol} per ${formatPeriodOfTime(period.toNumber())}`}
+      </dt>
       <Progress
         title="Withdrawn"
         value={withdrawn_amount.toNumber()}
