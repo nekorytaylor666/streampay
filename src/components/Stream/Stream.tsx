@@ -224,7 +224,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
                 <sup className="text-xs text-gray-300 align-top">for withdrawal</sup>
               </dd>
               <dt className="col-span-8 pt-1.5">
-                {formatAmount(available, decimals, DECIMAL_PLACES)} {symbol}
+                ~ {formatAmount(available, decimals, DECIMAL_PLACES)} {symbol}
               </dt>
               <Button
                 onClick={onWithdraw}
