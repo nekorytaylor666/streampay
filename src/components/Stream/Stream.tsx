@@ -53,7 +53,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
   const { myTokenAccounts } = useStore(storeGetter);
   const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[address].info.symbol;
-  const isAdvanced = !!cliff_amount.toNumber();
+  const isAdvanced = cliff > start_time; //cliff exists
 
   const status_enum = getStreamStatus(
     canceled_at,
