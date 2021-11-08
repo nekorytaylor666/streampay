@@ -29,7 +29,8 @@ const Header = () => {
         <Toggle
           enabled={isMainnet}
           setEnabled={toggleCluster}
-          label="devnet"
+          labelLeft="devnet"
+          labelRight="mainnet"
           classes="hidden sm:flex mr-2"
         />
         <WalletPicker

@@ -10,19 +10,21 @@ function classNames(...classes: string[]) {
 
 export default function Toggle({
   enabled,
-  label,
+  labelLeft,
+  labelRight,
   setEnabled,
   classes,
 }: {
   enabled: boolean;
-  label: string;
+  labelLeft: string;
+  labelRight?: string;
   setEnabled: Dispatch<SetStateAction<any>>;
   classes?: string;
 }) {
   return (
     <Switch.Group as="div" className={cx(classes, "flex items-center")}>
       <Switch.Label as="span" className="mr-2">
-        <span className="text-white text-sm sm:text-base flex-grow">{label}</span>
+        <span className="text-white text-sm sm:text-base flex-grow text-base">{labelLeft}</span>
       </Switch.Label>
       <Switch
         checked={enabled}
@@ -40,6 +42,11 @@ export default function Toggle({
           )}
         />
       </Switch>
+      {!!labelRight && (
+        <Switch.Label as="span" className="mr-4 ml-2">
+          <span className="text-white text-sm sm:text-base flex-grow text-base">{labelRight}</span>
+        </Switch.Label>
+      )}
     </Switch.Group>
   );
 }
