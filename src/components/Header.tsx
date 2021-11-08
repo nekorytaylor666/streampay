@@ -16,14 +16,10 @@ const storeGetter = ({ cluster, wallet, setCluster }: StoreType) => ({
 
 const Header = () => {
   const { cluster, wallet, setCluster } = useStore(storeGetter);
+  const isMainnet = cluster === WalletAdapterNetwork.Mainnet;
 
-  const toggleCluster = (
-    isMainnet: boolean
-  ): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> => {
-    return isMainnet
-      ? setCluster(WalletAdapterNetwork.Mainnet)
-      : setCluster(WalletAdapterNetwork.Devnet);
-  };
+  const toggleCluster = (): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> =>
+    isMainnet ? setCluster(WalletAdapterNetwork.Devnet) : setCluster(WalletAdapterNetwork.Mainnet);
 
   return (
     <div className="flex justify-between items-center py-4 lg:mb-20 sticky top-0 bg-gray-900 bg-opacity-90 z-10">
@@ -31,7 +27,7 @@ const Header = () => {
       <Nav classes="hidden lg:block" />
       <div className="flex items-center">
         <Toggle
-          enabled={cluster === WalletAdapterNetwork.Mainnet}
+          enabled={isMainnet}
           setEnabled={toggleCluster}
           label="devnet"
           classes="hidden sm:flex mr-2"

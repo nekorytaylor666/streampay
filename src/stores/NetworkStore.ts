@@ -39,15 +39,16 @@ const useNetworkStore = (set: Function, get: Function) => ({
     cluster: Cluster
   ): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> => {
     get().persistStoreToLocalStorage();
-    const programId = programIds[cluster]();
 
-    if (programId) {
-      return set({ cluster, programId });
-    }
-    return set({
-      cluster: WalletAdapterNetwork.Devnet,
-      programId: programIds[WalletAdapterNetwork.Devnet](),
-    });
+    const programId = programIds[cluster]();
+    // if (programId) {
+    return set({ cluster, programId });
+    // }
+
+    // return set({
+    //   cluster: WalletAdapterNetwork.Devnet,
+    //   programId: programIds[WalletAdapterNetwork.Devnet](),
+    // });
   },
 });
 
