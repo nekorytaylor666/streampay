@@ -155,7 +155,6 @@ export default function CreateStreamForm({
   }
 
   async function createStream(e: any) {
-    //console.log("usao u create stream (submit triggered)")
     e.preventDefault();
 
     if (!wallet?.publicKey || !connection) {
@@ -258,6 +257,11 @@ export default function CreateStreamForm({
     }
   }
 
+  const updateStartTime = (startTime: string) => {
+    setStartTime(startTime);
+    setCliffTime(startTime);
+  };
+
   return (
     <form onSubmit={createStream} id="form" className="mb-0 lg:mb-11">
       <div className="my-4 grid gap-4 grid-cols-5 sm:grid-cols-2">
@@ -273,7 +277,7 @@ export default function CreateStreamForm({
           date={startDate}
           updateDate={setStartDate}
           time={startTime}
-          updateTime={setStartTime}
+          updateTime={updateStartTime}
         />
         <DateTime
           title={END}
@@ -307,7 +311,7 @@ export default function CreateStreamForm({
           classes="px-8 py-4 font-bold text-2xl my-5"
           disabled={loading}
         >
-          Stream!
+          Create
         </Button>
       ) : (
         <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" title="Connect wallet" />

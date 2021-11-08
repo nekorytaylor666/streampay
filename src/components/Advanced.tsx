@@ -108,7 +108,7 @@ export default function Advanced({
         <option value={60}>minute{s}</option>
         <option value={60 * 60}>hour{s}</option>
         <option value={60 * 60 * 24}>day{s}</option>
-        <option value={60 * 60 * 7}>week{s}</option>
+        <option value={60 * 60 * 24 * 7}>week{s}</option>
         {/*  imprecise */}
         <option value={60 * 60 * 24 * 30}>month{s}</option>
         <option value={60 * 60 * 24 * 365}>year{s}</option>
