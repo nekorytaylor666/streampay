@@ -146,7 +146,7 @@ const PERIOD = {
   HOUR: 3600,
   DAY: 86400,
   WEEK: 604800,
-  MONTH: 2592000,
+  MONTH: 2592000, //30 days
   YEAR: 31536000,
 };
 
