@@ -162,7 +162,7 @@ export default function CreateStreamForm({
       return false;
     }
 
-    if (token === null) {
+    if (!token) {
       toast.error(ERR_NO_TOKEN_SELECTED);
       return false;
     }
