@@ -58,7 +58,7 @@ export default function DateTime(props: {
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateDate(e.target.value)}
-            className="text-white bg-gray-800 border-primary block w-full h-10.5 border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white bg-gray-800 border-primary block w-full h-10 border-black rounded-md focus:ring-secondary focus:border-secondary"
             placeholder=""
             aria-describedby={title + `-description`}
             required
@@ -78,7 +78,7 @@ export default function DateTime(props: {
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateTime(e.target.value)}
-            className="text-white bg-gray-800 border-primary block w-full h-10.5 border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white bg-gray-800 border-primary block w-full h-10 border-black rounded-md focus:ring-secondary focus:border-secondary"
             placeholder=""
             aria-describedby={title + `_time-description`}
             required
