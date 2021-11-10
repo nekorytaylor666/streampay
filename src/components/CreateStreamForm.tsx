@@ -287,7 +287,7 @@ export default function CreateStreamForm({
           updateTime={setEndTime}
         />
       </div>
-      <Toggle enabled={advanced} setEnabled={setAdvanced} label="Advanced" />
+      <Toggle enabled={advanced} setEnabled={setAdvanced} labelLeft="Advanced" />
       <Advanced
         visible={advanced}
         amount={amount}

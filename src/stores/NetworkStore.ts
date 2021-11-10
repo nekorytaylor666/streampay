@@ -21,13 +21,13 @@ const programIds: { [s: string]: () => string | null } = {
   [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa", // prompt("Program ID?"),
   [CLUSTER_DEVNET]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa",
   [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
-  [CLUSTER_MAINNET]: () => null, // TODO: publish the program to mainnet
+  [CLUSTER_MAINNET]: () => "8e72pYCDaxu3GqMfeQ5r8wFgoZSYk6oua1Qo9XpsZjX",
 };
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: WalletAdapterNetwork.Devnet as Cluster, //todo set mainnet
-  programId: programIds[WalletAdapterNetwork.Devnet]() as string,
+  cluster: WalletAdapterNetwork.Mainnet as Cluster,
+  programId: programIds[WalletAdapterNetwork.Mainnet]() as string,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),
@@ -40,14 +40,7 @@ const useNetworkStore = (set: Function, get: Function) => ({
   ): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> => {
     get().persistStoreToLocalStorage();
     const programId = programIds[cluster]();
-
-    if (programId) {
-      return set({ cluster, programId });
-    }
-    return set({
-      cluster: WalletAdapterNetwork.Devnet,
-      programId: programIds[WalletAdapterNetwork.Devnet](),
-    });
+    return set({ cluster, programId });
   },
 });
 
