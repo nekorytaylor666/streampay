@@ -1,6 +1,4 @@
-import { useEffect } from "react";
-
-import { HashRouter as Router, Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
