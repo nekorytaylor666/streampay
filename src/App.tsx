@@ -13,7 +13,6 @@ const App = () => {
   useEffect(() => {
     const path = localStorage.getItem("path");
     if (path) {
-      console.log("path", path);
       localStorage.removeItem("path");
       history.push(path);
     }
