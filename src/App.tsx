@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
@@ -8,7 +8,7 @@ import routes from "./RoutesConfig";
 const App = () => (
   <div className="min-h-screen flex flex-col">
     <div className="bg-blend-darken flex-grow px-3.5 sm:px-5">
-      <Router basename={process.env.REACT_APP_PUBLIC_URL}>
+      <Router>
         <Header />
         <Nav classes="block lg:hidden" />
         <Switch>
