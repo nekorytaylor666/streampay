@@ -215,16 +215,27 @@ export default function CreateStreamForm({
     } as CreateStreamData;
 
     const receiverAccount = await connection?.getAccountInfo(new PublicKey(receiver));
-    if (receiverAccount == null) {
-      await swal({
-        text: "This address has no funds. Are you sure it's a correct one?",
+    if (!receiverAccount) {
+      const shouldContinue = await swal({
+        text: "Seems like the recipient address has empty balance. Please double check if it’s a correct address before continuing.",
         icon: "warning",
         buttons: {
-          confirm: true,
+          cancel: {
+            text: "Cancel",
+            value: false,
+            visible: true,
+          },
+          confirm: {
+            text: "Continue",
+            value: true,
+          },
         },
       });
-      setLoading(false);
-      return false;
+
+      if (!shouldContinue) {
+        setLoading(false);
+        return false;
+      }
     }
 
     const success = await sendTransaction(ProgramInstruction.Create, data);
