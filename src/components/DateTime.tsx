@@ -1,4 +1,5 @@
 import { add, format } from "date-fns";
+import cx from "classnames";
 
 import { DATE_FORMAT, END, TIME_FORMAT, TIME_SUFFIX } from "../constants";
 import { useFormContext } from "../contexts/FormContext";
@@ -9,8 +10,9 @@ export default function DateTime(props: {
   updateDate: (value: string) => void;
   time: string;
   updateTime: (value: string) => void;
+  classes?: string;
 }) {
-  const { title, date, updateDate, time, updateTime } = props;
+  const { title, date, updateDate, time, updateTime, classes } = props;
   const { startDate, startTime } = useFormContext();
 
   function getMinDate(): string {
@@ -43,8 +45,8 @@ export default function DateTime(props: {
 
   return (
     <>
-      <div className="col-span-3 sm:col-span-1">
-        <label htmlFor={title} className="block font-medium text-gray-100 capitalize">
+      <div className={cx(classes, "col-span-3 sm:col-span-1")}>
+        <label htmlFor={title} className="block text-base font-medium text-gray-100 capitalize">
           {title} Date
         </label>
         <div className="mt-1">
@@ -65,8 +67,11 @@ export default function DateTime(props: {
           />
         </div>
       </div>
-      <div className="col-span-2 sm:col-span-1">
-        <label htmlFor={title + `_time`} className="block font-medium text-gray-100 capitalize">
+      <div className={cx(classes, "col-span-2 sm:col-span-1")}>
+        <label
+          htmlFor={title + `_time`}
+          className="block text-base font-medium text-gray-100 capitalize"
+        >
           {title} time
         </label>
         <div className="mt-1">
