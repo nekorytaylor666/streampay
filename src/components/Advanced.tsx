@@ -50,8 +50,8 @@ export default function Advanced({
   const numPeriods = lengthSeconds / (timePeriodMultiplier * timePeriod);
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
-  return visible ? (
-    <>
+  return (
+    <div hidden={!visible}>
       <div className="my-4 grid gap-3 sm:gap-4 grid-cols-6">
         <DateTime
           title="cliff"
@@ -130,6 +130,6 @@ export default function Advanced({
         )}`}</span>
         .
       </p>
-    </>
-  ) : null;
+    </div>
+  );
 }
