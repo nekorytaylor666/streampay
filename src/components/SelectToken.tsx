@@ -46,7 +46,7 @@ const SelectToken = () => {
   }
   return (
     <div className="col-span-2 sm:col-span-1 text-white">
-      <label htmlFor="token" className="block font-medium text-gray-100">
+      <label htmlFor="token" className="block text-base font-medium text-gray-100">
         Token
       </label>
       {select}
