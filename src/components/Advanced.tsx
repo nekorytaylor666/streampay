@@ -93,6 +93,11 @@ export default function Advanced({
               updateTimePeriodMultiplier(Number(e.target.value));
               setS(Number(e.target.value) > 1 ? "s" : "");
             }}
+            onBlur={(e) => {
+              if (!Number(e.target.value)) {
+                updateTimePeriodMultiplier(1);
+              }
+            }}
             className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-1 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
           <select
