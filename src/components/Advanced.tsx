@@ -52,21 +52,21 @@ export default function Advanced({
 
   return (
     <div hidden={!visible}>
-      <div className="my-4 grid gap-3 sm:gap-4 grid-cols-6">
+      <div className="my-4 grid gap-3 sm:gap-4 grid-cols-5">
         <DateTime
           title="cliff"
           date={cliffDate}
           updateDate={updateCliffDate}
           time={cliffTime}
           updateTime={updateCliffTime}
-          classes="sm:col-span-3"
+          classes="col-span-2 sm:col-span-2"
         />
-        <div className="col-span-2">
+        <div className="col-span-1 relative">
           <label
             htmlFor="cliff_amount"
             className="block text-base font-medium text-gray-100 capitalize"
           >
-            Cliff amount
+            Release
           </label>
           <input
             required={visible}
@@ -77,8 +77,9 @@ export default function Advanced({
             max={100}
             value={cliffAmount.toString()}
             onChange={(e) => updateCliffAmount(Number(e.target.value))}
-            className="text-white mt-1 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white mt-1 pr-6 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
+          <span className="absolute text-white right-2 bottom-2">%</span>
         </div>
         <div className="col-span-4 grid gap-x-1 sm:gap-x-2 grid-cols-4">
           <label className="block text-base mb-1 font-medium text-gray-100 capitalize col-span-4">
@@ -92,7 +93,7 @@ export default function Advanced({
               updateTimePeriodMultiplier(Number(e.target.value));
               setS(Number(e.target.value) > 1 ? "s" : "");
             }}
-            className="text-white bg-gray-800 col-span-2 sm:col-span-1 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white bg-gray-800 col-span-1 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
           <select
             value={timePeriod}
@@ -111,6 +112,7 @@ export default function Advanced({
         </div>
       </div>
       <p hidden={!visible} className="text-gray-400 pt-2 mt-4 text-sm leading-6">
+        <h3 className="font-bold">Overview:</h3>
         First <span className="text-white text-sm">{` ${cliffAmount}% `}</span>released on
         <span className="text-white text-sm">{` ${cliffDate} `}</span>at
         <span className="text-white text-sm">{` ${cliffTime}`}</span>.

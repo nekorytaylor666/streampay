@@ -45,7 +45,7 @@ export default function DateTime(props: {
 
   return (
     <>
-      <div className={cx(classes, "col-span-3 sm:col-span-1")}>
+      <div className={cx("col-span-3 sm:col-span-1", classes)}>
         <label htmlFor={title} className="block text-base font-medium text-gray-100 capitalize">
           {title} Date
         </label>
@@ -60,7 +60,8 @@ export default function DateTime(props: {
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateDate(e.target.value)}
-            className="text-white bg-gray-800 border-primary block w-full h-10 border-black rounded-md focus:ring-secondary focus:border-secondary"
+            style={{ minHeight: 42.5 }}
+            className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
             placeholder=""
             aria-describedby={title + `-description`}
             required
@@ -83,7 +84,8 @@ export default function DateTime(props: {
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateTime(e.target.value)}
-            className="text-white bg-gray-800 border-primary block w-full h-10 border-black rounded-md focus:ring-secondary focus:border-secondary"
+            style={{ minHeight: 42.5 }}
+            className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
             placeholder=""
             aria-describedby={title + `_time-description`}
             required
