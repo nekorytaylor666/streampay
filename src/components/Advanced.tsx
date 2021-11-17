@@ -77,9 +77,9 @@ export default function Advanced({
             max={100}
             value={cliffAmount.toString()}
             onChange={(e) => updateCliffAmount(Number(e.target.value))}
-            className="text-white mt-1 pr-6 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white mt-1 pr-6 pl-2.5 sm:pl-3 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
-          <span className="absolute text-white right-2 bottom-2">%</span>
+          <span className="absolute text-white right-2 sm:right-3 bottom-2">%</span>
         </div>
         <div className="col-span-4 grid gap-x-1 sm:gap-x-2 grid-cols-4">
           <label className="block text-base mb-1 font-medium text-gray-100 capitalize col-span-4">
@@ -93,12 +93,12 @@ export default function Advanced({
               updateTimePeriodMultiplier(Number(e.target.value));
               setS(Number(e.target.value) > 1 ? "s" : "");
             }}
-            className="text-white bg-gray-800 col-span-1 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+            className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-1 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
           <select
             value={timePeriod}
             onChange={(e) => updateTimePeriod(Number(e.target.value))}
-            className="text-white bg-gray-800 col-span-2 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-7"
+            className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-2 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-7"
           >
             <option value={1}>second{s}</option>
             <option value={60}>minute{s}</option>
