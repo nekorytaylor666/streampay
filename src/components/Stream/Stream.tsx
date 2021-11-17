@@ -53,7 +53,8 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
   const { myTokenAccounts } = useStore(storeGetter);
   const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[address].info.symbol;
-  const isAdvanced = cliff > start_time; //cliff exists
+  const isCliffDateAfterStart = cliff > start_time;
+  const isCliffAmount = cliff_amount.toNumber();
 
   const status_enum = getStreamStatus(
     canceled_at,
@@ -130,7 +131,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
         canceled_at={canceled_at}
         isCanceled={isCanceled}
         cliff={cliff}
-        isAdvanced={isAdvanced}
+        isAdvanced={isCliffDateAfterStart}
       />
       <Link
         url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
@@ -147,11 +148,13 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
         address={recipient.toBase58()}
         classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5"
       />
-      {isAdvanced && (
+      {!!isCliffAmount && (
         <>
           <dd className="col-span-4 sm:col-span-3">
             Unlocked
-            <small className="text-xs block text-gray-300 align-top">at cliff date</small>
+            <small className="text-xs block text-gray-300 align-top">{`at ${
+              isCliffDateAfterStart ? "cliff" : "start"
+            } date`}</small>
           </dd>
           <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">{`${formatAmount(
             cliff_amount.toNumber(),
@@ -162,11 +165,11 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
       )}
       <dd className="col-span-4 sm:col-span-3">
         Release rate
-        {isAdvanced && (
+        {isCliffDateAfterStart && (
           <small className="text-xs block text-gray-300 align-top">after cliff date</small>
         )}
       </dd>
-      <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">
+      <dt className="col-span-8 sm:col-span-9 text-gray-400">
         {`${formatAmount(
           calculateReleaseRate(
             end_time.toNumber(),
