@@ -54,7 +54,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
   const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[address].info.symbol;
   const isCliffDateAfterStart = cliff > start_time;
-  const isCliffAmount = cliff_amount.toNumber();
+  const isCliffAmount = cliff_amount.toNumber() > 0;
 
   const status_enum = getStreamStatus(
     canceled_at,
@@ -148,7 +148,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, on
         address={recipient.toBase58()}
         classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5"
       />
-      {!!isCliffAmount && (
+      {isCliffAmount && (
         <>
           <dd className="col-span-4 sm:col-span-3">
             Unlocked
