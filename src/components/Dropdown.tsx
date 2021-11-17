@@ -57,7 +57,7 @@ export default function Dropdown({
         <input
           ref={fieldRef}
           type="text"
-          className="mb-2 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary"
+          className="mb-2 pl-2.5 sm:pl-3 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary"
           onBlur={() => setSearchBoxHidden(true)}
           onFocus={() => setSearchBoxHidden(false)}
           onMouseDown={() => setSearchBoxHidden(false)}

@@ -153,6 +153,8 @@ const PERIOD = {
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
 
 export const formatPeriodOfTime = (period: number) => {
+  if (!period) return "0 seconds";
+
   const years = period / PERIOD.YEAR;
   if (Math.floor(years)) return `${years} year${isMoreThanOne(years)}`;
 

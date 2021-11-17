@@ -5,7 +5,7 @@ export default function Amount(props: {
 }) {
   return (
     <div className="col-span-3 sm:col-span-1">
-      <label htmlFor="amount" className="block font-medium text-gray-100">
+      <label htmlFor="amount" className="block text-base font-medium text-gray-100">
         Amount
       </label>
       <div className="mt-1">
@@ -17,7 +17,7 @@ export default function Amount(props: {
           id="amount"
           defaultValue={props.value}
           onChange={(e) => props.onChange(Number(e.target.value))}
-          className="text-white bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+          className="text-white pl-2.5 sm:pl-3 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           min={0}
           max={props.max || Number.MAX_SAFE_INTEGER}
           placeholder="0.00"
