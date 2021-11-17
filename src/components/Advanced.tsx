@@ -112,7 +112,7 @@ export default function Advanced({
         </div>
       </div>
       <p hidden={!visible} className="text-gray-400 pt-2 mt-4 text-sm leading-6">
-        <h3 className="font-bold">Overview:</h3>
+        <b className="font-bold block">Overview:</b>
         First <span className="text-white text-sm">{` ${cliffAmount}% `}</span>released on
         <span className="text-white text-sm">{` ${cliffDate} `}</span>at
         <span className="text-white text-sm">{` ${cliffTime}`}</span>.
