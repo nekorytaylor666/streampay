@@ -39,7 +39,6 @@ export default function Advanced({
   updateTimePeriod: (value: number) => void;
   updateTimePeriodMultiplier: (value: number) => void;
 }) {
-  const decimals = token?.uiTokenAmount?.decimals ? token.uiTokenAmount.decimals : 0;
   const ticker = token?.info?.symbol ? token.info.symbol.toUpperCase() : "";
 
   const [s, setS] = useState(timePeriodMultiplier > 1 ? "s" : "");
@@ -125,25 +124,26 @@ export default function Advanced({
       </div>
       <p hidden={!visible} className="text-gray-400 pt-2 mt-4 text-sm leading-6">
         <b className="font-bold block">Overview:</b>
-        First{" "}
+        First
         <span className="text-white text-sm">
-          {` ${cliffAmount}% ${decimals} (${((amount * cliffAmount) / 100).toFixed(2)} ${ticker}) `}
+          {` ${cliffAmount}% (${((amount * cliffAmount) / 100).toFixed(2)} ${ticker}) `}
         </span>
+        <br className="sm:hidden" />
         released on
         <span className="text-white text-sm">{` ${cliffDate} `}</span>at
         <span className="text-white text-sm">{` ${cliffTime}`}</span>.
       </p>
-      <p hidden={!visible} className="text-gray-400 text-sm leading-6 sm:inline-block">
+      <p hidden={!visible} className="text-gray-400 text-sm mt-2 leading-6 sm:inline-block">
         And then
         <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% (${(
           amount * releaseRate
         ).toFixed(2)} ${ticker}) `}</span>
+        <br className="sm:hidden" />
         released every
         <span className="text-white text-sm">{` ${formatPeriodOfTime(
           timePeriod * timePeriodMultiplier
         )} `}</span>
-      </p>{" "}
-      <p hidden={!visible} className="text-gray-400 text-sm leading-6 sm:inline-block">
+        <br />
         until
         <span className="text-white text-sm">{` ${format(
           new Date(endDate + "T" + endTime),
