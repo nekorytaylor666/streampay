@@ -301,7 +301,8 @@ export default function CreateStreamForm({
       <Toggle enabled={advanced} setEnabled={setAdvanced} labelLeft="Advanced" />
       <Advanced
         visible={advanced}
-        amount={amount}
+        token={token}
+        amount={amount || 0}
         endDate={endDate}
         endTime={endTime}
         cliffDate={cliffDate}

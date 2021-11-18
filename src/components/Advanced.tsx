@@ -4,9 +4,12 @@ import { format } from "date-fns";
 
 import { DateTime } from "./index";
 import { formatPeriodOfTime } from "../utils/helpers";
+import { Token } from "../types";
 
 export default function Advanced({
   visible,
+  token,
+  amount,
   endDate,
   endTime,
   cliffDate,
@@ -21,6 +24,7 @@ export default function Advanced({
   updateTimePeriodMultiplier,
 }: {
   visible: boolean;
+  token: Token;
   amount: number;
   endDate: string;
   endTime: string;
@@ -35,6 +39,9 @@ export default function Advanced({
   updateTimePeriod: (value: number) => void;
   updateTimePeriodMultiplier: (value: number) => void;
 }) {
+  const decimals = token?.uiTokenAmount?.decimals ? token.uiTokenAmount.decimals : 0;
+  const ticker = token?.info?.symbol ? token.info.symbol.toUpperCase() : "";
+
   const [s, setS] = useState(timePeriodMultiplier > 1 ? "s" : "");
 
   if (!endDate || !endTime) {
@@ -118,13 +125,20 @@ export default function Advanced({
       </div>
       <p hidden={!visible} className="text-gray-400 pt-2 mt-4 text-sm leading-6">
         <b className="font-bold block">Overview:</b>
-        First <span className="text-white text-sm">{` ${cliffAmount}% `}</span>released on
+        First{" "}
+        <span className="text-white text-sm">
+          {` ${cliffAmount}% ${decimals} (${((amount * cliffAmount) / 100).toFixed(2)} ${ticker}) `}
+        </span>
+        released on
         <span className="text-white text-sm">{` ${cliffDate} `}</span>at
         <span className="text-white text-sm">{` ${cliffTime}`}</span>.
       </p>
       <p hidden={!visible} className="text-gray-400 text-sm leading-6 sm:inline-block">
         And then
-        <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% `}</span>released every
+        <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% (${(
+          amount * releaseRate
+        ).toFixed(2)} ${ticker}) `}</span>
+        released every
         <span className="text-white text-sm">{` ${formatPeriodOfTime(
           timePeriod * timePeriodMultiplier
         )} `}</span>
