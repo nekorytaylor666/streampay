@@ -9,6 +9,7 @@ export interface ModalRef {
 }
 
 export type ModalProps = {
+  title?: string;
   text?: string;
   ref: ForwardedRef<ModalRef>;
   confirm: { text: string; color: string };
@@ -19,7 +20,7 @@ export type ModalProps = {
 );
 
 const Modal: FC<ModalProps> = forwardRef(
-  ({ text, type, confirm, config = { defaultValue: "" } }, ref) => {
+  ({ title, text, type, confirm, config = { defaultValue: "" } }, ref) => {
     const [visible, setVisible] = useState(false);
     const [modalInfo, setModalInfo] = useState<{ resolve?: any }>({});
     const [value, setValue] = useState(config.defaultValue);
@@ -55,7 +56,8 @@ const Modal: FC<ModalProps> = forwardRef(
         )}
       >
         <div className="w-11/12 sm:w-2/5 xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-gradient-to-br to-ternary from-gray-800">
-          <p className="mb-2 text-center text-sm sm:text-base text-white">{text}</p>
+          <p className="mb-2 text-center text-sm sm:text-base text-white">{title}</p>
+          <p className="mb-2 text-center text-xs sm:text-sm text-white">{text}</p>
           {isRangeInput && (
             <Range
               value={value as number}

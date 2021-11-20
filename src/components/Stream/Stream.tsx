@@ -294,7 +294,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
       </dl>
       <Modal
         ref={modalRef}
-        text={`You can withdraw between 0 and ${roundAmount(available, decimals, decimals).toFixed(
+        title={`You can withdraw between 0 and ${roundAmount(available, decimals, decimals).toFixed(
           DEFAULT_DECIMAL_PLACES
         )} ${symbol}.`}
         type="range"

@@ -163,7 +163,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
       ))}
       <Modal
         ref={modalRef}
-        text="Transfer recipient:"
+        title="Transfer recipient:"
         type="text"
         config={{ placeholder: "Recipient address", defaultValue: "" }}
         confirm={{ color: "blue", text: "Transfer" }}

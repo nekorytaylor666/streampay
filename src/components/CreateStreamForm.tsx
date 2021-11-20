@@ -321,7 +321,8 @@ export default function CreateStreamForm({
       )}
       <Modal
         ref={modalRef}
-        text="Seems like the recipient address has empty balance. Please double check if it’s a correct address before continuing."
+        title="Seems like the recipient address has empty balance."
+        text="Please check that the address is correct before proceeding."
         type="info"
         confirm={{ color: "red", text: "Continue" }}
       />
