@@ -112,7 +112,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
 
     const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
       stream: new PublicKey(id),
-      amount: new BN(withdrawAmount),
+      amount: new BN(withdrawAmount * 10 ** decimals),
     });
 
     if (isWithdrawn) {
