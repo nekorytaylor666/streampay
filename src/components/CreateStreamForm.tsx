@@ -1,10 +1,11 @@
+import { useRef } from "react";
+
 import "fs";
 import "buffer-layout";
 import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
-import swal from "sweetalert";
 
 import sendTransaction from "../actions/sendTransaction";
 import {
@@ -27,6 +28,8 @@ import {
   SelectToken,
   WalletPicker,
   Toggle,
+  Modal,
+  ModalRef,
 } from "./index";
 import { getTokenAmount } from "../utils/helpers";
 
@@ -74,6 +77,8 @@ export default function CreateStreamForm({
     timePeriodMultiplier,
     setTimePeriodMultiplier,
   } = useFormContext();
+
+  const modalRef = useRef<ModalRef>(null);
 
   const { connection, wallet, addStream, token, setToken, myTokenAccounts, setMyTokenAccounts } =
     useStore(storeGetter);
@@ -215,22 +220,9 @@ export default function CreateStreamForm({
     } as CreateStreamData;
 
     const receiverAccount = await connection?.getAccountInfo(new PublicKey(receiver));
+
     if (!receiverAccount) {
-      const shouldContinue = await swal({
-        text: "Seems like the recipient address has empty balance. Please double check if it’s a correct address before continuing.",
-        icon: "warning",
-        buttons: {
-          cancel: {
-            text: "Cancel",
-            value: false,
-            visible: true,
-          },
-          confirm: {
-            text: "Continue",
-            value: true,
-          },
-        },
-      });
+      const shouldContinue = await modalRef?.current?.show();
 
       if (!shouldContinue) {
         setLoading(false);
@@ -327,6 +319,12 @@ export default function CreateStreamForm({
       ) : (
         <WalletPicker classes="px-8 py-4 font-bold text-2xl my-5" title="Connect wallet" />
       )}
+      <Modal
+        ref={modalRef}
+        text="Seems like the recipient address has empty balance. Please double check if it’s a correct address before continuing."
+        type="info"
+        confirm={{ color: "red", text: "Continue" }}
+      />
     </form>
   );
 }
