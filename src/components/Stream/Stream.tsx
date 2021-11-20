@@ -296,11 +296,8 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
         ref={modalRef}
         title={`You can withdraw between 0 and ${roundAmount(available, decimals)} ${symbol}.`}
         type="range"
-        config={{
-          defaultValue: roundAmount(available, decimals),
-          min: 0,
-          max: roundAmount(available, decimals),
-        }}
+        min={0}
+        max={roundAmount(available, decimals)}
         confirm={{ color: "green", text: "Withdraw" }}
       />
     </>
