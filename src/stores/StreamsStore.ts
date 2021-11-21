@@ -1,10 +1,22 @@
 import { TokenStreamData } from "@streamflow/timelock/dist/layout";
 
-const useStreamStore = (set: Function, get: Function) => ({
-  streams: {} as { [s: string]: TokenStreamData },
-  addStream: (id: string, stream: TokenStreamData) =>
-    set({ streams: { ...get().streams, [id]: stream } }),
-  deleteStream: (id: string) => {
+interface Streams {
+  [s: string]: TokenStreamData;
+}
+
+interface StreamStore {
+  streams: Streams;
+  addStream: (id: string, stream: TokenStreamData) => void;
+  addStreams: (newStreams: Streams) => void;
+  deleteStream: (id: string) => void;
+  clearStreams: () => void;
+}
+
+const useStreamStore = (set: Function, get: Function): StreamStore => ({
+  streams: {},
+  addStream: (id, stream) => set({ streams: { ...get().streams, [id]: stream } }),
+  addStreams: (newStreams) => set({ streams: { ...get().streams, ...newStreams } }),
+  deleteStream: (id) => {
     const streams = { ...get().streams };
     delete streams[id];
     set({ streams });

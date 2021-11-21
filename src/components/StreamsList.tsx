@@ -20,6 +20,7 @@ import { getTokenAmount } from "../utils/helpers";
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
   addStream: state.addStream,
+  addStreams: state.addStreams,
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
@@ -64,6 +65,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
   const {
     streams,
     addStream,
+    addStreams: addStreamsToStore,
     deleteStream,
     clearStreams,
     token,
@@ -72,7 +74,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     setToken,
     programId,
   } = useStore(storeGetter);
-
   const modalRef = useRef<ModalRef>(null);
 
   const publicKey = wallet.publicKey?.toBase58();
@@ -88,11 +89,15 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
-  const addStreams = (accounts: ProgramAccount[]) =>
+  const addStreams = (accounts: ProgramAccount[]) => {
+    let newStreams = {};
     accounts.forEach((account) => {
       const decoded = decode(account.account.data);
-      addStream(account.pubkey.toBase58(), decoded);
+      newStreams = { ...newStreams, [account.pubkey.toBase58()]: decoded };
     });
+
+    addStreamsToStore(newStreams);
+  };
 
   useEffect(() => {
     clearStreams();
