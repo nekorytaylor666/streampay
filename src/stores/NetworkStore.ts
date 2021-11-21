@@ -26,8 +26,8 @@ const programIds: { [s: string]: () => string | null } = {
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: WalletAdapterNetwork.Devnet as Cluster,
-  programId: programIds[WalletAdapterNetwork.Devnet]() as string,
+  cluster: WalletAdapterNetwork.Mainnet as Cluster,
+  programId: programIds[WalletAdapterNetwork.Mainnet]() as string,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),

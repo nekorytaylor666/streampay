@@ -38,6 +38,7 @@ module.exports = {
       colors: {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
+        ternary: "var(--ternary)",
       },
     },
   },

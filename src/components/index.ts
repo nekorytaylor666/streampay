@@ -18,3 +18,6 @@ export { default as Advanced } from "./Advanced";
 export { default as Toggle } from "./Toggle";
 export { default as Nav } from "./Nav";
 export { default as Header } from "./Header";
+export { default as Range } from "./Range";
+export { default as Modal } from "./Modal";
+export * from "./Modal";
