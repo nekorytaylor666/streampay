@@ -54,7 +54,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(({ title, text, type, confirm, ..
         visible ? "block" : "hidden"
       )}
     >
-      <div className="w-11/12 sm:w-2/5 xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-gradient-to-br to-ternary from-gray-800">
+      <div className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-gradient-to-br to-ternary from-gray-800">
         <p className="mb-2 text-center text-sm sm:text-base text-white">{title}</p>
         <p className="mb-2 text-center text-xs sm:text-sm text-white">{text}</p>
         {isRangeInput && (
