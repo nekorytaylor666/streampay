@@ -45,7 +45,7 @@ export default function Advanced({
 
   if (!endDate || !endTime) {
     return (
-      <span hidden={!visible} className="text-white">
+      <span hidden={!visible} className="text-white text-base">
         Please specify start and end time.
       </span>
     );
