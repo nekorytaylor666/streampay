@@ -108,8 +108,13 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
     myAddress === sender.toBase58();
 
   const handleWithdraw = async () => {
-    const withdrawAmount = await modalRef?.current?.show();
+    let withdrawAmount = (await modalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
+
+    if (withdrawAmount === roundAmount(available, decimals)) {
+      //max
+      withdrawAmount = 0;
+    }
 
     const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
       stream: new PublicKey(id),
