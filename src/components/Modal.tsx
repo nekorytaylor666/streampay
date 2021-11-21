@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, useEffect } from "react";
 
 import cx from "classnames";
 
@@ -22,7 +22,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(({ title, text, type, confirm, ..
   const [visible, setVisible] = useState(false);
   const [modalInfo, setModalInfo] = useState<{ resolve?: any }>({});
 
-  const isRangeInput = "max" in rest;
+  const isRangeInput = "min" in rest;
   const isTextInput = "placeholder" in rest;
   const defaultValue = isRangeInput ? rest.max : "";
   const [value, setValue] = useState(defaultValue);
@@ -47,6 +47,10 @@ const Modal = forwardRef<ModalRef, ModalProps>(({ title, text, type, confirm, ..
     setValue(defaultValue);
   };
 
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
+
   return (
     <div
       className={cx(
@@ -69,7 +73,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(({ title, text, type, confirm, ..
             value={value}
             onChange={(e) => setValue(e.target.value)}
             type={type}
-            // {...rest}
+            {...rest}
             className="text-white py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-800 border-primary block w-full rounded-md focus:ring-primary focus:border-primary"
           />
         )}
