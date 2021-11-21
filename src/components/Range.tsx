@@ -11,7 +11,6 @@ const Range: FC<RangeProps> = ({ min, max, value, onChange }) => (
   <div className="grid grid-cols-4 gap-2">
     <input
       type="number"
-      id="staa"
       step={0.1}
       value={value}
       onChange={(e) => onChange(parseFloat(e.target.value))}
