@@ -19,23 +19,28 @@ const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: S
 });
 
 interface AccountProps {
-  loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-const Account: FC<AccountProps> = ({ loading, setLoading }) => {
+const Account: FC<AccountProps> = ({ setLoading }) => {
   const [airdropTxSignature, setAirdropTxSignature] = useState<string | undefined>(undefined);
   const { connection, wallet, isMainnet, disconnectWallet, token } = useStore(storeGetter);
+  const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
 
   useEffect(() => {
     if (airdropTxSignature && connection) {
-      connection.confirmTransaction(airdropTxSignature, TX_FINALITY_CONFIRMED).then((result) => {
-        if (result.value.err) {
-          toast.error("Airdrop failed!");
-        } else {
-          toast.success("Airdrop confirmed!");
-        }
-      });
+      connection.confirmTransaction(airdropTxSignature, TX_FINALITY_CONFIRMED).then(
+        (result) => {
+          if (result.value.err) {
+            toast.error("Airdrop failed!");
+          } else {
+            toast.success("Airdrop confirmed!");
+          }
+
+          setTimeout(() => setIsGimmeSolDisabled(false), 6000);
+        },
+        () => toast.warning("Airdrop was not confirmed!")
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [airdropTxSignature]);
@@ -46,14 +51,26 @@ const Account: FC<AccountProps> = ({ loading, setLoading }) => {
       return;
     }
     setLoading(true);
-    const signature = await connection.requestAirdrop(
-      wallet.publicKey,
-      AIRDROP_AMOUNT * LAMPORTS_PER_SOL
-    );
+    setIsGimmeSolDisabled(true);
+    try {
+      const signature = await connection.requestAirdrop(
+        wallet.publicKey,
+        AIRDROP_AMOUNT * LAMPORTS_PER_SOL
+      );
+      setAirdropTxSignature(signature);
 
-    setAirdropTxSignature(signature);
-    setLoading(false);
-    toast.success("Airdrop requested!");
+      setLoading(false);
+      toast.success("Airdrop requested!");
+    } catch (error) {
+      setLoading(false);
+      setIsGimmeSolDisabled(false);
+
+      if ((error as Error).message.includes("429")) {
+        toast.error("Airdrop failed! Too many requests");
+      } else {
+        toast.error("Airdrop failed!");
+      }
+    }
   }
 
   const walletPubKey = wallet?.publicKey?.toBase58();
@@ -96,7 +113,7 @@ const Account: FC<AccountProps> = ({ loading, setLoading }) => {
             classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
               hidden: isMainnet,
             })}
-            disabled={loading}
+            disabled={isGimmeSolDisabled}
           >
             Gimme SOL!
           </Button>

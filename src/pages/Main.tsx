@@ -36,7 +36,7 @@ const Main = () => {
     <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
       <div>
         <Curtain visible={loading} />
-        {wallet?.connected && <Account loading={loading} setLoading={setLoading} />}
+        {wallet?.connected && <Account setLoading={setLoading} />}
         <CreateStreamForm loading={loading} setLoading={setLoading} />
       </div>
       <div>

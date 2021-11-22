@@ -45,6 +45,7 @@ module.exports = {
   variants: {
     extend: {
       backgroundColor: ["active", "hover", "odd"],
+      opacity: ["disabled"],
     },
   },
   plugins: [require("@tailwindcss/forms")],
