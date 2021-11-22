@@ -2,7 +2,12 @@ import Timelock from "@streamflow/timelock";
 import { toast } from "react-toastify";
 
 import ToastrLink from "../components/ToastrLink";
-import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from "../constants";
+import {
+  ERR_NOT_CONNECTED,
+  ProgramInstruction,
+  TX_FINALITY_FINALIZED,
+  ERR_NO_PRIOR_CREDIT,
+} from "../constants";
 import useStore from "../stores";
 import {
   CancelStreamData,
@@ -99,10 +104,13 @@ export default async function sendTransaction(
     );
     return true;
   } catch (e: any) {
-    console.log(e);
-    console.warn(e);
     //todo log these errors somewhere for our reference
-    toast.error("Error: " + e.message);
+    let errorMsg = e.message;
+    if (e.message.includes("Owner cannot sign")) errorMsg = "Recipient can not sign!";
+    else if (e.message.includes(ERR_NO_PRIOR_CREDIT)) errorMsg = ERR_NO_PRIOR_CREDIT;
+
+    toast.error(errorMsg);
+    console.error("error", e);
     return false;
   }
 }

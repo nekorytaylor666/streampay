@@ -33,6 +33,8 @@ export const ERR_NO_STREAM = "Specified stream doesn't exist. Please double chec
 export const ERR_NOT_CONNECTED =
   "There was an issue with the connection - please try to refresh the page.";
 export const ERR_NO_TOKEN_SELECTED = "Please select the token";
+export const ERR_NO_PRIOR_CREDIT =
+  "Attempt to debit an account but found no record of a prior credit.";
 
 export const PRODUCT_VESTING = "vesting";
 export const PRODUCT_STREAMS = "streams";
