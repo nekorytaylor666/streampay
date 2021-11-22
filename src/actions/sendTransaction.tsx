@@ -107,7 +107,10 @@ export default async function sendTransaction(
     //todo log these errors somewhere for our reference
     let errorMsg = e.message;
     if (e.message.includes("Owner cannot sign")) errorMsg = "Recipient can not sign!";
-    else if (e.message.includes(ERR_NO_PRIOR_CREDIT)) errorMsg = ERR_NO_PRIOR_CREDIT;
+    else if (
+      e.message.includes("Attempt to debit an account but found no record of a prior credit.")
+    )
+      errorMsg = ERR_NO_PRIOR_CREDIT;
 
     toast.error(errorMsg);
     console.error("error", e);
