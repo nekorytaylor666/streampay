@@ -34,7 +34,7 @@ export const ERR_NOT_CONNECTED =
   "There was an issue with the connection - please try to refresh the page.";
 export const ERR_NO_TOKEN_SELECTED = "Please select the token";
 export const ERR_NO_PRIOR_CREDIT =
-  "You don't have enough SOLs in your wallet to pay for transaction fees.";
+  "You don't have enough SOL in your wallet to pay for transaction fees.";
 
 export const PRODUCT_VESTING = "vesting";
 export const PRODUCT_STREAMS = "streams";
