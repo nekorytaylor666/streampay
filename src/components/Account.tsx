@@ -37,7 +37,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             toast.success("Airdrop confirmed!");
           }
 
-          setTimeout(() => setIsGimmeSolDisabled(false), 6000);
+          setTimeout(() => setIsGimmeSolDisabled(false), 7000);
         },
         () => toast.warning("Airdrop was not confirmed!")
       );
