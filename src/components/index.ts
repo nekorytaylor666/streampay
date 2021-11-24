@@ -21,3 +21,5 @@ export { default as Header } from "./Header";
 export { default as Range } from "./Range";
 export { default as Modal } from "./Modal";
 export * from "./Modal";
+export { default as Checkbox } from "./Checkbox";
+export { default as Input } from "./Input";

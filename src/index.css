@@ -18,6 +18,14 @@ body {
   font-size: large;
 }
 
+input[type="checkbox"] {
+  color: var(--primary);
+}
+
+input[type="checkbox"]:focus {
+  --tw-ring-offset-width: 0;
+}
+
 /* Hide input number arrows */
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,

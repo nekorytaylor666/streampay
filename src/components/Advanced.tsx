@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { format } from "date-fns";
 
 import { DateTime } from "./index";
@@ -20,8 +18,6 @@ export default function Advanced({
   updateCliffDate,
   updateCliffTime,
   updateCliffAmount,
-  updateTimePeriod,
-  updateTimePeriodMultiplier,
 }: {
   visible: boolean;
   token: Token;
@@ -40,8 +36,6 @@ export default function Advanced({
   updateTimePeriodMultiplier: (value: number) => void;
 }) {
   const ticker = token?.info?.symbol ? token.info.symbol.toUpperCase() : "";
-
-  const [s, setS] = useState(timePeriodMultiplier > 1 ? "s" : "");
 
   if (!endDate || !endTime) {
     return (
@@ -86,40 +80,6 @@ export default function Advanced({
             className="text-white mt-1 pr-6 pl-2.5 sm:pl-3 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
           />
           <span className="absolute text-white right-2 sm:right-3 bottom-2">%</span>
-        </div>
-        <div className="col-span-4 grid gap-x-1 sm:gap-x-2 grid-cols-4">
-          <label className="block text-base mb-1 font-medium text-gray-100 capitalize col-span-4">
-            Release Frequency
-          </label>
-          <input
-            type="number"
-            min={1}
-            value={timePeriodMultiplier.toString()}
-            onChange={(e) => {
-              updateTimePeriodMultiplier(Number(e.target.value));
-              setS(Number(e.target.value) > 1 ? "s" : "");
-            }}
-            onBlur={(e) => {
-              if (!Number(e.target.value)) {
-                updateTimePeriodMultiplier(1);
-              }
-            }}
-            className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-1 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
-          />
-          <select
-            value={timePeriod}
-            onChange={(e) => updateTimePeriod(Number(e.target.value))}
-            className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-2 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-7"
-          >
-            <option value={1}>second{s}</option>
-            <option value={60}>minute{s}</option>
-            <option value={60 * 60}>hour{s}</option>
-            <option value={60 * 60 * 24}>day{s}</option>
-            <option value={60 * 60 * 24 * 7}>week{s}</option>
-            {/*  imprecise */}
-            <option value={60 * 60 * 24 * 30}>month{s}</option>
-            <option value={60 * 60 * 24 * 365}>year{s}</option>
-          </select>
         </div>
       </div>
       <p hidden={!visible} className="text-gray-400 pt-2 mt-4 text-sm leading-6">

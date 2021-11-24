@@ -50,6 +50,11 @@ export default async function sendTransaction(
           d.period,
           d.cliff,
           d.cliff_amount
+          // d.release_rate,
+          // d.cancelable_by_sender,
+          // d.cancelable_by_recipient,
+          // d.transferable,
+          // d.stream_name
         );
         break;
       case ProgramInstruction.Withdraw:
