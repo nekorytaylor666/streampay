@@ -6,7 +6,9 @@ import { BN } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { getUnixTime } from "date-fns";
 import { toast } from "react-toastify";
+import { format } from "date-fns";
 
+import { formatPeriodOfTime } from "../utils/helpers";
 import sendTransaction from "../actions/sendTransaction";
 import {
   END,
@@ -94,6 +96,13 @@ export default function CreateStreamForm({
   const { connection, wallet, addStream, token, setToken, myTokenAccounts, setMyTokenAccounts } =
     useStore(storeGetter);
 
+  const ticker = token?.info?.symbol ? token.info.symbol.toUpperCase() : "";
+
+  const lengthSeconds =
+    (+new Date(endDate + "T" + endTime) - +new Date(cliffDate + "T" + cliffTime)) / 1000;
+  const numPeriods = lengthSeconds / (timePeriodMultiplier * timePeriod);
+  const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
+
   async function validate(element: HTMLFormElement): Promise<string> {
     const { name, value } = element;
     let start, end, cliff;
@@ -169,7 +178,8 @@ export default function CreateStreamForm({
     }
     return msg;
   }
-
+  console.log("end", endDate);
+  console.log("end", endTime);
   async function createStream(e: any) {
     e.preventDefault();
 
@@ -367,37 +377,75 @@ export default function CreateStreamForm({
         />
       </div>
       <Toggle enabled={advanced} setEnabled={setAdvanced} labelRight="Advanced" />
-      {advanced && (
-        <div className="my-4 grid gap-3 sm:gap-4 grid-cols-5">
-          <DateTime
-            title="cliff"
-            date={cliffDate}
-            updateDate={setCliffDate}
-            time={cliffTime}
-            updateTime={setCliffTime}
-            classes="col-span-2 sm:col-span-2"
-          />
-          <div className="col-span-1 relative">
-            <label
-              htmlFor="cliff_amount"
-              className="block text-base font-medium text-gray-100 capitalize"
-            >
-              Release
-            </label>
-            <input
-              id="cliff_amount"
-              name="cliff_amount"
-              type="number"
-              min={0}
-              max={100}
-              value={cliffAmount.toString()}
-              onChange={(e) => setCliffAmount(Number(e.target.value))}
-              className="text-white mt-1 pr-6 pl-2.5 sm:pl-3 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
-            />
-            <span className="absolute text-white right-2 sm:right-3 bottom-2">%</span>
-          </div>
-        </div>
-      )}
+      {advanced &&
+        (!endDate || !endTime ? (
+          <span className="text-white text-base">Please specify start and end time.</span>
+        ) : (
+          <>
+            <div className="my-4 grid gap-3 sm:gap-4 grid-cols-5">
+              <DateTime
+                title="cliff"
+                date={cliffDate}
+                updateDate={setCliffDate}
+                time={cliffTime}
+                updateTime={setCliffTime}
+                classes="col-span-2 sm:col-span-2"
+              />
+              <div className="col-span-1 relative">
+                <label
+                  htmlFor="cliff_amount"
+                  className="block text-base font-medium text-gray-100 capitalize"
+                >
+                  Release
+                </label>
+                <input
+                  id="cliff_amount"
+                  name="cliff_amount"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={cliffAmount.toString()}
+                  onChange={(e) => setCliffAmount(Number(e.target.value))}
+                  className="text-white mt-1 pr-6 pl-2.5 sm:pl-3 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+                />
+                <span className="absolute text-white right-2 sm:right-3 bottom-2">%</span>
+              </div>
+            </div>
+            <div className="col-span-full">
+              <p className="text-gray-400 pt-2 mt-4 text-sm leading-6">
+                <b className="font-bold block">Overview:</b>
+                First
+                <span className="text-white text-sm">
+                  {` ${cliffAmount}% (${(((amount || 0) * cliffAmount) / 100).toFixed(
+                    2
+                  )} ${ticker}) `}
+                </span>
+                <br className="sm:hidden" />
+                released on
+                <span className="text-white text-sm">{` ${cliffDate} `}</span>at
+                <span className="text-white text-sm">{` ${cliffTime}`}</span>.
+              </p>
+              <p className="text-gray-400 text-sm leading-6 sm:inline-block">
+                And then
+                <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% (${(
+                  (amount || 0) * releaseRate
+                ).toFixed(2)} ${ticker}) `}</span>
+                <br className="sm:hidden" />
+                released every
+                <span className="text-white text-sm">{` ${formatPeriodOfTime(
+                  timePeriod * timePeriodMultiplier
+                )} `}</span>
+                <br />
+                until
+                <span className="text-white text-sm">{` ${format(
+                  new Date(endDate + "T" + endTime),
+                  "ccc do MMM, yyyy - HH:mm"
+                )}`}</span>
+                .
+              </p>
+            </div>
+          </>
+        ))}
       {wallet?.connected ? (
         <Button
           type="submit"
