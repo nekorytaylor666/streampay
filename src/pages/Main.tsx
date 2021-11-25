@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Account, CreateStreamForm, Curtain } from "../components";
 import EmptyStreams from "../components/EmptyStreams";
+import StreamsForm from "./StreamsPage/StreamsForm";
 import StreamsList from "../components/StreamsList";
 import useStore, { StoreType } from "../stores";
 import { getTokenAccounts } from "../utils/helpers";
@@ -16,7 +17,7 @@ const storeGetter = (state: StoreType) => ({
   myTokenAccounts: state.myTokenAccounts,
 });
 
-const Main = () => {
+const Main = ({ page }: { page: "vesting" | "streams" }) => {
   const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
     useStore(storeGetter);
   const [loading, setLoading] = useState(false);
@@ -36,8 +37,12 @@ const Main = () => {
     <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
       <div>
         <Curtain visible={loading} />
-        {wallet?.connected && <Account loading={loading} setLoading={setLoading} />}
-        <CreateStreamForm loading={loading} setLoading={setLoading} />
+        {wallet?.connected && <Account setLoading={setLoading} />}
+        {page === "vesting" ? (
+          <CreateStreamForm loading={loading} setLoading={setLoading} />
+        ) : (
+          <StreamsForm />
+        )}
       </div>
       <div>
         {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (

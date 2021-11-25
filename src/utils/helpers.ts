@@ -56,6 +56,15 @@ const ourTokens = [
       "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
     tags: [],
   },
+  {
+    chainId: 103, //devnet
+    address: "3AYtArG2AEsi29ZuwiCqk78ZYG6Fd9Tvf2oVodewvbKZ", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "DULE",
+    name: "DULE",
+    decimals: 9, //default is 9
+    logoURI: "https://streamflow.finance/public/img/solana.png",
+    tags: [],
+  },
 ];
 
 export const getTokenAccounts = async (

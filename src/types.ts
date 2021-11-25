@@ -32,6 +32,11 @@ export interface CreateStreamData {
   mint: PublicKey;
   recipient: PublicKey;
   new_stream_keypair: Keypair;
+  cancelable_by_sender: boolean;
+  cancelable_by_recipient: boolean;
+  transferable: boolean;
+  release_rate: BN;
+  stream_name: string;
 }
 
 export interface WithdrawStreamData {
@@ -51,6 +56,8 @@ export interface CancelStreamData {
 export interface CreateStreamsFormType {
   amount: number;
   setAmount: (value: number) => void;
+  subject: string;
+  setSubject: (value: string) => void;
   receiver: string;
   setReceiver: (value: string) => void;
   startDate: string;
@@ -71,8 +78,12 @@ export interface CreateStreamsFormType {
   setTimePeriod: (value: number) => void;
   timePeriodMultiplier: number;
   setTimePeriodMultiplier: (value: number) => void;
-  advanced: any;
-  setAdvanced: any; //todo add correct type.
+  senderCanCancel: boolean;
+  setSenderCanCancel: (value: boolean) => void;
+  recipientCanCancel: boolean;
+  setRecipientCanCancel: (value: boolean) => void;
+  ownershipTransferable: boolean;
+  setOwnershipTransferable: (value: boolean) => void;
 }
 
 export interface TokenAccount {

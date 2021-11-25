@@ -1,11 +1,7 @@
-import StreamsForm from "./StreamsForm";
+import Main from "../Main";
 
 const StreamsPage = () => {
-  return (
-    <div className="ml-80 sm:w-1/3">
-      <StreamsForm />
-    </div>
-  );
+  return <Main page="streams" />;
 };
 
 export default StreamsPage;

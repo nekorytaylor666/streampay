@@ -4,8 +4,10 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { format } from "date-fns";
+import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
+import useStore, { StoreType } from "../../stores";
 // import { parseDateString } from "../../utils/helpers";
 
 export interface StreamsFormData {
@@ -37,7 +39,27 @@ export const defaultValues = {
   ownershipTransferable: false,
 };
 
+const isRecipientAddressInvalid = async (address: string, connection: Connection | null) => {
+  let pubKey = null;
+
+  try {
+    pubKey = new PublicKey(address || "");
+  } catch {
+    return true;
+  }
+
+  const recipientAddress = await connection?.getAccountInfo(pubKey);
+  if (recipientAddress == null) return false;
+  if (!recipientAddress.owner.equals(SystemProgram.programId)) return true;
+  if (recipientAddress.executable) return true;
+  return false;
+};
+
 export const useStreamsForm = () => {
+  const { connection } = useStore((state: StoreType) => ({
+    connection: state.connection(),
+  }));
+
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
@@ -49,7 +71,12 @@ export const useStreamsForm = () => {
           .max(100, ""),
         subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
         // token: yup.string().required(ERRORS.token_required),
-        recipient: yup.string().required(ERRORS.recipient_required),
+        recipient: yup
+          .string()
+          .required(ERRORS.recipient_required)
+          .test("address_validation", ERRORS.invalid_address, async (address) =>
+            isRecipientAddressInvalid(address || "", connection)
+          ),
         startDate: yup.string().required(ERRORS.start_date_required),
         //   .min(ERRORS.start_date_is_in_the_past)
         // .max(ERRORS), // transform(parseDateString),
@@ -66,7 +93,7 @@ export const useStreamsForm = () => {
         recipientCanCancel: yup.bool().required(),
         ownershipTransferable: yup.bool().required(),
       }),
-    []
+    [connection]
   );
 
   const {

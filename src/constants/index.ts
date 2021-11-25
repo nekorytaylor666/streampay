@@ -33,6 +33,8 @@ export const ERR_NO_STREAM = "Specified stream doesn't exist. Please double chec
 export const ERR_NOT_CONNECTED =
   "There was an issue with the connection - please try to refresh the page.";
 export const ERR_NO_TOKEN_SELECTED = "Please select the token";
+export const ERR_NO_PRIOR_CREDIT =
+  "You don't have enough SOL in your wallet to pay for transaction fees.";
 
 export const PRODUCT_VESTING = "vesting";
 export const PRODUCT_STREAMS = "streams";
@@ -66,6 +68,8 @@ export const ERRORS = {
   start_data_too_ahead: "Start date can happen in ",
   start_time_required: "Start time is required.",
   deposited_amount_required: "Deposited amount is required.",
+  invalid_address: "Please enter a valid Solana wallet address.",
+  adress_is_a_program: "Address cannot be a program.",
 };
 
 export const timePeriodOptions = [

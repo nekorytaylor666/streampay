@@ -16,16 +16,18 @@ export default function Toggle({
   classes,
 }: {
   enabled: boolean;
-  labelLeft: string;
+  labelLeft?: string;
   labelRight?: string;
   setEnabled: Dispatch<SetStateAction<any>>;
   classes?: string;
 }) {
   return (
-    <Switch.Group as="div" className={cx(classes, "flex items-center")}>
-      <Switch.Label as="span" className="mr-2">
-        <span className="text-white  text-sm sm:text-base flex-grow">{labelLeft}</span>
-      </Switch.Label>
+    <Switch.Group as="div" className={cx(classes, "flex items-center mb-1")}>
+      {labelLeft && (
+        <Switch.Label as="span" className="mr-2">
+          <span className="text-white  text-sm sm:text-base flex-grow">{labelLeft}</span>
+        </Switch.Label>
+      )}
       <Switch
         checked={enabled}
         onChange={setEnabled}
@@ -42,7 +44,7 @@ export default function Toggle({
           )}
         />
       </Switch>
-      {!!labelRight && (
+      {labelRight && (
         <Switch.Label as="span" className="mr-4 ml-2">
           <span className="text-white text-sm sm:text-base flex-grow">{labelRight}</span>
         </Switch.Label>
