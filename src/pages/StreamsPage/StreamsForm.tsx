@@ -59,7 +59,13 @@ const StreamsForm = () => {
         error={errors?.depositedAmount?.message}
         {...register("depositedAmount")}
       />
-
+      <Input type="checkbox" label="Sender can cancel?" {...register("senderCanCancel")} />
+      <Input type="checkbox" label="Recipient can cancel?" {...register("recipientCanCancel")} />
+      <Input
+        type="checkbox"
+        label="Ownership transferable?"
+        {...register("ownershipTransferable")}
+      />
       <Button type="submit" primary classes="px-8 py-4 font-bold text-2xl my-5">
         Create
       </Button>

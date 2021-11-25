@@ -16,6 +16,9 @@ export interface StreamsFormData {
   startDate: string;
   startTime: string;
   depositedAmount: number;
+  senderCanCancel: boolean;
+  recipientCanCancel: boolean;
+  ownershipTransferable: boolean;
   //   releaseFrequencyCounter: number;
   //   releaseFrequencyPeriod: string;
 }
@@ -27,6 +30,9 @@ export const defaultValues = {
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(new Date(), TIME_FORMAT),
   depositedAmount: undefined,
+  senderCanCancel: true,
+  recipientCanCancel: false,
+  ownershipTransferable: false,
 };
 
 export const useStreamsForm = () => {
@@ -52,6 +58,9 @@ export const useStreamsForm = () => {
           .required(ERRORS.deposited_amount_required)
           .moreThan(0, ERRORS.amount_greater_than)
           .max(100, ""),
+        senderCanCancel: yup.bool().required(),
+        recipientCanCancel: yup.bool().required(),
+        ownershipTransferable: yup.bool().required(),
       }),
     []
   );

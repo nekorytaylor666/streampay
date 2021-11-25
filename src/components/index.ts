@@ -20,5 +20,5 @@ export { default as Nav } from "./Nav";
 export { default as Header } from "./Header";
 export { default as Range } from "./Range";
 export { default as Modal } from "./Modal";
-export { default as Input } from "./Input";
 export * from "./Modal";
+export { default as Input } from "./Input";
