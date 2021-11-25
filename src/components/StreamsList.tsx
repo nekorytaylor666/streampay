@@ -3,7 +3,8 @@ import { useEffect, FC, useRef } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
+// @ts-ignore
+import { decode, TokenStreamData } from "timelock/dist/layout";
 import { toast } from "react-toastify";
 
 import { Stream, EmptyStreams, Modal, ModalRef } from ".";

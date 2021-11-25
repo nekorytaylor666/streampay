@@ -1,4 +1,5 @@
-import Timelock from "@streamflow/timelock";
+// @ts-ignore
+import Timelock from "timelock";
 import { toast } from "react-toastify";
 
 import ToastrLink from "../components/ToastrLink";
@@ -49,12 +50,13 @@ export default async function sendTransaction(
           d.end_time,
           d.period,
           d.cliff,
-          d.cliff_amount
-          // d.release_rate,
-          // d.cancelable_by_sender,
-          // d.cancelable_by_recipient,
-          // d.transferable,
-          // d.stream_name
+          d.cliff_amount,
+          d.cancelable_by_sender,
+          d.cancelable_by_recipient,
+          false,
+          d.transferable,
+          d.release_rate,
+          d.stream_name
         );
         break;
       case ProgramInstruction.Withdraw:

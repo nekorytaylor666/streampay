@@ -3,7 +3,8 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
+// @ts-ignore
+import { decode, TokenStreamData } from "timelock/dist/layout";
 
 import {
   EXPLORER_TYPE_ADDR,

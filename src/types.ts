@@ -32,11 +32,11 @@ export interface CreateStreamData {
   mint: PublicKey;
   recipient: PublicKey;
   new_stream_keypair: Keypair;
-  // d.release_rate: BN;
-  // cancelable_by_sender: boolean;
-  // cancelable_by_recipient: boolean;
-  // transferable: boolean;
-  // stream_name: string;
+  cancelable_by_sender: boolean;
+  cancelable_by_recipient: boolean;
+  transferable: boolean;
+  release_rate: BN;
+  stream_name: string;
 }
 
 export interface WithdrawStreamData {
