@@ -2,9 +2,9 @@ import { useEffect } from "react";
 
 import { format } from "date-fns";
 
-import { Input, Button } from "../../components";
+import { Input, Button, Select } from "../../components";
 import { useStreamsForm } from "./FormConfig";
-import { DATE_FORMAT } from "../../constants";
+import { DATE_FORMAT, timePeriodOptions } from "../../constants";
 
 const StreamsForm = () => {
   const { register, onSubmit, errors } = useStreamsForm();
@@ -59,6 +59,20 @@ const StreamsForm = () => {
         error={errors?.depositedAmount?.message}
         {...register("depositedAmount")}
       />
+      <Input
+        type="number"
+        label="Release"
+        min={1}
+        classes="col-span-2"
+        {...register("releaseFrequencyCounter")}
+      />
+      <Select
+        label="frequency"
+        options={timePeriodOptions}
+        classes="col-span-4"
+        {...register("releaseFrequencyPeriod")}
+      />
+
       <Input type="checkbox" label="Sender can cancel?" {...register("senderCanCancel")} />
       <Input type="checkbox" label="Recipient can cancel?" {...register("recipientCanCancel")} />
       <Input

@@ -22,3 +22,4 @@ export { default as Range } from "./Range";
 export { default as Modal } from "./Modal";
 export * from "./Modal";
 export { default as Input } from "./Input";
+export { default as Select } from "./Select";

@@ -67,3 +67,13 @@ export const ERRORS = {
   start_time_required: "Start time is required.",
   deposited_amount_required: "Deposited amount is required.",
 };
+
+export const timePeriodOptions = [
+  { value: 1, label: "second" },
+  { value: 60, label: "minute" },
+  { value: 3600, label: "hour" },
+  { value: 86400, label: "day" },
+  { value: 604800, label: "week" },
+  { value: 2592000, label: "month" },
+  { value: 31536000, label: "year" },
+];

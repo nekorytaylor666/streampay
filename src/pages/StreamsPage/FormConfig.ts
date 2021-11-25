@@ -5,7 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { format } from "date-fns";
 
-import { ERRORS, DATE_FORMAT, TIME_FORMAT } from "../../constants";
+import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 // import { parseDateString } from "../../utils/helpers";
 
 export interface StreamsFormData {
@@ -16,11 +16,11 @@ export interface StreamsFormData {
   startDate: string;
   startTime: string;
   depositedAmount: number;
+  releaseFrequencyCounter: number;
   senderCanCancel: boolean;
   recipientCanCancel: boolean;
   ownershipTransferable: boolean;
-  //   releaseFrequencyCounter: number;
-  //   releaseFrequencyPeriod: string;
+  releaseFrequencyPeriod: number;
 }
 
 export const defaultValues = {
@@ -30,6 +30,8 @@ export const defaultValues = {
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(new Date(), TIME_FORMAT),
   depositedAmount: undefined,
+  releaseFrequencyCounter: 1,
+  releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
   ownershipTransferable: false,
@@ -58,6 +60,8 @@ export const useStreamsForm = () => {
           .required(ERRORS.deposited_amount_required)
           .moreThan(0, ERRORS.amount_greater_than)
           .max(100, ""),
+        releaseFrequencyCounter: yup.number().required(),
+        releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
         ownershipTransferable: yup.bool().required(),

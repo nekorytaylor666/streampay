@@ -4,7 +4,7 @@ import cx from "classnames";
 
 interface InputProps {
   type: "text" | "number" | "date" | "time" | "checkbox";
-  label: string;
+  label?: string;
   name: string;
   placeholder?: string;
   classes?: string;
@@ -14,7 +14,7 @@ interface InputProps {
 }
 
 const Input: FC<InputProps> = forwardRef<any, InputProps>(
-  ({ type, label, name, error = "", classes = "", ...rest }, ref) =>
+  ({ type, label = "", name, error = "", classes = "", ...rest }, ref) =>
     type === "checkbox" ? (
       <div className="col-span-full">
         <label className="text-white text-sm sm:text-base cursor-pointer">
