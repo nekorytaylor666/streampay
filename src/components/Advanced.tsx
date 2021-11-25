@@ -136,7 +136,8 @@ export default function Advanced({
       <p hidden={!visible} className="text-gray-400 text-sm mt-2 leading-6 sm:inline-block">
         And then
         <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% (${(
-          amount * releaseRate
+          (amount * releaseRate) /
+          100
         ).toFixed(2)} ${ticker}) `}</span>
         <br className="sm:hidden" />
         released every
