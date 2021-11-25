@@ -5,10 +5,11 @@ import type { TokenInfo } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
+import { format } from "date-fns";
 
 import useStore from "../stores";
 import { Cluster } from "../types";
-import { DEFAULT_DECIMAL_PLACES } from "../constants";
+import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -162,3 +163,13 @@ export const formatPeriodOfTime = (period: number) => {
   const seconds = period / PERIOD.SECOND;
   if (Math.floor(seconds)) return `${seconds} second${isMoreThanOne(seconds)}`;
 };
+
+// export const parseDateString = (value: Date, originalValue: string) => {
+//   const parsedDate = isDate(originalValue)
+//     ? originalValue
+//     : parse(originalValue, "yyyy-MM-dd", new Date());
+
+//   return parsedDate;
+// };
+
+export const formatCurrentDate = () => format(new Date(), DATE_FORMAT);

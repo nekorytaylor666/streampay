@@ -56,6 +56,14 @@ export const DEFAULT_DECIMAL_PLACES = 3;
 
 export const ERRORS = {
   amount_required: "Amount is required.",
+  amount_greater_than: "Please provide amount greater than 0.",
   token_required: "Token is required.",
   recipient_required: "You must choose a recipient.",
+  subject_required: "Please provide subject (title).",
+  subject_max: "Title can have maximum of 30 characters.",
+  start_date_required: "Start date is required.",
+  start_date_is_in_the_past: "Start date must be in future.",
+  start_data_too_ahead: "Start date can happen in ",
+  start_time_required: "Start time is required.",
+  deposited_amount_required: "Deposited amount is required.",
 };

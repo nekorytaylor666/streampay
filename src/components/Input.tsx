@@ -3,20 +3,20 @@ import { FC, forwardRef } from "react";
 import cx from "classnames";
 
 interface InputProps {
-  type: "text" | "number";
+  type: "text" | "number" | "date" | "time";
   label: string;
   name: string;
   placeholder?: string;
   classes?: string;
-  min?: number;
-  max?: number;
+  min?: string | number;
+  max?: string | number;
   error?: string;
 }
 
 const Input: FC<InputProps> = forwardRef<any, InputProps>(
   ({ label, name, error = "", classes = "", ...rest }, ref) => (
-    <div className={cx(classes, "col-span-full")}>
-      <label htmlFor={name} className="block text-base font-medium text-gray-100">
+    <div className={cx(classes)}>
+      <label htmlFor={name} className="block text-base font-medium text-gray-100 mb-1">
         {label}
       </label>
       <input
