@@ -38,12 +38,14 @@ module.exports = {
       colors: {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
+        ternary: "var(--ternary)",
       },
     },
   },
   variants: {
     extend: {
       backgroundColor: ["active", "hover", "odd"],
+      opacity: ["disabled"],
     },
   },
   plugins: [require("@tailwindcss/forms")],

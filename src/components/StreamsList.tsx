@@ -1,14 +1,12 @@
-import { useEffect, FC } from "react";
+import { useEffect, FC, useRef } from "react";
 
-import { BN } from "@project-serum/anchor";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
 import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
 import { toast } from "react-toastify";
-import swal from "sweetalert";
 
-import { Stream, EmptyStreams } from ".";
+import { Stream, EmptyStreams, Modal, ModalRef } from ".";
 import sendTransaction from "../actions/sendTransaction";
 import {
   ProgramInstruction,
@@ -17,12 +15,12 @@ import {
   TX_FINALITY_CONFIRMED,
 } from "../constants";
 import useStore, { StoreType } from "../stores";
-import { Token } from "../types";
 import { getTokenAmount } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
   addStream: state.addStream,
+  addStreams: state.addStreams,
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
@@ -67,6 +65,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
   const {
     streams,
     addStream,
+    addStreams: addStreamsToStore,
     deleteStream,
     clearStreams,
     token,
@@ -75,10 +74,11 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     setToken,
     programId,
   } = useStore(storeGetter);
+  const modalRef = useRef<ModalRef>(null);
 
   const publicKey = wallet.publicKey?.toBase58();
 
-  const updateToken = async (connection: Connection, wallet: Wallet, token: Token) => {
+  const updateToken = async () => {
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
 
@@ -89,11 +89,15 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
-  const addStreams = (accounts: ProgramAccount[]) =>
+  const addStreams = (accounts: ProgramAccount[]) => {
+    let newStreams = {};
     accounts.forEach((account) => {
       const decoded = decode(account.account.data);
-      addStream(account.pubkey.toBase58(), decoded);
+      newStreams = { ...newStreams, [account.pubkey.toBase58()]: decoded };
     });
+
+    addStreamsToStore(newStreams);
+  };
 
   useEffect(() => {
     clearStreams();
@@ -111,22 +115,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function withdrawStream(id: string) {
-    const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
-      stream: new PublicKey(id),
-      amount: new BN(0), //TODO: enable withdrawing arbitrary amount via UI
-    });
-
-    if (isWithdrawn) {
-      const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
-
-      if (stream) {
-        updateToken(connection, wallet, token);
-        addStream(id, decode(stream.data));
-      }
-    }
-  }
-
   async function cancelStream(id: string) {
     const isCancelled = await sendTransaction(ProgramInstruction.Cancel, {
       stream: new PublicKey(id),
@@ -135,7 +123,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     if (isCancelled) {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
-        updateToken(connection, wallet, token);
+        updateToken();
         addStream(id, decode(stream.data));
       }
     }
@@ -144,29 +132,22 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
   }
 
   async function transferStream(id: string) {
-    const input = await swal({
-      title: "Transfer recipient:",
-      content: {
-        element: "input",
-        attributes: {
-          placeholder: "New recipient address",
-          type: "text",
-        },
-      },
-    });
+    const newRecipientAddress = await modalRef?.current?.show();
 
-    try {
-      const newRecipient = new PublicKey(input);
-      const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
-        stream: new PublicKey(id),
-        new_recipient: new PublicKey(newRecipient),
-      });
-      if (success) {
-        toast.success("Stream transferred to " + input);
-        deleteStream(id); //todo: let's keep it there, just as readonly.
+    if (newRecipientAddress !== undefined) {
+      try {
+        const newRecipient = new PublicKey(newRecipientAddress);
+        const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
+          stream: new PublicKey(id),
+          new_recipient: new PublicKey(newRecipient),
+        });
+        if (success) {
+          toast.success("Stream transferred to " + newRecipientAddress);
+          deleteStream(id); //todo: let's keep it there, just as readonly.
+        }
+      } catch (e) {
+        toast.error("Invalid address");
       }
-    } catch (e) {
-      toast.error("Invalid address");
     }
   }
 
@@ -177,14 +158,21 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
       {sortStreams(streams).map(([id, data]) => (
         <Stream
           key={id}
-          onWithdraw={() => withdrawStream(id)}
           onCancel={() => cancelStream(id)}
           onTransfer={() => transferStream(id)}
+          onWithdraw={updateToken}
           id={id}
           data={data}
           myAddress={wallet?.publicKey?.toBase58() as string}
         />
       ))}
+      <Modal
+        ref={modalRef}
+        title="Transfer recipient:"
+        type="text"
+        placeholder="Recipient address"
+        confirm={{ color: "blue", text: "Transfer" }}
+      />
     </>
   );
 };

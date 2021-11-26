@@ -33,6 +33,8 @@ export const ERR_NO_STREAM = "Specified stream doesn't exist. Please double chec
 export const ERR_NOT_CONNECTED =
   "There was an issue with the connection - please try to refresh the page.";
 export const ERR_NO_TOKEN_SELECTED = "Please select the token";
+export const ERR_NO_PRIOR_CREDIT =
+  "You don't have enough SOL in your wallet to pay for transaction fees.";
 
 export const PRODUCT_VESTING = "vesting";
 export const PRODUCT_STREAMS = "streams";
@@ -51,3 +53,5 @@ export const STREAM_STATUS_COLOR = {
 
 export const TIMELOCK_STRUCT_OFFSET_SENDER = 48;
 export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 112;
+
+export const DEFAULT_DECIMAL_PLACES = 3;

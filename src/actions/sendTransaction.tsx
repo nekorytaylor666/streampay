@@ -2,7 +2,12 @@ import Timelock from "@streamflow/timelock";
 import { toast } from "react-toastify";
 
 import ToastrLink from "../components/ToastrLink";
-import { ERR_NOT_CONNECTED, ProgramInstruction, TX_FINALITY_FINALIZED } from "../constants";
+import {
+  ERR_NOT_CONNECTED,
+  ProgramInstruction,
+  TX_FINALITY_FINALIZED,
+  ERR_NO_PRIOR_CREDIT,
+} from "../constants";
 import useStore from "../stores";
 import {
   CancelStreamData,
@@ -22,7 +27,6 @@ export default async function sendTransaction(
   const programId = useStore.getState().programId;
 
   let d;
-  console.log("cnwl", connection, wallet);
   try {
     if (wallet?.publicKey === null || !connection) {
       throw new Error(ERR_NOT_CONNECTED);
@@ -32,16 +36,6 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        console.log("sending this data: ", {
-          start_time: d.start_time.toString(),
-          end_time: d.end_time.toString(),
-          deposited_amount: d.deposited_amount.toString(),
-          period: d.period.toString(),
-          cliff: d.cliff.toString(),
-          cliff_amount: d.cliff_amount.toString(),
-          recipient: d.recipient.toString(),
-          mint: d.mint.toString(),
-        });
         tx = await Timelock.create(
           connection,
           // @ts-ignore
@@ -110,10 +104,16 @@ export default async function sendTransaction(
     );
     return true;
   } catch (e: any) {
-    console.log(e);
-    console.warn(e);
     //todo log these errors somewhere for our reference
-    toast.error("Error: " + e.message);
+    let errorMsg = e.message;
+    if (e.message.includes("Owner cannot sign")) errorMsg = "Recipient can not sign!";
+    else if (
+      e.message.includes("Attempt to debit an account but found no record of a prior credit.")
+    )
+      errorMsg = ERR_NO_PRIOR_CREDIT;
+
+    toast.error(errorMsg);
+    console.error("error", e);
     return false;
   }
 }

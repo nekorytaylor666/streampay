@@ -27,7 +27,7 @@ Add some tokens for the localhost and devnet:
 solana airdrop 1
 spl-token create-token
 token=<TOKEN> #save token mint address for later use
-spl-token create-account <TOKEN>
+spl-token create-account $token
 acc=<TOKEN_ACCOUNT> #save token account address for later use
 spl-token mint <TOKEN> <AMOUNT>
 spl-token transfer <TOKEN> <AMOUNT> <WALLET_ADDRESS> --fund-recipient --allow-unfunded-recipient

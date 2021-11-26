@@ -8,6 +8,7 @@ import swal from "sweetalert";
 
 import useStore from "../stores";
 import { Cluster } from "../types";
+import { DEFAULT_DECIMAL_PLACES } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -34,30 +35,6 @@ export function copyToClipboard(value: string): void {
   document.body.removeChild(el);
 }
 
-// export function streamCreated(id: string) {
-// const url = window.location.origin + "#" + id;
-// swal({
-//   buttons: { confirm: { text: "Copy Stream URL" } },
-//   icon: "success",
-//   title: "Stream created!",
-//   //sweet alert accepts pure HTML Node, so some wrapping must be done https://sweetalert.js.org/guides/#using-dom-nodes-as-content
-//   content: {
-//     element: "a",
-//     attributes: {
-//       className: "text-primary block truncate max-w-full",
-//       href: url,
-//       target: "_blank",
-//       innerHTML: url,
-//     },
-//   },
-// }).then((clicked) => {
-//   if (clicked) {
-//     copyToClipboard(url);
-//     swal("Link copied to clipboard!", "Send it to the recipient!", "success");
-//   }
-// });
-// }
-
 const ourTokens = [
   {
     chainId: 103, //devnet
@@ -76,6 +53,15 @@ const ourTokens = [
     decimals: 9, //default is 9
     logoURI:
       "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
+    tags: [],
+  },
+  {
+    chainId: 103, //devnet
+    address: "3AYtArG2AEsi29ZuwiCqk78ZYG6Fd9Tvf2oVodewvbKZ", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "DULE",
+    name: "DULE",
+    decimals: 9, //default is 9
+    logoURI: "https://streamflow.finance/public/img/solana.png",
     tags: [],
   },
 ];
@@ -140,6 +126,15 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
 export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
   (amount / 10 ** decimals).toFixed(decimalPlaces || decimals);
 
+export const roundAmount = (
+  amount: number,
+  decimals: number,
+  decimalPlaces = DEFAULT_DECIMAL_PLACES
+) => {
+  const tens = 10 ** decimalPlaces;
+  return Math.round((amount / 10 ** decimals) * tens) / tens;
+};
+
 const PERIOD = {
   SECOND: 1,
   MINUT: 60,
@@ -171,7 +166,7 @@ export const formatPeriodOfTime = (period: number) => {
   if (Math.floor(hours)) return `${hours} hour${isMoreThanOne(hours)}`;
 
   const minutes = period / PERIOD.MINUT;
-  if (Math.floor(minutes)) return `${minutes} minut${isMoreThanOne(minutes)}`;
+  if (Math.floor(minutes)) return `${minutes} minute${isMoreThanOne(minutes)}`;
 
   const seconds = period / PERIOD.SECOND;
   if (Math.floor(seconds)) return `${seconds} second${isMoreThanOne(seconds)}`;
