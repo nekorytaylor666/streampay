@@ -24,9 +24,10 @@ export interface StreamsFormData {
   releaseFrequencyPeriod: number;
 }
 
-export const defaultValues = {
+const getDefaultValues = (tokenOptions: any) => ({
   amount: undefined,
   subject: "",
+  token: tokenOptions[0].value,
   recipient: "",
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
@@ -36,7 +37,7 @@ export const defaultValues = {
   senderCanCancel: true,
   recipientCanCancel: false,
   ownershipTransferable: false,
-};
+});
 
 const isRecipientAddressInvalid = async (address: string, connection: Connection | null) => {
   let pubKey = null;
@@ -55,9 +56,16 @@ const isRecipientAddressInvalid = async (address: string, connection: Connection
 };
 
 export const useStreamsForm = () => {
-  const { connection } = useStore((state: StoreType) => ({
+  const { connection, myTokenAccounts } = useStore((state: StoreType) => ({
     connection: state.connection(),
+    myTokenAccounts: state.myTokenAccounts,
   }));
+  const tokenOptions = Object.values(myTokenAccounts).map(({ info }) => ({
+    value: info.symbol,
+    label: info.symbol,
+    // icon: info.logoURI,
+  }));
+  const defaultValues = getDefaultValues(tokenOptions);
 
   const validationSchema = useMemo(
     () =>
@@ -68,6 +76,7 @@ export const useStreamsForm = () => {
           .required(ERRORS.amount_required)
           .moreThan(0, ERRORS.amount_greater_than)
           .max(100, ""),
+        token: yup.string().required(ERRORS.token_required),
         subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
         // token: yup.string().required(ERRORS.token_required),
         recipient: yup

@@ -3,11 +3,20 @@ import { useEffect } from "react";
 import { add, format } from "date-fns";
 
 import { Input, Button, Select } from "../../components";
+import useStore from "../../stores";
 import { useStreamsForm } from "./FormConfig";
 import { DATE_FORMAT, timePeriodOptions } from "../../constants";
 
 const StreamsForm = () => {
   const { register, onSubmit, errors } = useStreamsForm();
+
+  const myTokenAccounts = useStore.getState().myTokenAccounts;
+  const tokenOptions = Object.values(myTokenAccounts).map(({ info }) => ({
+    value: info.symbol,
+    label: info.symbol,
+    // icon: info.logoURI,
+  }));
+  console.log("tokenOptions", tokenOptions);
 
   useEffect(() => console.log("ERRORS:", errors), [errors]);
   return (
@@ -16,10 +25,10 @@ const StreamsForm = () => {
         type="number"
         label="Amount"
         placeholder="0.00"
-        classes="col-span-2"
         error={errors?.amount?.message}
         {...register("amount")}
       />
+      <Select label="Token" options={tokenOptions} {...register("token")} />
       <Input
         type="text"
         label="Subject / Title"
