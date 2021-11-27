@@ -2,13 +2,12 @@ import { useCallback, useMemo } from "react";
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
+import * as yup from "yup";
 
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore, { StoreType } from "../../stores";
-// import { parseDateString } from "../../utils/helpers";
 
 export interface StreamsFormData {
   amount: number;
@@ -30,7 +29,7 @@ export const defaultValues = {
   subject: "",
   recipient: "",
   startDate: format(new Date(), DATE_FORMAT),
-  startTime: format(new Date(), TIME_FORMAT),
+  startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   depositedAmount: undefined,
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: timePeriodOptions[0].value,
@@ -45,14 +44,14 @@ const isRecipientAddressInvalid = async (address: string, connection: Connection
   try {
     pubKey = new PublicKey(address || "");
   } catch {
-    return true;
+    return false;
   }
 
   const recipientAddress = await connection?.getAccountInfo(pubKey);
-  if (recipientAddress == null) return false;
-  if (!recipientAddress.owner.equals(SystemProgram.programId)) return true;
-  if (recipientAddress.executable) return true;
-  return false;
+  if (recipientAddress == null) return true;
+  if (!recipientAddress.owner.equals(SystemProgram.programId)) return false;
+  if (recipientAddress.executable) return false;
+  return true;
 };
 
 export const useStreamsForm = () => {
@@ -77,10 +76,24 @@ export const useStreamsForm = () => {
           .test("address_validation", ERRORS.invalid_address, async (address) =>
             isRecipientAddressInvalid(address || "", connection)
           ),
-        startDate: yup.string().required(ERRORS.start_date_required),
-        //   .min(ERRORS.start_date_is_in_the_past)
-        // .max(ERRORS), // transform(parseDateString),
-        // startTime: yup.time().required(ERRORS.start_time_required),
+        startDate: yup
+          .string()
+          .required(ERRORS.start_date_required)
+          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
+            date ? date >= format(new Date(), DATE_FORMAT) : true
+          )
+          .test("is in a year", ERRORS.start_data_too_ahead, (date) =>
+            date ? date <= format(add(new Date(), { years: 1 }), DATE_FORMAT) : true
+          ),
+        startTime: yup
+          .string()
+          .required(ERRORS.start_time_required)
+          .test("is in a future", ERRORS.start_date_is_in_the_past, (time, ctx) => {
+            const date = new Date(ctx.parent.startDate + "T" + (time || ""));
+            const now = new Date();
+            return date >= now;
+          }),
+
         depositedAmount: yup
           .number()
           .typeError(ERRORS.deposited_amount_required)

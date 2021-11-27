@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 
 import { Input, Button, Select } from "../../components";
 import { useStreamsForm } from "./FormConfig";
@@ -40,6 +40,7 @@ const StreamsForm = () => {
         type="date"
         label="Start Date"
         min={format(new Date(), DATE_FORMAT)}
+        max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
         error={errors?.startDate?.message}
         {...register("startDate")}
       />
