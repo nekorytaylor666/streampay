@@ -48,6 +48,7 @@
     "@solana/wallet-adapter-base": "^0.5.1",
     "@solana/wallet-adapter-wallets": "^0.7.4",
     "@solana/web3.js": "^1.20.0",
+    "@streamflow/timelock": "^0.4.0-alpha.2",
     "@tailwindcss/forms": "^0.3.2",
     "buffer-layout": "^1.2.1",
     "classnames": "^2.3.1",
@@ -59,7 +60,6 @@
     "react-scripts": "^4.0.3",
     "react-toastify": "^7.0.4",
     "sweetalert": "^2.1.2",
-    "timelock": "github:StreamFlow-Finance/timelock#ibrica/recurring",
     "web-vitals": "^1.0.1",
     "zustand": "^3.5.4"
   },

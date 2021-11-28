@@ -1,5 +1,4 @@
-// @ts-ignore
-import Timelock from "timelock";
+import Timelock from "@streamflow/timelock";
 import { toast } from "react-toastify";
 
 import ToastrLink from "../components/ToastrLink";
@@ -37,6 +36,7 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
+        debugger;
         tx = await Timelock.create(
           connection,
           // @ts-ignore
@@ -53,7 +53,7 @@ export default async function sendTransaction(
           d.cliff_amount,
           d.cancelable_by_sender,
           d.cancelable_by_recipient,
-          false,
+          d.withdrawal_public,
           d.transferable,
           d.release_rate,
           d.stream_name

@@ -3,8 +3,8 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-// @ts-ignore
-import { decode, TokenStreamData } from "timelock/dist/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
+import cx from "classnames";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -51,6 +51,11 @@ const storeGetter = ({ myTokenAccounts, addStream, connection, wallet, token }: 
   token,
 });
 
+const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
+  const timeBetweenCliffAndEnd = endTime - cliffTime;
+  return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
+};
+
 const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, onWithdraw }) => {
   const {
     start_time,
@@ -72,6 +77,11 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
   const symbol = myTokenAccounts[address].info.symbol;
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
+  const releaseFrequency = calculateReleaseFrequency(
+    period.toNumber(),
+    cliff.toNumber(),
+    end_time.toNumber()
+  );
 
   const modalRef = useRef<ModalRef>(null);
 
@@ -126,6 +136,8 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onWithdraw();
+        console.log("stream data", stream.data);
+        //@ts-ignore
         addStream(id, decode(stream.data));
       }
     }
@@ -215,7 +227,11 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
             <small className="text-xs block text-gray-300 align-top">after cliff date</small>
           )}
         </dd>
-        <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">
+        <dt
+          className={cx("col-span-8 sm:col-span-9 text-gray-400", {
+            "pt-2": isCliffDateAfterStart,
+          })}
+        >
           {`${formatAmount(
             calculateReleaseRate(
               end_time.toNumber(),
@@ -226,7 +242,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
             ),
             decimals,
             DEFAULT_DECIMAL_PLACES
-          )} ${symbol} per ${formatPeriodOfTime(period.toNumber())}`}
+          )} ${symbol} per ${formatPeriodOfTime(releaseFrequency)}`}
         </dt>
         <Progress
           title="Withdrawn"
@@ -252,7 +268,9 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
                 <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
                 <dt className="col-span-8 text-gray-400 text-sm">
                   {format(
-                    fromUnixTime(getNextUnlockTime(cliff.toNumber(), period.toNumber())),
+                    fromUnixTime(
+                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), end_time.toNumber())
+                    ),
                     "ccc do MMM, yy HH:mm:ss"
                   )}
                 </dt>
