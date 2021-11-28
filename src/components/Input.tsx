@@ -23,7 +23,7 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
         </label>
       </div>
     ) : (
-      <div className={cx(classes)}>
+      <div className={cx(classes, "relative")}>
         <label htmlFor={name} className="block text-base font-medium text-gray-100 mb-1">
           {label}
         </label>
@@ -31,11 +31,16 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
           type={type}
           name={name}
           aria-describedby={`${name}-description`}
-          className="text-white pl-2.5 sm:pl-3 bg-gray-800 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary"
+          className={cx(
+            "text-white pl-2.5 sm:pl-3 bg-gray-800 block w-full rounded-md ",
+            error
+              ? "border-red-600 focus:ring-red-600 focus:border-red-600"
+              : "border-primary focus:ring-secondary focus:border-secondary"
+          )}
           {...rest}
           ref={ref}
         />
-        <small className="text-red-700">{error}</small>
+        <p className="text-red-600 absolute text-xs py-1 right-0">{error}</p>
       </div>
     )
 );

@@ -39,7 +39,7 @@ export default function Dropdown({
       tabIndex={0}
       onBlur={() => setWrapperHidden(true)}
       onFocus={() => setWrapperHidden(false)}
-      className="relative px-3 py-2 mt-1 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary border leading-snug"
+      className="relative px-2.5 py-2 mt-1 text-white bg-gray-800 border-primary block w-full rounded-md focus:ring-secondary focus:border-secondary border leading-snug"
     >
       <div
         title={textValue}

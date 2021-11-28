@@ -178,8 +178,7 @@ export default function CreateStreamForm({
     }
     return msg;
   }
-  console.log("end", endDate);
-  console.log("end", endTime);
+
   async function createStream(e: any) {
     e.preventDefault();
 

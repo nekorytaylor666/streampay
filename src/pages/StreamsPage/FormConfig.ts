@@ -6,12 +6,13 @@ import { add, format } from "date-fns";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import * as yup from "yup";
 
-import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
-import useStore, { StoreType } from "../../stores";
+import { ERRORS, DATE_FORMAT, TIME_FORMAT, getTimePeriodOptions } from "../../constants";
+import useStore from "../../stores";
+import { StringOption } from "../../types";
 
 export interface StreamsFormData {
   amount: number;
-  token: string;
+  tokenSymbol: string;
   recipient: string;
   subject: string;
   startDate: string;
@@ -24,16 +25,16 @@ export interface StreamsFormData {
   releaseFrequencyPeriod: number;
 }
 
-const getDefaultValues = (tokenOptions: any) => ({
+const getDefaultValues = (tokenOptions: StringOption[]) => ({
   amount: undefined,
   subject: "",
-  token: tokenOptions[0].value,
+  tokenSymbol: tokenOptions[0].value,
   recipient: "",
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   depositedAmount: undefined,
   releaseFrequencyCounter: 1,
-  releaseFrequencyPeriod: timePeriodOptions[0].value,
+  releaseFrequencyPeriod: getTimePeriodOptions(false)[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
   ownershipTransferable: false,
@@ -55,16 +56,13 @@ const isRecipientAddressInvalid = async (address: string, connection: Connection
   return true;
 };
 
-export const useStreamsForm = () => {
-  const { connection, myTokenAccounts } = useStore((state: StoreType) => ({
-    connection: state.connection(),
-    myTokenAccounts: state.myTokenAccounts,
-  }));
-  const tokenOptions = Object.values(myTokenAccounts).map(({ info }) => ({
-    value: info.symbol,
-    label: info.symbol,
-    // icon: info.logoURI,
-  }));
+interface UseStreamFormProps {
+  tokenOptions: StringOption[];
+  tokenBalance: number;
+}
+
+export const useStreamsForm = ({ tokenOptions, tokenBalance }: UseStreamFormProps) => {
+  const connection = useStore.getState().connection();
   const defaultValues = getDefaultValues(tokenOptions);
 
   const validationSchema = useMemo(
@@ -74,11 +72,9 @@ export const useStreamsForm = () => {
           .number()
           .typeError(ERRORS.amount_required)
           .required(ERRORS.amount_required)
-          .moreThan(0, ERRORS.amount_greater_than)
-          .max(100, ""),
-        token: yup.string().required(ERRORS.token_required),
+          .moreThan(0, ERRORS.amount_greater_than),
+        tokenSymbol: yup.string().required(ERRORS.token_required),
         subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
-        // token: yup.string().required(ERRORS.token_required),
         recipient: yup
           .string()
           .required(ERRORS.recipient_required)
@@ -91,49 +87,48 @@ export const useStreamsForm = () => {
           .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
             date ? date >= format(new Date(), DATE_FORMAT) : true
           )
-          .test("is in a year", ERRORS.start_data_too_ahead, (date) =>
+          .test("is in a year", ERRORS.start_date_too_ahead, (date) =>
             date ? date <= format(add(new Date(), { years: 1 }), DATE_FORMAT) : true
           ),
         startTime: yup
           .string()
           .required(ERRORS.start_time_required)
-          .test("is in a future", ERRORS.start_date_is_in_the_past, (time, ctx) => {
+          .test("is in a future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
             const date = new Date(ctx.parent.startDate + "T" + (time || ""));
-            const now = new Date();
+            const now = add(new Date(), { minutes: 1 });
             return date >= now;
           }),
-
         depositedAmount: yup
           .number()
           .typeError(ERRORS.deposited_amount_required)
           .required(ERRORS.deposited_amount_required)
           .moreThan(0, ERRORS.amount_greater_than)
-          .max(100, ""),
+          .max(tokenBalance, ERRORS.amount_too_high),
         releaseFrequencyCounter: yup.number().required(),
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
         ownershipTransferable: yup.bool().required(),
       }),
-    [connection]
+    [connection, tokenBalance]
   );
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
+    setValue,
   } = useForm<StreamsFormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
   });
 
-  const onSubmit = useCallback((formValues: StreamsFormData) => {
-    console.log(formValues);
-  }, []);
-
   return {
     register,
+    watch,
     errors,
-    onSubmit: handleSubmit(onSubmit),
+    setValue,
+    handleSubmit,
   };
 };

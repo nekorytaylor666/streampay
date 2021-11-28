@@ -41,7 +41,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
         {page === "vesting" ? (
           <CreateStreamForm loading={loading} setLoading={setLoading} />
         ) : (
-          <StreamsForm />
+          <StreamsForm loading={loading} setLoading={setLoading} />
         )}
       </div>
       <div>

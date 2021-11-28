@@ -65,19 +65,21 @@ export const ERRORS = {
   subject_max: "Title can have maximum of 30 characters.",
   start_date_required: "Start date is required.",
   start_date_is_in_the_past: "Cannot start stream in the past.",
-  start_data_too_ahead: "the start must happen in the next year calculated from today.",
+  start_date_too_ahead: "The start date must happen in the next year calculated from today.",
   start_time_required: "Start time is required.",
+  start_time_is_in_the_past: "Should be at least two minutes in future.",
   deposited_amount_required: "Deposited amount is required.",
+  amount_too_high: "You don't have enough tokens on your balance.",
   invalid_address: "Please enter a valid Solana wallet address.",
   adress_is_a_program: "Address cannot be a program.",
 };
 
-export const timePeriodOptions = [
-  { value: 1, label: "second" },
-  { value: 60, label: "minute" },
-  { value: 3600, label: "hour" },
-  { value: 86400, label: "day" },
-  { value: 604800, label: "week" },
-  { value: 2592000, label: "month" },
-  { value: 31536000, label: "year" },
+export const getTimePeriodOptions = (plural: boolean) => [
+  { value: 1, label: `second${plural ? "s" : ""}` },
+  { value: 60, label: `minute${plural ? "s" : ""}` },
+  { value: 3600, label: `hour${plural ? "s" : ""}` },
+  { value: 86400, label: `day${plural ? "s" : ""}` },
+  { value: 604800, label: `week${plural ? "s" : ""}` },
+  { value: 2592000, label: `month${plural ? "s" : ""}` },
+  { value: 31536000, label: `year${plural ? "s" : ""}` },
 ];
