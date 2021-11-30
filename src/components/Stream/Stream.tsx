@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
+import { decode, TokenStreamData } from "ibrica-timelock/dist/layout";
 import cx from "classnames";
 
 import {
@@ -136,8 +136,6 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onWithdraw();
-        console.log("stream data", stream.data);
-        //@ts-ignore
         addStream(id, decode(stream.data));
       }
     }

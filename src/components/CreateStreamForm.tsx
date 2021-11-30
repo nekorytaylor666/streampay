@@ -202,11 +202,9 @@ export default function CreateStreamForm({
       const elem = form.elements[i] as HTMLObjectElement; //todo: this is not a valid type.
       const errorMsg = await validate(form.elements[i] as HTMLFormElement);
       if (errorMsg) {
-        // console.log('error: ', errorMsg);
         elem.setCustomValidity(errorMsg);
         elem.reportValidity();
         elem.setCustomValidity("");
-        // console.log('return false');
         return false;
       }
     }
@@ -218,7 +216,6 @@ export default function CreateStreamForm({
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     let end = getUnixTime(new Date(endDate + "T" + endTime));
-
     // Make sure that end time is always AFTER start time
     if (end === start) {
       end = start + 1;
@@ -237,6 +234,7 @@ export default function CreateStreamForm({
       cliff_amount: new BN(
         (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals
       ),
+      release_rate: new BN(0),
       new_stream_keypair: newStream,
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
@@ -260,7 +258,6 @@ export default function CreateStreamForm({
     setLoading(false);
 
     if (success) {
-      //@ts-ignore
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         closable_at: new BN(end),
