@@ -167,7 +167,7 @@ export const formatPeriodOfTime = (period: number) => {
   if (Math.floor(hours)) return `${hours} hour${isMoreThanOne(hours)}`;
 
   const minutes = period / PERIOD.MINUT;
-  if (Math.floor(minutes)) return `${minutes} minut${isMoreThanOne(minutes)}`;
+  if (Math.floor(minutes)) return `${minutes} minute${isMoreThanOne(minutes)}`;
 
   const seconds = period / PERIOD.SECOND;
   if (Math.floor(seconds)) return `${seconds} second${isMoreThanOne(seconds)}`;

@@ -27,10 +27,11 @@ const storeGetter = (state: StoreType) => ({
   wallet: state.wallet,
   token: state.token,
   myTokenAccounts: state.myTokenAccounts,
+  setMyTokenAccounts: state.setMyTokenAccounts,
 });
 
 const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
-  const { connection, wallet, token, myTokenAccounts } = useStore(storeGetter);
+  const { connection, wallet, token, myTokenAccounts, setMyTokenAccounts } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const tokenOptions = Object.values(myTokenAccounts).map(({ info }) => ({
     value: info.symbol,
@@ -68,21 +69,20 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       recipientCanCancel,
       ownershipTransferable,
     } = values;
-    if (!wallet?.publicKey || !connection) {
-      toast.error(ERR_NOT_CONNECTED);
-      return false;
-    }
+
+    if (!wallet?.publicKey || !connection) return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
+    const end = 0;
 
     const data = {
-      deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals), //
+      deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
-      // end_time: new BN(end),
+      end_time: new BN(end),
       period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
       cliff: new BN(start),
       cliff_amount: new BN(0),
@@ -93,15 +93,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       transferable: ownershipTransferable,
     };
 
-    const receiverAccount = await connection?.getAccountInfo(new PublicKey(recipient));
-
-    if (!receiverAccount) {
+    const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
+    if (!recipientAccount) {
       const shouldContinue = await modalRef?.current?.show();
-
-      if (!shouldContinue) {
-        setLoading(false);
-        return false;
-      }
+      if (!shouldContinue) return setLoading(false);
     }
 
     const success = await sendTransaction(ProgramInstruction.Create, data);
@@ -222,20 +217,3 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
 };
 
 export default StreamsForm;
-function addStream(arg0: any, arg1: any) {
-  throw new Error("Function not implemented.");
-}
-function setMyTokenAccounts(arg0: {
-  [x: string]:
-    | import("../../types").Token
-    | { uiTokenAmount: any; info: import("@solana/spl-token-registry").TokenInfo };
-}) {
-  throw new Error("Function not implemented.");
-}
-
-function setToken(arg0: {
-  uiTokenAmount: any;
-  info: import("@solana/spl-token-registry").TokenInfo;
-}) {
-  throw new Error("Function not implemented.");
-}

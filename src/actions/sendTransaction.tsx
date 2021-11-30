@@ -36,6 +36,7 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
+        debugger;
         tx = await Timelock.create(
           connection,
           // @ts-ignore
@@ -49,13 +50,13 @@ export default async function sendTransaction(
           d.end_time,
           d.period,
           d.cliff,
-          d.cliff_amount
-          // d.cancelable_by_sender,
-          // d.cancelable_by_recipient,
-          // false,
-          // d.transferable,
-          // d.release_rate,
-          // d.stream_name
+          d.cliff_amount,
+          d.cancelable_by_sender,
+          d.cancelable_by_recipient,
+          d.withdrawal_public,
+          d.transferable,
+          d.release_rate,
+          d.stream_name
         );
         break;
       case ProgramInstruction.Withdraw:

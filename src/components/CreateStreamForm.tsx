@@ -225,6 +225,7 @@ export default function CreateStreamForm({
     }
 
     setLoading(true);
+
     const data = {
       deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(receiver),
@@ -241,6 +242,7 @@ export default function CreateStreamForm({
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable: ownershipTransferable,
+      withdrawal_public: false,
     } as CreateStreamData;
 
     const receiverAccount = await connection?.getAccountInfo(new PublicKey(receiver));
@@ -258,9 +260,10 @@ export default function CreateStreamForm({
     setLoading(false);
 
     if (success) {
+      //@ts-ignore
       addStream(newStream.publicKey.toBase58(), {
         ...data,
-        cancellable_at: new BN(end),
+        closable_at: new BN(end),
         last_withdrawn_at: new BN(0),
         withdrawn_amount: new BN(0),
         canceled_at: new BN(0),

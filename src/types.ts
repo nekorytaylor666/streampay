@@ -37,6 +37,7 @@ export interface CreateStreamData {
   transferable: boolean;
   release_rate: BN;
   stream_name: string;
+  withdrawal_public: false;
 }
 
 export interface WithdrawStreamData {
