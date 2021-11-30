@@ -1,5 +1,5 @@
-import Timelock from "@streamflow/timelock";
 import { toast } from "react-toastify";
+import Timelock from "ibrica-timelock";
 
 import ToastrLink from "../components/ToastrLink";
 import {
@@ -36,7 +36,6 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        debugger;
         tx = await Timelock.create(
           connection,
           // @ts-ignore
