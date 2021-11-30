@@ -136,8 +136,6 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onWithdraw();
-        console.log("stream data", stream.data);
-        //@ts-ignore
         addStream(id, decode(stream.data));
       }
     }
