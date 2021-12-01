@@ -68,6 +68,8 @@ export const ERRORS = {
   start_date_too_ahead: "The start date must happen in the next year calculated from today.",
   start_time_required: "Start time is required.",
   start_time_is_in_the_past: "Should be at least two minutes in future.",
+  end_date_required: "End date is required.",
+  end_time_required: "End time is required.",
   deposited_amount_required: "Deposited amount is required.",
   amount_too_high: "You don't have enough tokens on your balance.",
   invalid_address: "Please enter a valid Solana wallet address.",

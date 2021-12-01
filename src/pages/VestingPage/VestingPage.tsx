@@ -1,4 +1,4 @@
-import Main from "./Main";
+import Main from "../Main";
 
 const VestingPage = () => {
   return <Main page="vesting" />;

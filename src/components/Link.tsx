@@ -18,12 +18,12 @@ const Link: FC<LinkProps> = ({ url, title, hideIcon, classes }) => {
   );
 
   return (
-    <strong className={cx("text-gray-300 hover:text-white", classes)}>
+    <p className={cx("text-gray-200 hover:text-gray-100", classes)}>
       <a href={url} target="_blank" rel="noopener noreferrer">
         {title || url}
         {icon}
       </a>
-    </strong>
+    </p>
   );
 };
 

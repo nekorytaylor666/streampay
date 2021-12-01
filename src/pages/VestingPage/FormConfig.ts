@@ -9,34 +9,42 @@ import * as yup from "yup";
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, getTimePeriodOptions } from "../../constants";
 import useStore from "../../stores";
 
-export interface StreamsFormData {
+export interface VestingFormData {
   amount: number;
   tokenSymbol: string;
   recipient: string;
   subject: string;
   startDate: string;
   startTime: string;
-  depositedAmount: number;
+  endDate: string;
+  endTime: string;
   releaseFrequencyCounter: number;
+  releaseFrequencyPeriod: number;
   senderCanCancel: boolean;
   recipientCanCancel: boolean;
   ownershipTransferable: boolean;
-  releaseFrequencyPeriod: number;
+  cliffDate: string;
+  cliffTime: string;
+  cliffAmount: number;
 }
 
 const getDefaultValues = () => ({
   amount: undefined,
-  subject: "",
   tokenSymbol: "",
   recipient: "",
+  subject: "",
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
-  depositedAmount: undefined,
+  endDate: format(new Date(), DATE_FORMAT),
+  endTime: "",
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: getTimePeriodOptions(false)[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
   ownershipTransferable: false,
+  cliffDate: format(new Date(), DATE_FORMAT),
+  cliffTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
+  cliffAmount: 0,
 });
 
 const isRecipientAddressInvalid = async (address: string, connection: Connection | null) => {
@@ -55,11 +63,11 @@ const isRecipientAddressInvalid = async (address: string, connection: Connection
   return true;
 };
 
-interface UseStreamFormProps {
+interface UseVestingFormProps {
   tokenBalance: number;
 }
 
-export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
+export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
   const connection = useStore.getState().connection();
   const defaultValues = getDefaultValues();
 
@@ -70,7 +78,8 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .number()
           .typeError(ERRORS.amount_required)
           .required(ERRORS.amount_required)
-          .moreThan(0, ERRORS.amount_greater_than),
+          .moreThan(0, ERRORS.amount_greater_than)
+          .max(tokenBalance, ERRORS.amount_too_high),
         tokenSymbol: yup.string().required(ERRORS.token_required),
         subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
         recipient: yup
@@ -96,17 +105,16 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
             const now = add(new Date(), { minutes: 1 });
             return date >= now;
           }),
-        depositedAmount: yup
-          .number()
-          .typeError(ERRORS.deposited_amount_required)
-          .required(ERRORS.deposited_amount_required)
-          .moreThan(0, ERRORS.amount_greater_than)
-          .max(tokenBalance, ERRORS.amount_too_high),
+        endDate: yup.string().required(ERRORS.end_date_required),
+        endTime: yup.string().required(ERRORS.end_time_required),
         releaseFrequencyCounter: yup.number().required(),
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
         ownershipTransferable: yup.bool().required(),
+        cliffDate: yup.string().required(),
+        cliffTime: yup.string().required(),
+        cliffAmount: yup.number().required(),
       }),
     [connection, tokenBalance]
   );
@@ -117,7 +125,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     watch,
     formState: { errors },
     setValue,
-  } = useForm<StreamsFormData>({
+  } = useForm<VestingFormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
   });

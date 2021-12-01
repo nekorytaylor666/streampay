@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Account, CreateStreamForm, Curtain } from "../components";
-import EmptyStreams from "../components/EmptyStreams";
+import { Account, Curtain } from "../components";
 import StreamsForm from "./StreamsPage/StreamsForm";
+import VestingForm from "./VestingPage/VestingForm";
 import StreamsList from "../components/StreamsList";
 import useStore, { StoreType } from "../stores";
 import { getTokenAccounts } from "../utils/helpers";
@@ -21,6 +21,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
   const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
     useStore(storeGetter);
   const [loading, setLoading] = useState(false);
+  const isVesting = page === "vesting";
 
   useEffect(() => {
     if (connection && wallet) {
@@ -33,22 +34,26 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     }
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
+  const emptyStreamsText = isVesting
+    ? "Your token vesting contracts will appear here."
+    : "Your streams will appear here.";
+
   return (
     <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
-      <div>
+      <div className="xl:mr-12">
         <Curtain visible={loading} />
         {wallet?.connected && <Account setLoading={setLoading} />}
-        {page === "vesting" ? (
-          <CreateStreamForm loading={loading} setLoading={setLoading} />
+        {isVesting ? (
+          <VestingForm loading={loading} setLoading={setLoading} />
         ) : (
           <StreamsForm loading={loading} setLoading={setLoading} />
         )}
       </div>
       <div>
         {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (
-          <StreamsList connection={connection} wallet={wallet} />
+          <StreamsList connection={connection} wallet={wallet} type={page} />
         ) : (
-          <EmptyStreams />
+          <p className="text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
         )}
       </div>
     </div>

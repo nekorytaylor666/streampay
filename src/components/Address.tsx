@@ -33,7 +33,7 @@ const Address: FC<AddressProps> = ({ address, classes }) => {
       ) : (
         <DuplicateIcon className={iconClassName} onClick={copy} />
       )}
-      {address}
+      <span className="font-light text-base">{address}</span>
     </span>
   );
 };

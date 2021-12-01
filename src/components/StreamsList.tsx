@@ -6,7 +6,7 @@ import type { Connection, AccountInfo } from "@solana/web3.js";
 import { decode, TokenStreamData } from "ibrica-timelock/dist/layout";
 import { toast } from "react-toastify";
 
-import { Stream, EmptyStreams, Modal, ModalRef } from ".";
+import { Stream, Modal, ModalRef } from ".";
 import sendTransaction from "../actions/sendTransaction";
 import {
   ProgramInstruction,
@@ -52,16 +52,26 @@ const getProgramAccounts = (
     ],
   });
 
-const sortStreams = (streams: { [s: string]: TokenStreamData }) =>
-  Object.entries(streams).sort(
+const sortStreams = (streams: { [s: string]: TokenStreamData }, type: "vesting" | "streams") => {
+  const isVesting = type === "vesting";
+  const allStreams = Object.entries(streams).sort(
     ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
   );
+  let filteredStreams = [];
+  if (isVesting) {
+    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.toNumber() === 0);
+  } else {
+    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.toNumber() > 0);
+  }
+  return filteredStreams;
+};
 
 interface StreamsListProps {
   connection: Connection;
   wallet: Wallet;
+  type: "vesting" | "streams";
 }
-const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
+const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const {
     streams,
     addStream,
@@ -151,11 +161,9 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     }
   }
 
-  if (!Object.keys(streams).length || !wallet?.publicKey?.toBase58()) return <EmptyStreams />;
-
   return (
     <>
-      {sortStreams(streams).map(([id, data]) => (
+      {sortStreams(streams, type).map(([id, data]) => (
         <Stream
           key={id}
           onCancel={() => cancelStream(id)}

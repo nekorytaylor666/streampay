@@ -11,6 +11,7 @@ interface SelectProps {
   classes?: string;
   error?: string;
   onChange: ChangeHandler;
+  customChange?: any;
   options: StringOption[] | NumberOption[];
 }
 
@@ -21,7 +22,7 @@ const createOptionsObject = (options: StringOption[] | NumberOption[]) => {
 };
 
 const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
-  ({ name, options, classes = "", label = "", error = "", onChange }, ref) => {
+  ({ name, options, classes = "", label = "", error = "", onChange, customChange }, ref) => {
     const withIcons = !!options[0].icon;
     const optionsObject = createOptionsObject(options);
     const [selectedIcon, setSelectedIcon] = useState(options[0].icon);
@@ -31,12 +32,15 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
         const selectedIcon = optionsObject[e.target.value];
         setSelectedIcon(selectedIcon);
       }
+      if (customChange) customChange(e.target.value);
       onChange(e);
     };
 
     return (
       <div className={classes}>
-        <label className="block text-base font-medium text-gray-100 mb-1">{label} </label>
+        <label className="block text-gray-200 text-sm sm:text-base cursor-pointer mb-1">
+          {label}{" "}
+        </label>
         <div className="relative">
           {withIcons && (
             <img src={selectedIcon} className="w-4 absolute top-3 left-2.5 sm:left-3 mt-px" />
@@ -45,7 +49,7 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
             name={name}
             onChange={handleChange}
             className={cx(
-              "text-white text-lg leading-6 bg-gray-800 col-span-2 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-6 bg-right",
+              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 border-0 block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-6 bg-right shadow-sm",
               { "pl-8": withIcons }
             )}
             ref={ref}
