@@ -5,7 +5,6 @@ export { default as Logo } from "./Logo";
 export { default as Button } from "./Button";
 export { default as Link } from "./Link";
 export { default as Address } from "./Address";
-export { default as CreateStreamForm } from "./CreateStreamForm";
 export { default as Account } from "./Account";
 export { default as Banner } from "./Banner";
 export { default as WalletPicker } from "./WalletPicker";

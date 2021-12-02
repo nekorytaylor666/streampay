@@ -23,8 +23,8 @@ const Overview: React.FC<OverviewProps> = ({
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
 
-  const start = getUnixTime(new Date(startDate + "T" + startTime));
-  const end = start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod;
+  const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
+  const end = (start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod) * 1000; // convert to ms
 
   return (
     <div className="col-span-full mt-4">

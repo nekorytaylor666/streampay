@@ -221,7 +221,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           {...register("releaseAmount")}
         />
         <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-          <label className="block text-base font-medium text-gray-100 capitalize col-span-2">
+          <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
             Release Frequency
           </label>
           <Input type="number" min={1} {...register("releaseFrequencyCounter")} />

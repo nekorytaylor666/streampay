@@ -9,6 +9,7 @@ interface InputProps {
   name: string;
   placeholder?: string;
   classes?: string;
+  inputClasses?: string;
   min?: string | number;
   max?: string | number;
   error?: string;
@@ -19,7 +20,18 @@ interface InputProps {
 
 const Input: FC<InputProps> = forwardRef<any, InputProps>(
   (
-    { type, label = "", name, error = "", classes = "", onChange, onClick, customChange, ...rest },
+    {
+      type,
+      label = "",
+      name,
+      error = "",
+      classes = "",
+      onChange,
+      onClick,
+      customChange,
+      inputClasses = "",
+      ...rest
+    },
     ref
   ) => {
     const handleChange = (e: any) => {
@@ -54,6 +66,7 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
           aria-describedby={`${name}-description`}
           onChange={handleChange}
           className={cx(
+            inputClasses,
             "text-gray-100 font-light pl-2.5 py-2 sm:pl-3 bg-gray-800 block w-full rounded-md shadow-sm",
             error
               ? "border-red-700 focus:ring-red-700 focus:border-red-700"
