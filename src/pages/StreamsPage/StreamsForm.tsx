@@ -17,6 +17,7 @@ import {
   ProgramInstruction,
 } from "../../constants";
 import { StringOption } from "../../types";
+import Overview from "./Overview";
 
 interface StreamsFormProps {
   loading: boolean;
@@ -46,7 +47,23 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     tokenBalance: tokenBalance || 0,
   });
 
-  const releaseFrequencyCounter = watch("releaseFrequencyCounter");
+  const [
+    depositedAmount,
+    releaseAmount,
+    tokenSymbol,
+    startDate,
+    startTime,
+    releaseFrequencyCounter,
+    releaseFrequencyPeriod,
+  ] = watch([
+    "depositedAmount",
+    "releaseAmount",
+    "tokenSymbol",
+    "startDate",
+    "startTime",
+    "releaseFrequencyCounter",
+    "releaseFrequencyPeriod",
+  ]);
   const [timePeriodOptions, setTimePeriodOptions] = useState(getTimePeriodOptions(false));
 
   useEffect(() => {
@@ -80,7 +97,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const onSubmit = async (values: StreamsFormData) => {
     const newStream = Keypair.generate();
     const {
-      amount,
+      releaseAmount,
       subject,
       recipient,
       startDate,
@@ -100,7 +117,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end =
       start +
-      Math.ceil(depositedAmount / amount) * releaseFrequencyCounter * releaseFrequencyPeriod;
+      Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
       deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
@@ -111,7 +128,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
       cliff: new BN(start),
       cliff_amount: new BN(0),
-      release_rate: new BN(amount * 10 ** token.uiTokenAmount.decimals),
+      release_rate: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
       new_stream_keypair: newStream,
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
@@ -187,9 +204,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           type="number"
           label="Release Amount"
           placeholder="0.00"
-          error={errors?.amount?.message}
+          error={errors?.releaseAmount?.message}
           classes="col-span-3 sm:col-span-1"
-          {...register("amount")}
+          {...register("releaseAmount")}
         />
         <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
           <label className="block text-base font-medium text-gray-100 capitalize col-span-2">
@@ -253,14 +270,27 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         )}
       </div>
       {wallet?.connected ? (
-        <Button
-          type="submit"
-          primary
-          classes="px-20 py-4 font-bold text-2xl my-5"
-          disabled={loading}
-        >
-          Create
-        </Button>
+        <>
+          <Overview
+            {...{
+              depositedAmount,
+              releaseAmount,
+              tokenSymbol,
+              startDate,
+              startTime,
+              releaseFrequencyCounter,
+              releaseFrequencyPeriod,
+            }}
+          />
+          <Button
+            type="submit"
+            primary
+            classes="px-20 py-4 font-bold text-2xl my-5"
+            disabled={loading}
+          >
+            Create
+          </Button>
+        </>
       ) : (
         <WalletPicker classes="px-8 py-4 font-bold text-xl my-8 sm:my-10" title="Connect wallet" />
       )}

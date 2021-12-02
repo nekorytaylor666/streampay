@@ -10,7 +10,7 @@ import { ERRORS, DATE_FORMAT, TIME_FORMAT, getTimePeriodOptions } from "../../co
 import useStore from "../../stores";
 
 export interface StreamsFormData {
-  amount: number;
+  releaseAmount: number;
   tokenSymbol: string;
   recipient: string;
   subject: string;
@@ -25,7 +25,7 @@ export interface StreamsFormData {
 }
 
 const getDefaultValues = () => ({
-  amount: undefined,
+  releaseAmount: undefined,
   subject: "",
   tokenSymbol: "",
   recipient: "",
@@ -66,7 +66,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        amount: yup
+        releaseAmount: yup
           .number()
           .typeError(ERRORS.amount_required)
           .required(ERRORS.amount_required)

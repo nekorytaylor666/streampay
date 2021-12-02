@@ -9,6 +9,7 @@ import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "..
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import sendTransaction from "../../actions/sendTransaction";
+import Overview from "./Overview";
 import { getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
@@ -46,8 +47,27 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     tokenBalance: tokenBalance || 0,
   });
 
-  const releaseFrequencyCounter = watch("releaseFrequencyCounter");
-  const endTime = watch("endTime");
+  const [
+    amount,
+    tokenSymbol,
+    endDate,
+    endTime,
+    cliffDate,
+    cliffTime,
+    cliffAmount,
+    releaseFrequencyCounter,
+    releaseFrequencyPeriod,
+  ] = watch([
+    "amount",
+    "tokenSymbol",
+    "endDate",
+    "endTime",
+    "cliffDate",
+    "cliffTime",
+    "cliffAmount",
+    "releaseFrequencyCounter",
+    "releaseFrequencyPeriod",
+  ]);
   const [timePeriodOptions, setTimePeriodOptions] = useState(getTimePeriodOptions(false));
 
   useEffect(() => {
@@ -163,156 +183,176 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="block my-4">
-      <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-5 sm:grid-cols-2">
-        <Input
-          type="number"
-          label="Amount"
-          placeholder="0.00"
-          error={errors?.amount?.message}
-          classes="col-span-3 sm:col-span-1"
-          {...register("amount")}
-        />
-        {wallet && tokenOptions.length ? (
-          <Select
-            label="Token"
-            options={tokenOptions}
-            error={errors?.tokenSymbol?.message}
-            customChange={updateToken}
-            {...register("tokenSymbol")}
-            classes="col-span-2 sm:col-span-1"
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="block my-4">
+        <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-5 sm:grid-cols-2">
+          <Input
+            type="number"
+            label="Amount"
+            placeholder="0.00"
+            error={errors?.amount?.message}
+            classes="col-span-3 sm:col-span-1"
+            {...register("amount")}
           />
-        ) : (
-          <div className="col-span-2 sm:col-span-1">
-            <label className="text-gray-200 text-sm sm:text-base cursor-pointer">Token</label>
-            <p className="text-base font-medium text-primary">Please connect.</p>
-          </div>
-        )}
-        <Input
-          type="text"
-          label="Subject / Title"
-          placeholder="e.g. StreamFlow VC - seed round"
-          classes="col-span-full"
-          error={errors?.subject?.message}
-          {...register("subject")}
-        />
-        <Input
-          type="text"
-          label="Recipient Account"
-          placeholder="Please double check the address"
-          classes="col-span-full"
-          error={errors?.recipient?.message}
-          {...register("recipient")}
-        />
-        <Input
-          type="date"
-          label="Start Date"
-          min={format(new Date(), DATE_FORMAT)}
-          max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
-          classes="col-span-2 sm:col-span-1"
-          error={errors?.startDate?.message || ""}
-          {...register("startDate")}
-        />
-        <Input
-          type="time"
-          label="Start Time"
-          classes="col-span-2 sm:col-span-1"
-          error={errors?.startTime?.message}
-          {...register("startTime")}
-        />
-        <Input
-          type="date"
-          label="End Date"
-          min={format(new Date(), DATE_FORMAT)}
-          max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
-          classes="col-span-2 sm:col-span-1"
-          error={errors?.endDate?.message || ""}
-          {...register("endDate")}
-        />
-        <Input
-          type="time"
-          label="End Time"
-          classes="col-span-2 sm:col-span-1"
-          error={errors?.endTime?.message}
-          {...register("endTime")}
-        />
-        <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-          <label className="block text-base font-medium text-gray-100 capitalize col-span-2">
-            Release Frequency
-          </label>
-          <Input type="number" min={1} {...register("releaseFrequencyCounter")} />
-          <Select options={timePeriodOptions} {...register("releaseFrequencyPeriod")} />
-        </div>
-        <Toggle
-          enabled={advanced}
-          setEnabled={setAdvanced}
-          labelRight="Advanced"
-          classes="col-span-full"
-        />
-        {advanced &&
-          (!endTime ? (
-            <p className="text-gray-200 text-base cols-pan-full font-light">
-              Please provide valid end time.
-            </p>
+          {wallet && tokenOptions.length ? (
+            <Select
+              label="Token"
+              options={tokenOptions}
+              error={errors?.tokenSymbol?.message}
+              customChange={updateToken}
+              {...register("tokenSymbol")}
+              classes="col-span-2 sm:col-span-1"
+            />
           ) : (
-            <div className="grid gap-3 sm:gap-4 grid-cols-5 col-span-full">
-              <Input
-                type="date"
-                label="Cliff Date"
-                min={format(new Date(), DATE_FORMAT)}
-                max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
-                classes="col-span-2"
-                error={errors?.cliffDate?.message || ""}
-                {...register("cliffDate")}
-              />
-              <Input
-                type="time"
-                label="Cliff Time"
-                classes="col-span-2"
-                error={errors?.cliffTime?.message}
-                {...register("cliffTime")}
-              />
-              <Input
-                type="number"
-                label="Release"
-                min={0}
-                max={100}
-                classes="col-span-2 sm:col-span-1"
-                error={errors?.cliffAmount?.message}
-                {...register("cliffAmount")}
-              />
-              <div className="bg-gray-800 col-span-full rounded-md grid grid-cols-1 gap-2 p-2.5 sm:p-3">
-                <Input
-                  type="checkbox"
-                  label="Sender can cancel?"
-                  {...register("senderCanCancel")}
-                />
-                <Input
-                  type="checkbox"
-                  label="Recipient can cancel?"
-                  {...register("recipientCanCancel")}
-                />
-                <Input
-                  type="checkbox"
-                  label="Ownership transferable?"
-                  {...register("ownershipTransferable")}
-                />
-              </div>
+            <div className="col-span-2 sm:col-span-1">
+              <label className="text-gray-200 text-sm sm:text-base cursor-pointer">Token</label>
+              <p className="text-base font-medium text-primary">Please connect.</p>
             </div>
-          ))}
-      </div>
-      {wallet?.connected ? (
-        <Button
-          type="submit"
-          primary
-          classes="px-16 py-4 font-bold text-xl my-5"
-          disabled={loading}
-        >
-          Create
-        </Button>
-      ) : (
-        <WalletPicker classes="px-8 py-4 font-bold text-xl my-8 sm:my-10" title="Connect wallet" />
-      )}
+          )}
+          <Input
+            type="text"
+            label="Subject / Title"
+            placeholder="e.g. StreamFlow VC - seed round"
+            classes="col-span-full"
+            error={errors?.subject?.message}
+            {...register("subject")}
+          />
+          <Input
+            type="text"
+            label="Recipient Account"
+            placeholder="Please double check the address"
+            classes="col-span-full"
+            error={errors?.recipient?.message}
+            {...register("recipient")}
+          />
+          <Input
+            type="date"
+            label="Start Date"
+            min={format(new Date(), DATE_FORMAT)}
+            max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
+            classes="col-span-2 sm:col-span-1"
+            error={errors?.startDate?.message || ""}
+            {...register("startDate")}
+          />
+          <Input
+            type="time"
+            label="Start Time"
+            classes="col-span-2 sm:col-span-1"
+            error={errors?.startTime?.message}
+            {...register("startTime")}
+          />
+          <Input
+            type="date"
+            label="End Date"
+            min={format(new Date(), DATE_FORMAT)}
+            max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
+            classes="col-span-2 sm:col-span-1"
+            error={errors?.endDate?.message || ""}
+            {...register("endDate")}
+          />
+          <Input
+            type="time"
+            label="End Time"
+            classes="col-span-2 sm:col-span-1"
+            error={errors?.endTime?.message}
+            {...register("endTime")}
+          />
+          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
+            <label className="block text-base font-medium text-gray-100 capitalize col-span-2">
+              Release Frequency
+            </label>
+            <Input type="number" min={1} {...register("releaseFrequencyCounter")} />
+            <Select options={timePeriodOptions} {...register("releaseFrequencyPeriod")} />
+          </div>
+          <Toggle
+            enabled={advanced}
+            setEnabled={setAdvanced}
+            labelRight="Advanced"
+            classes="col-span-full"
+          />
+          {advanced &&
+            (!endTime ? (
+              <p className="text-gray-200 text-base cols-pan-full font-light">
+                Please provide valid end time.
+              </p>
+            ) : (
+              <div className="grid gap-3 sm:gap-4 grid-cols-5 col-span-full">
+                <Input
+                  type="date"
+                  label="Cliff Date"
+                  min={format(new Date(), DATE_FORMAT)}
+                  max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
+                  classes="col-span-2"
+                  error={errors?.cliffDate?.message || ""}
+                  {...register("cliffDate")}
+                />
+                <Input
+                  type="time"
+                  label="Cliff Time"
+                  classes="col-span-2"
+                  error={errors?.cliffTime?.message}
+                  {...register("cliffTime")}
+                />
+                <Input
+                  type="number"
+                  label="Release"
+                  min={0}
+                  max={100}
+                  classes="col-span-2 sm:col-span-1"
+                  error={errors?.cliffAmount?.message}
+                  {...register("cliffAmount")}
+                />
+                <div className="bg-gray-800 col-span-full rounded-md grid grid-cols-1 gap-2 p-2.5 sm:p-3">
+                  <Input
+                    type="checkbox"
+                    label="Sender can cancel?"
+                    {...register("senderCanCancel")}
+                  />
+                  <Input
+                    type="checkbox"
+                    label="Recipient can cancel?"
+                    {...register("recipientCanCancel")}
+                  />
+                  <Input
+                    type="checkbox"
+                    label="Ownership transferable?"
+                    {...register("ownershipTransferable")}
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
+        {wallet?.connected ? (
+          <>
+            <Overview
+              {...{
+                amount,
+                tokenSymbol,
+                endDate,
+                endTime,
+                cliffDate,
+                cliffTime,
+                cliffAmount,
+                releaseFrequencyCounter,
+                releaseFrequencyPeriod,
+              }}
+            />
+            <Button
+              type="submit"
+              primary
+              classes="px-16 py-4 font-bold text-xl my-5"
+              disabled={loading}
+            >
+              Create
+            </Button>
+          </>
+        ) : (
+          <WalletPicker
+            classes="px-8 py-4 font-bold text-xl my-8 sm:my-10"
+            title="Connect wallet"
+          />
+        )}
+      </form>
       <Modal
         ref={modalRef}
         title="Seems like the recipient address has empty balance."
@@ -320,7 +360,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         type="info"
         confirm={{ color: "red", text: "Continue" }}
       />
-    </form>
+    </>
   );
 };
 
