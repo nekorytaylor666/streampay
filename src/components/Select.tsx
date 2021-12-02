@@ -38,18 +38,22 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
 
     return (
       <div className={classes}>
-        <label className="block text-gray-200 text-sm sm:text-base cursor-pointer mb-1">
-          {label}{" "}
+        <label
+          htmlFor={name}
+          className="block text-gray-200 text-sm sm:text-base cursor-pointer mb-1"
+        >
+          {label}
         </label>
         <div className="relative">
           {withIcons && (
             <img src={selectedIcon} className="w-4 absolute top-3 left-2.5 sm:left-3 mt-px" />
           )}
           <select
+            id={name}
             name={name}
             onChange={handleChange}
             className={cx(
-              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 border-0 block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-6 bg-right shadow-sm",
+              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 border-0 block w-full border-black rounded-md focus:ring-primary focus:border-primary pr-6 bg-right shadow-sm",
               { "pl-8": withIcons }
             )}
             ref={ref}

@@ -65,15 +65,19 @@ export const ERRORS = {
   subject_max: "Title can have maximum of 30 characters.",
   start_date_required: "Start date is required.",
   start_date_is_in_the_past: "Cannot start stream in the past.",
-  start_date_too_ahead: "The start date must happen in the next year calculated from today.",
   start_time_required: "Start time is required.",
   start_time_is_in_the_past: "Should be at least two minutes in future.",
   end_date_required: "End date is required.",
   end_time_required: "End time is required.",
   deposited_amount_required: "Deposited amount is required.",
-  amount_too_high: "You don't have enough tokens on your balance.",
+  amount_too_high: "You don't have enough tokens.",
   invalid_address: "Please enter a valid Solana wallet address.",
   adress_is_a_program: "Address cannot be a program.",
+  release_amount_greater_than_deposited: "Should be <= deposited amount.",
+  end_should_be_after_start: "End should happen after start.",
+  cliff_should_be_after_start: "Cliff should happen after start.",
+  cliff_should_be_before_end: "Cliff should happen before end.",
+  required: "Required.",
 };
 
 export const getTimePeriodOptions = (plural: boolean) => [

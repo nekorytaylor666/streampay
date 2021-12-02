@@ -27,8 +27,10 @@ const Overview: React.FC<OverviewProps> = ({
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
 
-  const lengthSeconds =
-    (+new Date(endDate + "T" + endTime) - +new Date(cliffDate + "T" + cliffTime)) / 1000;
+  const end = new Date(endDate + "T" + endTime);
+  const cliff = new Date(cliffDate + "T" + cliffTime);
+
+  const lengthSeconds = (+end - +cliff) / 1000;
   const numPeriods = lengthSeconds / releasePeriod;
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
@@ -45,7 +47,7 @@ const Overview: React.FC<OverviewProps> = ({
         <span className="text-white text-sm">{` ${cliffDate} `}</span>at
         <span className="text-white text-sm">{` ${cliffTime}`}</span>.
       </p>
-      {tokenSymbol && endTime && (
+      {tokenSymbol && (
         <p className="text-gray-400 text-sm leading-6 sm:inline-block">
           And then
           <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% (${(

@@ -36,7 +36,7 @@ const getDefaultValues = () => ({
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   endDate: format(new Date(), DATE_FORMAT),
-  endTime: "",
+  endTime: format(add(new Date(), { minutes: 7 }), TIME_FORMAT),
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: getTimePeriodOptions(false)[0].value,
   senderCanCancel: true,
@@ -47,7 +47,7 @@ const getDefaultValues = () => ({
   cliffAmount: 0,
 });
 
-const isRecipientAddressInvalid = async (address: string, connection: Connection | null) => {
+const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
   let pubKey = null;
 
   try {
@@ -86,35 +86,74 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .string()
           .required(ERRORS.recipient_required)
           .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isRecipientAddressInvalid(address || "", connection)
+            isRecipientAddressValid(address || "", connection)
           ),
         startDate: yup
           .string()
           .required(ERRORS.start_date_required)
           .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
             date ? date >= format(new Date(), DATE_FORMAT) : true
-          )
-          .test("is in a year", ERRORS.start_date_too_ahead, (date) =>
-            date ? date <= format(add(new Date(), { years: 1 }), DATE_FORMAT) : true
           ),
         startTime: yup
           .string()
           .required(ERRORS.start_time_required)
           .test("is in a future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
             const date = new Date(ctx.parent.startDate + "T" + (time || ""));
-            const now = add(new Date(), { minutes: 1 });
+            const now = new Date();
             return date >= now;
           }),
-        endDate: yup.string().required(ERRORS.end_date_required),
-        endTime: yup.string().required(ERRORS.end_time_required),
+        endDate: yup
+          .string()
+          .required(ERRORS.end_date_required)
+          .test("is after start", ERRORS.end_should_be_after_start, (date, ctx) => {
+            return date ? date >= ctx.parent.startDate : true;
+          }),
+        endTime: yup
+          .string()
+          .required(ERRORS.end_time_required)
+          .test("is after start", ERRORS.end_should_be_after_start, (time, ctx) => {
+            if (!time || ctx.parent.startDate > ctx.parent.endDate) return true;
+            const start = new Date(ctx.parent.startDate + "T" + ctx.parent.startTime);
+            const end = new Date(ctx.parent.endDate + "T" + time);
+            return end >= start;
+          }),
         releaseFrequencyCounter: yup.number().required(),
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
         ownershipTransferable: yup.bool().required(),
-        cliffDate: yup.string().required(),
-        cliffTime: yup.string().required(),
-        cliffAmount: yup.number().required(),
+        cliffDate: yup
+          .string()
+          .required()
+          .test("is after start", ERRORS.cliff_should_be_after_start, (date, ctx) => {
+            return date ? date >= ctx.parent.startDate : true;
+          })
+          .test("is before end", ERRORS.cliff_should_be_before_end, (date, ctx) => {
+            if (ctx.parent.startDate > ctx.parent.endDate) return true;
+            return date ? date <= ctx.parent.endDate : true;
+          }),
+        cliffTime: yup
+          .string()
+          .required(ERRORS.required)
+          .test("is after start", ERRORS.cliff_should_be_after_start, (time, ctx) => {
+            console.log("start date", ctx.parent.startDate);
+            if (!time || ctx.parent.startDate > ctx.parent.cliffDate) return true;
+            const start = new Date(ctx.parent.startDate + "T" + ctx.parent.startTime);
+            const cliff = new Date(ctx.parent.cliffDate + "T" + time);
+            return cliff >= start;
+          })
+          .test("is before end", ERRORS.cliff_should_be_before_end, (time, ctx) => {
+            if (!time || ctx.parent.endDate < ctx.parent.cliffDate) return true;
+            const end = new Date(ctx.parent.endDate + "T" + ctx.parent.endTime);
+            const cliff = new Date(ctx.parent.cliffDate + "T" + time);
+            return time ? cliff <= end : true;
+          }),
+        cliffAmount: yup
+          .number()
+          .typeError(ERRORS.required)
+          .required(ERRORS.required)
+          .min(0)
+          .max(100),
       }),
     [connection, tokenBalance]
   );

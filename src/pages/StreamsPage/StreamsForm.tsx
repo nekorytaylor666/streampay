@@ -12,6 +12,7 @@ import sendTransaction from "../../actions/sendTransaction";
 import { getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
+  TIME_FORMAT,
   ERR_NOT_CONNECTED,
   getTimePeriodOptions,
   ProgramInstruction,
@@ -65,6 +66,17 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     "releaseFrequencyPeriod",
   ]);
   const [timePeriodOptions, setTimePeriodOptions] = useState(getTimePeriodOptions(false));
+
+  const updateStartDate = () => {
+    const currentDate = format(new Date(), DATE_FORMAT);
+    if (startDate < currentDate) setValue("startDate", currentDate);
+  };
+
+  const updateStartTime = () => {
+    const start = new Date(startDate + "T" + startTime);
+    const in2Minutes = add(new Date(), { minutes: 2 });
+    if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
+  };
 
   useEffect(() => {
     setTimePeriodOptions(getTimePeriodOptions(releaseFrequencyCounter > 1));
@@ -235,7 +247,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           type="date"
           label="Start Date"
           min={format(new Date(), DATE_FORMAT)}
-          max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
+          onClick={updateStartDate}
           classes="col-span-2 sm:col-span-1"
           error={errors?.startDate?.message || ""}
           {...register("startDate")}
@@ -245,6 +257,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           label="Start Time"
           classes="col-span-2 sm:col-span-1"
           error={errors?.startTime?.message}
+          onClick={updateStartTime}
           {...register("startTime")}
         />
         <Toggle

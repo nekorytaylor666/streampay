@@ -16,6 +16,7 @@ import {
   ERR_NOT_CONNECTED,
   getTimePeriodOptions,
   ProgramInstruction,
+  TIME_FORMAT,
 } from "../../constants";
 import { StringOption } from "../../types";
 
@@ -50,6 +51,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const [
     amount,
     tokenSymbol,
+    startDate,
+    startTime,
     endDate,
     endTime,
     cliffDate,
@@ -60,6 +63,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   ] = watch([
     "amount",
     "tokenSymbol",
+    "startDate",
+    "startTime",
     "endDate",
     "endTime",
     "cliffDate",
@@ -69,6 +74,36 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     "releaseFrequencyPeriod",
   ]);
   const [timePeriodOptions, setTimePeriodOptions] = useState(getTimePeriodOptions(false));
+
+  const updateStartDate = () => {
+    const currentDate = format(new Date(), DATE_FORMAT);
+    if (startDate < currentDate) setValue("startDate", currentDate);
+  };
+
+  const updateStartTime = () => {
+    const start = new Date(startDate + "T" + startTime);
+    const in2Minutes = add(new Date(), { minutes: 2 });
+    if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
+  };
+
+  const onStartDateChange = (value: string) => {
+    if (cliffDate < value) setValue("cliffDate", value);
+    if (endDate < value) setValue("endDate", value);
+  };
+
+  const onStartTimeChange = (value: string) => {
+    const start = getUnixTime(new Date(startDate + "T" + value));
+    const end = getUnixTime(new Date(endDate + "T" + endTime));
+    const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
+
+    if (end < start)
+      setValue(
+        "endTime",
+        format(add(new Date(startDate + "T" + value), { minutes: 5 }), TIME_FORMAT)
+      );
+    if (cliff < start)
+      setValue("cliffTime", format(new Date(startDate + "T" + value), TIME_FORMAT));
+  };
 
   useEffect(() => {
     setTimePeriodOptions(getTimePeriodOptions(releaseFrequencyCounter > 1));
@@ -229,14 +264,17 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             type="date"
             label="Start Date"
             min={format(new Date(), DATE_FORMAT)}
-            max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
+            customChange={onStartDateChange}
+            onClick={updateStartDate}
             classes="col-span-2 sm:col-span-1"
-            error={errors?.startDate?.message || ""}
+            error={errors?.startDate?.message}
             {...register("startDate")}
           />
           <Input
             type="time"
             label="Start Time"
+            onClick={updateStartTime}
+            customChange={onStartTimeChange}
             classes="col-span-2 sm:col-span-1"
             error={errors?.startTime?.message}
             {...register("startTime")}
@@ -245,9 +283,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             type="date"
             label="End Date"
             min={format(new Date(), DATE_FORMAT)}
-            max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
             classes="col-span-2 sm:col-span-1"
-            error={errors?.endDate?.message || ""}
+            error={errors?.endDate?.message}
             {...register("endDate")}
           />
           <Input
@@ -270,57 +307,51 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             labelRight="Advanced"
             classes="col-span-full"
           />
-          {advanced &&
-            (!endTime ? (
-              <p className="text-gray-200 text-base cols-pan-full font-light">
-                Please provide valid end time.
-              </p>
-            ) : (
-              <div className="grid gap-3 sm:gap-4 grid-cols-5 col-span-full">
+          {advanced && (
+            <div className="grid gap-3 sm:gap-4 grid-cols-5 col-span-full">
+              <Input
+                type="date"
+                label="Cliff Date"
+                min={format(new Date(), DATE_FORMAT)}
+                classes="col-span-2"
+                error={errors?.cliffDate?.message}
+                {...register("cliffDate")}
+              />
+              <Input
+                type="time"
+                label="Cliff Time"
+                classes="col-span-2"
+                error={errors?.cliffTime?.message}
+                {...register("cliffTime")}
+              />
+              <Input
+                type="number"
+                label="Release"
+                min={0}
+                max={100}
+                classes="col-span-2 sm:col-span-1"
+                error={errors?.cliffAmount?.message}
+                {...register("cliffAmount")}
+              />
+              <div className="bg-gray-800 col-span-full rounded-md grid grid-cols-1 gap-2 p-2.5 sm:p-3 mt-2">
                 <Input
-                  type="date"
-                  label="Cliff Date"
-                  min={format(new Date(), DATE_FORMAT)}
-                  max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
-                  classes="col-span-2"
-                  error={errors?.cliffDate?.message || ""}
-                  {...register("cliffDate")}
+                  type="checkbox"
+                  label="Sender can cancel?"
+                  {...register("senderCanCancel")}
                 />
                 <Input
-                  type="time"
-                  label="Cliff Time"
-                  classes="col-span-2"
-                  error={errors?.cliffTime?.message}
-                  {...register("cliffTime")}
+                  type="checkbox"
+                  label="Recipient can cancel?"
+                  {...register("recipientCanCancel")}
                 />
                 <Input
-                  type="number"
-                  label="Release"
-                  min={0}
-                  max={100}
-                  classes="col-span-2 sm:col-span-1"
-                  error={errors?.cliffAmount?.message}
-                  {...register("cliffAmount")}
+                  type="checkbox"
+                  label="Ownership transferable?"
+                  {...register("ownershipTransferable")}
                 />
-                <div className="bg-gray-800 col-span-full rounded-md grid grid-cols-1 gap-2 p-2.5 sm:p-3">
-                  <Input
-                    type="checkbox"
-                    label="Sender can cancel?"
-                    {...register("senderCanCancel")}
-                  />
-                  <Input
-                    type="checkbox"
-                    label="Recipient can cancel?"
-                    {...register("recipientCanCancel")}
-                  />
-                  <Input
-                    type="checkbox"
-                    label="Ownership transferable?"
-                    {...register("ownershipTransferable")}
-                  />
-                </div>
               </div>
-            ))}
+            </div>
+          )}
         </div>
         {wallet?.connected ? (
           <>

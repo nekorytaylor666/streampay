@@ -39,7 +39,7 @@ const getDefaultValues = () => ({
   ownershipTransferable: false,
 });
 
-const isRecipientAddressInvalid = async (address: string, connection: Connection | null) => {
+const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
   let pubKey = null;
 
   try {
@@ -66,42 +66,44 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        releaseAmount: yup
-          .number()
-          .typeError(ERRORS.amount_required)
-          .required(ERRORS.amount_required)
-          .moreThan(0, ERRORS.amount_greater_than),
-        tokenSymbol: yup.string().required(ERRORS.token_required),
-        subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
-        recipient: yup
-          .string()
-          .required(ERRORS.recipient_required)
-          .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isRecipientAddressInvalid(address || "", connection)
-          ),
-        startDate: yup
-          .string()
-          .required(ERRORS.start_date_required)
-          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
-            date ? date >= format(new Date(), DATE_FORMAT) : true
-          )
-          .test("is in a year", ERRORS.start_date_too_ahead, (date) =>
-            date ? date <= format(add(new Date(), { years: 1 }), DATE_FORMAT) : true
-          ),
-        startTime: yup
-          .string()
-          .required(ERRORS.start_time_required)
-          .test("is in a future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
-            const date = new Date(ctx.parent.startDate + "T" + (time || ""));
-            const now = add(new Date(), { minutes: 1 });
-            return date >= now;
-          }),
         depositedAmount: yup
           .number()
           .typeError(ERRORS.deposited_amount_required)
           .required(ERRORS.deposited_amount_required)
           .moreThan(0, ERRORS.amount_greater_than)
           .max(tokenBalance, ERRORS.amount_too_high),
+        releaseAmount: yup
+          .number()
+          .typeError(ERRORS.amount_required)
+          .required(ERRORS.amount_required)
+          .moreThan(0, ERRORS.amount_greater_than)
+          .when("depositedAmount", (depositedAmount, schema) =>
+            depositedAmount
+              ? schema.max(depositedAmount, ERRORS.release_amount_greater_than_deposited)
+              : schema
+          ),
+        tokenSymbol: yup.string().required(ERRORS.token_required),
+        subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
+        recipient: yup
+          .string()
+          .required(ERRORS.recipient_required)
+          .test("address_validation", ERRORS.invalid_address, async (address) =>
+            isRecipientAddressValid(address || "", connection)
+          ),
+        startDate: yup
+          .string()
+          .required(ERRORS.start_date_required)
+          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
+            date ? date >= format(new Date(), DATE_FORMAT) : true
+          ),
+        startTime: yup
+          .string()
+          .required(ERRORS.start_time_required)
+          .test("is in a future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
+            const date = new Date(ctx.parent.startDate + "T" + (time || ""));
+            const now = new Date();
+            return date >= now;
+          }),
         releaseFrequencyCounter: yup.number().required(),
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),

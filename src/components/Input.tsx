@@ -1,5 +1,6 @@
 import { FC, forwardRef } from "react";
 
+import type { ChangeHandler } from "react-hook-form";
 import cx from "classnames";
 
 interface InputProps {
@@ -11,16 +12,29 @@ interface InputProps {
   min?: string | number;
   max?: string | number;
   error?: string;
+  onClick?: () => void;
+  onChange: ChangeHandler;
+  customChange?: (value: string) => void;
 }
 
 const Input: FC<InputProps> = forwardRef<any, InputProps>(
-  ({ type, label = "", name, error = "", classes = "", ...rest }, ref) =>
-    type === "checkbox" ? (
+  (
+    { type, label = "", name, error = "", classes = "", onChange, onClick, customChange, ...rest },
+    ref
+  ) => {
+    const handleChange = (e: any) => {
+      onChange(e);
+      if (customChange) customChange(e.target.value);
+    };
+
+    return type === "checkbox" ? (
       <div className="col-span-full">
-        <label className="text-gray-200 text-sm cursor-pointer">
+        <label htmlFor={name} className="text-gray-200 text-sm cursor-pointer">
           <input
             type={type}
+            id={name}
             name={name}
+            onChange={onChange}
             className="mr-2 cursor-pointer bg-gray-900 border-0 rounded-sm"
             {...rest}
             ref={ref}
@@ -29,14 +43,16 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
         </label>
       </div>
     ) : (
-      <div className={cx(classes, "relative")}>
+      <div className={cx(classes, "relative")} onClick={onClick}>
         <label htmlFor={name} className="block text-base text-gray-200 mb-1">
           {label}
         </label>
         <input
           type={type}
+          id={name}
           name={name}
           aria-describedby={`${name}-description`}
+          onChange={handleChange}
           className={cx(
             "text-gray-100 font-light pl-2.5 py-2 sm:pl-3 bg-gray-800 block w-full rounded-md shadow-sm",
             error
@@ -48,7 +64,8 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
         />
         <p className="text-red-700 absolute text-xs py-1 right-0">{error}</p>
       </div>
-    )
+    );
+  }
 );
 
 export default Input;
