@@ -27,7 +27,7 @@ const Overview: React.FC<OverviewProps> = ({
   const end = start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod;
 
   return (
-    <div className="col-span-full mt-3">
+    <div className="col-span-full mt-4">
       <p className="text-gray-400 text-sm leading-6">
         <b className="font-bold block">Overview:</b>
         Stream starts on

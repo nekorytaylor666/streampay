@@ -33,7 +33,7 @@ const Overview: React.FC<OverviewProps> = ({
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
   return (
-    <div className="col-span-full mt-3">
+    <div className="col-span-full mt-4">
       <b className="font-bold block text-gray-400 text-sm leading-6">Overview:</b>
       <p className="text-gray-400 text-sm leading-6">
         First

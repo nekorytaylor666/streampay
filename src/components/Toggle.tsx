@@ -22,7 +22,7 @@ export default function Toggle({
   classes?: string;
 }) {
   return (
-    <Switch.Group as="div" className={cx(classes, "flex items-center mb-1")}>
+    <Switch.Group as="div" className={cx(classes, "flex items-center")}>
       {labelLeft && (
         <Switch.Label as="span" className="mr-2">
           <span className="text-white  text-sm sm:text-base flex-grow">{labelLeft}</span>
