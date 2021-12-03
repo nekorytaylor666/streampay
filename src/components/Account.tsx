@@ -4,6 +4,7 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
 import useStore, { StoreType } from "../stores";
@@ -78,7 +79,13 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   let myAddress = null;
 
   if (walletPubKey) {
-    myWalletLink = <Link url={getExplorerLink("address", walletPubKey)} title="Address" />;
+    myWalletLink = (
+      <Link
+        url={getExplorerLink("address", walletPubKey)}
+        title="Address"
+        Icon={ExternalLinkIcon}
+      />
+    );
     myAddress = <Address address={walletPubKey} classes="block truncate" />;
   }
 
