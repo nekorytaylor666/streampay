@@ -51,7 +51,8 @@ const Overview: React.FC<OverviewProps> = ({
         <p className="text-gray-400 text-sm leading-6 sm:inline-block">
           And then
           <span className="text-gray-100 text-sm">{` ${releaseRate.toFixed(3)}% (${(
-            (amount || 0) * releaseRate
+            ((amount || 0) * releaseRate) /
+            100
           ).toFixed(2)} ${tokenSymbol}) `}</span>
           <br className="sm:hidden" />
           released every
