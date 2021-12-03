@@ -31,21 +31,23 @@ const Overview: React.FC<OverviewProps> = ({
       <p className="text-gray-400 text-sm leading-6">
         <b className="font-bold block">Overview:</b>
         Stream starts on
-        <span className="text-white text-sm">{` ${startDate} `}</span>at
-        <span className="text-white text-sm">{` ${startTime}`}</span>.
+        <span className="text-gray-100 text-sm">{` ${startDate} `}</span>at
+        <span className="text-gray-100 text-sm">{` ${startTime}`}</span>.
       </p>
       {releaseAmount && depositedAmount && tokenSymbol && (
         <>
           <p className="text-gray-400 text-sm leading-6 sm:inline-block">
-            <span className="text-white text-sm">{` ${releaseAmount} ${tokenSymbol} `}</span>
+            <span className="text-gray-100 text-sm">{` ${releaseAmount} ${tokenSymbol} `}</span>
             <br className="sm:hidden" />
             released every
-            <span className="text-white text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+            <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(
+              releasePeriod
+            )}. `}</span>
           </p>
           <br />
           <p className="text-gray-400 text-sm leading-6 sm:inline-block">
             Ends on
-            <span className="text-white text-sm">{` ${format(
+            <span className="text-gray-100 text-sm">{` ${format(
               new Date(end),
               "ccc do MMM, yyyy - HH:mm"
             )}`}</span>

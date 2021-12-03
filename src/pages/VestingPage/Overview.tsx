@@ -39,26 +39,26 @@ const Overview: React.FC<OverviewProps> = ({
       <b className="font-bold block text-gray-400 text-sm leading-6">Overview:</b>
       <p className="text-gray-400 text-sm leading-6">
         First
-        <span className="text-white text-sm">
+        <span className="text-gray-100 text-sm">
           {` ${cliffAmount}% (${(((amount || 0) * cliffAmount) / 100).toFixed(2)} ${tokenSymbol}) `}
         </span>
         <br className="sm:hidden" />
         released on
-        <span className="text-white text-sm">{` ${cliffDate} `}</span>at
-        <span className="text-white text-sm">{` ${cliffTime}`}</span>.
+        <span className="text-gray-100 text-sm">{` ${cliffDate} `}</span>at
+        <span className="text-gray-100 text-sm">{` ${cliffTime}`}</span>.
       </p>
       {tokenSymbol && (
         <p className="text-gray-400 text-sm leading-6 sm:inline-block">
           And then
-          <span className="text-white text-sm">{` ${releaseRate.toFixed(3)}% (${(
+          <span className="text-gray-100 text-sm">{` ${releaseRate.toFixed(3)}% (${(
             (amount || 0) * releaseRate
           ).toFixed(2)} ${tokenSymbol}) `}</span>
           <br className="sm:hidden" />
           released every
-          <span className="text-white text-sm">{` ${formatPeriodOfTime(releasePeriod)} `}</span>
+          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)} `}</span>
           <br />
           until
-          <span className="text-white text-sm">{` ${format(
+          <span className="text-gray-100 text-sm">{` ${format(
             new Date(endDate + "T" + endTime),
             "ccc do MMM, yyyy - HH:mm"
           )}`}</span>

@@ -67,8 +67,12 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
     deposited_amount,
     canceled_at,
     recipient,
+    stream_name,
     sender,
     mint,
+    cancelable_by_sender,
+    cancelable_by_recipient,
+    transferable,
   } = data;
 
   const address = mint.toBase58();
@@ -114,9 +118,22 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
         withdrawn_amount.toNumber() < deposited_amount.toNumber())) &&
     myAddress === recipient.toBase58();
 
-  const showCancel =
+  const showCancelOnSender =
+    cancelable_by_sender &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled) &&
     myAddress === sender.toBase58();
+
+  const showCancelOnRecipient =
+    cancelable_by_recipient &&
+    myAddress === recipient.toBase58() &&
+    status === StreamStatus.streaming;
+
+  const showCancel = showCancelOnSender || showCancelOnRecipient;
+
+  const showTransfer =
+    transferable &&
+    myAddress === recipient.toBase58() &&
+    (status === StreamStatus.streaming || status === StreamStatus.complete);
 
   const handleWithdraw = async () => {
     let withdrawAmount = (await modalRef?.current?.show()) as unknown as number;
@@ -178,7 +195,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
   return (
     <>
       <dl
-        className={`text-white text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
+        className={`text-gray-100 text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
       >
         <Badge classes="col-span-full" type={status} color={color} />
         <Duration
@@ -189,6 +206,8 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
           cliff={cliff}
           isAdvanced={isCliffDateAfterStart}
         />
+        <p className="col-span-4 sm:col-span-3">Subject</p>
+        <p className="col-span-8 sm:col-span-9 text-gray-400 pt-0.5 capitalize">{stream_name}</p>
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
           title={"Stream ID"}
@@ -208,7 +227,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
           <>
             <dd className="col-span-4 sm:col-span-3">
               Unlocked
-              <small className="text-xs block text-gray-300 align-top">{`at ${
+              <small className="text-xs block text-gray-400 align-top">{`at ${
                 isCliffDateAfterStart ? "cliff" : "start"
               } date`}</small>
             </dd>
@@ -222,7 +241,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
         <dd className="col-span-4 sm:col-span-3">
           Release rate
           {isCliffDateAfterStart && (
-            <small className="text-xs block text-gray-300 align-top">after cliff date</small>
+            <small className="text-xs block text-gray-400 align-top">after cliff date</small>
           )}
         </dd>
         <dt
@@ -286,7 +305,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
                 <dd className="col-span-4">
                   Available
                   <br />
-                  <sup className="text-xs text-gray-300 align-top">for withdrawal</sup>
+                  <sup className="text-xs text-gray-400 align-top">for withdrawal</sup>
                 </dd>
                 <dt className="col-span-8 pt-1.5">
                   ~ {formatAmount(available, decimals, DEFAULT_DECIMAL_PLACES)} {symbol}
@@ -298,14 +317,16 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
                 >
                   Withdraw
                 </Button>
-                <Button
-                  onClick={onTransfer}
-                  background={STREAM_STATUS_COLOR[StreamStatus.complete]}
-                  classes="col-span-4 text-sm py-1 w-full"
-                >
-                  Transfer
-                </Button>
               </>
+            )}
+            {showTransfer && (
+              <Button
+                onClick={onTransfer}
+                background={STREAM_STATUS_COLOR[StreamStatus.complete]}
+                classes="col-span-4 text-sm py-1 w-full"
+              >
+                Transfer
+              </Button>
             )}
             {showCancel && (
               <Button

@@ -78,12 +78,21 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const updateStartDate = () => {
     const currentDate = format(new Date(), DATE_FORMAT);
     if (startDate < currentDate) setValue("startDate", currentDate);
+    if (endDate < currentDate) setValue("endDate", currentDate);
+    if (cliffDate < currentDate) setValue("cliffDate", currentDate);
   };
 
   const updateStartTime = () => {
     const start = new Date(startDate + "T" + startTime);
+    const cliff = new Date(cliffDate + "T" + cliffTime);
+    const end = new Date(endDate + "T" + endTime);
+
     const in2Minutes = add(new Date(), { minutes: 2 });
+    const in7Minutes = add(new Date(), { minutes: 7 });
+
     if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
+    if (cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
+    if (end < in7Minutes) setValue("endTime", format(in7Minutes, TIME_FORMAT));
   };
 
   const onStartDateChange = (value: string) => {
