@@ -102,3 +102,15 @@ enum LocalCluster {
 }
 
 export type Cluster = WalletAdapterNetwork | LocalCluster;
+
+export interface StringOption {
+  value: string;
+  label: string;
+  icon?: string;
+}
+
+export interface NumberOption {
+  value: number;
+  label: string;
+  icon?: string;
+}

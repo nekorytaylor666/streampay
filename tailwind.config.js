@@ -12,7 +12,7 @@ module.exports = {
       "bg-red-100",
       "bg-red-300",
       "bg-red-500",
-      "bg-red-700",
+      "bg-red-600",
       "bg-red-900",
       "text-red-400",
       "text-red-800",

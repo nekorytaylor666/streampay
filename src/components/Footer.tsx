@@ -1,7 +1,7 @@
 import { Link } from "./index";
 
 const Footer = () => (
-  <footer className="pb-4 text-center text-sm font-mono text-gray-400">
+  <footer className="pb-4 text-center text-sm font-mono text-gray-400 mt-10 sm:mt-28">
     <div className="flex justify-center items-center mx-auto">
       <img
         src="https://solana.com/branding/horizontal/logo-horizontal-gradient-dark.png"

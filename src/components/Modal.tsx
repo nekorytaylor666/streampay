@@ -62,8 +62,8 @@ const Modal = forwardRef<ModalRef, ModalProps>(({ title, text, type, confirm, ..
       )}
     >
       <div className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-gradient-to-br to-ternary from-gray-800">
-        <p className="mb-2 text-center text-sm sm:text-base text-white">{modalTitle}</p>
-        <p className="mb-2 text-center text-xs sm:text-sm text-white">{text}</p>
+        <p className="mb-2 text-center text-sm sm:text-base text-gray-100">{modalTitle}</p>
+        <p className="mb-2 text-center text-xs sm:text-sm text-gray-100">{text}</p>
         {isRangeInput && (
           <Range
             value={value as number}
@@ -78,7 +78,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(({ title, text, type, confirm, ..
             onChange={(e) => setValue(e.target.value)}
             type={type}
             {...rest}
-            className="text-white py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-800 border-primary block w-full rounded-md focus:ring-primary focus:border-primary"
+            className="text-gray-100 py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-800 border-primary block w-full rounded-md focus:ring-primary focus:border-primary"
           />
         )}
         <div className="grid gap-2 sm:gap-3 grid-cols-3 mt-4">

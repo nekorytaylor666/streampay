@@ -23,7 +23,6 @@ export const EXPLORER_TYPE_ADDR = "address";
 
 export const DATE_FORMAT = "yyyy-MM-dd";
 export const TIME_FORMAT = "HH:mm";
-export const TIME_SUFFIX = "T00:00";
 
 export const START = "start";
 export const END = "end";
@@ -55,3 +54,37 @@ export const TIMELOCK_STRUCT_OFFSET_SENDER = 48;
 export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 112;
 
 export const DEFAULT_DECIMAL_PLACES = 3;
+
+export const ERRORS = {
+  amount_required: "Amount is required.",
+  amount_greater_than: "Please provide amount greater than 0.",
+  token_required: "Token is required.",
+  recipient_required: "You must choose a recipient.",
+  subject_required: "Please provide subject (title).",
+  subject_max: "Title can have maximum of 30 characters.",
+  start_date_required: "Start date is required.",
+  start_date_is_in_the_past: "Cannot start stream in the past.",
+  start_time_required: "Start time is required.",
+  start_time_is_in_the_past: "Should be at least two minutes in future.",
+  end_date_required: "End date is required.",
+  end_time_required: "End time is required.",
+  deposited_amount_required: "Deposited amount is required.",
+  amount_too_high: "You don't have enough tokens.",
+  invalid_address: "Please enter a valid Solana wallet address.",
+  adress_is_a_program: "Address cannot be a program.",
+  release_amount_greater_than_deposited: "Should be <= deposited amount.",
+  end_should_be_after_start: "End should happen after start.",
+  cliff_should_be_after_start: "Cliff should happen after start.",
+  cliff_should_be_before_end: "Cliff should happen before end.",
+  required: "Required.",
+};
+
+export const getTimePeriodOptions = (plural: boolean) => [
+  { value: 1, label: `second${plural ? "s" : ""}` },
+  { value: 60, label: `minute${plural ? "s" : ""}` },
+  { value: 3600, label: `hour${plural ? "s" : ""}` },
+  { value: 86400, label: `day${plural ? "s" : ""}` },
+  { value: 604800, label: `week${plural ? "s" : ""}` },
+  { value: 2592000, label: `month${plural ? "s" : ""}` },
+  { value: 31536000, label: `year${plural ? "s" : ""}` },
+];

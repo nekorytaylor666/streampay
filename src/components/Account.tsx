@@ -85,7 +85,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   const tokenSymbol = token?.info?.symbol;
 
   return (
-    <>
+    <div className="mt-4">
       <div className="mb-4 text-white">
         {myWalletLink}
         {myAddress}
@@ -93,11 +93,11 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       <div className="pb-4 border-b border-gray-500 clearfix text-white">
         {token && (
           <>
-            <p className="font-bold">
+            <p className="text-gray-200">
               Balance
               {tokenSymbol && <span className="font-light text-sm">{` (${tokenSymbol})`}</span>}
             </p>
-            {token?.uiTokenAmount?.uiAmountString}
+            <span className="text-base text-primary">{token?.uiTokenAmount?.uiAmountString}</span>
           </>
         )}
         <Button
@@ -119,7 +119,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
           </Button>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

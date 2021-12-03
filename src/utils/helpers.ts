@@ -5,10 +5,11 @@ import type { TokenInfo } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
+import { format } from "date-fns";
 
 import useStore from "../stores";
 import { Cluster } from "../types";
-import { DEFAULT_DECIMAL_PLACES } from "../constants";
+import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -151,23 +152,25 @@ export const formatPeriodOfTime = (period: number) => {
   if (!period) return "0 seconds";
 
   const years = period / PERIOD.YEAR;
-  if (Math.floor(years)) return `${years} year${isMoreThanOne(years)}`;
+  if (Math.floor(years)) return `${years > 1 ? years : ""} year${isMoreThanOne(years)}`;
 
   const months = period / PERIOD.MONTH;
-  if (Math.floor(months)) return `${months} month${isMoreThanOne(months)}`;
+  if (Math.floor(months)) return `${months > 1 ? months : ""} month${isMoreThanOne(months)}`;
 
   const weeks = period / PERIOD.WEEK;
-  if (Math.floor(weeks)) return `${weeks} week${isMoreThanOne(weeks)}`;
+  if (Math.floor(weeks)) return `${weeks > 1 ? weeks : ""} week${isMoreThanOne(weeks)}`;
 
   const days = period / PERIOD.DAY;
-  if (Math.floor(days)) return `${days} day${isMoreThanOne(days)}`;
+  if (Math.floor(days)) return `${days > 1 ? days : ""} day${isMoreThanOne(days)}`;
 
   const hours = period / PERIOD.HOUR;
-  if (Math.floor(hours)) return `${hours} hour${isMoreThanOne(hours)}`;
+  if (Math.floor(hours)) return `${hours > 1 ? hours : ""} hour${isMoreThanOne(hours)}`;
 
   const minutes = period / PERIOD.MINUT;
-  if (Math.floor(minutes)) return `${minutes} minute${isMoreThanOne(minutes)}`;
+  if (Math.floor(minutes)) return `${minutes > 1 ? minutes : ""} minute${isMoreThanOne(minutes)}`;
 
   const seconds = period / PERIOD.SECOND;
-  if (Math.floor(seconds)) return `${seconds} second${isMoreThanOne(seconds)}`;
+  if (Math.floor(seconds)) return `${seconds > 1 ? seconds : ""} second${isMoreThanOne(seconds)}`;
 };
+
+export const formatCurrentDate = () => format(new Date(), DATE_FORMAT);

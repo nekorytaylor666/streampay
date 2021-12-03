@@ -22,7 +22,7 @@ export default function Toggle({
   classes?: string;
 }) {
   return (
-    <Switch.Group as="div" className={cx(classes, "flex items-center mb-1")}>
+    <Switch.Group as="div" className={cx(classes, "flex items-center")}>
       {labelLeft && (
         <Switch.Label as="span" className="mr-2">
           <span className="text-white  text-sm sm:text-base flex-grow">{labelLeft}</span>
@@ -33,7 +33,7 @@ export default function Toggle({
         onChange={setEnabled}
         className={classNames(
           enabled ? "bg-primary" : "bg-gray-900",
-          "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 ring-1 ring-primary focus:outline-none focus:ring-2 focus:ring-secondary"
+          "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 ring-1 ring-primary focus:ring-2 focus:outline-none focus:ring-primary"
         )}
       >
         <span
