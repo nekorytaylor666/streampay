@@ -34,7 +34,7 @@ const Overview: React.FC<OverviewProps> = ({
         <span className="text-gray-100 text-sm">{` ${startDate} `}</span>at
         <span className="text-gray-100 text-sm">{` ${startTime}`}</span>.
       </p>
-      {releaseAmount && depositedAmount && tokenSymbol && (
+      {releaseAmount && depositedAmount && tokenSymbol && releaseFrequencyCounter && (
         <>
           <p className="text-gray-400 text-sm leading-6 sm:inline-block">
             <span className="text-gray-100 text-sm">{` ${releaseAmount} ${tokenSymbol} `}</span>

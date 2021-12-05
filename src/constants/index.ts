@@ -79,6 +79,7 @@ export const ERRORS = {
   required: "Required.",
   release_frequency_is_too_slow:
     "Should be smaller or equal to difference between END and CLIFF time.",
+  should_be_greater_than_0: "Should be greater than 0.",
 };
 
 // export const getTimePeriodOptions = (plural: boolean) => [

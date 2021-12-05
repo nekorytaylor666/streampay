@@ -123,7 +123,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .number()
           .typeError(ERRORS.required)
           .required(ERRORS.required)
-          .positive()
+          .positive(ERRORS.should_be_greater_than_0)
           .integer(),
         releaseFrequencyPeriod: yup
           .number()
