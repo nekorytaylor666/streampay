@@ -11,24 +11,21 @@ export function getStreamStatus(canceledAt: BN, start: BN, end: BN, now: BN): St
 }
 
 export function getStreamed(
-  startTime: number,
   endTime: number,
   cliffTime: number,
   cliffAmount: number,
   depositedAmount: number,
-  period: number
+  period: number,
+  releaseRate: number
 ): BN {
   const currentTime = getUnixTime(new Date());
 
   if (currentTime < cliffTime) return new BN(0);
   if (currentTime > endTime) return new BN(depositedAmount);
 
-  if (cliffAmount) {
-    const rate = calculateReleaseRate(endTime, cliffTime, depositedAmount, cliffAmount, period);
-    return new BN(cliffAmount + Math.floor((currentTime - cliffTime) / period) * rate);
-  }
-
-  return new BN(((currentTime - startTime) / (endTime - startTime)) * depositedAmount);
+  const rate =
+    releaseRate || calculateReleaseRate(endTime, cliffTime, depositedAmount, cliffAmount, period);
+  return new BN(cliffAmount + Math.floor((currentTime - cliffTime) / period) * rate);
 }
 
 export function updateStatus(
@@ -57,7 +54,6 @@ export const calculateReleaseRate = (
   period: number
 ) => {
   const amount = depositedAmount - cliffAmount;
-
   const numberOfReleases = Math.ceil((endTime - cliffTime) / period);
   return numberOfReleases > 1 ? amount / numberOfReleases : amount;
 };

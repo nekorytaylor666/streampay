@@ -12,6 +12,7 @@ import useStore from "../stores";
 import {
   CancelStreamData,
   CreateStreamData,
+  TopupStreamData,
   TransactionData,
   TransferStreamData,
   WithdrawStreamData,
@@ -56,6 +57,17 @@ export default async function sendTransaction(
           d.transferable,
           d.release_rate,
           d.stream_name
+        );
+        break;
+      case ProgramInstruction.Topup:
+        d = data as TopupStreamData;
+        tx = await Timelock.topup(
+          connection,
+          // @ts-ignore
+          wallet,
+          programId,
+          d.stream,
+          d.amount
         );
         break;
       case ProgramInstruction.Withdraw:
