@@ -170,7 +170,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
       end_time: new BN(end),
-      period: new BN(advanced ? releaseFrequencyPeriod * releaseFrequencyCounter : 1),
+      period: new BN(releaseFrequencyPeriod * releaseFrequencyCounter),
       cliff: new BN(advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start),
       cliff_amount: new BN(
         (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals

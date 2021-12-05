@@ -13,10 +13,10 @@ export const INSTRUCTION_TRANSFER_RECIPIENT = 3;
 export enum ProgramInstruction {
   Create,
   Withdraw,
+  Topup,
   Cancel,
   TransferRecipient,
 }
-// export const INSTRUCTIONS = [INSTRUCTION_CREATE_STREAM, INSTRUCTION_WITHDRAW_STREAM, INSTRUCTION_CANCEL_STREAM, INSTRUCTION_TRANSFER_RECIPIENT];
 
 export const EXPLORER_TYPE_TX = "tx";
 export const EXPLORER_TYPE_ADDR = "address";

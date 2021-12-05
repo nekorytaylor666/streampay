@@ -40,6 +40,11 @@ export interface CreateStreamData {
   withdrawal_public: false;
 }
 
+export interface TopupStreamData {
+  amount: BN;
+  stream: PublicKey;
+}
+
 export interface WithdrawStreamData {
   amount: BN;
   stream: PublicKey;

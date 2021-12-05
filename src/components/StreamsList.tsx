@@ -169,6 +169,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
           onCancel={() => cancelStream(id)}
           onTransfer={() => transferStream(id)}
           onWithdraw={updateToken}
+          onTopup={updateToken}
           id={id}
           data={data}
           myAddress={wallet?.publicKey?.toBase58() as string}
