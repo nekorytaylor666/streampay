@@ -14,7 +14,7 @@ import { getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
-  getTimePeriodOptions,
+  timePeriodOptions,
   ProgramInstruction,
   TIME_FORMAT,
 } from "../../constants";
@@ -44,7 +44,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const [advanced, setAdvanced] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
-  const { register, handleSubmit, watch, errors, setValue } = useVestingForm({
+  const { register, handleSubmit, watch, errors, setValue, trigger } = useVestingForm({
     tokenBalance: tokenBalance || 0,
   });
 
@@ -73,13 +73,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     "releaseFrequencyCounter",
     "releaseFrequencyPeriod",
   ]);
-  const [timePeriodOptions, setTimePeriodOptions] = useState(getTimePeriodOptions(false));
 
   const updateStartDate = () => {
     const currentDate = format(new Date(), DATE_FORMAT);
-    if (startDate < currentDate) setValue("startDate", currentDate);
+    if (startDate < currentDate) setValue("startDate", currentDate, { shouldValidate: true });
     if (endDate < currentDate) setValue("endDate", currentDate);
-    if (cliffDate < currentDate) setValue("cliffDate", currentDate);
+    if (!advanced || cliffDate < currentDate) setValue("cliffDate", currentDate);
   };
 
   const updateStartTime = () => {
@@ -91,12 +90,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const in7Minutes = add(new Date(), { minutes: 7 });
 
     if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
-    if (cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
+    if (!advanced || cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
     if (end < in7Minutes) setValue("endTime", format(in7Minutes, TIME_FORMAT));
   };
 
   const onStartDateChange = (value: string) => {
-    if (cliffDate < value) setValue("cliffDate", value);
+    if (!advanced || cliffDate < value) setValue("cliffDate", value);
     if (endDate < value) setValue("endDate", value);
   };
 
@@ -110,13 +109,9 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         "endTime",
         format(add(new Date(startDate + "T" + value), { minutes: 5 }), TIME_FORMAT)
       );
-    if (cliff < start)
+    if (!advanced || cliff < start)
       setValue("cliffTime", format(new Date(startDate + "T" + value), TIME_FORMAT));
   };
-
-  useEffect(() => {
-    setTimePeriodOptions(getTimePeriodOptions(releaseFrequencyCounter > 1));
-  }, [releaseFrequencyCounter]);
 
   useEffect(() => {
     if (myTokenAccounts) {
@@ -226,9 +221,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     }
   };
 
+  const updateReleaseFrequencyCounter = (value: string) => {
+    setValue("releaseFrequencyCounter", parseInt(value));
+    trigger("releaseFrequencyPeriod");
+  };
+
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="block my-4">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
         <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-5 sm:grid-cols-2">
           <Input
             type="number"
@@ -292,6 +292,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             type="date"
             label="End Date"
             min={format(new Date(), DATE_FORMAT)}
+            customChange={() => trigger("releaseFrequencyPeriod")}
             classes="col-span-2 sm:col-span-1"
             error={errors?.endDate?.message}
             {...register("endDate")}
@@ -300,6 +301,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             type="time"
             label="End Time"
             classes="col-span-2 sm:col-span-1"
+            customChange={() => trigger("releaseFrequencyPeriod")}
             error={errors?.endTime?.message}
             {...register("endTime")}
           />
@@ -307,14 +309,28 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
               Release Frequency
             </label>
-            <Input type="number" min={1} {...register("releaseFrequencyCounter")} />
-            <Select options={timePeriodOptions} {...register("releaseFrequencyPeriod")} />
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              error={
+                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
+              }
+              customChange={updateReleaseFrequencyCounter}
+              {...register("releaseFrequencyCounter")}
+            />
+            <Select
+              options={timePeriodOptions}
+              plural={releaseFrequencyCounter > 1}
+              {...register("releaseFrequencyPeriod")}
+              error={errors?.releaseFrequencyPeriod?.message}
+            />
           </div>
           <Toggle
             enabled={advanced}
             setEnabled={setAdvanced}
             labelRight="Advanced"
-            classes="col-span-full"
+            classes="col-span-full mt-1"
           />
           {advanced && (
             <div className="grid gap-3 sm:gap-4 grid-cols-5 col-span-full">
@@ -322,6 +338,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 type="date"
                 label="Cliff Date"
                 min={format(new Date(), DATE_FORMAT)}
+                customChange={() => trigger("releaseFrequencyPeriod")}
                 classes="col-span-2"
                 error={errors?.cliffDate?.message}
                 {...register("cliffDate")}
@@ -330,6 +347,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 type="time"
                 label="Cliff Time"
                 classes="col-span-2"
+                customChange={() => trigger("releaseFrequencyPeriod")}
                 error={errors?.cliffTime?.message}
                 {...register("cliffTime")}
               />
@@ -380,6 +398,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 cliffAmount,
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
+                releaseFrequencyError: errors.releaseFrequencyPeriod,
               }}
             />
             <Button

@@ -18,7 +18,7 @@ const Footer = () => (
       />
     </div>
     <small className="block mt-1">
-      <Link url="https://streamflow.finance" title="StreamFlow Finance" hideIcon={true} />
+      <Link url="https://streamflow.finance" title="StreamFlow Finance" />
     </small>
     <small className="block mt-2 text-gray-400 px-2">
       This is (still) unaudited software. Please proceed with caution.

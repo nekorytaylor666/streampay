@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import type { FieldError } from "react-hook-form";
 
 import { formatPeriodOfTime } from "../../utils/helpers";
 
@@ -12,6 +13,7 @@ interface OverviewProps {
   cliffAmount: number;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
+  releaseFrequencyError: FieldError | undefined;
 }
 
 const Overview: React.FC<OverviewProps> = ({
@@ -24,9 +26,9 @@ const Overview: React.FC<OverviewProps> = ({
   cliffAmount,
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
+  releaseFrequencyError,
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
-
   const end = new Date(endDate + "T" + endTime);
   const cliff = new Date(cliffDate + "T" + cliffTime);
 
@@ -47,11 +49,12 @@ const Overview: React.FC<OverviewProps> = ({
         <span className="text-gray-100 text-sm">{` ${cliffDate} `}</span>at
         <span className="text-gray-100 text-sm">{` ${cliffTime}`}</span>.
       </p>
-      {tokenSymbol && (
+      {tokenSymbol && !releaseFrequencyError && releaseFrequencyCounter && (
         <p className="text-gray-400 text-sm leading-6 sm:inline-block">
           And then
           <span className="text-gray-100 text-sm">{` ${releaseRate.toFixed(3)}% (${(
-            (amount || 0) * releaseRate
+            ((amount || 0) * releaseRate) /
+            100
           ).toFixed(2)} ${tokenSymbol}) `}</span>
           <br className="sm:hidden" />
           released every

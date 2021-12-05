@@ -4,7 +4,7 @@ import type { ChangeHandler } from "react-hook-form";
 import cx from "classnames";
 
 interface InputProps {
-  type: "text" | "number" | "date" | "time" | "checkbox";
+  type: "text" | "number" | "date" | "time" | "checkbox" | "range";
   label?: string;
   name: string;
   placeholder?: string;
@@ -12,6 +12,7 @@ interface InputProps {
   inputClasses?: string;
   min?: string | number;
   max?: string | number;
+  step?: number;
   error?: string;
   onClick?: () => void;
   onChange: ChangeHandler;
@@ -75,7 +76,13 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
           {...rest}
           ref={ref}
         />
-        <p className="text-red-700 absolute text-xs py-1 right-0">{error}</p>
+        <p
+          className={cx("text-red-700 absolute text-xs py-1", {
+            ["whitespace-nowrap"]: name === "releaseFrequencyCounter",
+          })}
+        >
+          {error}
+        </p>
       </div>
     );
   }

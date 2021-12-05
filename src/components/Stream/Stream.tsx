@@ -4,6 +4,7 @@ import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { decode, TokenStreamData } from "ibrica-timelock/dist/layout";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
 import {
@@ -212,12 +213,14 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
           url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
           title={"Stream ID"}
           classes="col-span-4 sm:col-span-3 text-sm text-base"
+          Icon={ExternalLinkIcon}
         />
         <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5" />
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())}
           title={"Recipient"}
           classes="col-span-4 sm:col-span-3 text-base"
+          Icon={ExternalLinkIcon}
         />
         <Address
           address={recipient.toBase58()}
