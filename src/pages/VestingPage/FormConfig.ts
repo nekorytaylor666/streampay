@@ -2,11 +2,11 @@ import { useMemo } from "react";
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { add, format } from "date-fns";
+import { add, format, getUnixTime } from "date-fns";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import * as yup from "yup";
 
-import { ERRORS, DATE_FORMAT, TIME_FORMAT, getTimePeriodOptions } from "../../constants";
+import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
 
 export interface VestingFormData {
@@ -38,7 +38,7 @@ const getDefaultValues = () => ({
   endDate: format(new Date(), DATE_FORMAT),
   endTime: format(add(new Date(), { minutes: 7 }), TIME_FORMAT),
   releaseFrequencyCounter: 1,
-  releaseFrequencyPeriod: getTimePeriodOptions(false)[0].value,
+  releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
   ownershipTransferable: false,
@@ -91,9 +91,11 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
         startDate: yup
           .string()
           .required(ERRORS.start_date_required)
-          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
-            date ? date >= format(new Date(), DATE_FORMAT) : true
-          ),
+          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) => {
+            console.log("date", date);
+            console.log(format(new Date(), DATE_FORMAT));
+            return date ? date >= format(new Date(), DATE_FORMAT) : true;
+          }),
         startTime: yup
           .string()
           .required(ERRORS.start_time_required)
@@ -117,8 +119,32 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
             const end = new Date(ctx.parent.endDate + "T" + time);
             return end >= start;
           }),
-        releaseFrequencyCounter: yup.number().required(),
-        releaseFrequencyPeriod: yup.number().required(),
+        releaseFrequencyCounter: yup
+          .number()
+          .typeError(ERRORS.required)
+          .required(ERRORS.required)
+          .positive()
+          .integer(),
+        releaseFrequencyPeriod: yup
+          .number()
+          .required()
+          .test(
+            "is not too slow",
+            ERRORS.release_frequency_is_too_slow,
+            (releaseFrequencyPeriod, ctx) => {
+              if (releaseFrequencyPeriod && ctx.parent.releaseFrequencyCounter) {
+                const cliff = getUnixTime(
+                  new Date(ctx.parent.cliffDate + "T" + ctx.parent.cliffTime)
+                );
+                const end = getUnixTime(new Date(ctx.parent.endDate + "T" + ctx.parent.endTime));
+                const releasePeriod = end - cliff;
+                const releaseFrequency =
+                  releaseFrequencyPeriod * ctx.parent.releaseFrequencyCounter;
+                return releaseFrequency <= releasePeriod;
+              }
+              return true;
+            }
+          ),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
         ownershipTransferable: yup.bool().required(),
@@ -136,7 +162,6 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .string()
           .required(ERRORS.required)
           .test("is after start", ERRORS.cliff_should_be_after_start, (time, ctx) => {
-            console.log("start date", ctx.parent.startDate);
             if (!time || ctx.parent.startDate > ctx.parent.cliffDate) return true;
             const start = new Date(ctx.parent.startDate + "T" + ctx.parent.startTime);
             const cliff = new Date(ctx.parent.cliffDate + "T" + time);
@@ -164,6 +189,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
     watch,
     formState: { errors },
     setValue,
+    trigger,
   } = useForm<VestingFormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
@@ -174,6 +200,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
     watch,
     errors,
     setValue,
+    trigger,
     handleSubmit,
   };
 };

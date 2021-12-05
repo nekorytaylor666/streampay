@@ -11,6 +11,7 @@ interface SelectProps {
   classes?: string;
   error?: string;
   onChange: ChangeHandler;
+  plural?: boolean;
   customChange?: any;
   options: StringOption[] | NumberOption[];
 }
@@ -22,7 +23,10 @@ const createOptionsObject = (options: StringOption[] | NumberOption[]) => {
 };
 
 const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
-  ({ name, options, classes = "", label = "", error = "", onChange, customChange }, ref) => {
+  (
+    { name, options, classes = "", label = "", error = "", onChange, customChange, plural = false },
+    ref
+  ) => {
     const withIcons = !!options[0].icon;
     const optionsObject = createOptionsObject(options);
     const [selectedIcon, setSelectedIcon] = useState(options[0].icon);
@@ -53,18 +57,23 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
             name={name}
             onChange={handleChange}
             className={cx(
-              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 border-0 block w-full border-black rounded-md focus:ring-primary focus:border-primary pr-6 bg-right shadow-sm",
-              { "pl-8": withIcons }
+              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 block w-full rounded-md pr-6 bg-right shadow-sm",
+              { "pl-8": withIcons },
+              error
+                ? "border-red-700 focus:ring-red-700 focus:border-red-700"
+                : "border-0 focus:ring-primary focus:border-primary"
             )}
             ref={ref}
           >
             {options.map(({ value, label, icon }) => (
               <option key={label} value={value} data-thumbnail={icon}>
-                {label}
+                {`${label}${plural ? "s" : ""}`}
               </option>
             ))}
           </select>
-          <p className="text-red-600 absolute text-xs py-1 right-0">{error}</p>
+          {name !== "releaseFrequencyPeriod" && (
+            <p className="text-red-600 absolute text-xs py-1 right-0">{error}</p>
+          )}
         </div>
       </div>
     );

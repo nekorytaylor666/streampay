@@ -77,14 +77,26 @@ export const ERRORS = {
   cliff_should_be_after_start: "Cliff should happen after start.",
   cliff_should_be_before_end: "Cliff should happen before end.",
   required: "Required.",
+  release_frequency_is_too_slow:
+    "Should be smaller or equal to difference between END and CLIFF time.",
 };
 
-export const getTimePeriodOptions = (plural: boolean) => [
-  { value: 1, label: `second${plural ? "s" : ""}` },
-  { value: 60, label: `minute${plural ? "s" : ""}` },
-  { value: 3600, label: `hour${plural ? "s" : ""}` },
-  { value: 86400, label: `day${plural ? "s" : ""}` },
-  { value: 604800, label: `week${plural ? "s" : ""}` },
-  { value: 2592000, label: `month${plural ? "s" : ""}` },
-  { value: 31536000, label: `year${plural ? "s" : ""}` },
+// export const getTimePeriodOptions = (plural: boolean) => [
+//   { value: 1, label: `second${plural ? "s" : ""}` },
+//   { value: 60, label: `minute${plural ? "s" : ""}` },
+//   { value: 3600, label: `hour${plural ? "s" : ""}` },
+//   { value: 86400, label: `day${plural ? "s" : ""}` },
+//   { value: 604800, label: `week${plural ? "s" : ""}` },
+//   { value: 2592000, label: `month${plural ? "s" : ""}` },
+//   { value: 31536000, label: `year${plural ? "s" : ""}` },
+// ];
+
+export const timePeriodOptions = [
+  { value: 1, label: "second" },
+  { value: 60, label: "minute" },
+  { value: 3600, label: "hour" },
+  { value: 86400, label: "day" },
+  { value: 604800, label: "week" },
+  { value: 2592000, label: "month" },
+  { value: 31536000, label: "year" },
 ];

@@ -6,15 +6,12 @@ import { BrowserRouter as Router } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 // import reportWebVitals from './reportWebVitals';
-import { FormProvider } from "./contexts/FormContext";
 
 ReactDOM.render(
   <React.StrictMode>
-    <FormProvider>
-      <Router>
-        <App />
-      </Router>
-    </FormProvider>
+    <Router>
+      <App />
+    </Router>
   </React.StrictMode>,
   document.getElementById("root")
 );

@@ -6,7 +6,7 @@ import { add, format } from "date-fns";
 import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import * as yup from "yup";
 
-import { ERRORS, DATE_FORMAT, TIME_FORMAT, getTimePeriodOptions } from "../../constants";
+import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
 
 export interface StreamsFormData {
@@ -33,7 +33,7 @@ const getDefaultValues = () => ({
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   depositedAmount: undefined,
   releaseFrequencyCounter: 1,
-  releaseFrequencyPeriod: getTimePeriodOptions(false)[0].value,
+  releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
   ownershipTransferable: false,
@@ -104,7 +104,12 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
             const now = new Date();
             return date >= now;
           }),
-        releaseFrequencyCounter: yup.number().required(),
+        releaseFrequencyCounter: yup
+          .number()
+          .typeError(ERRORS.required)
+          .required(ERRORS.required)
+          .positive()
+          .integer(),
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),

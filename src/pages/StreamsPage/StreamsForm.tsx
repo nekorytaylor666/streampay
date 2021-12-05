@@ -14,8 +14,8 @@ import {
   DATE_FORMAT,
   TIME_FORMAT,
   ERR_NOT_CONNECTED,
-  getTimePeriodOptions,
   ProgramInstruction,
+  timePeriodOptions,
 } from "../../constants";
 import { StringOption } from "../../types";
 import Overview from "./Overview";
@@ -65,7 +65,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     "releaseFrequencyCounter",
     "releaseFrequencyPeriod",
   ]);
-  const [timePeriodOptions, setTimePeriodOptions] = useState(getTimePeriodOptions(false));
 
   const updateStartDate = () => {
     const currentDate = format(new Date(), DATE_FORMAT);
@@ -77,10 +76,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     const in2Minutes = add(new Date(), { minutes: 2 });
     if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
   };
-
-  useEffect(() => {
-    setTimePeriodOptions(getTimePeriodOptions(releaseFrequencyCounter > 1));
-  }, [releaseFrequencyCounter]);
 
   useEffect(() => {
     if (myTokenAccounts) {
@@ -104,6 +99,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const updateToken = (tokenSymbol: string) => {
     const token = Object.values(myTokenAccounts).find(({ info }) => info.symbol === tokenSymbol);
     if (token) setToken(token);
+  };
+
+  const updateReleaseFrequencyCounter = (value: string) => {
+    setValue("releaseFrequencyCounter", parseInt(value));
   };
 
   const onSubmit = async (values: StreamsFormData) => {
@@ -187,7 +186,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="block my-4">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
       <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-5 sm:grid-cols-2">
         <Input
           type="number"
@@ -224,8 +223,22 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
             Release Frequency
           </label>
-          <Input type="number" min={1} {...register("releaseFrequencyCounter")} />
-          <Select options={timePeriodOptions} {...register("releaseFrequencyPeriod")} />
+          <Input
+            type="number"
+            min={1}
+            step={1}
+            error={
+              errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
+            }
+            customChange={updateReleaseFrequencyCounter}
+            {...register("releaseFrequencyCounter")}
+          />
+          <Select
+            options={timePeriodOptions}
+            plural={releaseFrequencyCounter > 1}
+            {...register("releaseFrequencyPeriod")}
+            error={errors?.releaseFrequencyPeriod?.message}
+          />
         </div>
         <Input
           type="text"
