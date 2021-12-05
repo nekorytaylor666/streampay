@@ -65,7 +65,7 @@ export const ERRORS = {
   start_date_required: "Start date is required.",
   start_date_is_in_the_past: "Cannot start stream in the past.",
   start_time_required: "Start time is required.",
-  start_time_is_in_the_past: "Should be at least two minutes in future.",
+  start_time_is_in_the_past: "Should start in future.",
   end_date_required: "End date is required.",
   end_time_required: "End time is required.",
   deposited_amount_required: "Deposited amount is required.",
@@ -81,16 +81,6 @@ export const ERRORS = {
     "Should be smaller or equal to difference between END and CLIFF time.",
   should_be_greater_than_0: "Should be greater than 0.",
 };
-
-// export const getTimePeriodOptions = (plural: boolean) => [
-//   { value: 1, label: `second${plural ? "s" : ""}` },
-//   { value: 60, label: `minute${plural ? "s" : ""}` },
-//   { value: 3600, label: `hour${plural ? "s" : ""}` },
-//   { value: 86400, label: `day${plural ? "s" : ""}` },
-//   { value: 604800, label: `week${plural ? "s" : ""}` },
-//   { value: 2592000, label: `month${plural ? "s" : ""}` },
-//   { value: 31536000, label: `year${plural ? "s" : ""}` },
-// ];
 
 export const timePeriodOptions = [
   { value: 1, label: "second" },
