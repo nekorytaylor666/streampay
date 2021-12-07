@@ -34,7 +34,8 @@ export interface CreateStreamData {
   new_stream_keypair: Keypair;
   cancelable_by_sender: boolean;
   cancelable_by_recipient: boolean;
-  transferable: boolean;
+  transferable_by_sender: boolean;
+  transferable_by_recipient: boolean;
   release_rate: BN;
   stream_name: string;
   withdrawal_public: false;

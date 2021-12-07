@@ -144,7 +144,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
-      transferable: ownershipTransferable,
+      transferable_by_sender: true,
+      transferable_by_recipient: ownershipTransferable,
       withdrawal_public: false,
     };
 
