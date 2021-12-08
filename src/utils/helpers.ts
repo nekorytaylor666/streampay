@@ -9,7 +9,7 @@ import { format } from "date-fns";
 
 import useStore from "../stores";
 import { Cluster } from "../types";
-import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
+import { AIRDROP_TEST_TOKEN, DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -58,7 +58,7 @@ const ourTokens = [
   },
   {
     chainId: 103, //devnet
-    address: "3AYtArG2AEsi29ZuwiCqk78ZYG6Fd9Tvf2oVodewvbKZ", //ADD YOUR LOCAL TOKEN HERE
+    address: AIRDROP_TEST_TOKEN, //ADD YOUR LOCAL TOKEN HERE
     symbol: "DULE",
     name: "DULE",
     decimals: 9, //default is 9
