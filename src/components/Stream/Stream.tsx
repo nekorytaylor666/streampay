@@ -83,7 +83,8 @@ const Stream: FC<StreamProps> = ({
     mint,
     cancelable_by_sender,
     cancelable_by_recipient,
-    transferable,
+    transferable_by_sender,
+    transferable_by_recipient,
     release_rate,
   } = data;
 
@@ -94,7 +95,7 @@ const Stream: FC<StreamProps> = ({
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
 
-  const isStreaming = !!release_rate.toNumber();
+  const isStreaming = !release_rate.isZero();
 
   const endTime = isStreaming ? closable_at : end_time;
   const releaseFrequency = calculateReleaseFrequency(
@@ -143,8 +144,8 @@ const Stream: FC<StreamProps> = ({
   const showCancel = showCancelOnSender || showCancelOnRecipient;
 
   const showTransfer =
-    transferable &&
-    myAddress === recipient.toBase58() &&
+    ((transferable_by_recipient && myAddress === recipient.toBase58()) ||
+      (transferable_by_sender && myAddress === sender.toBase58())) &&
     (status === StreamStatus.streaming || status === StreamStatus.complete);
 
   const showTopup =
@@ -156,7 +157,7 @@ const Stream: FC<StreamProps> = ({
     let withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    if (withdrawAmount === roundAmount(available, decimals)) {
+    if ((withdrawAmount = roundAmount(available, decimals))) {
       //max
       withdrawAmount = 0;
     }

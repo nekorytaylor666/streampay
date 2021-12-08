@@ -54,7 +54,8 @@ export default async function sendTransaction(
           d.cancelable_by_sender,
           d.cancelable_by_recipient,
           d.withdrawal_public,
-          d.transferable,
+          d.transferable_by_sender,
+          d.transferable_by_recipient,
           d.release_rate,
           d.stream_name
         );

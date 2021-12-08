@@ -54,14 +54,17 @@ const getProgramAccounts = (
 
 const sortStreams = (streams: { [s: string]: TokenStreamData }, type: "vesting" | "streams") => {
   const isVesting = type === "vesting";
+
   const allStreams = Object.entries(streams).sort(
     ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
   );
+
   let filteredStreams = [];
+
   if (isVesting) {
-    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.toNumber() === 0);
+    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.isZero());
   } else {
-    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.toNumber() > 0);
+    filteredStreams = allStreams.filter((stream) => !stream[1].release_rate.isZero());
   }
   return filteredStreams;
 };
