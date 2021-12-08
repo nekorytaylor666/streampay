@@ -118,7 +118,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       releaseFrequencyPeriod,
       senderCanCancel,
       recipientCanCancel,
-      ownershipTransferable,
+      senderCanTransfer,
+      recipientCanTransfer,
     } = values;
 
     if (!wallet?.publicKey || !connection) return toast.error(ERR_NOT_CONNECTED);
@@ -144,8 +145,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
-      transferable_by_sender: true,
-      transferable_by_recipient: ownershipTransferable,
+      transferable_by_sender: senderCanTransfer,
+      transferable_by_recipient: recipientCanTransfer,
       withdrawal_public: false,
     };
 
@@ -188,7 +189,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
-      <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-5 sm:grid-cols-2">
+      <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
         <Input
           type="number"
           label="Deposited Amount"
@@ -204,11 +205,11 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             error={errors?.tokenSymbol?.message}
             customChange={updateToken}
             {...register("tokenSymbol")}
-            classes="col-span-2 sm:col-span-1"
+            classes="col-span-3 sm:col-span-1"
           />
         ) : (
-          <div className="col-span-2 sm:col-span-1">
-            <label className="text-gray-200 text-sm sm:text-base cursor-pointer">Token</label>
+          <div className="col-span-3 sm:col-span-1">
+            <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
             <p className="text-base font-medium text-primary">Please connect.</p>
           </div>
         )}
@@ -220,14 +221,15 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           classes="col-span-3 sm:col-span-1"
           {...register("releaseAmount")}
         />
-        <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-          <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
+        <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
+          <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
             Release Frequency
           </label>
           <Input
             type="number"
             min={1}
             step={1}
+            classes="col-span-2 sm:col-span-1"
             error={
               errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
             }
@@ -238,6 +240,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             options={timePeriodOptions}
             plural={releaseFrequencyCounter > 1}
             {...register("releaseFrequencyPeriod")}
+            classes="col-span-3 sm:col-span-1"
             error={errors?.releaseFrequencyPeriod?.message}
           />
         </div>
@@ -262,14 +265,14 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           label="Start Date"
           min={format(new Date(), DATE_FORMAT)}
           onClick={updateStartDate}
-          classes="col-span-2 sm:col-span-1"
+          classes="col-span-3 sm:col-span-1"
           error={errors?.startDate?.message || ""}
           {...register("startDate")}
         />
         <Input
           type="time"
           label="Start Time"
-          classes="col-span-2 sm:col-span-1"
+          classes="col-span-3 sm:col-span-1"
           error={errors?.startTime?.message}
           onClick={updateStartTime}
           {...register("startTime")}
@@ -281,19 +284,46 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           classes="col-span-full"
         />
         {advanced && (
-          <div className="bg-gray-800 col-span-full rounded-md grid grid-cols-1 gap-2 p-2.5 sm:p-3">
-            <Input type="checkbox" label="Sender can cancel?" {...register("senderCanCancel")} />
-            <Input
-              type="checkbox"
-              label="Recipient can cancel?"
-              {...register("recipientCanCancel")}
-            />
-            <Input
-              type="checkbox"
-              label="Ownership transferable?"
-              {...register("ownershipTransferable")}
-            />
-          </div>
+          <>
+            <div className="col-span-3 sm:col-span-1">
+              <label className="text-gray-200 text-base cursor-pointer mb-1 block">
+                Who can transfer?
+              </label>
+              <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+                <Input
+                  type="checkbox"
+                  label="sender"
+                  classes="col-span-2 sm:col-span-1"
+                  {...register("senderCanTransfer")}
+                />
+                <Input
+                  type="checkbox"
+                  label="recipient"
+                  classes="col-span-2 sm:col-span-1"
+                  {...register("recipientCanTransfer")}
+                />
+              </div>
+            </div>
+            <div className="col-span-3 sm:col-span-1">
+              <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+                Who can cancel?
+              </label>
+              <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+                <Input
+                  type="checkbox"
+                  label="sender"
+                  classes="col-span-2 sm:col-span-1"
+                  {...register("senderCanCancel")}
+                />
+                <Input
+                  type="checkbox"
+                  label="recipient"
+                  classes="col-span-2 sm:col-span-1"
+                  {...register("recipientCanCancel")}
+                />
+              </div>
+            </div>
+          </>
         )}
       </div>
       {wallet?.connected ? (

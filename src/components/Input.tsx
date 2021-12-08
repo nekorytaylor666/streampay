@@ -41,14 +41,14 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
     };
 
     return type === "checkbox" ? (
-      <div className="col-span-full">
-        <label htmlFor={name} className="text-gray-200 text-sm cursor-pointer">
+      <div className={cx(classes, "flex pb-0.5")}>
+        <label htmlFor={name} className="text-gray-200 text-base cursor-pointer block">
           <input
             type={type}
             id={name}
             name={name}
             onChange={onChange}
-            className="mr-2 cursor-pointer bg-gray-900 border-0 rounded-sm"
+            className="mr-2 cursor-pointer bg-gray-900 border-0 rounded-sm font-light"
             {...rest}
             ref={ref}
           />
@@ -67,8 +67,8 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
           aria-describedby={`${name}-description`}
           onChange={handleChange}
           className={cx(
+            "text-gray-100 font-light p-2 pr-1.5 sm:pl-3 sm:pr-2 bg-gray-800 block w-full rounded-md shadow-sm",
             inputClasses,
-            "text-gray-100 font-light pl-2.5 py-2 sm:pl-3 bg-gray-800 block w-full rounded-md shadow-sm",
             error
               ? "border-red-700 focus:ring-red-700 focus:border-red-700"
               : "border-0 focus:ring-primary focus:border-primary"

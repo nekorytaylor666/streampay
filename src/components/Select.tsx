@@ -42,10 +42,7 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
 
     return (
       <div className={classes}>
-        <label
-          htmlFor={name}
-          className="block text-gray-200 text-sm sm:text-base cursor-pointer mb-1"
-        >
+        <label htmlFor={name} className="block text-gray-200 text-base cursor-pointer mb-1">
           {label}
         </label>
         <div className="relative">
@@ -57,7 +54,7 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
             name={name}
             onChange={handleChange}
             className={cx(
-              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 block w-full rounded-md pr-6 bg-right shadow-sm",
+              "text-white text-base font-light leading-6 bg-gray-800 col-span-2 block w-full rounded-md pr-4 sm:pr-6 bg-right shadow-sm",
               { "pl-8": withIcons },
               error
                 ? "border-red-700 focus:ring-red-700 focus:border-red-700"
