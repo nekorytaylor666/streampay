@@ -29,8 +29,8 @@ spl-token create-token
 token=<TOKEN> #save token mint address for later use
 spl-token create-account $token
 acc=<TOKEN_ACCOUNT> #save token account address for later use
-spl-token mint <TOKEN> <AMOUNT>
-spl-token transfer <TOKEN> <AMOUNT> <WALLET_ADDRESS> --fund-recipient --allow-unfunded-recipient
+spl-token mint $token <AMOUNT>
+spl-token transfer $token <AMOUNT> <WALLET_ADDRESS> --fund-recipient --allow-unfunded-recipient
 ```
 
 and then update `ourToken`'s address (to match `<TOKEN>`) in `Main.tsx`. Voila, now you have test tokens! to play with. :)
