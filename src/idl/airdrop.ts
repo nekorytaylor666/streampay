@@ -52,7 +52,7 @@ export default {
       accounts: [
         {
           name: "taker",
-          isMut: true,
+          isMut: false,
           isSigner: true,
         },
         {
@@ -88,7 +88,7 @@ export default {
       accounts: [
         {
           name: "initializer",
-          isMut: false,
+          isMut: true,
           isSigner: true,
         },
         {

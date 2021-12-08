@@ -139,12 +139,11 @@ export async function cancel() {
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
+  const program = initProgram();
   // @ts-ignore
   const airdropAccount = (
     await connection?.getProgramAccounts(new PublicKey(airdrop.metadata.address))
   )[0];
-
-  const program = initProgram();
   // @ts-ignore
   const assTokenAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -152,9 +151,15 @@ export async function cancel() {
     mint,
     wallet?.publicKey as PublicKey
   );
+
   const result = await connection?.getProgramAccounts(program.programId);
   // @ts-ignore
   const pda = result[0].pubkey;
+
+  const [_pda] = await PublicKey.findProgramAddress(
+    [Buffer.from("streamflow-airdrop", "utf-8")],
+    program.programId
+  );
 
   const assAirdropTokAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -163,11 +168,18 @@ export async function cancel() {
     pda
   );
 
+  console.log("wallet", wallet?.publicKey?.toString());
+  console.log("associated STRM token", assTokenAcc.toString());
+  console.log("airdrop account", airdropAccount.pubkey.toString());
+  console.log("pda", pda.toString());
+  console.log("_pda", _pda.toString());
+  console.log("program", program.programId.toString());
+
   await program.rpc.cancelAirdrop({
     accounts: {
       initializer: wallet?.publicKey,
       initializerDepositTokenAccount: assTokenAcc,
-      pdaAccount: pda,
+      pdaAccount: _pda,
       airdropAccount: airdropAccount.pubkey,
       airdropTokenAccount: assAirdropTokAcc,
       tokenProgram: TOKEN_PROGRAM_ID,

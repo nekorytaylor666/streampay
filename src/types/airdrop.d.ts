@@ -52,7 +52,7 @@ export type Airdrop = {
       accounts: [
         {
           name: "taker";
-          isMut: true;
+          isMut: false;
           isSigner: true;
         },
         {
@@ -88,7 +88,7 @@ export type Airdrop = {
       accounts: [
         {
           name: "initializer";
-          isMut: false;
+          isMut: true;
           isSigner: true;
         },
         {
