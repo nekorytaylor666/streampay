@@ -54,6 +54,7 @@ const getProgramAccounts = (
 
 const sortStreams = (streams: { [s: string]: TokenStreamData }, type: "vesting" | "streams") => {
   const isVesting = type === "vesting";
+
   const allStreams = Object.entries(streams).sort(
     ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
   );

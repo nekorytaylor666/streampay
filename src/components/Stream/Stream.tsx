@@ -85,7 +85,6 @@ const Stream: FC<StreamProps> = ({
     cancelable_by_recipient,
     transferable_by_sender,
     transferable_by_recipient,
-
     release_rate,
   } = data;
 
