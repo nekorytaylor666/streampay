@@ -6,10 +6,20 @@ import cx from "classnames";
 import { toast } from "react-toastify";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 
-import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
+import {
+  AIRDROP_AMOUNT,
+  // AIRDROP_WHITELIST,
+  ERR_NOT_CONNECTED,
+  TX_FINALITY_CONFIRMED,
+} from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
 import { Address, Button, Link } from ".";
+import {
+  //cancel,
+  getAirdrop,
+  // initialize
+} from "../actions/airdrop";
 
 const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
   isMainnet: cluster === WalletAdapterNetwork.Mainnet,
@@ -47,6 +57,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   }, [airdropTxSignature]);
 
   async function requestAirdrop() {
+    console.log("requesting");
     if (!wallet?.publicKey || !connection) {
       toast.error(ERR_NOT_CONNECTED);
       return;
@@ -54,12 +65,16 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     setLoading(true);
     setIsGimmeSolDisabled(true);
     try {
+      console.log("trying hard");
       const signature = await connection.requestAirdrop(
         wallet.publicKey,
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
+      console.log("proso");
       setAirdropTxSignature(signature);
-
+      // const tx = await initialize();
+      const tx = await getAirdrop();
+      console.log("tx", tx);
       setLoading(false);
       toast.success("Airdrop requested!");
     } catch (error) {
@@ -114,16 +129,39 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
           Disconnect
         </Button>
         {wallet?.connected && (
-          <Button
-            primary
-            onClick={requestAirdrop}
-            classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
-              hidden: isMainnet,
-            })}
-            disabled={isGimmeSolDisabled}
-          >
-            Gimme SOL!
-          </Button>
+          <>
+            {/*<Button*/}
+            {/*  primary*/}
+            {/*  onClick={initialize}*/}
+            {/*  classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {*/}
+            {/*    hidden: isMainnet,*/}
+            {/*  })}*/}
+            {/*>*/}
+            {/*  Initialize*/}
+            {/*</Button>*/}
+            <Button
+              primary
+              onClick={requestAirdrop}
+              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden: isMainnet,
+              })}
+              disabled={isGimmeSolDisabled}
+            >
+              Airdrop
+            </Button>
+            {/*<Button*/}
+            {/*  primary*/}
+            {/*  onClick={cancel}*/}
+            {/*  classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {*/}
+            {/*    hidden:*/}
+            {/*      isMainnet &&*/}
+            {/*      AIRDROP_WHITELIST.indexOf(wallet.publicKey?.toBase58() as string) !== -1,*/}
+            {/*  })}*/}
+            {/*  disabled={isGimmeSolDisabled}*/}
+            {/*>*/}
+            {/*  Cancel*/}
+            {/*</Button>*/}
+          </>
         )}
       </div>
     </div>
