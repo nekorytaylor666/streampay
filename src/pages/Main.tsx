@@ -35,8 +35,8 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
   const emptyStreamsText = isVesting
-    ? "Your token vesting contracts will appear here."
-    : "Your streams will appear here.";
+    ? "Your token vesting contracts will appear here once you connect."
+    : "Your streams will appear here once you connect.";
 
   return (
     <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
@@ -53,7 +53,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
         {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (
           <StreamsList connection={connection} wallet={wallet} type={page} />
         ) : (
-          <p className="text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
+          <p className="text-sm sm:text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
         )}
       </div>
     </div>

@@ -16,7 +16,7 @@ interface ProgressProps {
 const Progress = ({ title, value, max, rtl, decimals, symbol }: ProgressProps) => (
   <div className="col-span-full grid grid-cols-12">
     <dt className="col-span-4 sm:col-span-3 pt-0.5 text-base">{title}</dt>
-    <label className="ml-1 col-span-8 sm:col-span-9 truncate text-base">
+    <label className="ml-1 col-span-8 sm:col-span-9 truncate text-base block">
       {formatAmount(value, decimals, DEFAULT_DECIMAL_PLACES)}
       <small className="text-gray-400">
         / {formatAmount(Number(max), decimals, DEFAULT_DECIMAL_PLACES)} {symbol}

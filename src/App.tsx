@@ -10,7 +10,7 @@ const App = () => (
   <div className="min-h-screen flex flex-col">
     <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
       <Header />
-      <Nav classes="block lg:hidden" />
+      <Nav classes="block lg:hidden mb-2" />
       <Switch>
         {routes.map(({ path, exact, redirect, Component }) => (
           <Route
