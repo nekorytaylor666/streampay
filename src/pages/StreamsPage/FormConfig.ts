@@ -20,7 +20,8 @@ export interface StreamsFormData {
   releaseFrequencyCounter: number;
   senderCanCancel: boolean;
   recipientCanCancel: boolean;
-  ownershipTransferable: boolean;
+  senderCanTransfer: boolean;
+  recipientCanTransfer: boolean;
   releaseFrequencyPeriod: number;
 }
 
@@ -36,7 +37,8 @@ const getDefaultValues = () => ({
   releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
-  ownershipTransferable: false,
+  senderCanTransfer: true,
+  recipientCanTransfer: false,
 });
 
 const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
@@ -113,7 +115,8 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
-        ownershipTransferable: yup.bool().required(),
+        senderCanTransfer: yup.bool().required(),
+        recipientCanTransfer: yup.bool().required(),
       }),
     [connection, tokenBalance]
   );

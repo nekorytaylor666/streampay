@@ -60,39 +60,6 @@ export interface CancelStreamData {
   stream: PublicKey;
 }
 
-export interface CreateStreamsFormType {
-  amount: number;
-  setAmount: (value: number) => void;
-  subject: string;
-  setSubject: (value: string) => void;
-  receiver: string;
-  setReceiver: (value: string) => void;
-  startDate: string;
-  setStartDate: (value: string) => void;
-  startTime: string;
-  setStartTime: (value: string) => void;
-  endDate: string;
-  setEndDate: (value: string) => void;
-  endTime: string;
-  setEndTime: (value: string) => void;
-  cliffDate: string;
-  setCliffDate: (value: string) => void;
-  cliffTime: string;
-  setCliffTime: (value: string) => void;
-  cliffAmount: number;
-  setCliffAmount: (value: number) => void;
-  timePeriod: number;
-  setTimePeriod: (value: number) => void;
-  timePeriodMultiplier: number;
-  setTimePeriodMultiplier: (value: number) => void;
-  senderCanCancel: boolean;
-  setSenderCanCancel: (value: boolean) => void;
-  recipientCanCancel: boolean;
-  setRecipientCanCancel: (value: boolean) => void;
-  ownershipTransferable: boolean;
-  setOwnershipTransferable: (value: boolean) => void;
-}
-
 export interface TokenAccount {
   token: TokenInfo;
   account: PublicKey;

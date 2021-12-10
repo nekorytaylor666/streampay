@@ -22,7 +22,7 @@ const Header = () => {
     isMainnet ? setCluster(WalletAdapterNetwork.Devnet) : setCluster(WalletAdapterNetwork.Mainnet);
 
   return (
-    <div className="items-center py-3 lg:mb-20 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">
+    <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">
       <div className="flex justify-between items-center">
         <Logo src={logo} />
         <Nav classes="hidden lg:block" />
