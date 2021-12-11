@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, TokenStreamData } from "ibrica-timelock/dist/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
@@ -178,6 +178,7 @@ const Stream: FC<StreamProps> = ({
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onWithdraw();
+        // @ts-ignore
         addStream(id, decode(stream.data));
       }
     }
@@ -201,6 +202,7 @@ const Stream: FC<StreamProps> = ({
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onTopup();
+        // @ts-ignore
         addStream(id, decode(stream.data));
       }
     }

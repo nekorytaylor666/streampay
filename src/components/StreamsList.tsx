@@ -3,7 +3,7 @@ import { useEffect, FC, useRef } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, TokenStreamData } from "ibrica-timelock/dist/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { toast } from "react-toastify";
 
 import { Stream, Modal, ModalRef } from ".";
@@ -137,6 +137,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         updateToken();
+        // @ts-ignore
         addStream(id, decode(stream.data));
       }
     }
