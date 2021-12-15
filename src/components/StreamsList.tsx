@@ -137,7 +137,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         updateToken();
-        // @ts-ignore
         addStream(id, decode(stream.data));
       }
     }
