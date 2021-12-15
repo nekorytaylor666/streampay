@@ -27,7 +27,7 @@ const Progress = ({ title, value, max, rtl, decimals, symbol }: ProgressProps) =
         className={cx(" bg-gradient-to-r from-primary to-secondary rounded-sm h-full", {
           "float-right": rtl,
         })}
-        style={{ width: (value / Number(max.toString())) * 100 + "%" }}
+        style={{ width: Math.min((value / Number(max.toString())) * 100, 100) + "%" }}
       />
     </div>
   </div>

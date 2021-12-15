@@ -35,8 +35,8 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
   const emptyStreamsText = isVesting
-    ? "Your token vesting contracts will appear here once you connect."
-    : "Your streams will appear here once you connect.";
+    ? "Your token vesting contracts will appear here."
+    : "Your streams will appear here.";
 
   return (
     <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">

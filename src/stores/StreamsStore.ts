@@ -1,4 +1,4 @@
-import { TokenStreamData } from "ibrica-timelock/dist/layout";
+import { TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 
 interface Streams {
   [s: string]: TokenStreamData;
