@@ -210,7 +210,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         ) : (
           <div className="col-span-3 sm:col-span-1">
             <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
-            <p className="text-base font-medium text-primary">Please connect.</p>
+            <p className="text-base font-medium text-primary">
+              {wallet ? "No tokens. :(" : "Please connect."}
+            </p>
           </div>
         )}
         <Input
