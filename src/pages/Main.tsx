@@ -15,11 +15,10 @@ const storeGetter = (state: StoreType) => ({
   token: state.token,
   setToken: state.setToken,
   myTokenAccounts: state.myTokenAccounts,
-  streams: state.streams,
 });
 
 const Main = ({ page }: { page: "vesting" | "streams" }) => {
-  const { wallet, connection, setMyTokenAccounts, cluster, setToken, streams } =
+  const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
     useStore(storeGetter);
   const [loading, setLoading] = useState(false);
   const isVesting = page === "vesting";
@@ -51,7 +50,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
         )}
       </div>
       <div>
-        {connection && wallet?.connected && Object.keys(streams).length ? (
+        {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (
           <StreamsList connection={connection} wallet={wallet} type={page} />
         ) : (
           <p className="text-sm sm:text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
