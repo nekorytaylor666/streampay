@@ -178,7 +178,6 @@ const Stream: FC<StreamProps> = ({
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onWithdraw();
-        // @ts-ignore
         addStream(id, decode(stream.data));
       }
     }
@@ -202,7 +201,6 @@ const Stream: FC<StreamProps> = ({
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
       if (stream) {
         onTopup();
-        // @ts-ignore
         addStream(id, decode(stream.data));
       }
     }
