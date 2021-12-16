@@ -22,7 +22,8 @@ export interface VestingFormData {
   releaseFrequencyPeriod: number;
   senderCanCancel: boolean;
   recipientCanCancel: boolean;
-  ownershipTransferable: boolean;
+  senderCanTransfer: boolean;
+  recipientCanTransfer: boolean;
   cliffDate: string;
   cliffTime: string;
   cliffAmount: number;
@@ -41,7 +42,8 @@ const getDefaultValues = () => ({
   releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
-  ownershipTransferable: false,
+  senderCanTransfer: true,
+  recipientCanTransfer: false,
   cliffDate: format(new Date(), DATE_FORMAT),
   cliffTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   cliffAmount: 0,
@@ -92,8 +94,6 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .string()
           .required(ERRORS.start_date_required)
           .test("is in a future", ERRORS.start_date_is_in_the_past, (date) => {
-            console.log("date", date);
-            console.log(format(new Date(), DATE_FORMAT));
             return date ? date >= format(new Date(), DATE_FORMAT) : true;
           }),
         startTime: yup
@@ -147,7 +147,8 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           ),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
-        ownershipTransferable: yup.bool().required(),
+        senderCanTransfer: yup.bool().required(),
+        recipientCanTransfer: yup.bool().required(),
         cliffDate: yup
           .string()
           .required()

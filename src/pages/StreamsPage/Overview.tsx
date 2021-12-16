@@ -21,9 +21,10 @@ const Overview: React.FC<OverviewProps> = ({
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
 }) => {
-  const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
-
   const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
+
+  const showEnd = +releaseAmount && +depositedAmount && tokenSymbol && releaseFrequencyCounter;
+  const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
   const end = (start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod) * 1000; // convert to ms
 
   return (
@@ -34,7 +35,7 @@ const Overview: React.FC<OverviewProps> = ({
         <span className="text-gray-100 text-sm">{` ${startDate} `}</span>at
         <span className="text-gray-100 text-sm">{` ${startTime}`}</span>.
       </p>
-      {releaseAmount && depositedAmount && tokenSymbol && releaseFrequencyCounter && (
+      {showEnd && (
         <>
           <p className="text-gray-400 text-sm leading-6 sm:inline-block">
             <span className="text-gray-100 text-sm">{` ${releaseAmount} ${tokenSymbol} `}</span>

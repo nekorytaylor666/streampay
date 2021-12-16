@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, TokenStreamData } from "ibrica-timelock/dist/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
@@ -143,10 +143,17 @@ const Stream: FC<StreamProps> = ({
 
   const showCancel = showCancelOnSender || showCancelOnRecipient;
 
-  const showTransfer =
-    ((transferable_by_recipient && myAddress === recipient.toBase58()) ||
-      (transferable_by_sender && myAddress === sender.toBase58())) &&
+  const showTransferOnSender =
+    transferable_by_sender &&
+    myAddress === sender.toBase58() &&
     (status === StreamStatus.streaming || status === StreamStatus.complete);
+
+  const showTransferOnRecipient =
+    transferable_by_recipient &&
+    myAddress === recipient.toBase58() &&
+    (status === StreamStatus.streaming || status === StreamStatus.complete);
+
+  const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
   const showTopup =
     myAddress === sender.toBase58() &&

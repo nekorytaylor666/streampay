@@ -151,7 +151,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       releaseFrequencyPeriod,
       senderCanCancel,
       recipientCanCancel,
-      ownershipTransferable,
+      senderCanTransfer,
+      recipientCanTransfer,
       cliffDate,
       cliffTime,
       cliffAmount,
@@ -180,8 +181,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
-      transferable_by_sender: true,
-      transferable_by_recipient: ownershipTransferable,
+      transferable_by_sender: senderCanTransfer,
+      transferable_by_recipient: recipientCanTransfer,
       withdrawal_public: false,
     };
 
@@ -230,7 +231,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
-        <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-5 sm:grid-cols-2">
+        <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
           <Input
             type="number"
             label="Amount"
@@ -246,12 +247,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               error={errors?.tokenSymbol?.message}
               customChange={updateToken}
               {...register("tokenSymbol")}
-              classes="col-span-2 sm:col-span-1"
+              classes="col-span-3 sm:col-span-1"
             />
           ) : (
-            <div className="col-span-2 sm:col-span-1">
-              <label className="text-gray-200 text-sm sm:text-base cursor-pointer">Token</label>
-              <p className="text-base font-medium text-primary">Please connect.</p>
+            <div className="col-span-3 sm:col-span-1">
+              <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
+              <p className="text-base font-medium text-primary">
+                {wallet ? "No tokens. :(" : "Please connect."}
+              </p>
             </div>
           )}
           <Input
@@ -276,7 +279,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             min={format(new Date(), DATE_FORMAT)}
             customChange={onStartDateChange}
             onClick={updateStartDate}
-            classes="col-span-2 sm:col-span-1"
+            classes="col-span-3 sm:col-span-1"
             error={errors?.startDate?.message}
             {...register("startDate")}
           />
@@ -285,7 +288,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             label="Start Time"
             onClick={updateStartTime}
             customChange={onStartTimeChange}
-            classes="col-span-2 sm:col-span-1"
+            classes="col-span-3 sm:col-span-1"
             error={errors?.startTime?.message}
             {...register("startTime")}
           />
@@ -294,14 +297,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             label="End Date"
             min={format(new Date(), DATE_FORMAT)}
             customChange={() => trigger("releaseFrequencyPeriod")}
-            classes="col-span-2 sm:col-span-1"
+            classes="col-span-3 sm:col-span-1"
             error={errors?.endDate?.message}
             {...register("endDate")}
           />
           <Input
             type="time"
             label="End Time"
-            classes="col-span-2 sm:col-span-1"
+            classes="col-span-3 sm:col-span-1"
             customChange={() => trigger("releaseFrequencyPeriod")}
             error={errors?.endTime?.message}
             {...register("endTime")}
@@ -334,7 +337,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             classes="col-span-full mt-1"
           />
           {advanced && (
-            <div className="grid gap-3 sm:gap-4 grid-cols-5 col-span-full">
+            <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
               <Input
                 type="date"
                 label="Cliff Date"
@@ -352,7 +355,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.cliffTime?.message}
                 {...register("cliffTime")}
               />
-              <div className="relative col-span-2 sm:col-span-1">
+              <div className="relative col-span-1 sm:col-span-1">
                 <Input
                   type="number"
                   label="Release"
@@ -366,22 +369,45 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                   %
                 </span>
               </div>
-              <div className="bg-gray-800 col-span-full rounded-md grid grid-cols-1 gap-2 p-2.5 sm:p-3 mt-2">
-                <Input
-                  type="checkbox"
-                  label="Sender can cancel?"
-                  {...register("senderCanCancel")}
-                />
-                <Input
-                  type="checkbox"
-                  label="Recipient can cancel?"
-                  {...register("recipientCanCancel")}
-                />
-                <Input
-                  type="checkbox"
-                  label="Ownership transferable?"
-                  {...register("ownershipTransferable")}
-                />
+              <div className="col-span-full grid grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
+                <div className="col-span-1">
+                  <label className="text-gray-200 text-base cursor-pointer mb-1 block">
+                    Who can transfer?
+                  </label>
+                  <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-2 px-2.5 sm:px-3 py-2">
+                    <Input
+                      type="checkbox"
+                      label="sender"
+                      classes="col-span-2 sm:col-span-1"
+                      {...register("senderCanTransfer")}
+                    />
+                    <Input
+                      type="checkbox"
+                      classes="col-span-2 sm:col-span-1"
+                      label="recipient"
+                      {...register("recipientCanTransfer")}
+                    />
+                  </div>
+                </div>
+                <div className="col-span-1">
+                  <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+                    Who can cancel?
+                  </label>
+                  <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-2 px-2.5 sm:px-3 py-2">
+                    <Input
+                      type="checkbox"
+                      label="sender"
+                      classes="col-span-2 sm:col-span-1"
+                      {...register("senderCanCancel")}
+                    />
+                    <Input
+                      type="checkbox"
+                      label="recipient"
+                      classes="col-span-2 sm:col-span-1"
+                      {...register("recipientCanCancel")}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}

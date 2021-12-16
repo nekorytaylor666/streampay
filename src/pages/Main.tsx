@@ -53,7 +53,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
         {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (
           <StreamsList connection={connection} wallet={wallet} type={page} />
         ) : (
-          <p className="text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
+          <p className="text-sm sm:text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
         )}
       </div>
     </div>

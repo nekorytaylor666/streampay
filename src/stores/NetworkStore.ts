@@ -19,7 +19,7 @@ const clusterUrls: { [s: string]: () => string } = {
 
 const programIds: { [s: string]: () => string | null } = {
   [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa", // prompt("Program ID?"),
-  [CLUSTER_DEVNET]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa",
+  [CLUSTER_DEVNET]: () => "GutMKXfaxeoi8yg6UymENGm8BRTZ9RU3RSRLoJuCFaH8",
   [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_MAINNET]: () => "8e72pYCDaxu3GqMfeQ5r8wFgoZSYk6oua1Qo9XpsZjX",
 };

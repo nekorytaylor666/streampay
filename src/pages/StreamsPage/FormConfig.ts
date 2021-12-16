@@ -20,7 +20,8 @@ export interface StreamsFormData {
   releaseFrequencyCounter: number;
   senderCanCancel: boolean;
   recipientCanCancel: boolean;
-  ownershipTransferable: boolean;
+  senderCanTransfer: boolean;
+  recipientCanTransfer: boolean;
   releaseFrequencyPeriod: number;
 }
 
@@ -36,7 +37,8 @@ const getDefaultValues = () => ({
   releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
-  ownershipTransferable: false,
+  senderCanTransfer: true,
+  recipientCanTransfer: false,
 });
 
 const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
@@ -76,12 +78,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .number()
           .typeError(ERRORS.amount_required)
           .required(ERRORS.amount_required)
-          .moreThan(0, ERRORS.amount_greater_than)
-          .when("depositedAmount", (depositedAmount, schema) =>
-            depositedAmount
-              ? schema.max(depositedAmount, ERRORS.release_amount_greater_than_deposited)
-              : schema
-          ),
+          .moreThan(0, ERRORS.amount_greater_than),
         tokenSymbol: yup.string().required(ERRORS.token_required),
         subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
         recipient: yup
@@ -113,7 +110,8 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
         releaseFrequencyPeriod: yup.number().required(),
         senderCanCancel: yup.bool().required(),
         recipientCanCancel: yup.bool().required(),
-        ownershipTransferable: yup.bool().required(),
+        senderCanTransfer: yup.bool().required(),
+        recipientCanTransfer: yup.bool().required(),
       }),
     [connection, tokenBalance]
   );

@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import Timelock from "ibrica-timelock";
+import Timelock from "@streamflow/timelock/dist/packages/timelock";
 
 import ToastrLink from "../components/ToastrLink";
 import {
