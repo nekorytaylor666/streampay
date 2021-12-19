@@ -1,11 +1,9 @@
-// import * as anchor from "@project-serum/anchor";
 import { BN, Program, Provider } from "@project-serum/anchor";
 import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import type { Idl } from "@project-serum/anchor/dist/cjs/idl";
 
 import airdrop from "../idl/airdrop";
-// import { Airdrop } from "../types/airdrop";
 import useStore from "../stores";
 import { AIRDROP_TEST_TOKEN } from "../constants";
 
