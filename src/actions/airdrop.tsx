@@ -1,5 +1,5 @@
 import { BN, Program, Provider } from "@project-serum/anchor";
-import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import type { Idl } from "@project-serum/anchor/dist/cjs/idl";
 
@@ -45,15 +45,14 @@ export async function initialize() {
     wallet?.publicKey as PublicKey
   );
 
-  console.log("program", program.programId.toString());
-  console.log("STRM token", assTokenAcc?.pubkey.toString());
-  console.log("airdrop account", airdropAccount.publicKey.toString());
-  console.log("wallet ", wallet?.publicKey?.toString());
-  // (new Token(connection, wallet?.publicKey, )).createAssociatedTokenAccount()
+  // console.log("program", program.programId.toString());
+  // console.log("STRM token", assTokenAcc?.pubkey.toString());
+  // console.log("airdrop account", airdropAccount.publicKey.toString());
+  // console.log("wallet ", wallet?.publicKey?.toString());
 
   let tx;
   try {
-    tx = await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(10000 * 10 ** 9), {
+    tx = await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(100 * 10 ** 9), {
       accounts: {
         initializer: wallet?.publicKey,
         initializerDepositTokenAccount: assTokenAcc?.pubkey,
@@ -65,9 +64,8 @@ export async function initialize() {
       signers: [airdropAccount],
       instructions: [instr],
     });
-    console.log("hehe", tx);
   } catch (e) {
-    console.log(e);
+    // console.log(e);
   }
 
   return tx;
@@ -103,8 +101,8 @@ export async function getAirdrop() {
     [Buffer.from("streamflow-airdrop", "utf-8")],
     program.programId
   );
-  console.log("pda", pda.toString());
-  console.log("_pda", _pda.toString());
+  // console.log("pda", pda.toString());
+  // console.log("_pda", _pda.toString());
   const assAirdropTokAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
@@ -112,10 +110,10 @@ export async function getAirdrop() {
     pda
   );
 
-  console.log("program", program.programId.toString());
-  console.log("STRM token", assTokenAcc.toString());
-  console.log("airdrop account", airdropAccount.pubkey.toString());
-  console.log("wallet ", wallet?.publicKey?.toString());
+  // console.log("program", program.programId.toString());
+  // console.log("STRM token", assTokenAcc.toString());
+  // console.log("airdrop account", airdropAccount.pubkey.toString());
+  // console.log("wallet ", wallet?.publicKey?.toString());
 
   try {
     await program.rpc.getAirdrop({
@@ -124,12 +122,16 @@ export async function getAirdrop() {
         takerReceiveTokenAccount: assTokenAcc,
         airdropAccount: airdropAccount.pubkey,
         airdropTokenAccount: assAirdropTokAcc,
+        mint,
         pdaAccount: _pda,
         tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY,
       },
     });
   } catch (e) {
-    console.log(e);
+    //console.log(e);
   }
 }
 
@@ -166,12 +168,12 @@ export async function cancel() {
     pda
   );
 
-  console.log("wallet", wallet?.publicKey?.toString());
-  console.log("associated STRM token", assTokenAcc.toString());
-  console.log("airdrop account", airdropAccount.pubkey.toString());
-  console.log("pda", pda.toString());
-  console.log("_pda", _pda.toString());
-  console.log("program", program.programId.toString());
+  // console.log("wallet", wallet?.publicKey?.toString());
+  // console.log("associated STRM token", assTokenAcc.toString());
+  // console.log("airdrop account", airdropAccount.pubkey.toString());
+  // console.log("pda", pda.toString());
+  // console.log("_pda", _pda.toString());
+  // console.log("program", program.programId.toString());
 
   await program.rpc.cancelAirdrop({
     accounts: {

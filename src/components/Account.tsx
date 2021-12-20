@@ -8,6 +8,7 @@ import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import {
   AIRDROP_AMOUNT,
+  AIRDROP_WHITELIST,
   // AIRDROP_WHITELIST,
   ERR_NOT_CONNECTED,
   TX_FINALITY_CONFIRMED,
@@ -16,8 +17,10 @@ import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
 import { Address, Button, Link } from ".";
 import {
+  cancel,
   //cancel,
   getAirdrop,
+  initialize,
   // initialize
 } from "../actions/airdrop";
 
@@ -57,7 +60,6 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   }, [airdropTxSignature]);
 
   async function requestAirdrop() {
-    console.log("requesting");
     if (!wallet?.publicKey || !connection) {
       toast.error(ERR_NOT_CONNECTED);
       return;
@@ -65,16 +67,14 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     setLoading(true);
     setIsGimmeSolDisabled(true);
     try {
-      console.log("trying hard");
       const signature = await connection.requestAirdrop(
         wallet.publicKey,
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
-      console.log("proso");
       setAirdropTxSignature(signature);
-      // const tx = await initialize();
-      const tx = await getAirdrop();
-      console.log("tx", tx);
+      await getAirdrop(); //returns a tx id
+
+      //TODO: Update balance!
       setLoading(false);
       toast.success("Airdrop requested!");
     } catch (error) {
@@ -130,15 +130,17 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         </Button>
         {wallet?.connected && (
           <>
-            {/*<Button*/}
-            {/*  primary*/}
-            {/*  onClick={initialize}*/}
-            {/*  classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {*/}
-            {/*    hidden: isMainnet,*/}
-            {/*  })}*/}
-            {/*>*/}
-            {/*  Initialize*/}
-            {/*</Button>*/}
+            <Button
+              primary
+              onClick={initialize}
+              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden:
+                  isMainnet ||
+                  AIRDROP_WHITELIST.indexOf(wallet.publicKey?.toBase58() as string) === -1,
+              })}
+            >
+              Initialize Airdrop
+            </Button>
             <Button
               primary
               onClick={requestAirdrop}
@@ -149,18 +151,18 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             >
               Airdrop
             </Button>
-            {/*<Button*/}
-            {/*  primary*/}
-            {/*  onClick={cancel}*/}
-            {/*  classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {*/}
-            {/*    hidden:*/}
-            {/*      isMainnet &&*/}
-            {/*      AIRDROP_WHITELIST.indexOf(wallet.publicKey?.toBase58() as string) !== -1,*/}
-            {/*  })}*/}
-            {/*  disabled={isGimmeSolDisabled}*/}
-            {/*>*/}
-            {/*  Cancel*/}
-            {/*</Button>*/}
+            <Button
+              primary
+              onClick={cancel}
+              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden:
+                  isMainnet ||
+                  AIRDROP_WHITELIST.indexOf(wallet.publicKey?.toBase58() as string) === -1,
+              })}
+              disabled={isGimmeSolDisabled}
+            >
+              Cancel
+            </Button>
           </>
         )}
       </div>

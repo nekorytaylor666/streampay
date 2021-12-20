@@ -1,5 +1,5 @@
 export default {
-  version: "0.0.0",
+  version: "0.1.0",
   name: "airdrop",
   instructions: [
     {
@@ -66,6 +66,11 @@ export default {
           isSigner: false,
         },
         {
+          name: "mint",
+          isMut: false,
+          isSigner: false,
+        },
+        {
           name: "airdropTokenAccount",
           isMut: true,
           isSigner: false,
@@ -77,6 +82,21 @@ export default {
         },
         {
           name: "tokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "associatedTokenProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "systemProgram",
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: "rent",
           isMut: false,
           isSigner: false,
         },
