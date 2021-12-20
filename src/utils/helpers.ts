@@ -39,7 +39,7 @@ export function copyToClipboard(value: string): void {
 const ourTokens = [
   {
     chainId: 103, //devnet
-    address: AIRDROP_TEST_TOKEN, //ADD YOUR LOCAL TOKEN HERE
+    address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
     symbol: "STRM",
     name: "STREAMFLOW",
     decimals: 9, //default is 9
@@ -59,8 +59,8 @@ const ourTokens = [
   {
     chainId: 103, //devnet
     address: AIRDROP_TEST_TOKEN, //ADD YOUR LOCAL TOKEN HERE
-    symbol: "DULE",
-    name: "DULE",
+    symbol: "TEST",
+    name: "TEST",
     decimals: 9, //default is 9
     logoURI: "https://streamflow.finance/public/img/solana.png",
     tags: [],

@@ -167,6 +167,6 @@ export default {
     },
   ],
   metadata: {
-    address: "37iwyvmhqvELbkZdgyE46TWKMvhYuCxw2137ZNkypZvy",
+    address: "GjUahFiEEu4oZhQnzX6oGPB1zQXjNjLNiQGueCsdEN35",
   },
 };
