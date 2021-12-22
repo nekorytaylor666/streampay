@@ -6,6 +6,7 @@ import {
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
+  getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
 import swal from "sweetalert";
 
@@ -66,6 +67,7 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
   const walletTypes = useMemo(
     () => [
       getPhantomWallet(),
+      getSlopeWallet(),
       getSolflareWebWallet({ network: cluster as WalletAdapterNetwork }),
       getSolflareWallet(),
       getSolletWallet({ network: cluster as WalletAdapterNetwork }),
