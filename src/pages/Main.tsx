@@ -34,9 +34,13 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     }
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
+  const waitForStreamsText = isVesting
+    ? "Your token vesting contracts will appear here once you connect."
+    : "Your streams will appear here once you connect.";
+
   const emptyStreamsText = isVesting
-    ? "Your token vesting contracts will appear here."
-    : "Your streams will appear here.";
+    ? "There are still no vesting contracts associated with this wallet."
+    : "There are still no streams associated with this wallet.";
 
   return (
     <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
@@ -50,10 +54,18 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
         )}
       </div>
       <div>
-        {connection && wallet?.connected && Object.keys(myTokenAccounts).length ? (
-          <StreamsList connection={connection} wallet={wallet} type={page} />
+        {connection && wallet?.connected ? (
+          Object.keys(myTokenAccounts).length ? (
+            <StreamsList connection={connection} wallet={wallet} type={page} />
+          ) : (
+            <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
+              {emptyStreamsText}
+            </p>
+          )
         ) : (
-          <p className="text-sm sm:text-base text-gray-200 text-center mt-4">{emptyStreamsText}</p>
+          <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
+            {waitForStreamsText}
+          </p>
         )}
       </div>
     </div>
