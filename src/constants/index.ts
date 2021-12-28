@@ -60,7 +60,7 @@ export const ERRORS = {
   amount_greater_than: "Please provide amount greater than 0.",
   token_required: "Token is required.",
   recipient_required: "You must choose a recipient.",
-  subject_required: "Please provide subject (title).",
+  subject_required: "Please provide a subject (title).",
   subject_max: "Title can have maximum of 30 characters.",
   start_date_required: "Start date is required.",
   start_date_is_in_the_past: "Cannot start stream in the past.",
@@ -71,8 +71,8 @@ export const ERRORS = {
   deposited_amount_required: "Deposited amount is required.",
   amount_too_high: "You don't have enough tokens.",
   invalid_address: "Please enter a valid Solana wallet address.",
-  adress_is_a_program: "Address cannot be a program.",
-  release_amount_greater_than_deposited: "Should be <= deposited amount.",
+  address_is_a_program: "Address cannot be a program.",
+  release_amount_greater_than_deposited: "Should be less than or equal to deposited amount.",
   end_should_be_after_start: "End should happen after start.",
   cliff_should_be_after_start: "Cliff should happen after start.",
   cliff_should_be_before_end: "Cliff should happen before end.",
@@ -80,6 +80,7 @@ export const ERRORS = {
   release_frequency_is_too_slow:
     "Should be smaller or equal to difference between END and CLIFF time.",
   should_be_greater_than_0: "Should be greater than 0.",
+  max_year: "Year should be less than 9999.",
 };
 
 export const timePeriodOptions = [

@@ -281,6 +281,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             onClick={updateStartDate}
             classes="col-span-3 sm:col-span-1"
             error={errors?.startDate?.message}
+            required
             {...register("startDate")}
           />
           <Input
@@ -289,7 +290,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             onClick={updateStartTime}
             customChange={onStartTimeChange}
             classes="col-span-3 sm:col-span-1"
-            error={errors?.startTime?.message}
+            error={errors?.startDate?.message ? "" : errors?.startTime?.message}
+            required
             {...register("startTime")}
           />
           <Input
@@ -299,6 +301,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             customChange={() => trigger("releaseFrequencyPeriod")}
             classes="col-span-3 sm:col-span-1"
             error={errors?.endDate?.message}
+            required
             {...register("endDate")}
           />
           <Input
@@ -306,7 +309,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             label="End Time"
             classes="col-span-3 sm:col-span-1"
             customChange={() => trigger("releaseFrequencyPeriod")}
-            error={errors?.endTime?.message}
+            error={errors?.endDate?.message ? "" : errors?.endTime?.message}
+            required
             {...register("endTime")}
           />
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
@@ -345,6 +349,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 customChange={() => trigger("releaseFrequencyPeriod")}
                 classes="col-span-2"
                 error={errors?.cliffDate?.message}
+                required
                 {...register("cliffDate")}
               />
               <Input
@@ -352,7 +357,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 label="Cliff Time"
                 classes="col-span-2"
                 customChange={() => trigger("releaseFrequencyPeriod")}
-                error={errors?.cliffTime?.message}
+                error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
+                required
                 {...register("cliffTime")}
               />
               <div className="relative col-span-1 sm:col-span-1">
@@ -425,7 +431,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 cliffAmount,
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
-                releaseFrequencyError: errors.releaseFrequencyPeriod,
               }}
             />
             <Button
