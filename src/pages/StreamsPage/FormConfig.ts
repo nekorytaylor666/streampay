@@ -89,7 +89,10 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           ),
         startDate: yup
           .string()
-          .required(ERRORS.start_date_required)
+          .required(ERRORS.max_year)
+          .test("is not too much in the future", ERRORS.max_year, (date) =>
+            date ? +date.split("-")[0] <= 9999 : true
+          )
           .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
             date ? date >= format(new Date(), DATE_FORMAT) : true
           ),

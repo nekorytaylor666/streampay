@@ -80,6 +80,7 @@ export const ERRORS = {
   release_frequency_is_too_slow:
     "Should be smaller or equal to difference between END and CLIFF time.",
   should_be_greater_than_0: "Should be greater than 0.",
+  max_year: "Year should be less than 9999.",
 };
 
 export const timePeriodOptions = [

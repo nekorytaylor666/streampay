@@ -269,14 +269,16 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           onClick={updateStartDate}
           classes="col-span-3 sm:col-span-1"
           error={errors?.startDate?.message || ""}
+          required
           {...register("startDate")}
         />
         <Input
           type="time"
           label="Start Time"
           classes="col-span-3 sm:col-span-1"
-          error={errors?.startTime?.message}
+          error={errors?.startDate?.message ? "" : errors?.startTime?.message}
           onClick={updateStartTime}
+          required
           {...register("startTime")}
         />
         <Toggle

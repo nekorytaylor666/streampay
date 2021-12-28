@@ -14,6 +14,7 @@ interface InputProps {
   max?: string | number;
   step?: number;
   error?: string;
+  required?: boolean;
   onClick?: () => void;
   onChange: ChangeHandler;
   customChange?: (value: string) => void;
