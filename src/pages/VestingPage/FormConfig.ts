@@ -93,7 +93,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
         startDate: yup
           .string()
           .required(ERRORS.max_year)
-          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) =>
+          .test("is in the future", ERRORS.start_date_is_in_the_past, (date) =>
             date ? date >= format(new Date(), DATE_FORMAT) : true
           )
           .test("is not too much in the future", ERRORS.max_year, (date) =>
@@ -102,7 +102,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
         startTime: yup
           .string()
           .required(ERRORS.start_time_required)
-          .test("is in a future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
+          .test("is in the future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
             const date = new Date(ctx.parent.startDate + "T" + (time || ""));
             const now = new Date();
             return date >= now;
