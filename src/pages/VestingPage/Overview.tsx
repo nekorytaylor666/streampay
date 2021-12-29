@@ -1,6 +1,8 @@
 import { format } from "date-fns";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import { formatPeriodOfTime } from "../../utils/helpers";
+import { Link } from "../../components";
 
 interface OverviewProps {
   amount: number;
@@ -70,6 +72,16 @@ const Overview: React.FC<OverviewProps> = ({
           <span> ____ </span>
         )}
         .
+      </p>
+      <p className="text-gray-400 text-xs leading-5 mt-3">
+        {`Streamflow will charge ${amount * 0.0025} ${tokenSymbol} (0.25% service fee on top of the
+        specified amount), while respecting the set schedule. `}
+        <Link
+          title="Learn more."
+          url="https://docs.streamflow.finance/help/fees"
+          Icon={ExternalLinkIcon}
+          classes="text-primary inline-block"
+        />
       </p>
     </div>
   );

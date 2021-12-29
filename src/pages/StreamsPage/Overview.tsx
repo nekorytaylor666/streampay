@@ -1,5 +1,7 @@
 import { format, getUnixTime } from "date-fns";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
+import { Link } from "../../components";
 import { formatPeriodOfTime } from "../../utils/helpers";
 
 interface OverviewProps {
@@ -40,12 +42,10 @@ const Overview: React.FC<OverviewProps> = ({
       </p>
       <p className="text-gray-400 text-sm leading-6 sm:inline-block">
         <span className="text-gray-100 text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
-        <br className="sm:hidden" />
         released every
         <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
       </p>
-      <br />
-      <p className="text-gray-400 text-sm leading-6 sm:inline-block">
+      <p className="text-gray-400 text-sm leading-6">
         Ends on
         {depositedAmount && releaseAmount && start ? (
           <span className="text-gray-100 text-sm">{` ${format(
@@ -55,7 +55,20 @@ const Overview: React.FC<OverviewProps> = ({
         ) : (
           <span> _____ </span>
         )}
-        , unless topped up.
+        , <br className="sm:hidden" />
+        unless topped up.
+      </p>
+      <p className="text-gray-400 text-xs leading-5 mt-3">
+        {`Streamflow will charge ${
+          depositedAmount * 0.0025
+        } ${tokenSymbol} (0.25% service fee on top of the
+        specified amount), while respecting the set schedule. `}
+        <Link
+          title="Learn more."
+          url="https://docs.streamflow.finance/help/fees"
+          Icon={ExternalLinkIcon}
+          classes="text-primary inline-block"
+        />
       </p>
     </div>
   );
