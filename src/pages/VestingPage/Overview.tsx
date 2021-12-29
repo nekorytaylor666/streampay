@@ -73,7 +73,7 @@ const Overview: React.FC<OverviewProps> = ({
         )}
         .
       </p>
-      <p className="text-gray-400 text-xs leading-5 mt-3">
+      <p className="text-gray-400 text-xxs leading-4 mt-3">
         {`Streamflow will charge ${amount * 0.0025} ${tokenSymbol} (0.25% service fee on top of the
         specified amount), while respecting the set schedule. `}
         <Link

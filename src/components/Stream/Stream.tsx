@@ -411,6 +411,7 @@ const Stream: FC<StreamProps> = ({
           parseInt(token?.uiTokenAmount?.amount) || 0,
           decimals
         )} ${symbol}.`}
+        symbol={symbol}
         type="range"
         min={0}
         max={roundAmount(parseInt(token?.uiTokenAmount?.amount) || 0, decimals)}
