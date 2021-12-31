@@ -39,6 +39,7 @@ export interface CreateStreamData {
   release_rate: BN;
   stream_name: string;
   withdrawal_public: false;
+  canTopup: boolean;
 }
 
 export interface TopupStreamData {

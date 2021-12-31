@@ -42,22 +42,23 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           programId,
-          d.new_stream_keypair,
           d.recipient,
+          null,
           d.mint,
-          d.deposited_amount,
           d.start_time,
           d.end_time,
+          d.deposited_amount,
           d.period,
           d.cliff,
           d.cliff_amount,
+          d.release_rate,
+          d.stream_name,
+          d.canTopup,
           d.cancelable_by_sender,
           d.cancelable_by_recipient,
-          d.withdrawal_public,
           d.transferable_by_sender,
           d.transferable_by_recipient,
-          d.release_rate,
-          d.stream_name
+          d.withdrawal_public
         );
         break;
       case ProgramInstruction.Topup:

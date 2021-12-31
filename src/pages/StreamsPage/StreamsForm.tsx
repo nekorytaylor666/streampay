@@ -148,6 +148,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
       withdrawal_public: false,
+      canTopup: true,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
