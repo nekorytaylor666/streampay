@@ -166,24 +166,22 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const end = getUnixTime(new Date(endDate + "T" + endTime));
 
     const data = {
-      deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
+      net_deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
-      end_time: new BN(end),
       period: new BN(releaseFrequencyPeriod * releaseFrequencyCounter),
       cliff: new BN(advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start),
       cliff_amount: new BN(
         (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals
       ),
-      release_rate: new BN(0),
-      new_stream_keypair: newStream,
+      amount_per_period: new BN(0),
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
-      withdrawal_public: false,
+      automatic_withdrawal: false,
       canTopup: false,
     };
 
@@ -198,6 +196,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (success) {
+      // @ts-ignore
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         closable_at: new BN(end),

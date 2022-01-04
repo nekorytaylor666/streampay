@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
+import { decode, Stream as StreamData } from "@streamflow/timelock/dist/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
@@ -36,7 +36,7 @@ import useStore, { StoreType } from "../../stores";
 import sendTransaction from "../../actions/sendTransaction";
 
 interface StreamProps {
-  data: TokenStreamData;
+  data: StreamData;
   myAddress: string;
   id: string;
   onCancel: () => Promise<boolean>;
@@ -75,7 +75,7 @@ const Stream: FC<StreamProps> = ({
     cliff,
     cliff_amount,
     withdrawn_amount,
-    deposited_amount,
+    net_deposited_amount,
     canceled_at,
     recipient,
     stream_name,
@@ -85,7 +85,7 @@ const Stream: FC<StreamProps> = ({
     cancelable_by_recipient,
     transferable_by_sender,
     transferable_by_recipient,
-    release_rate,
+    amount_per_period,
   } = data;
 
   const address = mint.toBase58();
@@ -95,7 +95,7 @@ const Stream: FC<StreamProps> = ({
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
 
-  const isStreaming = !release_rate.isZero();
+  const isStreaming = !amount_per_period.isZero();
 
   const endTime = isStreaming ? closable_at : end_time;
   const releaseFrequency = calculateReleaseFrequency(
@@ -117,9 +117,9 @@ const Stream: FC<StreamProps> = ({
       endTime.toNumber(),
       cliff.toNumber(),
       cliff_amount.toNumber(),
-      deposited_amount.toNumber(),
+      net_deposited_amount.toNumber(),
       period.toNumber(),
-      release_rate.toNumber()
+      amount_per_period.toNumber()
     )
   );
 
@@ -128,7 +128,7 @@ const Stream: FC<StreamProps> = ({
   const showWithdraw =
     (status === StreamStatus.streaming ||
       (status === StreamStatus.complete &&
-        withdrawn_amount.toNumber() < deposited_amount.toNumber())) &&
+        withdrawn_amount.toNumber() < net_deposited_amount.toNumber())) &&
     myAddress === recipient.toBase58();
 
   const showCancelOnSender =
@@ -214,9 +214,9 @@ const Stream: FC<StreamProps> = ({
             endTime.toNumber(),
             cliff.toNumber(),
             cliff_amount.toNumber(),
-            deposited_amount.toNumber(),
+            net_deposited_amount.toNumber(),
             period.toNumber(),
-            release_rate.toNumber()
+            amount_per_period.toNumber()
           )
         );
         setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
@@ -301,11 +301,11 @@ const Stream: FC<StreamProps> = ({
         >
           {`${formatAmount(
             isStreaming
-              ? release_rate.toNumber()
+              ? amount_per_period.toNumber()
               : calculateReleaseRate(
                   endTime.toNumber(),
                   cliff.toNumber(),
-                  deposited_amount.toNumber(),
+                  net_deposited_amount.toNumber(),
                   cliff_amount.toNumber(),
                   period.toNumber()
                 ),
@@ -316,15 +316,15 @@ const Stream: FC<StreamProps> = ({
         <Progress
           title="Withdrawn"
           value={withdrawn_amount.toNumber()}
-          max={deposited_amount}
+          max={net_deposited_amount}
           decimals={decimals}
           symbol={symbol}
         />
         {status === StreamStatus.canceled && (
           <Progress
             title="Returned"
-            value={deposited_amount.toNumber() - withdrawn_amount.toNumber()}
-            max={deposited_amount}
+            value={net_deposited_amount.toNumber() - withdrawn_amount.toNumber()}
+            max={net_deposited_amount}
             rtl={true}
             decimals={decimals}
             symbol={symbol}
@@ -348,7 +348,7 @@ const Stream: FC<StreamProps> = ({
             <Progress
               title="Unlocked"
               value={streamed.toNumber()}
-              max={deposited_amount}
+              max={net_deposited_amount}
               decimals={decimals}
               symbol={symbol}
             />

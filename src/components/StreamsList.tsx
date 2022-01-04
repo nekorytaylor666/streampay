@@ -3,7 +3,7 @@ import { useEffect, FC, useRef } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
+import { decode, Stream as StreamData } from "@streamflow/timelock/dist/layout";
 import { toast } from "react-toastify";
 
 import { Stream, Modal, ModalRef } from ".";
@@ -52,7 +52,7 @@ const getProgramAccounts = (
     ],
   });
 
-const sortStreams = (streams: { [s: string]: TokenStreamData }, type: "vesting" | "streams") => {
+const sortStreams = (streams: { [s: string]: StreamData }, type: "vesting" | "streams") => {
   const isVesting = type === "vesting";
 
   const allStreams = Object.entries(streams).sort(
@@ -62,9 +62,9 @@ const sortStreams = (streams: { [s: string]: TokenStreamData }, type: "vesting" 
   let filteredStreams = [];
 
   if (isVesting) {
-    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.isZero());
+    filteredStreams = allStreams.filter((stream) => stream[1].amount_per_period.isZero());
   } else {
-    filteredStreams = allStreams.filter((stream) => !stream[1].release_rate.isZero());
+    filteredStreams = allStreams.filter((stream) => !stream[1].amount_per_period.isZero());
   }
   return filteredStreams;
 };

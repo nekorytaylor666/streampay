@@ -132,23 +132,22 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
-      deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
+      net_deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
-      end_time: new BN(end),
       period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
       cliff: new BN(start),
       cliff_amount: new BN(0),
-      release_rate: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
+      amount_per_period: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
       new_stream_keypair: newStream,
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
-      withdrawal_public: false,
-      canTopup: true,
+      automatic_withdrawal: false,
+      can_topup: true,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -162,6 +161,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (success) {
+      // @ts-ignore
       addStream(newStream.publicKey.toBase58(), {
         ...data,
         closable_at: new BN(end),
