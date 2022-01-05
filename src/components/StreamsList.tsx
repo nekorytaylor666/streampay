@@ -62,9 +62,9 @@ const sortStreams = (streams: { [s: string]: StreamData }, type: "vesting" | "st
   let filteredStreams = [];
 
   if (isVesting) {
-    filteredStreams = allStreams.filter((stream) => stream[1].can_topup);
-  } else {
     filteredStreams = allStreams.filter((stream) => !stream[1].can_topup);
+  } else {
+    filteredStreams = allStreams.filter((stream) => stream[1].can_topup);
   }
   return filteredStreams;
 };
