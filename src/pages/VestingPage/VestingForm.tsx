@@ -199,7 +199,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       // @ts-ignore
       addStream(newStream.publicKey.toBase58(), {
         ...data,
-        closable_at: new BN(end),
+        end_time: new BN(end),
         last_withdrawn_at: new BN(0),
         withdrawn_amount: new BN(0),
         canceled_at: new BN(0),
@@ -209,7 +209,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         recipient_tokens: undefined as any,
         sender: wallet.publicKey,
         sender_tokens: undefined as any,
-        total_amount: new BN(amount),
       });
 
       const mint = token.info.address;

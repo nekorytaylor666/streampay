@@ -70,7 +70,6 @@ const Stream: FC<StreamProps> = ({
   const {
     start_time,
     end_time,
-    closable_at,
     period,
     cliff,
     cliff_amount,
@@ -101,20 +100,25 @@ const Stream: FC<StreamProps> = ({
   const releaseFrequency = calculateReleaseFrequency(
     period.toNumber(),
     cliff.toNumber(),
-    endTime.toNumber()
+    end_time.toNumber()
   );
 
   const withdrawModalRef = useRef<ModalRef>(null);
   const topupModalRef = useRef<ModalRef>(null);
 
-  const status_enum = getStreamStatus(canceled_at, start_time, endTime, new BN(+new Date() / 1000));
+  const status_enum = getStreamStatus(
+    canceled_at,
+    start_time,
+    end_time,
+    new BN(+new Date() / 1000)
+  );
   const color = STREAM_STATUS_COLOR[status_enum];
 
   const [status, setStatus] = useState(status_enum);
   const isCanceled = status === StreamStatus.canceled;
   const [streamed, setStreamed] = useState(
     getStreamed(
-      endTime.toNumber(),
+      end_time.toNumber(),
       cliff.toNumber(),
       cliff_amount.toNumber(),
       net_deposited_amount.toNumber(),
@@ -211,7 +215,7 @@ const Stream: FC<StreamProps> = ({
       const interval = setInterval(() => {
         setStreamed(
           getStreamed(
-            endTime.toNumber(),
+            end_time.toNumber(),
             cliff.toNumber(),
             cliff_amount.toNumber(),
             net_deposited_amount.toNumber(),
@@ -224,7 +228,7 @@ const Stream: FC<StreamProps> = ({
         const tmpStatus = updateStatus(
           status,
           start_time.toNumber(),
-          endTime.toNumber(),
+          end_time.toNumber(),
           canceled_at.toNumber()
         );
         if (tmpStatus !== status) {
@@ -248,7 +252,7 @@ const Stream: FC<StreamProps> = ({
         <Badge classes="col-span-full" type={status} color={color} />
         <Duration
           start_time={start_time}
-          end_time={endTime}
+          end_time={end_time}
           canceled_at={canceled_at}
           isCanceled={isCanceled}
           cliff={cliff}
@@ -303,7 +307,7 @@ const Stream: FC<StreamProps> = ({
             isStreaming
               ? amount_per_period.toNumber()
               : calculateReleaseRate(
-                  endTime.toNumber(),
+                  end_time.toNumber(),
                   cliff.toNumber(),
                   net_deposited_amount.toNumber(),
                   cliff_amount.toNumber(),
@@ -338,7 +342,7 @@ const Stream: FC<StreamProps> = ({
                 <dt className="col-span-8 text-gray-400 text-sm">
                   {format(
                     fromUnixTime(
-                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), endTime.toNumber())
+                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), end_time.toNumber())
                     ),
                     "ccc do MMM, yy HH:mm:ss"
                   )}
