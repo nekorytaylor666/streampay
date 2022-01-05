@@ -96,7 +96,6 @@ const Stream: FC<StreamProps> = ({
 
   const isStreaming = !amount_per_period.isZero();
 
-  const endTime = isStreaming ? closable_at : end_time;
   const releaseFrequency = calculateReleaseFrequency(
     period.toNumber(),
     cliff.toNumber(),
