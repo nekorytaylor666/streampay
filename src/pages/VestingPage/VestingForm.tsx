@@ -193,7 +193,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
       automatic_withdrawal: false,
-      canTopup: false,
+      can_topup: false,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
