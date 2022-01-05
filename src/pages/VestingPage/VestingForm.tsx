@@ -19,6 +19,7 @@ import {
   TIME_FORMAT,
 } from "../../constants";
 import { StringOption } from "../../types";
+import { calculateReleaseRate } from "../../components/Stream/helpers";
 
 interface VestingFormProps {
   loading: boolean;
@@ -168,6 +169,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const cliff = advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start;
     const cliffAmountCalculated = (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** decimals;
 
+    const amount_per_period = ((end - cliff) / (amount - cliffAmountCalculated)) * 10 ** decimals;
+    const release_rate = calculateReleaseRate(
+      end,
+      cliff,
+      amount,
+      cliffAmountCalculated,
+      releaseFrequencyPeriod
+    );
+
+    console.log("amount per period", amount_per_period, release_rate);
     const data = {
       net_deposited_amount: new BN(amount * 10 ** decimals),
       recipient: new PublicKey(recipient),
@@ -176,9 +187,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       period: new BN(releaseFrequencyPeriod * releaseFrequencyCounter),
       cliff: new BN(cliff),
       cliff_amount: new BN(cliffAmountCalculated),
-      amount_per_period: new BN(
-        ((end - cliff) / (amount - cliffAmountCalculated)) * 10 ** decimals
-      ), //todo: not neat.
+
+      amount_per_period: new BN(amount_per_period), //todo: not neat.
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,

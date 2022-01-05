@@ -1,4 +1,4 @@
-import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import { Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 
 interface Streams {
   [s: string]: StreamData;

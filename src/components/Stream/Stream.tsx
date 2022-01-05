@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import { decode, Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
@@ -164,13 +164,14 @@ const Stream: FC<StreamProps> = ({
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const handleWithdraw = async () => {
-    let withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
+    const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    if ((withdrawAmount = roundAmount(available, decimals))) {
-      //max
-      withdrawAmount = 0;
-    }
+    //
+    // if ((withdrawAmount = roundAmount(available, decimals))) {
+    //   //max
+    //   withdrawAmount = new BN(2 ** 64 - 1);//todo: how to pass u64::MAX (i.e. 2^64-1)
+    // }
 
     const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
       stream: new PublicKey(id),

@@ -3,7 +3,7 @@ import { useEffect, FC, useRef } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import { decode, Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { toast } from "react-toastify";
 
 import { Stream, Modal, ModalRef } from ".";
@@ -123,7 +123,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       addStreams([...senderStreams, ...recepientStreams])
     );
 
-    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/1
+    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/11
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -156,6 +156,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         });
         if (success) {
           toast.success("Stream transferred to " + newRecipientAddress);
+
           deleteStream(id); //todo: let's keep it there, just as readonly.
         }
       } catch (e) {
