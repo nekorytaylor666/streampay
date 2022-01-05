@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
 import Timelock from "@streamflow/timelock";
+import { BN } from "@project-serum/anchor";
 
 import ToastrLink from "../components/ToastrLink";
 import {
@@ -36,6 +37,7 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
+        d.amount_per_period = new BN(500); //TODO: remove this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         console.log("MALISA connection", connection);
         console.log("MALISA wallet", wallet);
         console.log("MALISA data", d);
@@ -44,7 +46,6 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           d.recipient,
-          null,
           d.mint,
           d.start_time,
           d.net_deposited_amount,
