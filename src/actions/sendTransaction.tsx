@@ -36,14 +36,6 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        console.log("MALISA connection", connection);
-        console.log("MALISA wallet", wallet);
-        console.log("MALISA data", d);
-        for (const prop in d) {
-          //@ts-ignore
-          console.log(prop.toString(), d[prop].toString());
-        }
-
         tx = await Timelock.create(
           connection,
           // @ts-ignore
@@ -77,7 +69,6 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Withdraw:
         d = data as WithdrawStreamData;
-        console.log("amount to withdraw from react app: ", d.amount.toString());
         tx = await Timelock.withdraw(
           connection,
           // @ts-ignore
