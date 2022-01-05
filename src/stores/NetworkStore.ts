@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 
 import type { Cluster } from "../types";
@@ -26,8 +26,8 @@ const programIds: { [s: string]: () => string | null } = {
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: WalletAdapterNetwork.Devnet as Cluster,
-  programId: programIds[WalletAdapterNetwork.Devnet]() as string,
+  cluster: "local" as Cluster,
+  programId: programIds[CLUSTER_LOCAL]() as string,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),
