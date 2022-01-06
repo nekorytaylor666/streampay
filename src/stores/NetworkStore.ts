@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 
 import type { Cluster } from "../types";
@@ -18,16 +18,16 @@ const clusterUrls: { [s: string]: () => string } = {
 };
 
 const programIds: { [s: string]: () => string | null } = {
-  [CLUSTER_LOCAL]: () => "BBbP5MHFSfcoygAtaPpWUmiEdb7yW2mZHDzg2MTnAsVa", // prompt("Program ID?"),
-  [CLUSTER_DEVNET]: () => "GutMKXfaxeoi8yg6UymENGm8BRTZ9RU3RSRLoJuCFaH8",
+  [CLUSTER_LOCAL]: () => "sfkEBYd2MMWmQqVsKojFGM5i3sj87NwQkrTbuwBze81", // prompt("Program ID?"),
+  [CLUSTER_DEVNET]: () => "sfkEBYd2MMWmQqVsKojFGM5i3sj87NwQkrTbuwBze81",
   [CLUSTER_TESTNET]: () => "8tQZMH3NWtoiNDYwTpSZ3GVrRKbMVi2S5Xjy6UcbG5rR",
   [CLUSTER_MAINNET]: () => "8e72pYCDaxu3GqMfeQ5r8wFgoZSYk6oua1Qo9XpsZjX",
 };
 
 const useNetworkStore = (set: Function, get: Function) => ({
   // state
-  cluster: WalletAdapterNetwork.Devnet as Cluster,
-  programId: programIds[WalletAdapterNetwork.Devnet]() as string,
+  cluster: "local" as Cluster,
+  programId: programIds[CLUSTER_LOCAL]() as string,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),

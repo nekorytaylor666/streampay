@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import Timelock from "@streamflow/timelock/dist/packages/timelock/index";
+import Timelock from "@streamflow/timelock/dist/packages/timelock/timelock";
 
 import ToastrLink from "../components/ToastrLink";
 import {
@@ -25,7 +25,6 @@ export default async function sendTransaction(
 ) {
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
-  const programId = useStore.getState().programId;
 
   let d;
   try {
@@ -41,23 +40,21 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          programId,
-          d.new_stream_keypair,
           d.recipient,
           d.mint,
-          d.deposited_amount,
           d.start_time,
-          d.end_time,
+          d.net_deposited_amount,
           d.period,
           d.cliff,
           d.cliff_amount,
+          d.amount_per_period,
+          d.stream_name,
+          d.can_topup,
           d.cancelable_by_sender,
           d.cancelable_by_recipient,
-          d.withdrawal_public,
           d.transferable_by_sender,
           d.transferable_by_recipient,
-          d.release_rate,
-          d.stream_name
+          d.automatic_withdrawal
         );
         break;
       case ProgramInstruction.Topup:
@@ -66,7 +63,6 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream,
           d.amount
         );
@@ -77,7 +73,6 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream,
           d.amount
         );
@@ -88,7 +83,6 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream
         );
         break;
@@ -98,7 +92,6 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream,
           d.new_recipient
         );
