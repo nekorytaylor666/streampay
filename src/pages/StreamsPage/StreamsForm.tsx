@@ -132,22 +132,22 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
-      net_deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
+      deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
+      end_time: new BN(end),
       period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
       cliff: new BN(start),
       cliff_amount: new BN(0),
-      amount_per_period: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
+      release_rate: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
       new_stream_keypair: newStream,
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
-      automatic_withdrawal: false,
-      can_topup: true,
+      withdrawal_public: false,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -161,10 +161,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (success) {
-      // @ts-ignore
       addStream(newStream.publicKey.toBase58(), {
         ...data,
-        end_time: new BN(end),
+        closable_at: new BN(end),
         last_withdrawn_at: new BN(0),
         withdrawn_amount: new BN(0),
         canceled_at: new BN(0),
@@ -174,6 +173,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         recipient_tokens: undefined as any,
         sender: wallet?.publicKey,
         sender_tokens: undefined as any,
+        total_amount: new BN(depositedAmount),
       });
 
       const mint = token.info.address;

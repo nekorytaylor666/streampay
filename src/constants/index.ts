@@ -50,8 +50,8 @@ export const STREAM_STATUS_COLOR = {
   [StreamStatus.canceled]: "red",
 };
 
-export const TIMELOCK_STRUCT_OFFSET_SENDER = 49;
-export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 113;
+export const TIMELOCK_STRUCT_OFFSET_SENDER = 48;
+export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 112;
 
 export const DEFAULT_DECIMAL_PLACES = 3;
 

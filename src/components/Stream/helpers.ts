@@ -21,11 +21,15 @@ export function getStreamed(
   const currentTime = getUnixTime(new Date());
   if (currentTime < cliffTime) return new BN(0);
 
-  if (currentTime > endTime) return new BN(depositedAmount);
+  if (currentTime > endTime) {
+    if (!releaseRate) return new BN(depositedAmount);
+    return new BN(Math.floor((endTime - cliffTime) / period) * releaseRate);
+  }
 
-  const streamed = cliffAmount + Math.floor((currentTime - cliffTime) / period) * releaseRate;
+  const rate =
+    releaseRate || calculateReleaseRate(endTime, cliffTime, depositedAmount, cliffAmount, period);
 
-  return new BN(streamed < depositedAmount ? streamed : depositedAmount);
+  return new BN(cliffAmount + Math.floor((currentTime - cliffTime) / period) * rate);
 }
 
 export function updateStatus(

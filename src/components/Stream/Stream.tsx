@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { decode, Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
@@ -36,7 +36,7 @@ import useStore, { StoreType } from "../../stores";
 import sendTransaction from "../../actions/sendTransaction";
 
 interface StreamProps {
-  data: StreamData;
+  data: TokenStreamData;
   myAddress: string;
   id: string;
   onCancel: () => Promise<boolean>;
@@ -70,11 +70,12 @@ const Stream: FC<StreamProps> = ({
   const {
     start_time,
     end_time,
+    closable_at,
     period,
     cliff,
     cliff_amount,
     withdrawn_amount,
-    net_deposited_amount,
+    deposited_amount,
     canceled_at,
     recipient,
     stream_name,
@@ -84,7 +85,7 @@ const Stream: FC<StreamProps> = ({
     cancelable_by_recipient,
     transferable_by_sender,
     transferable_by_recipient,
-    amount_per_period,
+    release_rate,
   } = data;
 
   const address = mint.toBase58();
@@ -94,35 +95,31 @@ const Stream: FC<StreamProps> = ({
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
 
-  const isStreaming = !amount_per_period.isZero();
+  const isStreaming = !release_rate.isZero();
 
+  const endTime = isStreaming ? closable_at : end_time;
   const releaseFrequency = calculateReleaseFrequency(
     period.toNumber(),
     cliff.toNumber(),
-    end_time.toNumber()
+    endTime.toNumber()
   );
 
   const withdrawModalRef = useRef<ModalRef>(null);
   const topupModalRef = useRef<ModalRef>(null);
 
-  const status_enum = getStreamStatus(
-    canceled_at,
-    start_time,
-    end_time,
-    new BN(+new Date() / 1000)
-  );
+  const status_enum = getStreamStatus(canceled_at, start_time, endTime, new BN(+new Date() / 1000));
   const color = STREAM_STATUS_COLOR[status_enum];
 
   const [status, setStatus] = useState(status_enum);
   const isCanceled = status === StreamStatus.canceled;
   const [streamed, setStreamed] = useState(
     getStreamed(
-      end_time.toNumber(),
+      endTime.toNumber(),
       cliff.toNumber(),
       cliff_amount.toNumber(),
-      net_deposited_amount.toNumber(),
+      deposited_amount.toNumber(),
       period.toNumber(),
-      amount_per_period.toNumber()
+      release_rate.toNumber()
     )
   );
 
@@ -131,7 +128,7 @@ const Stream: FC<StreamProps> = ({
   const showWithdraw =
     (status === StreamStatus.streaming ||
       (status === StreamStatus.complete &&
-        withdrawn_amount.toNumber() < net_deposited_amount.toNumber())) &&
+        withdrawn_amount.toNumber() < deposited_amount.toNumber())) &&
     myAddress === recipient.toBase58();
 
   const showCancelOnSender =
@@ -164,14 +161,13 @@ const Stream: FC<StreamProps> = ({
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const handleWithdraw = async () => {
-    const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
+    let withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    //
-    // if ((withdrawAmount = roundAmount(available, decimals))) {
-    //   //max
-    //   withdrawAmount = new BN(2 ** 64 - 1);//todo: how to pass u64::MAX (i.e. 2^64-1)
-    // }
+    if ((withdrawAmount = roundAmount(available, decimals))) {
+      //max
+      withdrawAmount = 0;
+    }
 
     const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
       stream: new PublicKey(id),
@@ -215,12 +211,12 @@ const Stream: FC<StreamProps> = ({
       const interval = setInterval(() => {
         setStreamed(
           getStreamed(
-            end_time.toNumber(),
+            endTime.toNumber(),
             cliff.toNumber(),
             cliff_amount.toNumber(),
-            net_deposited_amount.toNumber(),
+            deposited_amount.toNumber(),
             period.toNumber(),
-            amount_per_period.toNumber()
+            release_rate.toNumber()
           )
         );
         setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
@@ -228,7 +224,7 @@ const Stream: FC<StreamProps> = ({
         const tmpStatus = updateStatus(
           status,
           start_time.toNumber(),
-          end_time.toNumber(),
+          endTime.toNumber(),
           canceled_at.toNumber()
         );
         if (tmpStatus !== status) {
@@ -252,7 +248,7 @@ const Stream: FC<StreamProps> = ({
         <Badge classes="col-span-full" type={status} color={color} />
         <Duration
           start_time={start_time}
-          end_time={end_time}
+          end_time={endTime}
           canceled_at={canceled_at}
           isCanceled={isCanceled}
           cliff={cliff}
@@ -305,11 +301,11 @@ const Stream: FC<StreamProps> = ({
         >
           {`${formatAmount(
             isStreaming
-              ? amount_per_period.toNumber()
+              ? release_rate.toNumber()
               : calculateReleaseRate(
-                  end_time.toNumber(),
+                  endTime.toNumber(),
                   cliff.toNumber(),
-                  net_deposited_amount.toNumber(),
+                  deposited_amount.toNumber(),
                   cliff_amount.toNumber(),
                   period.toNumber()
                 ),
@@ -320,15 +316,15 @@ const Stream: FC<StreamProps> = ({
         <Progress
           title="Withdrawn"
           value={withdrawn_amount.toNumber()}
-          max={net_deposited_amount}
+          max={deposited_amount}
           decimals={decimals}
           symbol={symbol}
         />
         {status === StreamStatus.canceled && (
           <Progress
             title="Returned"
-            value={net_deposited_amount.toNumber() - withdrawn_amount.toNumber()}
-            max={net_deposited_amount}
+            value={deposited_amount.toNumber() - withdrawn_amount.toNumber()}
+            max={deposited_amount}
             rtl={true}
             decimals={decimals}
             symbol={symbol}
@@ -342,7 +338,7 @@ const Stream: FC<StreamProps> = ({
                 <dt className="col-span-8 text-gray-400 text-sm">
                   {format(
                     fromUnixTime(
-                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), end_time.toNumber())
+                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), endTime.toNumber())
                     ),
                     "ccc do MMM, yy HH:mm:ss"
                   )}
@@ -352,7 +348,7 @@ const Stream: FC<StreamProps> = ({
             <Progress
               title="Unlocked"
               value={streamed.toNumber()}
-              max={net_deposited_amount}
+              max={deposited_amount}
               decimals={decimals}
               symbol={symbol}
             />

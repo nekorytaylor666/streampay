@@ -3,7 +3,7 @@ import { useEffect, FC, useRef } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
+import { decode, TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 import { toast } from "react-toastify";
 
 import { Stream, Modal, ModalRef } from ".";
@@ -52,7 +52,7 @@ const getProgramAccounts = (
     ],
   });
 
-const sortStreams = (streams: { [s: string]: StreamData }, type: "vesting" | "streams") => {
+const sortStreams = (streams: { [s: string]: TokenStreamData }, type: "vesting" | "streams") => {
   const isVesting = type === "vesting";
 
   const allStreams = Object.entries(streams).sort(
@@ -62,9 +62,9 @@ const sortStreams = (streams: { [s: string]: StreamData }, type: "vesting" | "st
   let filteredStreams = [];
 
   if (isVesting) {
-    filteredStreams = allStreams.filter((stream) => !stream[1].can_topup);
+    filteredStreams = allStreams.filter((stream) => stream[1].release_rate.isZero());
   } else {
-    filteredStreams = allStreams.filter((stream) => stream[1].can_topup);
+    filteredStreams = allStreams.filter((stream) => !stream[1].release_rate.isZero());
   }
   return filteredStreams;
 };
@@ -123,7 +123,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       addStreams([...senderStreams, ...recepientStreams])
     );
 
-    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/11
+    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/1
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -156,7 +156,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         });
         if (success) {
           toast.success("Stream transferred to " + newRecipientAddress);
-
           deleteStream(id); //todo: let's keep it there, just as readonly.
         }
       } catch (e) {

@@ -1,12 +1,12 @@
-import { Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
+import { TokenStreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
 
 interface Streams {
-  [s: string]: StreamData;
+  [s: string]: TokenStreamData;
 }
 
 interface StreamStore {
   streams: Streams;
-  addStream: (id: string, stream: StreamData) => void;
+  addStream: (id: string, stream: TokenStreamData) => void;
   addStreams: (newStreams: Streams) => void;
   deleteStream: (id: string) => void;
   clearStreams: () => void;
