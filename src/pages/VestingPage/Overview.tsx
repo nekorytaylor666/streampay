@@ -60,7 +60,11 @@ const Overview: React.FC<OverviewProps> = ({
         ).toFixed(2)} ${tokenSymbol}) `}</span>
         <br className="sm:hidden" />
         released every
-        <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)} `}</span>
+        {releaseFrequencyCounter ? (
+          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        ) : (
+          <span> _____ </span>
+        )}
         <br />
         until
         {end.getTime() ? (

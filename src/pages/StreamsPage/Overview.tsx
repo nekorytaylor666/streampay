@@ -43,11 +43,15 @@ const Overview: React.FC<OverviewProps> = ({
       <p className="text-gray-400 text-sm leading-6 sm:inline-block">
         <span className="text-gray-100 text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
         released every
-        <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        {releaseFrequencyCounter ? (
+          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        ) : (
+          <span> _____. </span>
+        )}
       </p>
       <p className="text-gray-400 text-sm leading-6">
         Ends on
-        {depositedAmount && releaseAmount && start ? (
+        {depositedAmount && releaseAmount && start && releaseFrequencyCounter ? (
           <span className="text-gray-100 text-sm">{` ${format(
             new Date(end),
             "ccc do MMM, yyyy - HH:mm"
