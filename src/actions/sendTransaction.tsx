@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import Timelock from "@streamflow/timelock/dist/packages/timelock/timelock";
+import Stream from "@streamflow/timelock";
 
 import ToastrLink from "../components/ToastrLink";
 import {
@@ -36,7 +36,7 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        tx = await Timelock.create(
+        tx = await Stream.create(
           connection,
           // @ts-ignore
           wallet,
@@ -59,7 +59,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Topup:
         d = data as TopupStreamData;
-        tx = await Timelock.topup(
+        tx = await Stream.topup(
           connection,
           // @ts-ignore
           wallet,
@@ -69,7 +69,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Withdraw:
         d = data as WithdrawStreamData;
-        tx = await Timelock.withdraw(
+        tx = await Stream.withdraw(
           connection,
           // @ts-ignore
           wallet,
@@ -79,7 +79,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Cancel:
         d = data as CancelStreamData;
-        tx = await Timelock.cancel(
+        tx = await Stream.cancel(
           connection,
           // @ts-ignore
           wallet,
@@ -88,7 +88,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.TransferRecipient:
         d = data as TransferStreamData;
-        tx = await Timelock.transferRecipient(
+        tx = await Stream.transferRecipient(
           connection,
           // @ts-ignore
           wallet,

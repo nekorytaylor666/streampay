@@ -2,18 +2,14 @@ import { useEffect, FC, useRef } from "react";
 
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
-import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, Stream as StreamData } from "@streamflow/timelock/dist/packages/timelock/layout";
+import type { Connection } from "@solana/web3.js";
+import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import Stream from "@streamflow/timelock/dist";
 import { toast } from "react-toastify";
 
-import { Stream, Modal, ModalRef } from ".";
+import { StreamCard, Modal, ModalRef } from ".";
 import sendTransaction from "../actions/sendTransaction";
-import {
-  ProgramInstruction,
-  TIMELOCK_STRUCT_OFFSET_RECIPIENT,
-  TIMELOCK_STRUCT_OFFSET_SENDER,
-  TX_FINALITY_CONFIRMED,
-} from "../constants";
+import { ProgramInstruction } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
 
@@ -21,52 +17,20 @@ const storeGetter = (state: StoreType) => ({
   streams: state.streams,
   addStream: state.addStream,
   addStreams: state.addStreams,
+  updateStream: state.updateStream,
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
-  programId: state.programId,
 });
 
-interface ProgramAccount {
-  pubkey: PublicKey;
-  account: AccountInfo<Buffer>;
-}
-
-const getProgramAccounts = (
-  connection: Connection,
-  programId: string,
-  offset: number,
-  bytes: string
-) =>
-  connection?.getProgramAccounts(new PublicKey(programId), {
-    filters: [
-      {
-        memcmp: {
-          offset,
-          bytes,
-        },
-      },
-    ],
-  });
-
-const sortStreams = (streams: { [s: string]: StreamData }, type: "vesting" | "streams") => {
+const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
   const isVesting = type === "vesting";
 
-  const allStreams = Object.entries(streams).sort(
-    ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
-  );
-
-  let filteredStreams = [];
-
-  if (isVesting) {
-    filteredStreams = allStreams.filter((stream) => !stream[1].can_topup);
-  } else {
-    filteredStreams = allStreams.filter((stream) => stream[1].can_topup);
-  }
-  return filteredStreams;
+  if (isVesting) return streams.filter((stream) => !stream[1].can_topup);
+  return streams.filter((stream) => stream[1].can_topup);
 };
 
 interface StreamsListProps {
@@ -77,7 +41,7 @@ interface StreamsListProps {
 const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const {
     streams,
-    addStream,
+    updateStream,
     addStreams: addStreamsToStore,
     deleteStream,
     clearStreams,
@@ -85,11 +49,8 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     myTokenAccounts,
     setMyTokenAccounts,
     setToken,
-    programId,
   } = useStore(storeGetter);
   const modalRef = useRef<ModalRef>(null);
-
-  const publicKey = wallet.publicKey?.toBase58();
 
   const updateToken = async () => {
     const address = token.info.address;
@@ -102,29 +63,16 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
-  const addStreams = (accounts: ProgramAccount[]) => {
-    let newStreams = {};
-    accounts.forEach((account) => {
-      const decoded = decode(account.account.data);
-      newStreams = { ...newStreams, [account.pubkey.toBase58()]: decoded };
-    });
-
-    addStreamsToStore(newStreams);
-  };
-
   useEffect(() => {
     clearStreams();
-    if (!connection || !publicKey) return;
+    if (!connection || !wallet?.publicKey) return;
 
-    Promise.all([
-      getProgramAccounts(connection, programId, TIMELOCK_STRUCT_OFFSET_SENDER, publicKey),
-      getProgramAccounts(connection, programId, TIMELOCK_STRUCT_OFFSET_RECIPIENT, publicKey),
-    ]).then(([senderStreams, recepientStreams]) =>
-      addStreams([...senderStreams, ...recepientStreams])
-    );
+    (async () => {
+      const allStreams = await Stream.get(connection, wallet.publicKey as PublicKey);
+      addStreamsToStore(allStreams);
+    })();
 
     //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/11
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -134,10 +82,10 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     });
 
     if (isCancelled) {
-      const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
+      const stream = await Stream.getOne(connection, new PublicKey(id));
       if (stream) {
         updateToken();
-        addStream(id, decode(stream.data));
+        updateStream([id, stream]);
       }
     }
 
@@ -167,8 +115,8 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
   return (
     <>
-      {sortStreams(streams, type).map(([id, data]) => (
-        <Stream
+      {filterStreams(streams, type).map(([id, data]) => (
+        <StreamCard
           key={id}
           onCancel={() => cancelStream(id)}
           onTransfer={() => transferStream(id)}

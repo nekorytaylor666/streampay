@@ -1,5 +1,5 @@
 export { default as Curtain } from "./Curtain";
-export { default as Stream } from "./Stream/Stream";
+export { default as StreamCard } from "./StreamCard/StreamCard";
 export { default as Footer } from "./Footer";
 export { default as Logo } from "./Logo";
 export { default as Button } from "./Button";

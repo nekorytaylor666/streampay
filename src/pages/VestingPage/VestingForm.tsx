@@ -19,7 +19,7 @@ import {
   TIME_FORMAT,
 } from "../../constants";
 import { StringOption } from "../../types";
-import { calculateReleaseRate } from "../../components/Stream/helpers";
+import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
 interface VestingFormProps {
   loading: boolean;
@@ -207,20 +207,23 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (success) {
-      // @ts-ignore
-      addStream(newStream.publicKey.toBase58(), {
-        ...data,
-        end_time: new BN(end),
-        last_withdrawn_at: new BN(0),
-        withdrawn_amount: new BN(0),
-        canceled_at: new BN(0),
-        created_at: new BN(+new Date() / 1000),
-        escrow_tokens: undefined as any,
-        magic: new BN(0),
-        recipient_tokens: undefined as any,
-        sender: wallet.publicKey,
-        sender_tokens: undefined as any,
-      });
+      addStream([
+        newStream.publicKey.toBase58(),
+        // @ts-ignore
+        {
+          ...data,
+          end_time: new BN(end),
+          last_withdrawn_at: new BN(0),
+          withdrawn_amount: new BN(0),
+          canceled_at: new BN(0),
+          created_at: new BN(+new Date() / 1000),
+          escrow_tokens: undefined as any,
+          magic: new BN(0),
+          recipient_tokens: undefined as any,
+          sender: wallet.publicKey,
+          sender_tokens: undefined as any,
+        },
+      ]);
 
       const mint = token.info.address;
 
@@ -237,7 +240,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setValue("releaseFrequencyCounter", parseInt(value));
     trigger("releaseFrequencyPeriod");
   };
-
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
