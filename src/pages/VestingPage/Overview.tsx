@@ -36,7 +36,7 @@ const Overview: React.FC<OverviewProps> = ({
 
   return (
     <div className="col-span-full mt-4 leading-6">
-      <b className="font-bold block text-gray-400 text-sm leading-6">Overview:</b>
+      <h3 className="font-bold block text-lg text-white text-sm leading-6 mb-3">Overview:</h3>
       <p className="text-gray-400 text-sm leading-6">
         First
         <span className="text-gray-100 text-sm">
@@ -60,7 +60,11 @@ const Overview: React.FC<OverviewProps> = ({
         ).toFixed(2)} ${tokenSymbol}) `}</span>
         <br className="sm:hidden" />
         released every
-        <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)} `}</span>
+        {releaseFrequencyCounter ? (
+          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        ) : (
+          <span> _____ </span>
+        )}
         <br />
         until
         {end.getTime() ? (
@@ -73,9 +77,9 @@ const Overview: React.FC<OverviewProps> = ({
         )}
         .
       </p>
-      <p className="text-gray-400 text-xxs leading-4 mt-3">
-        {`Streamflow will charge ${amount * 0.0025} ${tokenSymbol} (0.25% service fee on top of the
-        specified amount), while respecting the set schedule. `}
+      <p className="text-gray-400 text-xxs leading-4 mt-6">
+        {`Streamflow charges 0.25% service fee (${amount * 0.0025} ${tokenSymbol}) on top of the
+        specified amount, while respecting the given schedule. `}
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"

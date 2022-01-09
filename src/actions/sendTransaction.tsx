@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import Timelock from "@streamflow/timelock/dist/packages/timelock/index";
+import Stream from "@streamflow/timelock";
 
 import ToastrLink from "../components/ToastrLink";
 import {
@@ -25,7 +25,6 @@ export default async function sendTransaction(
 ) {
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
-  const programId = useStore.getState().programId;
 
   let d;
   try {
@@ -37,68 +36,62 @@ export default async function sendTransaction(
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        tx = await Timelock.create(
+        tx = await Stream.create(
           connection,
           // @ts-ignore
           wallet,
-          programId,
-          d.new_stream_keypair,
           d.recipient,
           d.mint,
-          d.deposited_amount,
           d.start_time,
-          d.end_time,
+          d.net_deposited_amount,
           d.period,
           d.cliff,
           d.cliff_amount,
+          d.amount_per_period,
+          d.stream_name,
+          d.can_topup,
           d.cancelable_by_sender,
           d.cancelable_by_recipient,
-          d.withdrawal_public,
           d.transferable_by_sender,
           d.transferable_by_recipient,
-          d.release_rate,
-          d.stream_name
+          d.automatic_withdrawal
         );
         break;
       case ProgramInstruction.Topup:
         d = data as TopupStreamData;
-        tx = await Timelock.topup(
+        tx = await Stream.topup(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream,
           d.amount
         );
         break;
       case ProgramInstruction.Withdraw:
         d = data as WithdrawStreamData;
-        tx = await Timelock.withdraw(
+        tx = await Stream.withdraw(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream,
           d.amount
         );
         break;
       case ProgramInstruction.Cancel:
         d = data as CancelStreamData;
-        tx = await Timelock.cancel(
+        tx = await Stream.cancel(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream
         );
         break;
       case ProgramInstruction.TransferRecipient:
         d = data as TransferStreamData;
-        tx = await Timelock.transferRecipient(
+        tx = await Stream.transferRecipient(
           connection,
           // @ts-ignore
           wallet,
-          programId,
           d.stream,
           d.new_recipient
         );

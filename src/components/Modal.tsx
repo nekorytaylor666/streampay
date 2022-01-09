@@ -96,11 +96,11 @@ const Modal = forwardRef<ModalRef, ModalProps>(
           {symbol && (
             <>
               <p className="text-gray-400 text-xxs leading-4 mt-3">
-                {`Streamflow will charge ${roundAmount(
+                {`Streamflow charges 0.25% service fee (${roundAmount(
                   +value * 0.0025 || 0,
                   3
-                )} ${symbol} (0.25% service fee on top of the
-specified amount), while respecting the set schedule. `}
+                )}) ${symbol} on top of the
+specified amount, while respecting the given schedule.`}
                 <Link
                   title="Learn more."
                   url="https://docs.streamflow.finance/help/fees"

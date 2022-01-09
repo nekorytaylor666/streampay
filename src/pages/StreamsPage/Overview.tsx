@@ -30,7 +30,7 @@ const Overview: React.FC<OverviewProps> = ({
   return (
     <div className="col-span-full mt-4 leading-6">
       <p className="text-gray-400 text-sm leading-6">
-        <b className="font-bold block">Overview:</b>
+        <h3 className="font-bold block text-lg text-white text-sm leading-6 mb-3">Overview:</h3>
         Stream starts on
         {start ? (
           <span className="text-gray-100 text-sm">{` ${startDate} `}</span>
@@ -43,11 +43,15 @@ const Overview: React.FC<OverviewProps> = ({
       <p className="text-gray-400 text-sm leading-6 sm:inline-block">
         <span className="text-gray-100 text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
         released every
-        <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        {releaseFrequencyCounter ? (
+          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        ) : (
+          <span> _____. </span>
+        )}
       </p>
       <p className="text-gray-400 text-sm leading-6">
         Ends on
-        {depositedAmount && releaseAmount && start ? (
+        {depositedAmount && releaseAmount && start && releaseFrequencyCounter ? (
           <span className="text-gray-100 text-sm">{` ${format(
             new Date(end),
             "ccc do MMM, yyyy - HH:mm"
@@ -58,11 +62,11 @@ const Overview: React.FC<OverviewProps> = ({
         , <br className="sm:hidden" />
         unless topped up.
       </p>
-      <p className="text-gray-400 text-xxs leading-4 mt-3">
-        {`Streamflow will charge ${
+      <p className="text-gray-400 text-xxs leading-4 mt-6">
+        {`Streamflow charges 0.25% service fee (${
           depositedAmount * 0.0025
-        } ${tokenSymbol} (0.25% service fee on top of the
-        specified amount), while respecting the set schedule. `}
+        } ${tokenSymbol}) on top of the
+        specified amount, while respecting the given schedule. `}
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"

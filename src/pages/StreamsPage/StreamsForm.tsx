@@ -132,22 +132,22 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
-      deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
+      net_deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
-      end_time: new BN(end),
       period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
       cliff: new BN(start),
       cliff_amount: new BN(0),
-      release_rate: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
+      amount_per_period: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
       new_stream_keypair: newStream,
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
-      withdrawal_public: false,
+      automatic_withdrawal: false,
+      can_topup: true,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -161,20 +161,23 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (success) {
-      addStream(newStream.publicKey.toBase58(), {
-        ...data,
-        closable_at: new BN(end),
-        last_withdrawn_at: new BN(0),
-        withdrawn_amount: new BN(0),
-        canceled_at: new BN(0),
-        created_at: new BN(+new Date() / 1000),
-        escrow_tokens: undefined as any,
-        magic: new BN(0),
-        recipient_tokens: undefined as any,
-        sender: wallet?.publicKey,
-        sender_tokens: undefined as any,
-        total_amount: new BN(depositedAmount),
-      });
+      addStream([
+        newStream.publicKey.toBase58(),
+        // @ts-ignore
+        {
+          ...data,
+          end_time: new BN(end),
+          last_withdrawn_at: new BN(0),
+          withdrawn_amount: new BN(0),
+          canceled_at: new BN(0),
+          created_at: new BN(+new Date() / 1000),
+          escrow_tokens: undefined as any,
+          magic: new BN(0),
+          recipient_tokens: undefined as any,
+          sender: wallet?.publicKey,
+          sender_tokens: undefined as any,
+        },
+      ]);
 
       const mint = token.info.address;
 

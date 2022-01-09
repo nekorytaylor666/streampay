@@ -19,6 +19,7 @@ import {
   TIME_FORMAT,
 } from "../../constants";
 import { StringOption } from "../../types";
+import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
 interface VestingFormProps {
   loading: boolean;
@@ -164,26 +165,35 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end = getUnixTime(new Date(endDate + "T" + endTime));
+    const decimals = token.uiTokenAmount.decimals;
+    const cliff = advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start;
+    const cliffAmountCalculated = (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** decimals;
+
+    const amountPerPeriod = calculateReleaseRate(
+      end,
+      cliff,
+      amount,
+      cliffAmountCalculated,
+      releaseFrequencyPeriod
+    );
 
     const data = {
-      deposited_amount: new BN(amount * 10 ** token.uiTokenAmount.decimals),
+      net_deposited_amount: new BN(amount * 10 ** decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
-      end_time: new BN(end),
       period: new BN(releaseFrequencyPeriod * releaseFrequencyCounter),
-      cliff: new BN(advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start),
-      cliff_amount: new BN(
-        (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** token.uiTokenAmount.decimals
-      ),
-      release_rate: new BN(0),
-      new_stream_keypair: newStream,
+      cliff: new BN(cliff),
+      cliff_amount: new BN(cliffAmountCalculated),
+
+      amount_per_period: new BN(amountPerPeriod * 10 ** decimals),
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
-      withdrawal_public: false,
+      automatic_withdrawal: false,
+      can_topup: false,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -197,20 +207,23 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (success) {
-      addStream(newStream.publicKey.toBase58(), {
-        ...data,
-        closable_at: new BN(end),
-        last_withdrawn_at: new BN(0),
-        withdrawn_amount: new BN(0),
-        canceled_at: new BN(0),
-        created_at: new BN(+new Date() / 1000),
-        escrow_tokens: undefined as any,
-        magic: new BN(0),
-        recipient_tokens: undefined as any,
-        sender: wallet.publicKey,
-        sender_tokens: undefined as any,
-        total_amount: new BN(amount),
-      });
+      addStream([
+        newStream.publicKey.toBase58(),
+        // @ts-ignore
+        {
+          ...data,
+          end_time: new BN(end),
+          last_withdrawn_at: new BN(0),
+          withdrawn_amount: new BN(0),
+          canceled_at: new BN(0),
+          created_at: new BN(+new Date() / 1000),
+          escrow_tokens: undefined as any,
+          magic: new BN(0),
+          recipient_tokens: undefined as any,
+          sender: wallet.publicKey,
+          sender_tokens: undefined as any,
+        },
+      ]);
 
       const mint = token.info.address;
 
@@ -227,7 +240,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setValue("releaseFrequencyCounter", parseInt(value));
     trigger("releaseFrequencyPeriod");
   };
-
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
