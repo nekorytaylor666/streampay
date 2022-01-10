@@ -29,8 +29,8 @@ const Overview: React.FC<OverviewProps> = ({
 
   return (
     <div className="col-span-full mt-4 leading-6">
+      <h3 className="font-bold text-lg text-white mb-3">Overview:</h3>
       <p className="text-gray-400 text-sm leading-6">
-        <h3 className="font-bold block text-lg text-white text-sm leading-6 mb-3">Overview:</h3>
         Stream starts on
         {start ? (
           <span className="text-gray-100 text-sm">{` ${startDate} `}</span>
