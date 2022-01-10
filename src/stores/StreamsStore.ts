@@ -18,15 +18,15 @@ const useStreamStore = (set: Function, get: Function): StreamStore => ({
   streams: [],
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),
   updateStream: (updatedStream) => {
-    const streamsCopy = [...get().streams];
-    const index = streamsCopy.find(
+    const streams = get().streams;
+    const index = streams.findIndex(
       (stream: [string, StreamData]) => stream[0] === updatedStream[0]
     );
-
     if (index > -1) {
-      streamsCopy[index] = updatedStream;
+      streams[index] = updatedStream;
     }
-    return streamsCopy; // no need to sort if start_time wasn't changed
+
+    return set({ streams });
   },
   addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
   deleteStream: (id) => {

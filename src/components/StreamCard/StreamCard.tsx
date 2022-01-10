@@ -93,6 +93,7 @@ const StreamCard: FC<StreamProps> = ({
     transferable_by_sender,
     transferable_by_recipient,
     amount_per_period,
+    can_topup,
   } = data;
 
   const address = mint.toBase58();
@@ -101,8 +102,6 @@ const StreamCard: FC<StreamProps> = ({
   const symbol = myTokenAccounts[address].info.symbol;
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
-
-  const isStreaming = !amount_per_period.isZero();
 
   const releaseFrequency = calculateReleaseFrequency(
     period.toNumber(),
@@ -167,15 +166,15 @@ const StreamCard: FC<StreamProps> = ({
   const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
   const showTopup =
+    can_topup &&
     myAddress === sender.toBase58() &&
-    isStreaming &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const handleWithdraw = async () => {
     const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    //
+    // todo
     // if ((withdrawAmount = roundAmount(available, decimals))) {
     //   //max
     //   withdrawAmount = new BN(2 ** 64 - 1);//todo: how to pass u64::MAX (i.e. 2^64-1)
@@ -203,7 +202,7 @@ const StreamCard: FC<StreamProps> = ({
       // todo max
       topupAmount = 0;
     }
-    debugger;
+
     const isTopupped = await sendTransaction(ProgramInstruction.Topup, {
       stream: new PublicKey(id),
       amount: new BN(topupAmount * 10 ** decimals),
@@ -312,7 +311,7 @@ const StreamCard: FC<StreamProps> = ({
           })}
         >
           {`${formatAmount(
-            isStreaming
+            can_topup
               ? amount_per_period.toNumber()
               : calculateReleaseRate(
                   end_time.toNumber(),
