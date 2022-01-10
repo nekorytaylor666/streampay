@@ -4,7 +4,7 @@ import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
-import Stream from "@streamflow/timelock/dist";
+import Stream from "@streamflow/timelock";
 import { toast } from "react-toastify";
 
 import { StreamCard, Modal, ModalRef } from ".";
