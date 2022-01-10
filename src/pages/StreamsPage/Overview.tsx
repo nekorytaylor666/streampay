@@ -51,7 +51,7 @@ const Overview: React.FC<OverviewProps> = ({
       </p>
       <p className="text-gray-400 text-sm leading-6">
         Ends on
-        {depositedAmount && releaseAmount && start && releaseFrequencyCounter ? (
+        {depositedAmount && releaseAmount > 0 && start && releaseFrequencyCounter ? (
           <span className="text-gray-100 text-sm">{` ${format(
             new Date(end),
             "ccc do MMM, yyyy - HH:mm"
