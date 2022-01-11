@@ -31,7 +31,7 @@ export default async function sendTransaction(
     if (wallet?.publicKey === null || !connection) {
       throw new Error(ERR_NOT_CONNECTED);
     }
-    toast.info("Please confirm transaction in your wallet.");
+    toast.info("Please confirm transaction in your wallet.", { autoClose: false });
     let tx;
     switch (instruction) {
       case ProgramInstruction.Create:
@@ -112,10 +112,11 @@ export default async function sendTransaction(
             : "")
         }
       />,
-      { autoClose: 15000, closeOnClick: true }
+      { autoClose: 10000, closeOnClick: true }
     );
     return true;
   } catch (e: any) {
+    toast.dismiss();
     //todo log these errors somewhere for our reference
     let errorMsg = e.message;
     if (e.message.includes("Owner cannot sign")) errorMsg = "Recipient can not sign!";
