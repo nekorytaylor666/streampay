@@ -40,29 +40,20 @@ const ourTokens = [
   {
     chainId: 103, //devnet
     address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
-    symbol: "STRM",
-    name: "STREAMFLOW",
+    symbol: "T-STRM",
+    name: "TEST STREAMFLOW",
     decimals: 9, //default is 9
     logoURI: "https://streamflow.finance/public/img/icon.png",
     tags: [],
   },
   {
     chainId: 103, //devnet
-    address: "CMwtR53m7PUmM1tmMdfvPp5q8zEbZmwACmfkrbzCyN5D", //ADD YOUR LOCAL TOKEN HERE
-    symbol: "DIDI",
-    name: "DIJANA",
+    address: "9EEPMBwMFUaJwiztYkKWKjMraZ4PLjQtwhcDUggDZyy8", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "TEST",
+    name: "TEST",
     decimals: 9, //default is 9
     logoURI:
-      "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
-    tags: [],
-  },
-  {
-    chainId: 103, //devnet
-    address: "3AYtArG2AEsi29ZuwiCqk78ZYG6Fd9Tvf2oVodewvbKZ", //ADD YOUR LOCAL TOKEN HERE
-    symbol: "DULE",
-    name: "DULE",
-    decimals: 9, //default is 9
-    logoURI: "https://streamflow.finance/public/img/solana.png",
+      "https://static.vecteezy.com/system/resources/previews/000/349/477/original/coin-vector-icon.jpg",
     tags: [],
   },
 ];
