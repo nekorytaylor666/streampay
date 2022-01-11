@@ -98,6 +98,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(
               <p className="text-gray-400 text-xxs leading-4 mt-3">
                 {`Streamflow charges 0.25% service fee (${roundAmount(
                   +value * 0.0025 || 0,
+                  0,
                   3
                 )}) ${symbol} on top of the
 specified amount, while respecting the given schedule.`}
