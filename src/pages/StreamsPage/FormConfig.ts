@@ -78,6 +78,11 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .number()
           .typeError(ERRORS.amount_required)
           .required(ERRORS.amount_required)
+          .when("depositedAmount", (depositedAmount, schema) =>
+            depositedAmount
+              ? schema.max(depositedAmount, ERRORS.release_amount_greater_than_deposited)
+              : schema
+          )
           .moreThan(0, ERRORS.amount_greater_than),
         tokenSymbol: yup.string().required(ERRORS.token_required),
         subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
@@ -125,6 +130,8 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     watch,
     formState: { errors },
     setValue,
+    setError,
+    clearErrors,
   } = useForm<StreamsFormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
@@ -136,5 +143,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     errors,
     setValue,
     handleSubmit,
+    setError,
+    clearErrors,
   };
 };

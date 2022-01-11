@@ -69,7 +69,7 @@ export const ERRORS = {
   amount_too_high: "You don't have enough tokens.",
   invalid_address: "Please enter a valid Solana wallet address.",
   address_is_a_program: "Address cannot be a program.",
-  release_amount_greater_than_deposited: "Should be less than or equal to deposited amount.",
+  release_amount_greater_than_deposited: "Should be <= deposited amount.",
   end_should_be_after_start: "End should happen after start.",
   cliff_should_be_after_start: "Cliff should happen after start.",
   cliff_should_be_before_end: "Cliff should happen before end.",

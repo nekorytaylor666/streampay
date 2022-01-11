@@ -16,6 +16,7 @@ import {
   ERR_NOT_CONNECTED,
   ProgramInstruction,
   timePeriodOptions,
+  ERRORS,
 } from "../../constants";
 import { StringOption } from "../../types";
 import Overview from "./Overview";
@@ -44,9 +45,11 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const [advanced, setAdvanced] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
-  const { register, handleSubmit, watch, errors, setValue } = useStreamsForm({
-    tokenBalance: tokenBalance || 0,
-  });
+  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors } = useStreamsForm(
+    {
+      tokenBalance: tokenBalance || 0,
+    }
+  );
 
   const [
     depositedAmount,
@@ -103,6 +106,17 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
 
   const updateReleaseFrequencyCounter = (value: string) => {
     setValue("releaseFrequencyCounter", parseInt(value));
+  };
+
+  const updateReleaseAmountError = (value: string) => {
+    if (value && releaseAmount) {
+      return +value < +releaseAmount
+        ? setError("releaseAmount", {
+            type: "error message",
+            message: ERRORS.release_amount_greater_than_deposited,
+          })
+        : clearErrors("releaseAmount");
+    }
   };
 
   const onSubmit = async (values: StreamsFormData) => {
@@ -196,6 +210,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         <Input
           type="number"
           label="Deposited Amount"
+          customChange={updateReleaseAmountError}
           placeholder="0.00"
           classes="col-span-3 sm:col-span-1"
           error={errors?.depositedAmount?.message}
