@@ -21,18 +21,16 @@ To run locally, git clone the repository and then:
   npm run start
 ```
 
-Use devnet tokens: `9EEPMBwMFUaJwiztYkKWKjMraZ4PLjQtwhcDUggDZyy8`
-Mint more using `devnet-authority.json` key.
-
-
 Add some tokens for the localhost and devnet:
+
 ```
-[skip] solana airdrop 1
-[skip] spl-token create-token
-token=9EEPMBwMFUaJwiztYkKWKjMraZ4PLjQtwhcDUggDZyy8 #
+solana airdrop 1
+spl-token create-token
+token=<TOKEN> #save token mint address for later use
 spl-token create-account $token
+acc=<TOKEN_ACCOUNT> #save token account address for later use
 spl-token mint $token <AMOUNT>
 spl-token transfer $token <AMOUNT> <WALLET_ADDRESS> --fund-recipient --allow-unfunded-recipient
 ```
 
-and then update `ourToken`'s address (to match `<TOKEN>`) in `helpers/utils.ts`. Voila, now you have test tokens! to play with. :)
+and then update `ourToken`'s address (to match `<TOKEN>`) in `Main.tsx`. Voila, now you have test tokens! to play with. :)
