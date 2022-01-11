@@ -166,13 +166,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end = getUnixTime(new Date(endDate + "T" + endTime));
     const decimals = token.uiTokenAmount.decimals;
-    const cliff = advanced ? +new Date(cliffDate + "T" + cliffTime) / 1000 : start;
+    const cliff = advanced ? getUnixTime(new Date(cliffDate + "T" + cliffTime)) : start;
     const cliffAmountCalculated = (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** decimals;
-
     const amountPerPeriod = calculateReleaseRate(
       end,
       cliff,
-      amount,
+      amount * 10 ** decimals,
       cliffAmountCalculated,
       releaseFrequencyPeriod
     );
@@ -185,8 +184,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       period: new BN(releaseFrequencyPeriod * releaseFrequencyCounter),
       cliff: new BN(cliff),
       cliff_amount: new BN(cliffAmountCalculated),
-
-      amount_per_period: new BN(amountPerPeriod * 10 ** decimals),
+      amount_per_period: new BN(amountPerPeriod),
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
