@@ -92,7 +92,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     return isCancelled;
   }
 
-  async function transferStream(id: string) {
+  async function transferStream(id: string, invoker: "sender" | "recipient") {
     const newRecipientAddress = await modalRef?.current?.show();
 
     if (newRecipientAddress !== undefined) {
@@ -105,7 +105,10 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         if (success) {
           toast.success("Stream transferred to " + newRecipientAddress);
 
-          deleteStream(id); //todo: let's keep it there, just as readonly.
+          if (invoker === "sender") {
+            const stream = await Stream.getOne(connection, new PublicKey(id));
+            updateStream([id, stream]);
+          } else deleteStream(id);
         }
       } catch (e) {
         toast.error("Invalid address");
@@ -119,7 +122,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         <StreamCard
           key={id}
           onCancel={() => cancelStream(id)}
-          onTransfer={() => transferStream(id)}
+          onTransfer={(invoker) => transferStream(id, invoker)}
           onWithdraw={updateToken}
           onTopup={updateToken}
           id={id}
