@@ -41,7 +41,7 @@ interface StreamProps {
   id: string;
   onCancel: () => Promise<boolean>;
   onWithdraw: () => Promise<void>;
-  onTransfer: () => Promise<void>;
+  onTransfer: (invoker: "sender" | "recipient") => Promise<void>;
   onTopup: () => Promise<void>;
 }
 
@@ -162,6 +162,8 @@ const StreamCard: FC<StreamProps> = ({
     transferable_by_recipient &&
     myAddress === recipient.toBase58() &&
     (status === StreamStatus.streaming || status === StreamStatus.complete);
+
+  const invoker = showTransferOnSender ? "sender" : "recipient";
 
   const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
@@ -389,7 +391,7 @@ const StreamCard: FC<StreamProps> = ({
             )}
             {showTransfer && (
               <Button
-                onClick={onTransfer}
+                onClick={() => onTransfer(invoker)}
                 background={STREAM_STATUS_COLOR[StreamStatus.complete]}
                 classes="col-span-3 text-sm py-1 w-full"
               >

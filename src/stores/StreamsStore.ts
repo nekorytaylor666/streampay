@@ -17,8 +17,9 @@ const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
   streams: [],
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),
+  addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
   updateStream: (updatedStream) => {
-    const streams = get().streams;
+    const streams = [...get().streams];
     const index = streams.findIndex(
       (stream: [string, StreamData]) => stream[0] === updatedStream[0]
     );
@@ -28,12 +29,11 @@ const useStreamStore = (set: Function, get: Function): StreamStore => ({
 
     return set({ streams });
   },
-  addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
   deleteStream: (id) => {
     const filteredStreams = get().streams.filter(
       (stream: [string, StreamData]) => stream[0] !== id
     );
-    set({ streams: sortStreams(filteredStreams) });
+    set({ streams: filteredStreams });
   },
   clearStreams: () => set({ streams: [] }),
 });
