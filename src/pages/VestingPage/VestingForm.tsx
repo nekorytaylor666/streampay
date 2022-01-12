@@ -2,7 +2,7 @@ import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
 import { BN } from "@project-serum/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
@@ -139,7 +139,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   };
 
   const onSubmit = async (values: VestingFormData) => {
-    const newStream = Keypair.generate();
     const {
       amount,
       subject,
@@ -200,13 +199,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    // @ts-ignore
-    const success = await sendTransaction(ProgramInstruction.Create, data);
+    const id = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
 
-    if (success) {
+    if (id) {
       addStream([
-        newStream.publicKey.toBase58(),
+        id.toBase58(),
         // @ts-ignore
         {
           ...data,
