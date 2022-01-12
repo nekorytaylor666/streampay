@@ -21,7 +21,11 @@ const Footer = () => (
       <Link url="https://streamflow.finance" title="StreamFlow Finance" hideIcon={true} />
     </small>
     <small className="block mt-2 text-gray-400 px-2">
-      This is (still) unaudited software. Please proceed with caution.
+      <Link
+        url="https://github.com/streamflow-finance/timelock"
+        title="Protocol code and audit report available here."
+        hideIcon={true}
+      />
     </small>
   </footer>
 );
