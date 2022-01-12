@@ -56,7 +56,7 @@ export default function DateTime(props: {
             id={title}
             value={date}
             min={getMinDate()}
-            max={format(add(new Date(), { years: 1 }), DATE_FORMAT)}
+            max={format(add(new Date(), { years: 10 }), DATE_FORMAT)}
             onFocus={initializeTime}
             onClick={initializeTime}
             onChange={(e) => updateDate(e.target.value)}
