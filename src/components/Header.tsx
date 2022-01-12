@@ -18,7 +18,7 @@ const Header = () => {
   const { cluster, wallet, setCluster } = useStore(storeGetter);
   const isMainnet = cluster === WalletAdapterNetwork.Mainnet;
 
-  const toggleCluster = (): Dispatch<SetStateAction<{ cluster: Cluster; programId: string }>> =>
+  const toggleCluster = (): Dispatch<SetStateAction<{ cluster: Cluster }>> =>
     isMainnet ? setCluster(WalletAdapterNetwork.Devnet) : setCluster(WalletAdapterNetwork.Mainnet);
 
   return (
