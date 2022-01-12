@@ -6,7 +6,6 @@ interface StreamStore {
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;
   deleteStream: (id: string) => void;
-
   clearStreams: () => void;
 }
 
