@@ -2,7 +2,7 @@ import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
 import { BN } from "@project-serum/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
@@ -120,7 +120,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   };
 
   const onSubmit = async (values: StreamsFormData) => {
-    const newStream = Keypair.generate();
     const {
       releaseAmount,
       subject,
@@ -154,7 +153,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       cliff: new BN(start),
       cliff_amount: new BN(0),
       amount_per_period: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
-      new_stream_keypair: newStream,
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
@@ -170,7 +168,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    // @ts-ignore
     const id = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
     if (id) {

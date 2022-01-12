@@ -36,7 +36,7 @@ export interface CreateStreamData {
   transferable_by_recipient: boolean;
   amount_per_period: BN;
   stream_name: string;
-  automatic_withdrawal: false;
+  automatic_withdrawal: boolean;
   can_topup: boolean;
 }
 
