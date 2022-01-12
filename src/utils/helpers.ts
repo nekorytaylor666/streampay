@@ -39,7 +39,7 @@ export function copyToClipboard(value: string): void {
 const ourTokens = [
   {
     chainId: 103, //devnet
-    address: "3xugeoFgQES3iYij7sPAafsFTo2r84vEfe2ACycL4W3E", //ADD YOUR LOCAL TOKEN HERE
+    address: "Gssm3vfi8s65R31SBdmQRq6cKeYojGgup7whkw4VCiQj", //ADD YOUR LOCAL TOKEN HERE
     symbol: "STRM",
     name: "STREAMFLOW",
     decimals: 9, //default is 9
@@ -48,9 +48,9 @@ const ourTokens = [
   },
   {
     chainId: 103, //devnet
-    address: "CMwtR53m7PUmM1tmMdfvPp5q8zEbZmwACmfkrbzCyN5D", //ADD YOUR LOCAL TOKEN HERE
-    symbol: "DIDI",
-    name: "DIJANA",
+    address: "B8DVFHFWFKtqXcN7Up5MyTJNsqSZTSTQw4totxGEJ3Q5", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "TEST",
+    name: "TEST",
     decimals: 9, //default is 9
     logoURI:
       "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
@@ -58,9 +58,9 @@ const ourTokens = [
   },
   {
     chainId: 103, //devnet
-    address: "3AYtArG2AEsi29ZuwiCqk78ZYG6Fd9Tvf2oVodewvbKZ", //ADD YOUR LOCAL TOKEN HERE
-    symbol: "DULE",
-    name: "DULE",
+    address: "FGHYWaEkycB1bhkQKN7GqJTzySgQzFgvdFc8RuVzmkNF", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "META",
+    name: "META",
     decimals: 9, //default is 9
     logoURI: "https://streamflow.finance/public/img/solana.png",
     tags: [],
