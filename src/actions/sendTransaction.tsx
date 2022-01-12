@@ -32,11 +32,11 @@ export default async function sendTransaction(
       throw new Error(ERR_NOT_CONNECTED);
     }
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-    let tx;
+    let response;
     switch (instruction) {
       case ProgramInstruction.Create:
         d = data as CreateStreamData;
-        tx = await Stream.create(
+        response = await Stream.create(
           connection,
           // @ts-ignore
           wallet,
@@ -59,7 +59,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Topup:
         d = data as TopupStreamData;
-        tx = await Stream.topup(
+        response = await Stream.topup(
           connection,
           // @ts-ignore
           wallet,
@@ -69,7 +69,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Withdraw:
         d = data as WithdrawStreamData;
-        tx = await Stream.withdraw(
+        response = await Stream.withdraw(
           connection,
           // @ts-ignore
           wallet,
@@ -79,7 +79,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.Cancel:
         d = data as CancelStreamData;
-        tx = await Stream.cancel(
+        response = await Stream.cancel(
           connection,
           // @ts-ignore
           wallet,
@@ -88,7 +88,7 @@ export default async function sendTransaction(
         break;
       case ProgramInstruction.TransferRecipient:
         d = data as TransferStreamData;
-        tx = await Stream.transferRecipient(
+        response = await Stream.transferRecipient(
           connection,
           // @ts-ignore
           wallet,
@@ -97,9 +97,8 @@ export default async function sendTransaction(
         );
         break;
     }
-    // toast.dismiss();
-    // toast.info("Submitted transaction. Awaiting confirmation...");
-    const url = getExplorerLink("tx", tx); //todo print transaction here.
+
+    const url = getExplorerLink("tx", response.tx); //todo print transaction here.
     toast.dismiss();
     toast.success(
       <ToastrLink
@@ -114,7 +113,7 @@ export default async function sendTransaction(
       />,
       { autoClose: 10000, closeOnClick: true }
     );
-    return true;
+    return response.data || true;
   } catch (e: any) {
     toast.dismiss();
     //todo log these errors somewhere for our reference

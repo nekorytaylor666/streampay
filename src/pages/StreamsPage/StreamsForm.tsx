@@ -171,12 +171,11 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     }
 
     // @ts-ignore
-    const success = await sendTransaction(ProgramInstruction.Create, data);
+    const id = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
-
-    if (success) {
+    if (id) {
       addStream([
-        newStream.publicKey.toBase58(),
+        id.toBase58(),
         // @ts-ignore
         {
           ...data,
