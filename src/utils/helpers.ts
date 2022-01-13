@@ -154,7 +154,7 @@ export const formatPeriodOfTime = (period: number) => {
   if (Math.floor(years)) return `${years} year${isMoreThanOne(years)}`;
 
   const months = period / PERIOD.MONTH;
-  if (Math.floor(months)) return `${months} month${isMoreThanOne(months)}`;
+  if (Math.floor(months)) return `${months} month${isMoreThanOne(months)} (${months * 30} days)`;
 
   const weeks = period / PERIOD.WEEK;
   if (Math.floor(weeks)) return `${weeks} week${isMoreThanOne(weeks)}`;

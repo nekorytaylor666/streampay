@@ -116,8 +116,10 @@ export default function Advanced({
             <option value={60 * 60}>hour{s}</option>
             <option value={60 * 60 * 24}>day{s}</option>
             <option value={60 * 60 * 24 * 7}>week{s}</option>
-            {/*  imprecise */}
-            <option value={60 * 60 * 24 * 30}>month{s}</option>
+            {/*  todo: COMMUNICATE THIS CLEARLY, as it's imprecise */}
+            <option value={60 * 60 * 24 * 30}>
+              month{s} ({timePeriodMultiplier * 30} days)
+            </option>
             <option value={60 * 60 * 24 * 365}>year{s}</option>
           </select>
         </div>
