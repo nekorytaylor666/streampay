@@ -54,7 +54,7 @@ export const calculateReleaseRate = (
   period: number
 ) => {
   const amount = depositedAmount - cliffAmount;
-  const numberOfReleases = Math.ceil((endTime - cliffTime) / period);
+  const numberOfReleases = (endTime - cliffTime) / period;
   return numberOfReleases > 1 ? amount / numberOfReleases : amount;
 };
 
