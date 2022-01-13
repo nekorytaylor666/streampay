@@ -1,33 +1,33 @@
 import { BN, Program, Provider } from "@project-serum/anchor";
-import { Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+import { Wallet } from "@project-serum/anchor/src/provider";
+import { Connection, Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import type { Idl } from "@project-serum/anchor/dist/cjs/idl";
+import type { TransactionSignature } from "@solana/web3.js";
 
 import airdrop from "../idl/airdrop";
-import useStore from "../stores";
 import { AIRDROP_TEST_TOKEN } from "../constants";
 
-function initProgram(): Program {
-  const connection = useStore.getState().connection();
-  const wallet = useStore.getState().wallet;
-  const programId = airdrop.metadata.address;
-  // @ts-ignore
+const PROGRAM_ID = "HqDGZjaVRXJ9MGRQEw7qDc2rAr6iH1n1kAQdCZaCMfMZ";
+
+function initProgram(connection: Connection, wallet: Wallet): Program {
   const provider = new Provider(connection, wallet, {});
-  return new Program(airdrop as Idl, programId, provider);
+  return new Program(airdrop as Idl, PROGRAM_ID, provider);
 }
 
-export async function initialize() {
-  const program = initProgram();
+export async function initialize(
+  connection: Connection,
+  wallet: Wallet
+): Promise<TransactionSignature> {
+  const program = initProgram(connection, wallet);
   const airdropAccount = new Keypair();
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
-  const connection = useStore.getState().connection();
-  const wallet = useStore.getState().wallet;
 
-  const result = await connection?.getTokenAccountsByOwner(wallet?.publicKey as PublicKey, {
-    mint: mint,
-  });
-
-  const assTokenAcc = result?.value[0];
+  const assTokenAccount = (
+    await connection?.getTokenAccountsByOwner(wallet?.publicKey as PublicKey, {
+      mint: mint,
+    })
+  ).value[0].pubkey;
 
   const assAirdropTokAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -50,37 +50,33 @@ export async function initialize() {
   // console.log("airdrop account", airdropAccount.publicKey.toString());
   // console.log("wallet ", wallet?.publicKey?.toString());
 
-  let tx;
-  try {
-    tx = await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(100 * 10 ** 9), {
-      accounts: {
-        initializer: wallet?.publicKey,
-        initializerDepositTokenAccount: assTokenAcc?.pubkey,
-        airdropAccount: airdropAccount.publicKey,
-        airdropTokenAccount: assAirdropTokAcc,
-        systemProgram: SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-      },
-      signers: [airdropAccount],
-      instructions: [instr],
-    });
-  } catch (e) {
-    // console.log(e);
-  }
+  const tx = await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(100 * 10 ** 9), {
+    accounts: {
+      initializer: wallet?.publicKey,
+      initializerDepositTokenAccount: assTokenAccount,
+      airdropAccount: airdropAccount.publicKey,
+      airdropTokenAccount: assAirdropTokAcc,
+      systemProgram: SystemProgram.programId,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    },
+    signers: [airdropAccount],
+    instructions: [instr],
+  });
 
   return tx;
 }
 
-export async function getAirdrop() {
+export async function getAirdrop(
+  connection: Connection,
+  wallet: Wallet
+): Promise<TransactionSignature> {
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
-  const connection = useStore.getState().connection();
-  const wallet = useStore.getState().wallet;
   // @ts-ignore
   const airdropAccount = (
     await connection?.getProgramAccounts(new PublicKey(airdrop.metadata.address))
   )[0];
 
-  const program = initProgram();
+  const program = initProgram(connection, wallet);
   // @ts-ignore
   const assTokenAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -115,31 +111,30 @@ export async function getAirdrop() {
   // console.log("airdrop account", airdropAccount.pubkey.toString());
   // console.log("wallet ", wallet?.publicKey?.toString());
 
-  try {
-    await program.rpc.getAirdrop({
-      accounts: {
-        taker: wallet?.publicKey,
-        takerReceiveTokenAccount: assTokenAcc,
-        airdropAccount: airdropAccount.pubkey,
-        airdropTokenAccount: assAirdropTokAcc,
-        mint,
-        pdaAccount: _pda,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        systemProgram: SystemProgram.programId,
-        rent: SYSVAR_RENT_PUBKEY,
-      },
-    });
-  } catch (e) {
-    //console.log(e);
-  }
+  const tx = await program.rpc.getAirdrop({
+    accounts: {
+      taker: wallet?.publicKey,
+      takerReceiveTokenAccount: assTokenAcc,
+      airdropAccount: airdropAccount.pubkey,
+      airdropTokenAccount: assAirdropTokAcc,
+      mint,
+      pdaAccount: _pda,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      systemProgram: SystemProgram.programId,
+      rent: SYSVAR_RENT_PUBKEY,
+    },
+  });
+  return tx;
 }
 
-export async function cancel() {
+export async function cancel(
+  connection: Connection,
+  wallet: Wallet
+): Promise<TransactionSignature> {
+  const program = initProgram(connection, wallet);
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
-  const connection = useStore.getState().connection();
-  const wallet = useStore.getState().wallet;
-  const program = initProgram();
+
   // @ts-ignore
   const airdropAccount = (
     await connection?.getProgramAccounts(new PublicKey(airdrop.metadata.address))
@@ -175,7 +170,7 @@ export async function cancel() {
   // console.log("_pda", _pda.toString());
   // console.log("program", program.programId.toString());
 
-  await program.rpc.cancelAirdrop({
+  const tx = await program.rpc.cancelAirdrop({
     accounts: {
       initializer: wallet?.publicKey,
       initializerDepositTokenAccount: assTokenAcc,
@@ -185,4 +180,6 @@ export async function cancel() {
       tokenProgram: TOKEN_PROGRAM_ID,
     },
   });
+
+  return tx;
 }

@@ -4,25 +4,19 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
+import { Wallet } from "@project-serum/anchor/src/provider";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import {
   AIRDROP_AMOUNT,
   AIRDROP_WHITELIST,
-  // AIRDROP_WHITELIST,
   ERR_NOT_CONNECTED,
   TX_FINALITY_CONFIRMED,
 } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
 import { Address, Button, Link } from ".";
-import {
-  cancel,
-  //cancel,
-  getAirdrop,
-  initialize,
-  // initialize
-} from "../actions/airdrop";
+import { cancel, getAirdrop, initialize } from "../actions/airdrop";
 
 const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
   isMainnet: cluster === WalletAdapterNetwork.Mainnet,
@@ -40,6 +34,9 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   const [airdropTxSignature, setAirdropTxSignature] = useState<string | undefined>(undefined);
   const { connection, wallet, isMainnet, disconnectWallet, token } = useStore(storeGetter);
   const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
+  const hideAirdrop =
+    isMainnet || AIRDROP_WHITELIST.indexOf(wallet?.publicKey?.toBase58() as string) === -1;
+  const isConnected = wallet?.connected && connection;
 
   useEffect(() => {
     if (airdropTxSignature && connection) {
@@ -72,7 +69,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
       setAirdropTxSignature(signature);
-      await getAirdrop(); //returns a tx id
+      await getAirdrop(connection, wallet as Wallet); //returns a tx id
 
       //TODO: Update balance!
       setLoading(false);
@@ -112,58 +109,58 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         {myWalletLink}
         {myAddress}
       </div>
-      <div className="pb-4 border-b border-gray-500 clearfix text-white">
+      <div className="pb-4 border-b border-gray-500 text-white grid gap-x-3 sm:gap-x-4 grid-cols-2">
         {token && (
           <>
-            <p className="text-gray-200">
+            <p className="text-gray-200 col-span-1">
               Balance
               {tokenSymbol && <span className="font-light text-sm">{` (${tokenSymbol})`}</span>}
             </p>
-            <span className="text-base text-primary">{token?.uiTokenAmount?.uiAmountString}</span>
           </>
         )}
-        <Button
-          onClick={disconnectWallet}
-          classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-        >
-          Disconnect
-        </Button>
-        {wallet?.connected && (
-          <>
+        <div className="col-span-1">
+          <Button
+            onClick={disconnectWallet}
+            classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Disconnect
+          </Button>
+          <Button
+            primary
+            onClick={requestAirdrop}
+            classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+              hidden: isMainnet,
+            })}
+            disabled={isGimmeSolDisabled}
+          >
+            Airdrop
+          </Button>
+        </div>
+        {token && (
+          <span className="text-base text-primary">{token?.uiTokenAmount?.uiAmountString}</span>
+        )}
+        {isConnected && (
+          <div className="clearfix text-white col-span-1 col-start-2 mt-2">
             <Button
               primary
-              onClick={initialize}
-              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
-                hidden:
-                  isMainnet ||
-                  AIRDROP_WHITELIST.indexOf(wallet.publicKey?.toBase58() as string) === -1,
-              })}
-            >
-              Initialize Airdrop
-            </Button>
-            <Button
-              primary
-              onClick={requestAirdrop}
-              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
-                hidden: isMainnet,
-              })}
-              disabled={isGimmeSolDisabled}
-            >
-              Airdrop
-            </Button>
-            <Button
-              primary
-              onClick={cancel}
-              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
-                hidden:
-                  isMainnet ||
-                  AIRDROP_WHITELIST.indexOf(wallet.publicKey?.toBase58() as string) === -1,
+              onClick={() => cancel(connection, wallet as Wallet)}
+              classes={cx("float-right px-3 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden: hideAirdrop,
               })}
               disabled={isGimmeSolDisabled}
             >
               Cancel
             </Button>
-          </>
+            <Button
+              primary
+              onClick={() => initialize(connection, wallet as Wallet)}
+              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden: hideAirdrop,
+              })}
+            >
+              Set Airdrop
+            </Button>
+          </div>
         )}
       </div>
     </div>

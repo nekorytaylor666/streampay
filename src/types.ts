@@ -1,7 +1,7 @@
 import { BN } from "@project-serum/anchor";
 import type { TokenInfo } from "@solana/spl-token-registry";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import type { Keypair, PublicKey, TokenAmount } from "@solana/web3.js";
+import type { PublicKey, TokenAmount } from "@solana/web3.js";
 
 export interface WalletType {
   name: string;
@@ -23,22 +23,21 @@ export type TransactionData =
   | CancelStreamData;
 
 export interface CreateStreamData {
-  deposited_amount: BN;
+  net_deposited_amount: BN;
   start_time: BN;
-  end_time: BN;
   period: BN;
   cliff: BN;
   cliff_amount: BN;
   mint: PublicKey;
   recipient: PublicKey;
-  new_stream_keypair: Keypair;
   cancelable_by_sender: boolean;
   cancelable_by_recipient: boolean;
   transferable_by_sender: boolean;
   transferable_by_recipient: boolean;
-  release_rate: BN;
+  amount_per_period: BN;
   stream_name: string;
-  withdrawal_public: false;
+  automatic_withdrawal: boolean;
+  can_topup: boolean;
 }
 
 export interface TopupStreamData {

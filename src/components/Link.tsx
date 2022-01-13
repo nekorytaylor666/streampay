@@ -10,7 +10,7 @@ interface LinkProps {
 }
 
 const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (
-  <p className={cx("text-gray-200", classes)}>
+  <span className={cx("text-gray-200", classes)}>
     {Icon ? (
       <>
         {title || url}
@@ -25,7 +25,7 @@ const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (
         {title || url}
       </a>
     )}
-  </p>
+  </span>
 );
 
 export default Link;

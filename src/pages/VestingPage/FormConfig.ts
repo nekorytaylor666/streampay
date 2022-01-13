@@ -92,21 +92,27 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           ),
         startDate: yup
           .string()
-          .required(ERRORS.start_date_required)
-          .test("is in a future", ERRORS.start_date_is_in_the_past, (date) => {
-            return date ? date >= format(new Date(), DATE_FORMAT) : true;
-          }),
+          .required(ERRORS.max_year)
+          .test("is in the future", ERRORS.start_date_is_in_the_past, (date) =>
+            date ? date >= format(new Date(), DATE_FORMAT) : true
+          )
+          .test("is not too much in the future", ERRORS.max_year, (date) =>
+            date ? +date.split("-")[0] <= 9999 : true
+          ),
         startTime: yup
           .string()
           .required(ERRORS.start_time_required)
-          .test("is in a future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
+          .test("is in the future", ERRORS.start_time_is_in_the_past, (time, ctx) => {
             const date = new Date(ctx.parent.startDate + "T" + (time || ""));
             const now = new Date();
             return date >= now;
           }),
         endDate: yup
           .string()
-          .required(ERRORS.end_date_required)
+          .required(ERRORS.max_year)
+          .test("is not too much in the future", ERRORS.max_year, (date) =>
+            date ? +date.split("-")[0] <= 9999 : true
+          )
           .test("is after start", ERRORS.end_should_be_after_start, (date, ctx) => {
             return date ? date >= ctx.parent.startDate : true;
           }),
@@ -151,7 +157,10 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
         recipientCanTransfer: yup.bool().required(),
         cliffDate: yup
           .string()
-          .required()
+          .required(ERRORS.max_year)
+          .test("is not too much in the future", ERRORS.max_year, (date) =>
+            date ? +date.split("-")[0] <= 9999 : true
+          )
           .test("is after start", ERRORS.cliff_should_be_after_start, (date, ctx) => {
             return date ? date >= ctx.parent.startDate : true;
           })

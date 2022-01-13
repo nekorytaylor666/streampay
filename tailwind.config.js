@@ -40,6 +40,9 @@ module.exports = {
         secondary: "var(--secondary)",
         ternary: "var(--ternary)",
       },
+      fontSize: {
+        xxs: "11px",
+      },
     },
   },
   variants: {

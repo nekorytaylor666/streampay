@@ -1,7 +1,8 @@
 import { format } from "date-fns";
-import type { FieldError } from "react-hook-form";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import { formatPeriodOfTime } from "../../utils/helpers";
+import { Link } from "../../components";
 
 interface OverviewProps {
   amount: number;
@@ -13,7 +14,6 @@ interface OverviewProps {
   cliffAmount: number;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
-  releaseFrequencyError: FieldError | undefined;
 }
 
 const Overview: React.FC<OverviewProps> = ({
@@ -26,19 +26,17 @@ const Overview: React.FC<OverviewProps> = ({
   cliffAmount,
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
-  releaseFrequencyError,
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
   const end = new Date(endDate + "T" + endTime);
   const cliff = new Date(cliffDate + "T" + cliffTime);
-
   const lengthSeconds = (+end - +cliff) / 1000;
   const numPeriods = lengthSeconds / releasePeriod;
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
 
   return (
-    <div className="col-span-full mt-4">
-      <b className="font-bold block text-gray-400 text-sm leading-6">Overview:</b>
+    <div className="col-span-full mt-4 leading-6">
+      <h3 className="font-bold text-lg text-white mb-3">Overview:</h3>
       <p className="text-gray-400 text-sm leading-6">
         First
         <span className="text-gray-100 text-sm">
@@ -46,28 +44,49 @@ const Overview: React.FC<OverviewProps> = ({
         </span>
         <br className="sm:hidden" />
         released on
-        <span className="text-gray-100 text-sm">{` ${cliffDate} `}</span>at
+        {cliff.getTime() ? (
+          <span className="text-gray-100 text-sm">{` ${cliffDate} `}</span>
+        ) : (
+          <span> ____ </span>
+        )}
+        at
         <span className="text-gray-100 text-sm">{` ${cliffTime}`}</span>.
       </p>
-      {tokenSymbol && !releaseFrequencyError && releaseFrequencyCounter && (
-        <p className="text-gray-400 text-sm leading-6 sm:inline-block">
-          And then
-          <span className="text-gray-100 text-sm">{` ${releaseRate.toFixed(3)}% (${(
-            ((amount || 0) * releaseRate) /
-            100
-          ).toFixed(2)} ${tokenSymbol}) `}</span>
-          <br className="sm:hidden" />
-          released every
-          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)} `}</span>
-          <br />
-          until
+      <p className="text-gray-400 text-sm leading-6 sm:inline-block">
+        And then
+        <span className="text-gray-100 text-sm">{` ${releaseRate.toFixed(3)}% (${(
+          ((amount || 0) * releaseRate) /
+          100
+        ).toFixed(2)} ${tokenSymbol}) `}</span>
+        <br className="sm:hidden" />
+        released every
+        {releaseFrequencyCounter ? (
+          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+        ) : (
+          <span> _____ </span>
+        )}
+        <br />
+        until
+        {end.getTime() ? (
           <span className="text-gray-100 text-sm">{` ${format(
             new Date(endDate + "T" + endTime),
             "ccc do MMM, yyyy - HH:mm"
           )}`}</span>
-          .
-        </p>
-      )}
+        ) : (
+          <span> ____ </span>
+        )}
+        .
+      </p>
+      <p className="text-gray-400 text-xxs leading-4 mt-6">
+        {`Streamflow charges 0.25% service fee (${amount * 0.0025} ${tokenSymbol}) on top of the
+        specified amount, while respecting the given schedule. `}
+        <Link
+          title="Learn more."
+          url="https://docs.streamflow.finance/help/fees"
+          Icon={ExternalLinkIcon}
+          classes="text-primary inline-block"
+        />
+      </p>
     </div>
   );
 };

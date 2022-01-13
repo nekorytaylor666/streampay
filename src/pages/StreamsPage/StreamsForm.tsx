@@ -2,7 +2,7 @@ import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
 import { BN } from "@project-serum/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
@@ -16,6 +16,7 @@ import {
   ERR_NOT_CONNECTED,
   ProgramInstruction,
   timePeriodOptions,
+  ERRORS,
 } from "../../constants";
 import { StringOption } from "../../types";
 import Overview from "./Overview";
@@ -44,9 +45,11 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const [advanced, setAdvanced] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
-  const { register, handleSubmit, watch, errors, setValue } = useStreamsForm({
-    tokenBalance: tokenBalance || 0,
-  });
+  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors } = useStreamsForm(
+    {
+      tokenBalance: tokenBalance || 0,
+    }
+  );
 
   const [
     depositedAmount,
@@ -105,8 +108,18 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setValue("releaseFrequencyCounter", parseInt(value));
   };
 
+  const updateReleaseAmountError = (value: string) => {
+    if (value && releaseAmount) {
+      return +value < +releaseAmount
+        ? setError("releaseAmount", {
+            type: "error message",
+            message: ERRORS.release_amount_greater_than_deposited,
+          })
+        : clearErrors("releaseAmount");
+    }
+  };
+
   const onSubmit = async (values: StreamsFormData) => {
-    const newStream = Keypair.generate();
     const {
       releaseAmount,
       subject,
@@ -132,22 +145,21 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
-      deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
+      net_deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
       recipient: new PublicKey(recipient),
       mint: new PublicKey(token.info.address),
       start_time: new BN(start),
-      end_time: new BN(end),
       period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
       cliff: new BN(start),
       cliff_amount: new BN(0),
-      release_rate: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
-      new_stream_keypair: newStream,
+      amount_per_period: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
       stream_name: subject,
       cancelable_by_sender: senderCanCancel,
       cancelable_by_recipient: recipientCanCancel,
       transferable_by_sender: senderCanTransfer,
       transferable_by_recipient: recipientCanTransfer,
-      withdrawal_public: false,
+      automatic_withdrawal: false,
+      can_topup: true,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -156,25 +168,26 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    // @ts-ignore
-    const success = await sendTransaction(ProgramInstruction.Create, data);
+    const id = await sendTransaction(ProgramInstruction.Create, data);
     setLoading(false);
-
-    if (success) {
-      addStream(newStream.publicKey.toBase58(), {
-        ...data,
-        closable_at: new BN(end),
-        last_withdrawn_at: new BN(0),
-        withdrawn_amount: new BN(0),
-        canceled_at: new BN(0),
-        created_at: new BN(+new Date() / 1000),
-        escrow_tokens: undefined as any,
-        magic: new BN(0),
-        recipient_tokens: undefined as any,
-        sender: wallet?.publicKey,
-        sender_tokens: undefined as any,
-        total_amount: new BN(depositedAmount),
-      });
+    if (id) {
+      addStream([
+        id.toBase58(),
+        // @ts-ignore
+        {
+          ...data,
+          end_time: new BN(end),
+          last_withdrawn_at: new BN(0),
+          withdrawn_amount: new BN(0),
+          canceled_at: new BN(0),
+          created_at: new BN(+new Date() / 1000),
+          escrow_tokens: undefined as any,
+          magic: new BN(0),
+          recipient_tokens: undefined as any,
+          sender: wallet?.publicKey,
+          sender_tokens: undefined as any,
+        },
+      ]);
 
       const mint = token.info.address;
 
@@ -193,6 +206,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         <Input
           type="number"
           label="Deposited Amount"
+          customChange={updateReleaseAmountError}
           placeholder="0.00"
           classes="col-span-3 sm:col-span-1"
           error={errors?.depositedAmount?.message}
@@ -269,14 +283,16 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           onClick={updateStartDate}
           classes="col-span-3 sm:col-span-1"
           error={errors?.startDate?.message || ""}
+          required
           {...register("startDate")}
         />
         <Input
           type="time"
           label="Start Time"
           classes="col-span-3 sm:col-span-1"
-          error={errors?.startTime?.message}
+          error={errors?.startDate?.message ? "" : errors?.startTime?.message}
           onClick={updateStartTime}
+          required
           {...register("startTime")}
         />
         <Toggle

@@ -9,7 +9,6 @@ import useWalletStore from "./WalletStore";
 const persistStoreToLocalStorage = () => {
   const state = useStore.getState() as StoreType;
   localStorage.cluster = state.cluster;
-  localStorage.programId = state.programId;
   localStorage.walletType = state.walletType?.name;
 
   const existingStreams = JSON.parse(localStorage.streams || "{}");
