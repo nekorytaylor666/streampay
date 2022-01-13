@@ -196,7 +196,6 @@ const StreamCard: FC<StreamProps> = ({
   const handleTopup = async () => {
     let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
     if (!connection || !topupAmount) return;
-
     if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
       // todo max
       topupAmount = 0;
@@ -246,9 +245,16 @@ const StreamCard: FC<StreamProps> = ({
     } else {
       setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, canceled_at, streamed, withdrawn_amount]);
+  }, [status, streamed, withdrawn_amount]);
+
+  useEffect(() => {
+    if (status === StreamStatus.complete) {
+      setStreamed(net_deposited_amount);
+      setAvailable(net_deposited_amount.toNumber() - withdrawn_amount.toNumber());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   return (
     <>
@@ -348,7 +354,12 @@ const StreamCard: FC<StreamProps> = ({
                 <dt className="col-span-8 text-gray-400 text-sm">
                   {format(
                     fromUnixTime(
-                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), end_time.toNumber())
+                      getNextUnlockTime(
+                        cliff.toNumber(),
+                        period.toNumber(),
+                        end_time.toNumber(),
+                        cliff_amount.toNumber()
+                      )
                     ),
                     "ccc do MMM, yy HH:mm:ss"
                   )}

@@ -20,7 +20,6 @@ export function getStreamed(
 ): BN {
   const currentTime = getUnixTime(new Date());
   if (currentTime < cliffTime) return new BN(0);
-
   if (currentTime > endTime) return new BN(depositedAmount);
 
   const streamed = cliffAmount + Math.floor((currentTime - cliffTime) / period) * releaseRate;
@@ -58,9 +57,14 @@ export const calculateReleaseRate = (
   return numberOfReleases > 1 ? amount / numberOfReleases : amount;
 };
 
-export const getNextUnlockTime = (cliffTime: number, period: number, endTime: number) => {
+export const getNextUnlockTime = (
+  cliffTime: number,
+  period: number,
+  endTime: number,
+  cliffAmount: number
+) => {
   const currentTime = getUnixTime(new Date());
-  if (currentTime <= cliffTime) return cliffTime;
+  if (currentTime <= cliffTime) return cliffAmount > 0 ? cliffTime : cliffTime + period;
 
   const numberOfPeriods = Math.ceil((currentTime - cliffTime) / period);
   const nextUnlockTime = cliffTime + numberOfPeriods * period;
