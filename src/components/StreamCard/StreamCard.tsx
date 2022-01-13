@@ -143,25 +143,23 @@ const StreamCard: FC<StreamProps> = ({
 
   const showCancelOnSender =
     cancelable_by_sender &&
-    (status === StreamStatus.streaming || status === StreamStatus.scheduled) &&
-    myAddress === sender.toBase58();
+    myAddress === sender.toBase58() &&
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancelOnRecipient =
     cancelable_by_recipient &&
     myAddress === recipient.toBase58() &&
-    status === StreamStatus.streaming;
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancel = showCancelOnSender || showCancelOnRecipient;
 
   const showTransferOnSender =
-    transferable_by_sender &&
-    myAddress === sender.toBase58() &&
-    (status === StreamStatus.streaming || status === StreamStatus.complete);
+    transferable_by_sender && myAddress === sender.toBase58() && status !== StreamStatus.canceled;
 
   const showTransferOnRecipient =
     transferable_by_recipient &&
     myAddress === recipient.toBase58() &&
-    (status === StreamStatus.streaming || status === StreamStatus.complete);
+    status !== StreamStatus.canceled;
 
   const invoker = showTransferOnSender ? "sender" : "recipient";
 
@@ -176,7 +174,6 @@ const StreamCard: FC<StreamProps> = ({
     const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    // todo
     // if ((withdrawAmount = roundAmount(available, decimals))) {
     //   //max
     //   withdrawAmount = new BN(2 ** 64 - 1);//todo: how to pass u64::MAX (i.e. 2^64-1)
@@ -199,7 +196,6 @@ const StreamCard: FC<StreamProps> = ({
   const handleTopup = async () => {
     let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
     if (!connection || !topupAmount) return;
-
     if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
       // todo max
       topupAmount = 0;
@@ -249,9 +245,16 @@ const StreamCard: FC<StreamProps> = ({
     } else {
       setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, canceled_at, streamed, withdrawn_amount]);
+  }, [status, streamed, withdrawn_amount]);
+
+  useEffect(() => {
+    if (status === StreamStatus.complete) {
+      setStreamed(net_deposited_amount);
+      setAvailable(net_deposited_amount.toNumber() - withdrawn_amount.toNumber());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
 
   return (
     <>
@@ -351,7 +354,12 @@ const StreamCard: FC<StreamProps> = ({
                 <dt className="col-span-8 text-gray-400 text-sm">
                   {format(
                     fromUnixTime(
-                      getNextUnlockTime(cliff.toNumber(), period.toNumber(), end_time.toNumber())
+                      getNextUnlockTime(
+                        cliff.toNumber(),
+                        period.toNumber(),
+                        end_time.toNumber(),
+                        cliff_amount.toNumber()
+                      )
                     ),
                     "ccc do MMM, yy HH:mm:ss"
                   )}
