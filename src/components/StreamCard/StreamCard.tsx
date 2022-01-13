@@ -143,25 +143,23 @@ const StreamCard: FC<StreamProps> = ({
 
   const showCancelOnSender =
     cancelable_by_sender &&
-    (status === StreamStatus.streaming || status === StreamStatus.scheduled) &&
-    myAddress === sender.toBase58();
+    myAddress === sender.toBase58() &&
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancelOnRecipient =
     cancelable_by_recipient &&
     myAddress === recipient.toBase58() &&
-    status === StreamStatus.streaming;
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancel = showCancelOnSender || showCancelOnRecipient;
 
   const showTransferOnSender =
-    transferable_by_sender &&
-    myAddress === sender.toBase58() &&
-    (status === StreamStatus.streaming || status === StreamStatus.complete);
+    transferable_by_sender && myAddress === sender.toBase58() && status !== StreamStatus.canceled;
 
   const showTransferOnRecipient =
     transferable_by_recipient &&
     myAddress === recipient.toBase58() &&
-    (status === StreamStatus.streaming || status === StreamStatus.complete);
+    status !== StreamStatus.canceled;
 
   const invoker = showTransferOnSender ? "sender" : "recipient";
 
@@ -176,7 +174,6 @@ const StreamCard: FC<StreamProps> = ({
     const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    // todo
     // if ((withdrawAmount = roundAmount(available, decimals))) {
     //   //max
     //   withdrawAmount = new BN(2 ** 64 - 1);//todo: how to pass u64::MAX (i.e. 2^64-1)
