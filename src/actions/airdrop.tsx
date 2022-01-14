@@ -43,7 +43,7 @@ export async function initialize(connection: Connection, wallet: Wallet): Promis
     wallet?.publicKey as PublicKey
   );
 
-  console.log("assTokenAccount", assTokenAccount);
+  console.log("assTokenAccount", assTokenAccount.toBase58());
   console.log("STRM token", assTokenAccount?.toString());
   console.log("airdrop account", airdropAccount.publicKey.toString());
   console.log("airdropTokenAccount", assAirdropTokAcc.toString());
