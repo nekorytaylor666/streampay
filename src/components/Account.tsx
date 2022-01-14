@@ -43,6 +43,13 @@ interface AccountProps {
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
+const sussessfulAirdropMsg = (
+  <>
+    <p>Airdrop successful!</p>
+    <p> Check STRM balance!</p>
+  </>
+);
+
 const Account: FC<AccountProps> = ({ setLoading }) => {
   const {
     connection,
@@ -68,7 +75,8 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       ...myTokenAccounts,
       [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
     });
-    setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+
+    if (address === token.info.address) setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
   async function requestAirdrop() {
@@ -88,7 +96,6 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       );
 
       const tx = await getAirdrop(connection, wallet as Wallet);
-      // setAirdropTxSignature(signature);
 
       Promise.all([
         connection.confirmTransaction(signature, TX_FINALITY_CONFIRMED),
@@ -97,9 +104,9 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         ([res1, res2]) => {
           if (res2.value.err) toast.error("Airdrop failed!");
           else if (res1.value.err) {
-            toast.success("Airdrop successful!");
+            toast.success(sussessfulAirdropMsg);
             toast.error("Error getting SOL!");
-          } else toast.success("Airdrop successful!");
+          } else toast.success(sussessfulAirdropMsg);
 
           updateBalance(connection, wallet as Wallet, AIRDROP_TEST_TOKEN);
           setTimeout(() => setIsGimmeSolDisabled(false), 7000);

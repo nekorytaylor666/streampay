@@ -8,7 +8,7 @@ import swal from "sweetalert";
 import { format } from "date-fns";
 
 import useStore from "../stores";
-import { Cluster } from "../types";
+import { Cluster, StringOption } from "../types";
 import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
@@ -174,3 +174,24 @@ export const formatPeriodOfTime = (period: number) => {
 };
 
 export const formatCurrentDate = () => format(new Date(), DATE_FORMAT);
+
+export const compare2Arrays = (array1: string[], array2: string[]): boolean => {
+  if (array1.length !== array2.length) return false;
+
+  array1.sort();
+  array2.sort();
+
+  for (let i = 0; i < array1.length; i++) if (array1[i] !== array2[i]) return false;
+
+  return true;
+};
+
+export const didTokenOptionsChange = (
+  previousTokens: StringOption[],
+  newTokens: StringOption[]
+): boolean => {
+  const previousValues = previousTokens.map((token) => token.value);
+  const newValues = newTokens.map((token) => token.value);
+
+  return compare2Arrays(previousValues, newValues);
+};

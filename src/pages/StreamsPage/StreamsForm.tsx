@@ -9,7 +9,7 @@ import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "..
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import sendTransaction from "../../actions/sendTransaction";
-import { getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -88,11 +88,12 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         icon: info.logoURI,
       }));
 
-      if (newTokenOptions.length) {
+      if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
         setValue("tokenSymbol", newTokenOptions[0].value);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myTokenAccounts, setValue]);
 
   useEffect(() => {

@@ -10,7 +10,7 @@ import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import sendTransaction from "../../actions/sendTransaction";
 import Overview from "./Overview";
-import { getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -122,11 +122,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         icon: info.logoURI,
       }));
 
-      if (newTokenOptions.length) {
+      if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
         setValue("tokenSymbol", newTokenOptions[0].value);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myTokenAccounts, setValue]);
 
   useEffect(() => {
