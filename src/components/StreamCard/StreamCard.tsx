@@ -174,11 +174,6 @@ const StreamCard: FC<StreamProps> = ({
     const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    // if ((withdrawAmount = roundAmount(available, decimals))) {
-    //   //max
-    //   withdrawAmount = new BN(2 ** 64 - 1);//todo: how to pass u64::MAX (i.e. 2^64-1)
-    // }
-
     const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
       stream: new PublicKey(id),
       amount: new BN(withdrawAmount * 10 ** decimals),
