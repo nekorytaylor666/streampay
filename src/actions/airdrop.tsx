@@ -3,12 +3,12 @@ import { Wallet } from "@project-serum/anchor/src/provider";
 import { Connection, Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import type { Idl } from "@project-serum/anchor/dist/cjs/idl";
+import { toast } from "react-toastify";
 import type { TransactionSignature } from "@solana/web3.js";
 
 import airdrop from "../idl/airdrop";
 import { AIRDROP_TEST_TOKEN } from "../constants";
 
-// const PROGRAM_ID = "HqDGZjaVRXJ9MGRQEw7qDc2rAr6iH1n1kAQdCZaCMfMZ";
 const PROGRAM_ID = "Ek6Jpdv5iEEDLXTVQ8UFcntms3DT2ewHtzzwH2R5MpvN";
 
 function initProgram(connection: Connection, wallet: Wallet): Program {
@@ -18,8 +18,8 @@ function initProgram(connection: Connection, wallet: Wallet): Program {
 
 export async function initialize(connection: Connection, wallet: Wallet): Promise<boolean> {
   const program = initProgram(connection, wallet);
-  const airdropAccount = new Keypair();
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
+  const airdropAccount = new Keypair();
 
   const assTokenAccount = (
     await connection?.getTokenAccountsByOwner(wallet?.publicKey as PublicKey, {
@@ -43,11 +43,6 @@ export async function initialize(connection: Connection, wallet: Wallet): Promis
     wallet?.publicKey as PublicKey
   );
 
-  console.log("assTokenAccount", assTokenAccount.toBase58());
-  console.log("STRM token", assTokenAccount?.toString());
-  console.log("airdrop account", airdropAccount.publicKey.toString());
-  console.log("airdropTokenAccount", assAirdropTokAcc.toString());
-
   try {
     await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(100 * 10 ** 9), {
       accounts: {
@@ -61,9 +56,10 @@ export async function initialize(connection: Connection, wallet: Wallet): Promis
       signers: [airdropAccount],
       instructions: [instr],
     });
+    toast.success("Airdrop initialized successfully!");
     return true;
   } catch (err: any) {
-    console.log("errr", err);
+    toast.error("Initializing airdrop failed!");
     return false;
   }
 }
@@ -72,12 +68,10 @@ export async function getAirdrop(
   connection: Connection,
   wallet: Wallet
 ): Promise<TransactionSignature> {
+  const program = initProgram(connection, wallet);
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
-  // @ts-ignore
   const airdropAccount = (await connection?.getProgramAccounts(new PublicKey(PROGRAM_ID)))[0];
 
-  const program = initProgram(connection, wallet);
-  // @ts-ignore
   const assTokenAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
@@ -85,20 +79,13 @@ export async function getAirdrop(
     wallet?.publicKey as PublicKey
   );
 
-  // const [_pda] = await PublicKey.findProgramAddress(
-  //   [Buffer.from(anchor.utils.bytes.utf8.encode("streamflow-airdrop"))],
-  //   new PublicKey(airdrop.metadata.address)
-  // );
+  const pda = (await connection?.getProgramAccounts(program.programId))[0].pubkey;
 
-  const result = await connection?.getProgramAccounts(program.programId);
-  // @ts-ignore
-  const pda = result[0].pubkey;
   const [_pda] = await PublicKey.findProgramAddress(
     [Buffer.from("streamflow-airdrop", "utf-8")],
     program.programId
   );
-  // console.log("pda", pda.toString());
-  // console.log("_pda", _pda.toString());
+
   const assAirdropTokAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
@@ -106,38 +93,33 @@ export async function getAirdrop(
     pda
   );
 
-  // console.log("program", program.programId.toString());
-  // console.log("STRM token", assTokenAcc.toString());
-  // console.log("airdrop account", airdropAccount.pubkey.toString());
-  // console.log("wallet ", wallet?.publicKey?.toString());
-
-  const tx = await program.rpc.getAirdrop({
-    accounts: {
-      taker: wallet?.publicKey,
-      takerReceiveTokenAccount: assTokenAcc,
-      airdropAccount: airdropAccount.pubkey,
-      airdropTokenAccount: assAirdropTokAcc,
-      mint,
-      pdaAccount: _pda,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      systemProgram: SystemProgram.programId,
-      rent: SYSVAR_RENT_PUBKEY,
-    },
-  });
-  return tx;
+  try {
+    const tx = await program.rpc.getAirdrop({
+      accounts: {
+        taker: wallet?.publicKey,
+        takerReceiveTokenAccount: assTokenAcc,
+        airdropAccount: airdropAccount.pubkey,
+        airdropTokenAccount: assAirdropTokAcc,
+        mint,
+        pdaAccount: _pda,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY,
+      },
+    });
+    return tx;
+  } catch (err: any) {
+    throw new Error(err);
+  }
 }
 
-export async function cancel(
-  connection: Connection,
-  wallet: Wallet
-): Promise<TransactionSignature> {
+export async function cancel(connection: Connection, wallet: Wallet): Promise<boolean> {
   const program = initProgram(connection, wallet);
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
 
-  // @ts-ignore
   const airdropAccount = (await connection?.getProgramAccounts(new PublicKey(PROGRAM_ID)))[0];
-  // @ts-ignore
+
   const assTokenAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
@@ -145,9 +127,7 @@ export async function cancel(
     wallet?.publicKey as PublicKey
   );
 
-  const result = await connection?.getProgramAccounts(program.programId);
-  // @ts-ignore
-  const pda = result[0].pubkey;
+  const pda = (await connection?.getProgramAccounts(program.programId))[0].pubkey;
 
   const [_pda] = await PublicKey.findProgramAddress(
     [Buffer.from("streamflow-airdrop", "utf-8")],
@@ -168,16 +148,22 @@ export async function cancel(
   // console.log("_pda", _pda.toString());
   // console.log("program", program.programId.toString());
 
-  const tx = await program.rpc.cancelAirdrop({
-    accounts: {
-      initializer: wallet?.publicKey,
-      initializerDepositTokenAccount: assTokenAcc,
-      pdaAccount: _pda,
-      airdropAccount: airdropAccount.pubkey,
-      airdropTokenAccount: assAirdropTokAcc,
-      tokenProgram: TOKEN_PROGRAM_ID,
-    },
-  });
+  try {
+    await program.rpc.cancelAirdrop({
+      accounts: {
+        initializer: wallet?.publicKey,
+        initializerDepositTokenAccount: assTokenAcc,
+        pdaAccount: _pda,
+        airdropAccount: airdropAccount.pubkey,
+        airdropTokenAccount: assAirdropTokAcc,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      },
+    });
 
-  return tx;
+    toast.success("Airdrop account cancelled!");
+    return true;
+  } catch (err: any) {
+    toast.error("Cancelling airdrop account failed!");
+    return false;
+  }
 }
