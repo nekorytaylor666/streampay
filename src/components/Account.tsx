@@ -44,7 +44,6 @@ interface AccountProps {
 }
 
 const Account: FC<AccountProps> = ({ setLoading }) => {
-  // const [airdropTxSignature, setAirdropTxSignature] = useState<string | undefined>(undefined);
   const {
     connection,
     wallet,
@@ -113,11 +112,9 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       setLoading(false);
       setIsGimmeSolDisabled(false);
 
-      if ((error as Error).message.includes("429")) {
+      if ((error as Error).message.includes("429"))
         toast.error("Airdrop failed! Too many requests");
-      } else {
-        toast.error("Airdrop failed!");
-      }
+      else toast.error("Airdrop failed!");
     }
   }
 

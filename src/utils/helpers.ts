@@ -9,7 +9,7 @@ import { format } from "date-fns";
 
 import useStore from "../stores";
 import { Cluster } from "../types";
-import { AIRDROP_TEST_TOKEN, DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
+import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -58,20 +58,11 @@ const ourTokens = [
   },
   {
     chainId: 103, //devnet
-    address: AIRDROP_TEST_TOKEN, //ADD YOUR LOCAL TOKEN HERE
+    address: "FGHYWaEkycB1bhkQKN7GqJTzySgQzFgvdFc8RuVzmkNF", //ADD YOUR LOCAL TOKEN HERE
     symbol: "META",
     name: "META",
     decimals: 9, //default is 9
     logoURI: "https://streamflow.finance/public/img/solana.png",
-    tags: [],
-  },
-  {
-    chainId: 103, //localnet
-    address: "GfWdfQBZDjFjtsQnBsyJvZW4VQwAzqmjbCZ7DDHxZncH", //ADD YOUR LOCAL TOKEN HERE
-    symbol: "STRM",
-    name: "STREAMFLOW",
-    decimals: 9, //default is 9
-    logoURI: "https://streamflow.finance/public/img/icon.png",
     tags: [],
   },
 ];
