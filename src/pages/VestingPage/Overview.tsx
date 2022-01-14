@@ -1,7 +1,11 @@
 import { format } from "date-fns";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 
+<<<<<<< HEAD
 import { formatPeriodOfTime } from "../../utils/helpers";
+=======
+import { formatPeriodOfTime, roundAmount } from "../../utils/helpers";
+>>>>>>> dev
 import { Link } from "../../components";
 
 interface OverviewProps {
@@ -78,7 +82,15 @@ const Overview: React.FC<OverviewProps> = ({
         .
       </p>
       <p className="text-gray-400 text-xxs leading-4 mt-6">
+<<<<<<< HEAD
         {`Streamflow charges 0.25% service fee (${amount * 0.0025} ${tokenSymbol}) on top of the
+=======
+        {`Streamflow charges 0.25% service fee (${roundAmount(
+          amount * 0.0025,
+          0,
+          3
+        )} ${tokenSymbol}) on top of the
+>>>>>>> dev
         specified amount, while respecting the given schedule. `}
         <Link
           title="Learn more."

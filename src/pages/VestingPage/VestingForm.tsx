@@ -172,7 +172,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliff,
       amount * 10 ** decimals,
       cliffAmountCalculated,
-      releaseFrequencyPeriod
+      releaseFrequencyCounter * releaseFrequencyPeriod
     );
 
     const data = {
