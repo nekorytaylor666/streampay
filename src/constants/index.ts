@@ -2,7 +2,7 @@ import { StreamStatus } from "../types";
 
 export const AIRDROP_AMOUNT = 1; // 1 SOL is the cap on the testnet
 export const AIRDROP_PDA = "DRCLpDJUNiMeKuRP9dcnGuibjTMjDGFwbZEXsq1RRgiR";
-export const AIRDROP_TEST_TOKEN = "CZzhCi3mCZP4PZJ3d9qjc3KoyR8iiATBoaHjp5pUbNiY";
+export const AIRDROP_TEST_TOKEN = "GfWdfQBZDjFjtsQnBsyJvZW4VQwAzqmjbCZ7DDHxZncH";
 export const AIRDROP_WHITELIST = [
   "3r1cS6LS7Q5e2XzMhjV4jwuJEyMsPnTFSSEU8HitWYFc",
   "9CTuPR1xDwyAnQmtAY7PawFDta7yjhkyZhLkXXsUQWFS",

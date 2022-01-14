@@ -65,6 +65,15 @@ const ourTokens = [
     logoURI: "https://streamflow.finance/public/img/solana.png",
     tags: [],
   },
+  {
+    chainId: 103, //localnet
+    address: "GfWdfQBZDjFjtsQnBsyJvZW4VQwAzqmjbCZ7DDHxZncH", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "STRM",
+    name: "STREAMFLOW",
+    decimals: 9, //default is 9
+    logoURI: "https://streamflow.finance/public/img/icon.png",
+    tags: [],
+  },
 ];
 
 export const getTokenAccounts = async (

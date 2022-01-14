@@ -8,17 +8,15 @@ import type { TransactionSignature } from "@solana/web3.js";
 import airdrop from "../idl/airdrop";
 import { AIRDROP_TEST_TOKEN } from "../constants";
 
-const PROGRAM_ID = "HqDGZjaVRXJ9MGRQEw7qDc2rAr6iH1n1kAQdCZaCMfMZ";
+// const PROGRAM_ID = "HqDGZjaVRXJ9MGRQEw7qDc2rAr6iH1n1kAQdCZaCMfMZ";
+const PROGRAM_ID = "Ek6Jpdv5iEEDLXTVQ8UFcntms3DT2ewHtzzwH2R5MpvN";
 
 function initProgram(connection: Connection, wallet: Wallet): Program {
   const provider = new Provider(connection, wallet, {});
   return new Program(airdrop as Idl, PROGRAM_ID, provider);
 }
 
-export async function initialize(
-  connection: Connection,
-  wallet: Wallet
-): Promise<TransactionSignature> {
+export async function initialize(connection: Connection, wallet: Wallet): Promise<boolean> {
   const program = initProgram(connection, wallet);
   const airdropAccount = new Keypair();
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
@@ -45,25 +43,29 @@ export async function initialize(
     wallet?.publicKey as PublicKey
   );
 
-  // console.log("program", program.programId.toString());
-  // console.log("STRM token", assTokenAcc?.pubkey.toString());
-  // console.log("airdrop account", airdropAccount.publicKey.toString());
-  // console.log("wallet ", wallet?.publicKey?.toString());
+  console.log("assTokenAccount", assTokenAccount);
+  console.log("STRM token", assTokenAccount?.toString());
+  console.log("airdrop account", airdropAccount.publicKey.toString());
+  console.log("airdropTokenAccount", assAirdropTokAcc.toString());
 
-  const tx = await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(100 * 10 ** 9), {
-    accounts: {
-      initializer: wallet?.publicKey,
-      initializerDepositTokenAccount: assTokenAccount,
-      airdropAccount: airdropAccount.publicKey,
-      airdropTokenAccount: assAirdropTokAcc,
-      systemProgram: SystemProgram.programId,
-      tokenProgram: TOKEN_PROGRAM_ID,
-    },
-    signers: [airdropAccount],
-    instructions: [instr],
-  });
-
-  return tx;
+  try {
+    await program.rpc.initializeAirdrop(new BN(1000000 * 10 ** 9), new BN(100 * 10 ** 9), {
+      accounts: {
+        initializer: wallet?.publicKey,
+        initializerDepositTokenAccount: assTokenAccount,
+        airdropAccount: airdropAccount.publicKey,
+        airdropTokenAccount: assAirdropTokAcc,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      },
+      signers: [airdropAccount],
+      instructions: [instr],
+    });
+    return true;
+  } catch (err: any) {
+    console.log("errr", err);
+    return false;
+  }
 }
 
 export async function getAirdrop(
@@ -72,9 +74,7 @@ export async function getAirdrop(
 ): Promise<TransactionSignature> {
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
   // @ts-ignore
-  const airdropAccount = (
-    await connection?.getProgramAccounts(new PublicKey(airdrop.metadata.address))
-  )[0];
+  const airdropAccount = (await connection?.getProgramAccounts(new PublicKey(PROGRAM_ID)))[0];
 
   const program = initProgram(connection, wallet);
   // @ts-ignore
@@ -136,9 +136,7 @@ export async function cancel(
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
 
   // @ts-ignore
-  const airdropAccount = (
-    await connection?.getProgramAccounts(new PublicKey(airdrop.metadata.address))
-  )[0];
+  const airdropAccount = (await connection?.getProgramAccounts(new PublicKey(PROGRAM_ID)))[0];
   // @ts-ignore
   const assTokenAcc = await Token.getAssociatedTokenAddress(
     ASSOCIATED_TOKEN_PROGRAM_ID,

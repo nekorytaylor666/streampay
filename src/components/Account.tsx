@@ -16,7 +16,7 @@ import {
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink } from "../utils/helpers";
 import { Address, Button, Link } from ".";
-import { cancel, getAirdrop, initialize } from "../actions/airdrop";
+import { cancel, initialize } from "../actions/airdrop";
 
 const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
   isMainnet: cluster === WalletAdapterNetwork.Mainnet,
@@ -69,7 +69,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
       setAirdropTxSignature(signature);
-      await getAirdrop(connection, wallet as Wallet); //returns a tx id
+      // await getAirdrop(connection, wallet as Wallet); //returns a tx id
 
       //TODO: Update balance!
       setLoading(false);
@@ -144,7 +144,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             <Button
               primary
               onClick={() => cancel(connection, wallet as Wallet)}
-              classes={cx("float-right px-3 py-1.5 text-xs my-0 rounded active:bg-white", {
+              classes={cx("float-right px-4 py-1.5 text-xs my-0 rounded active:bg-white", {
                 hidden: hideAirdrop,
               })}
               disabled={isGimmeSolDisabled}
@@ -154,11 +154,11 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             <Button
               primary
               onClick={() => initialize(connection, wallet as Wallet)}
-              classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+              classes={cx("float-right mr-2 px-3.5 py-1.5 text-xs my-0 rounded active:bg-white", {
                 hidden: hideAirdrop,
               })}
             >
-              Set Airdrop
+              Initialize
             </Button>
           </div>
         )}
