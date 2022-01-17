@@ -1,5 +1,6 @@
 import { format, getUnixTime } from "date-fns";
-import { ExternalLinkIcon } from "@heroicons/react/outline";
+import { ExternalLinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import ReactTooltip from "react-tooltip";
 
 import { Link } from "../../components";
 import { formatPeriodOfTime, roundAmount } from "../../utils/helpers";
@@ -26,6 +27,9 @@ const Overview: React.FC<OverviewProps> = ({
   const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
   const end = (start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod) * 1000; // convert to ms
+  const formattedReleasePeriod = formatPeriodOfTime(releasePeriod);
+  const isReleasePerMonth = formattedReleasePeriod?.includes("month");
+  const isReleasePerYear = formattedReleasePeriod?.includes("year");
 
   return (
     <div className="col-span-full mt-4 leading-6">
@@ -44,7 +48,31 @@ const Overview: React.FC<OverviewProps> = ({
         <span className="text-gray-100 text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
         released every
         {releaseFrequencyCounter ? (
-          <span className="text-gray-100 text-sm">{` ${formatPeriodOfTime(releasePeriod)}. `}</span>
+          <>
+            <span className="text-gray-100 text-sm">{` ${formattedReleasePeriod}. `}</span>
+            {(isReleasePerMonth || isReleasePerYear) && (
+              <>
+                <QuestionMarkCircleIcon
+                  className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-primary"
+                  data-tip
+                  data-for="overviewTooltip"
+                />
+                <ReactTooltip
+                  id="overviewTooltip"
+                  type="info"
+                  effect="solid"
+                  place="top"
+                  backgroundColor="#18A2D9"
+                >
+                  <span>
+                    {isReleasePerYear
+                      ? "We assume that year has 365days."
+                      : "We assume that month has 30.4167 days (365 / 12)."}
+                  </span>
+                </ReactTooltip>
+              </>
+            )}
+          </>
         ) : (
           <span> _____. </span>
         )}

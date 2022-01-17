@@ -173,3 +173,11 @@ input[type="range"]::-ms-track {
     transform: rotate(360deg);
   }
 }
+
+.__react_component_tooltip {
+  opacity: 0.9 !important;
+  padding: 5px 6px !important;
+  max-width: 256px !important;
+  font-size: 11px;
+  line-height: 1.4 !important;
+}
