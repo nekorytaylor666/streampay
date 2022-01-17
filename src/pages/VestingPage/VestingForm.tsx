@@ -4,6 +4,8 @@ import { add, format, getUnixTime } from "date-fns";
 import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
+import ReactTooltip from "react-tooltip";
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -325,7 +327,21 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
             <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
               Release Frequency
+              <QuestionMarkCircleIcon
+                className="ml-1 h-3.5 w-3.5  inline mb-2 cursor-pointer text-primary"
+                data-tip
+                data-for="releaseFrequencyTooltip"
+              />
             </label>
+            <ReactTooltip
+              id="releaseFrequencyTooltip"
+              type="info"
+              effect="solid"
+              place="top"
+              backgroundColor="#18A2D9"
+            >
+              <span>We assume that year has 365 days. And month has 30.4167 days (365 / 12).</span>
+            </ReactTooltip>
             <Input
               type="number"
               min={1}
