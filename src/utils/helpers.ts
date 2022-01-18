@@ -9,7 +9,7 @@ import { format } from "date-fns";
 
 import useStore from "../stores";
 import { Cluster, StringOption } from "../types";
-import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES } from "../constants";
+import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES, PERIOD } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -136,19 +136,9 @@ export const roundAmount = (
   return Math.round((amount / 10 ** decimals) * tens) / tens;
 };
 
-const PERIOD = {
-  SECOND: 1,
-  MINUT: 60,
-  HOUR: 3600,
-  DAY: 86400,
-  WEEK: 604800,
-  MONTH: 2592000, //30 days
-  YEAR: 31536000,
-};
-
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
 
-export const formatPeriodOfTime = (period: number) => {
+export const formatPeriodOfTime = (period: number): string => {
   if (!period) return "0 seconds";
 
   const years = period / PERIOD.YEAR;
@@ -166,11 +156,13 @@ export const formatPeriodOfTime = (period: number) => {
   const hours = period / PERIOD.HOUR;
   if (Math.floor(hours)) return `${hours > 1 ? hours : ""} hour${isMoreThanOne(hours)}`;
 
-  const minutes = period / PERIOD.MINUT;
+  const minutes = period / PERIOD.MINUTE;
   if (Math.floor(minutes)) return `${minutes > 1 ? minutes : ""} minute${isMoreThanOne(minutes)}`;
 
   const seconds = period / PERIOD.SECOND;
   if (Math.floor(seconds)) return `${seconds > 1 ? seconds : ""} second${isMoreThanOne(seconds)}`;
+
+  return "";
 };
 
 export const formatCurrentDate = () => format(new Date(), DATE_FORMAT);
