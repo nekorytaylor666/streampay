@@ -135,26 +135,26 @@ export const roundAmount = (
   return Math.round((amount / 10 ** decimals) * tens) / tens;
 };
 
-const PERIOD = {
+export const PERIOD = {
   SECOND: 1,
-  MINUT: 60,
+  MINUTE: 60,
   HOUR: 3600,
-  DAY: 86400,
-  WEEK: 604800,
-  MONTH: 2592000, //30 days
-  YEAR: 31536000,
+  DAY: 24 * 3600,
+  WEEK: 7 * 24 * 3600,
+  MONTH: Math.ceil(30.4167 * 24 * 3600), //30.4167 days
+  YEAR: 365 * 24 * 3600, // 365 days
 };
 
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
 
 export const formatPeriodOfTime = (period: number) => {
   if (!period) return "0 seconds";
-
   const years = period / PERIOD.YEAR;
   if (Math.floor(years)) return `${years} year${isMoreThanOne(years)}`;
 
   const months = period / PERIOD.MONTH;
-  if (Math.floor(months)) return `${months} month${isMoreThanOne(months)} (${months * 30} days)`;
+
+  if (Math.floor(months)) return `${months} month${isMoreThanOne(months)}`;
 
   const weeks = period / PERIOD.WEEK;
   if (Math.floor(weeks)) return `${weeks} week${isMoreThanOne(weeks)}`;
@@ -165,7 +165,7 @@ export const formatPeriodOfTime = (period: number) => {
   const hours = period / PERIOD.HOUR;
   if (Math.floor(hours)) return `${hours} hour${isMoreThanOne(hours)}`;
 
-  const minutes = period / PERIOD.MINUT;
+  const minutes = period / PERIOD.MINUTE;
   if (Math.floor(minutes)) return `${minutes} minute${isMoreThanOne(minutes)}`;
 
   const seconds = period / PERIOD.SECOND;

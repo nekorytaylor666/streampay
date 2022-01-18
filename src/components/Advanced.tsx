@@ -1,10 +1,13 @@
 import { useState } from "react";
 
 import { format } from "date-fns";
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import ReactTooltip from "react-tooltip";
 
 import { DateTime } from "./index";
 import { formatPeriodOfTime } from "../utils/helpers";
 import { Token } from "../types";
+import { PERIOD } from "../utils/helpers";
 
 export default function Advanced({
   visible,
@@ -55,6 +58,9 @@ export default function Advanced({
     (+new Date(endDate + "T" + endTime) - +new Date(cliffDate + "T" + cliffTime)) / 1000;
   const numPeriods = lengthSeconds / (timePeriodMultiplier * timePeriod);
   const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
+  const formattedReleasePeriod = formatPeriodOfTime(timePeriod * timePeriodMultiplier);
+  const isReleasePerMonth = formattedReleasePeriod?.includes("month");
+  const isReleasePerYear = formattedReleasePeriod?.includes("year");
 
   return (
     <div hidden={!visible}>
@@ -111,16 +117,13 @@ export default function Advanced({
             onChange={(e) => updateTimePeriod(Number(e.target.value))}
             className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-2 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-7"
           >
-            <option value={1}>second{s}</option>
-            <option value={60}>minute{s}</option>
-            <option value={60 * 60}>hour{s}</option>
-            <option value={60 * 60 * 24}>day{s}</option>
-            <option value={60 * 60 * 24 * 7}>week{s}</option>
-            {/*  todo: COMMUNICATE THIS CLEARLY, as it's imprecise */}
-            <option value={60 * 60 * 24 * 30}>
-              month{s} ({timePeriodMultiplier * 30} days)
-            </option>
-            <option value={60 * 60 * 24 * 365}>year{s}</option>
+            <option value={PERIOD.SECOND}>second{s}</option>
+            <option value={PERIOD.MINUTE}>minute{s}</option>
+            <option value={PERIOD.HOUR}>hour{s}</option>
+            <option value={PERIOD.DAY}>day{s}</option>
+            <option value={PERIOD.WEEK}>week{s}</option>
+            <option value={PERIOD.MONTH}>month{s}</option>
+            <option value={PERIOD.YEAR}>year{s}</option>
           </select>
         </div>
       </div>
@@ -143,9 +146,29 @@ export default function Advanced({
         ).toFixed(2)} ${ticker}) `}</span>
         <br className="sm:hidden" />
         released every
-        <span className="text-white text-sm">{` ${formatPeriodOfTime(
-          timePeriod * timePeriodMultiplier
-        )} `}</span>
+        <span className="text-white text-sm">{` ${formattedReleasePeriod} `}</span>
+        {(isReleasePerMonth || isReleasePerYear) && (
+          <>
+            <QuestionMarkCircleIcon
+              className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-primary"
+              data-tip
+              data-for="overviewTooltip"
+            />
+            <ReactTooltip
+              id="overviewTooltip"
+              type="info"
+              effect="solid"
+              place="top"
+              backgroundColor="#18A2D9"
+            >
+              <span>
+                {isReleasePerYear
+                  ? "We assume that year has 365 days."
+                  : "A month is equal to 30.4167 days, as this version doesn't use calendar."}
+              </span>
+            </ReactTooltip>
+          </>
+        )}
         <br />
         until
         <span className="text-white text-sm">{` ${format(
