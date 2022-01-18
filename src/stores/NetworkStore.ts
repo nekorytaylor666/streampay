@@ -14,7 +14,7 @@ const clusterUrls: { [s: string]: () => string } = {
   [CLUSTER_LOCAL]: () => "http://localhost:8899", //http://127.0.0.1:8899",
   [CLUSTER_DEVNET]: () => clusterApiUrl(CLUSTER_DEVNET),
   [CLUSTER_TESTNET]: () => clusterApiUrl(CLUSTER_TESTNET),
-  [CLUSTER_MAINNET]: () => clusterApiUrl(CLUSTER_MAINNET),
+  [CLUSTER_MAINNET]: () => "https://solana-api.projectserum.com", // clusterApiUrl(CLUSTER_MAINNET),
 };
 
 const programIds: { [s: string]: () => string | null } = {
