@@ -88,12 +88,22 @@ export const ERRORS = {
   max_year: "Year should be less than 9999.",
 };
 
+export const PERIOD = {
+  SECOND: 1,
+  MINUTE: 60,
+  HOUR: 3600,
+  DAY: 24 * 3600,
+  WEEK: 7 * 24 * 3600,
+  MONTH: 30.4167 * 24 * 3600, //30.4167 days
+  YEAR: 365 * 24 * 3600, // 365 days
+};
+
 export const timePeriodOptions = [
-  { value: 1, label: "second" },
-  { value: 60, label: "minute" },
-  { value: 3600, label: "hour" },
-  { value: 86400, label: "day" },
-  { value: 604800, label: "week" },
-  { value: 2592000, label: "month" },
-  { value: 31536000, label: "year" },
+  { value: PERIOD.SECOND, label: "second" },
+  { value: PERIOD.MINUTE, label: "minute" },
+  { value: PERIOD.HOUR, label: "hour" },
+  { value: PERIOD.DAY, label: "day" },
+  { value: PERIOD.WEEK, label: "week" },
+  { value: PERIOD.MONTH, label: "month" },
+  { value: PERIOD.YEAR, label: "year" },
 ];
