@@ -141,7 +141,7 @@ export const PERIOD = {
   HOUR: 3600,
   DAY: 24 * 3600,
   WEEK: 7 * 24 * 3600,
-  MONTH: 30.4167 * 24 * 3600, //30.4167 days
+  MONTH: Math.ceil(30.4167 * 24 * 3600), //30.4167 days
   YEAR: 365 * 24 * 3600, // 365 days
 };
 
