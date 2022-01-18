@@ -92,10 +92,24 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     return isCancelled;
   }
 
-  async function transferStream(id: string, invoker: "sender" | "recipient") {
+  async function transferStream(id: string, sender: string, invoker: "sender" | "recipient") {
     const newRecipientAddress = await modalRef?.current?.show();
 
     if (newRecipientAddress !== undefined) {
+      if (!newRecipientAddress) {
+        toast.error("You didn't provide the address.");
+        return;
+      }
+
+      if (newRecipientAddress === sender) {
+        toast.error(
+          invoker === "sender"
+            ? "You can't transfer stream to yourself."
+            : "You can't transfer stream to the sender who initiated it."
+        );
+        return;
+      }
+
       try {
         const newRecipient = new PublicKey(newRecipientAddress);
         const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
@@ -122,7 +136,9 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         <StreamCard
           key={id}
           onCancel={() => cancelStream(id)}
-          onTransfer={(invoker) => transferStream(id, invoker)}
+          onTransfer={(invoker: "sender" | "recipient") =>
+            transferStream(id, data.sender.toString(), invoker)
+          }
           onWithdraw={updateToken}
           onTopup={updateToken}
           id={id}
