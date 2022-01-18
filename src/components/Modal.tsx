@@ -28,6 +28,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(
 
     const isRangeInput = "min" in rest;
     const isTextInput = "placeholder" in rest;
+    const isInfoInput = type === "info";
     const defaultValue = isRangeInput ? rest.max : "";
     const [value, setValue] = useState(defaultValue);
     const [rangeMax, setRangeMax] = useState(isRangeInput ? rest.max : 0);
@@ -48,7 +49,8 @@ const Modal = forwardRef<ModalRef, ModalProps>(
 
     const onConfirm = () => {
       setVisible(false);
-      modalInfo.resolve(value || true);
+      const defaultResolve = isInfoInput ? true : "";
+      modalInfo.resolve(value || defaultResolve);
       setValue(defaultValue);
     };
 
