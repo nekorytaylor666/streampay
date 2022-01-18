@@ -83,8 +83,8 @@ const Overview: React.FC<OverviewProps> = ({
                 >
                   <span>
                     {isReleasePerYear
-                      ? "We assume that year has 365days."
-                      : "We assume that month has 30.4167 days (365 / 12)."}
+                      ? "We assume that year has 365 days."
+                      : "A month is equal to 30.4167 days, as this version doesn't use calendar."}
                   </span>
                 </ReactTooltip>
               </>

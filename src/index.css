@@ -175,9 +175,9 @@ input[type="range"]::-ms-track {
 }
 
 .__react_component_tooltip {
-  opacity: 0.9 !important;
+  opacity: 1 !important;
   padding: 5px 6px !important;
-  max-width: 256px !important;
+  max-width: 236px !important;
   font-size: 11px;
   line-height: 1.4 !important;
 }
