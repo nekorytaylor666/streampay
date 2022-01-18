@@ -7,6 +7,7 @@ import ReactTooltip from "react-tooltip";
 import { DateTime } from "./index";
 import { formatPeriodOfTime } from "../utils/helpers";
 import { Token } from "../types";
+import { PERIOD } from "../utils/helpers";
 
 export default function Advanced({
   visible,
@@ -116,13 +117,13 @@ export default function Advanced({
             onChange={(e) => updateTimePeriod(Number(e.target.value))}
             className="text-white pl-2.5 sm:pl-3 bg-gray-800 col-span-2 border-primary block w-full border-black rounded-md focus:ring-secondary focus:border-secondary pr-7"
           >
-            <option value={1}>second{s}</option>
-            <option value={60}>minute{s}</option>
-            <option value={60 * 60}>hour{s}</option>
-            <option value={60 * 60 * 24}>day{s}</option>
-            <option value={60 * 60 * 24 * 7}>week{s}</option>
-            <option value={60 * 60 * 24 * 30.4167}>month{s}</option>
-            <option value={60 * 60 * 24 * 365}>year{s}</option>
+            <option value={PERIOD.SECOND}>second{s}</option>
+            <option value={PERIOD.MINUTE}>minute{s}</option>
+            <option value={PERIOD.HOUR}>hour{s}</option>
+            <option value={PERIOD.DAY}>day{s}</option>
+            <option value={PERIOD.WEEK}>week{s}</option>
+            <option value={PERIOD.MONTH}>month{s}</option>
+            <option value={PERIOD.YEAR}>year{s}</option>
           </select>
         </div>
       </div>
