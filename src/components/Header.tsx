@@ -1,12 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { Cluster } from "@streamflow/timelock/dist/layout";
 import cx from "classnames";
 
 import { Logo, Nav, WalletPicker, Toggle } from ".";
 import logo from "../assets/icons/logo.png";
 import useStore, { StoreType } from "../stores";
-import type { Cluster } from "../types";
 
 const storeGetter = ({ cluster, wallet, setCluster }: StoreType) => ({
   cluster,
@@ -16,10 +15,10 @@ const storeGetter = ({ cluster, wallet, setCluster }: StoreType) => ({
 
 const Header = () => {
   const { cluster, wallet, setCluster } = useStore(storeGetter);
-  const isMainnet = cluster === WalletAdapterNetwork.Mainnet;
+  const isMainnet = cluster === Cluster.Mainnet;
 
   const toggleCluster = (): Dispatch<SetStateAction<{ cluster: Cluster }>> =>
-    isMainnet ? setCluster(WalletAdapterNetwork.Devnet) : setCluster(WalletAdapterNetwork.Mainnet);
+    isMainnet ? setCluster(Cluster.Devnet) : setCluster(Cluster.Mainnet);
 
   return (
     <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">

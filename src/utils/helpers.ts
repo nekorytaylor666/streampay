@@ -6,9 +6,10 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 import { format } from "date-fns";
+import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock/dist/layout";
 
 import useStore from "../stores";
-import { Cluster, StringOption } from "../types";
+import { StringOption } from "../types";
 import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES, PERIOD } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
@@ -70,7 +71,7 @@ const ourTokens = [
 export const getTokenAccounts = async (
   connection: Connection,
   wallet: Wallet,
-  cluster: Cluster
+  cluster: ClusterExtended
 ) => {
   // is default Strategy (in resolve()) way to go?
   const tokenListContainer = await new TokenListProvider().resolve();
@@ -91,7 +92,7 @@ export const getTokenAccounts = async (
     }, {});
 
   const tokenList = tokenListContainer
-    .filterByClusterSlug(cluster === "local" ? "devnet" : cluster)
+    .filterByClusterSlug(cluster === LocalCluster.Local ? Cluster.Devnet : cluster)
     .getList();
 
   //for localhost development add our token with tokenList.concat([ourToken])

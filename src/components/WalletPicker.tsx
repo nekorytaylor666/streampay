@@ -1,6 +1,5 @@
 import { useMemo, useEffect, FC } from "react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import {
   getPhantomWallet,
   getSolflareWebWallet,
@@ -9,6 +8,7 @@ import {
   getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
 import swal from "sweetalert";
+import { Cluster } from "@streamflow/timelock/dist/layout";
 
 import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
@@ -68,9 +68,9 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
     () => [
       getPhantomWallet(),
       getSlopeWallet(),
-      getSolflareWebWallet({ network: cluster as WalletAdapterNetwork }),
+      getSolflareWebWallet({ network: cluster as Cluster }),
       getSolflareWallet(),
-      getSolletWallet({ network: cluster as WalletAdapterNetwork }),
+      getSolletWallet({ network: cluster as Cluster }),
     ],
     [cluster]
   );

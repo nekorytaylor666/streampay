@@ -1,6 +1,5 @@
 import { BN } from "@project-serum/anchor";
 import type { TokenInfo } from "@solana/spl-token-registry";
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import type { PublicKey, TokenAmount } from "@solana/web3.js";
 
 export interface WalletType {
@@ -68,12 +67,6 @@ export interface Token {
   info: TokenInfo;
   uiTokenAmount: TokenAmount;
 }
-
-enum LocalCluster {
-  local = "local",
-}
-
-export type Cluster = WalletAdapterNetwork | LocalCluster;
 
 export interface StringOption {
   value: string;

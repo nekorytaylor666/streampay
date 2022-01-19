@@ -24,6 +24,7 @@ const storeGetter = (state: StoreType) => ({
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
+  cluster: state.cluster,
 });
 
 const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
@@ -49,6 +50,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     myTokenAccounts,
     setMyTokenAccounts,
     setToken,
+    cluster,
   } = useStore(storeGetter);
   const modalRef = useRef<ModalRef>(null);
 
@@ -68,7 +70,13 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     if (!connection || !wallet?.publicKey) return;
 
     (async () => {
-      const allStreams = await Stream.get(connection, wallet.publicKey as PublicKey);
+      const allStreams = await Stream.get(
+        connection,
+        wallet.publicKey as PublicKey,
+        "all",
+        "all",
+        cluster
+      );
       addStreamsToStore(allStreams);
     })();
 

@@ -25,6 +25,7 @@ export default async function sendTransaction(
 ) {
   const connection = useStore.getState().connection();
   const wallet = useStore.getState().wallet;
+  const cluster = useStore.getState().cluster;
 
   let d;
   try {
@@ -54,7 +55,9 @@ export default async function sendTransaction(
           d.cancelable_by_recipient,
           d.transferable_by_sender,
           d.transferable_by_recipient,
-          d.automatic_withdrawal
+          d.automatic_withdrawal,
+          null,
+          cluster
         );
         break;
       case ProgramInstruction.Topup:
@@ -64,7 +67,8 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           d.stream,
-          d.amount
+          d.amount,
+          cluster
         );
         break;
       case ProgramInstruction.Withdraw:
@@ -74,7 +78,8 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           d.stream,
-          d.amount
+          d.amount,
+          cluster
         );
         break;
       case ProgramInstruction.Cancel:
@@ -83,7 +88,8 @@ export default async function sendTransaction(
           connection,
           // @ts-ignore
           wallet,
-          d.stream
+          d.stream,
+          cluster
         );
         break;
       case ProgramInstruction.TransferRecipient:
@@ -93,7 +99,8 @@ export default async function sendTransaction(
           // @ts-ignore
           wallet,
           d.stream,
-          d.new_recipient
+          d.new_recipient,
+          cluster
         );
         break;
     }

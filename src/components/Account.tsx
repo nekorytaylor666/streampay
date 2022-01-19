@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState, FC } from "react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { Cluster } from "@streamflow/timelock/dist/layout";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
@@ -29,7 +29,7 @@ const storeGetter = ({
   myTokenAccounts,
   setToken,
 }: StoreType) => ({
-  isMainnet: cluster === WalletAdapterNetwork.Mainnet,
+  isMainnet: cluster === Cluster.Mainnet,
   connection: connection(),
   wallet,
   disconnectWallet,
