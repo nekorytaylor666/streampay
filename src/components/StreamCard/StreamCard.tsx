@@ -7,6 +7,7 @@ import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import Stream from "@streamflow/timelock";
+import { toast } from "react-toastify";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -41,21 +42,20 @@ interface StreamProps {
   id: string;
   onCancel: () => Promise<boolean>;
   onWithdraw: () => Promise<void>;
-  onTransfer: (invoker: "sender" | "recipient") => Promise<void>;
   onTopup: () => Promise<void>;
 }
 
 const storeGetter = ({
   myTokenAccounts,
-  addStream,
   updateStream,
+  deleteStream,
   connection,
   wallet,
   token,
 }: StoreType) => ({
   myTokenAccounts,
-  addStream,
   updateStream,
+  deleteStream,
   connection: connection(),
   wallet,
   token,
@@ -66,15 +66,7 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
   return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
 };
 
-const StreamCard: FC<StreamProps> = ({
-  data,
-  myAddress,
-  id,
-  onCancel,
-  onTransfer,
-  onWithdraw,
-  onTopup,
-}) => {
+const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
   const {
     start_time,
     end_time,
@@ -97,11 +89,12 @@ const StreamCard: FC<StreamProps> = ({
   } = data;
 
   const address = mint.toBase58();
-  const { myTokenAccounts, connection, updateStream, token } = useStore(storeGetter);
+  const { myTokenAccounts, connection, updateStream, deleteStream, token } = useStore(storeGetter);
   const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[address].info.symbol;
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
+  const isSender = myAddress === sender.toBase58();
 
   const releaseFrequency = calculateReleaseFrequency(
     period.toNumber(),
@@ -111,6 +104,7 @@ const StreamCard: FC<StreamProps> = ({
 
   const withdrawModalRef = useRef<ModalRef>(null);
   const topupModalRef = useRef<ModalRef>(null);
+  const transferModalRef = useRef<ModalRef>(null);
 
   const status_enum = getStreamStatus(
     canceled_at,
@@ -143,7 +137,7 @@ const StreamCard: FC<StreamProps> = ({
 
   const showCancelOnSender =
     cancelable_by_sender &&
-    myAddress === sender.toBase58() &&
+    isSender &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancelOnRecipient =
@@ -154,20 +148,18 @@ const StreamCard: FC<StreamProps> = ({
   const showCancel = showCancelOnSender || showCancelOnRecipient;
 
   const showTransferOnSender =
-    transferable_by_sender && myAddress === sender.toBase58() && status !== StreamStatus.canceled;
+    transferable_by_sender && isSender && status !== StreamStatus.canceled;
 
   const showTransferOnRecipient =
     transferable_by_recipient &&
     myAddress === recipient.toBase58() &&
     status !== StreamStatus.canceled;
 
-  const invoker = showTransferOnSender ? "sender" : "recipient";
-
   const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
   const showTopup =
     can_topup &&
-    myAddress === sender.toBase58() &&
+    isSender &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const handleWithdraw = async () => {
@@ -209,6 +201,41 @@ const StreamCard: FC<StreamProps> = ({
       }
     }
   };
+
+  async function handleTransfer() {
+    if (!connection) return;
+    const newRecipientAddress = await transferModalRef?.current?.show();
+
+    if (newRecipientAddress !== undefined) {
+      if (!newRecipientAddress) {
+        toast.error("You didn't provide the address.");
+        return;
+      }
+
+      if (isSender && newRecipientAddress === sender.toBase58()) {
+        toast.error("You can't transfer stream to yourself.");
+        return;
+      }
+
+      try {
+        const newRecipient = new PublicKey(newRecipientAddress);
+        const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
+          stream: new PublicKey(id),
+          new_recipient: new PublicKey(newRecipient),
+        });
+        if (success) {
+          toast.success("Stream transferred to " + newRecipientAddress);
+
+          if (isSender) {
+            const stream = await Stream.getOne(connection, new PublicKey(id));
+            updateStream([id, stream]);
+          } else deleteStream(id);
+        }
+      } catch (e) {
+        toast.error("Invalid address");
+      }
+    }
+  }
 
   useEffect(() => {
     if (status === StreamStatus.scheduled || status === StreamStatus.streaming) {
@@ -394,7 +421,7 @@ const StreamCard: FC<StreamProps> = ({
             )}
             {showTransfer && (
               <Button
-                onClick={() => onTransfer(invoker)}
+                onClick={handleTransfer}
                 background={STREAM_STATUS_COLOR[StreamStatus.complete]}
                 classes="col-span-3 text-sm py-1 w-full"
               >
@@ -432,6 +459,18 @@ const StreamCard: FC<StreamProps> = ({
         min={0}
         max={roundAmount(parseInt(token?.uiTokenAmount?.amount) || 0, decimals)}
         confirm={{ color: "green", text: "Top Up" }}
+      />
+      <Modal
+        ref={transferModalRef}
+        title="Transfer recipient:"
+        type="text"
+        disclaimer={
+          isSender
+            ? ""
+            : "All unlocked tokens that are not withdrawn will be transferred. Please check if you want to withdraw before transferring."
+        }
+        placeholder="Recipient address"
+        confirm={{ color: "blue", text: "Transfer" }}
       />
     </>
   );

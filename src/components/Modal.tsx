@@ -14,6 +14,7 @@ export type ModalProps = {
   title?: string;
   text?: string;
   symbol?: string;
+  disclaimer?: string;
   confirm: { text: string; color: string };
 } & (
   | { type: "info" }
@@ -22,7 +23,7 @@ export type ModalProps = {
 );
 
 const Modal = forwardRef<ModalRef, ModalProps>(
-  ({ title, text, type, confirm, symbol, ...rest }, ref) => {
+  ({ title, text, type, confirm, symbol, disclaimer, ...rest }, ref) => {
     const [visible, setVisible] = useState(false);
     const [modalInfo, setModalInfo] = useState<{ resolve?: any }>({});
 
@@ -113,6 +114,7 @@ specified amount, while respecting the given schedule.`}
               </p>
             </>
           )}
+          {disclaimer && <p className="text-gray-400 text-xxs leading-4 mt-3">{disclaimer}</p>}
         </div>
       </div>
     );
