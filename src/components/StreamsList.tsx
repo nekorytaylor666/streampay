@@ -1,13 +1,12 @@
-import { useEffect, FC, useRef } from "react";
+import { useEffect, FC } from "react";
 
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
 import Stream from "@streamflow/timelock";
-import { toast } from "react-toastify";
 
-import { StreamCard, Modal, ModalRef } from ".";
+import { StreamCard } from ".";
 import sendTransaction from "../actions/sendTransaction";
 import { ProgramInstruction } from "../constants";
 import useStore, { StoreType } from "../stores";
@@ -44,7 +43,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     streams,
     updateStream,
     addStreams: addStreamsToStore,
-    deleteStream,
     clearStreams,
     token,
     myTokenAccounts,
@@ -52,8 +50,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     setToken,
     cluster,
   } = useStore(storeGetter);
-  const modalRef = useRef<ModalRef>(null);
-
   const updateToken = async () => {
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
@@ -100,53 +96,12 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     return isCancelled;
   }
 
-  async function transferStream(id: string, sender: string, invoker: "sender" | "recipient") {
-    const newRecipientAddress = await modalRef?.current?.show();
-
-    if (newRecipientAddress !== undefined) {
-      if (!newRecipientAddress) {
-        toast.error("You didn't provide the address.");
-        return;
-      }
-
-      if (newRecipientAddress === sender) {
-        toast.error(
-          invoker === "sender"
-            ? "You can't transfer stream to yourself."
-            : "You can't transfer stream to the sender who initiated it."
-        );
-        return;
-      }
-
-      try {
-        const newRecipient = new PublicKey(newRecipientAddress);
-        const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
-          stream: new PublicKey(id),
-          new_recipient: new PublicKey(newRecipient),
-        });
-        if (success) {
-          toast.success("Stream transferred to " + newRecipientAddress);
-
-          if (invoker === "sender") {
-            const stream = await Stream.getOne(connection, new PublicKey(id));
-            updateStream([id, stream]);
-          } else deleteStream(id);
-        }
-      } catch (e) {
-        toast.error("Invalid address");
-      }
-    }
-  }
-
   return (
     <>
       {filterStreams(streams, type).map(([id, data]) => (
         <StreamCard
           key={id}
           onCancel={() => cancelStream(id)}
-          onTransfer={(invoker: "sender" | "recipient") =>
-            transferStream(id, data.sender.toString(), invoker)
-          }
           onWithdraw={updateToken}
           onTopup={updateToken}
           id={id}
@@ -154,13 +109,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
           myAddress={wallet?.publicKey?.toBase58() as string}
         />
       ))}
-      <Modal
-        ref={modalRef}
-        title="Transfer recipient:"
-        type="text"
-        placeholder="Recipient address"
-        confirm={{ color: "blue", text: "Transfer" }}
-      />
     </>
   );
 };
