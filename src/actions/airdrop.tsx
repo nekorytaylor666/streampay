@@ -5,6 +5,7 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/sp
 import type { Idl } from "@project-serum/anchor/dist/cjs/idl";
 import { toast } from "react-toastify";
 import type { TransactionSignature } from "@solana/web3.js";
+import * as Sentry from "@sentry/react";
 
 import airdrop from "../idl/airdrop";
 import { AIRDROP_TEST_TOKEN } from "../constants";
@@ -60,6 +61,7 @@ export async function initialize(connection: Connection, wallet: Wallet): Promis
     return true;
   } catch (err: any) {
     toast.error("Initializing airdrop failed!");
+    Sentry.captureException(err);
     return false;
   }
 }
@@ -164,6 +166,7 @@ export async function cancel(connection: Connection, wallet: Wallet): Promise<bo
     return true;
   } catch (err: any) {
     toast.error("Cancelling airdrop account failed!");
+    Sentry.captureException(err);
     return false;
   }
 }

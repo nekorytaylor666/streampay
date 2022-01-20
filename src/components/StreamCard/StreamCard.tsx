@@ -8,6 +8,7 @@ import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import Stream from "@streamflow/timelock";
 import { toast } from "react-toastify";
+import * as Sentry from "@sentry/react";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -231,7 +232,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
             updateStream([id, stream]);
           } else deleteStream(id);
         }
-      } catch (e) {
+      } catch (err) {
+        Sentry.captureException(err);
         toast.error("Invalid address");
       }
     }
