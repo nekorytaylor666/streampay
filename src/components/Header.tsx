@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-
 import { Cluster } from "@streamflow/timelock/dist/layout";
 import cx from "classnames";
 
@@ -17,8 +15,7 @@ const Header = () => {
   const { cluster, wallet, setCluster } = useStore(storeGetter);
   const isMainnet = cluster === Cluster.Mainnet;
 
-  const toggleCluster = (): Dispatch<SetStateAction<{ cluster: Cluster }>> =>
-    isMainnet ? setCluster(Cluster.Devnet) : setCluster(Cluster.Mainnet);
+  const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
 
   return (
     <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">

@@ -76,9 +76,8 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       addStreamsToStore(allStreams);
     })();
 
-    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/11
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cluster]);
 
   async function cancelStream(id: string) {
     const isCancelled = await sendTransaction(ProgramInstruction.Cancel, {

@@ -28,8 +28,8 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
       (async () => {
         const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
 
-        setMyTokenAccounts(myTokenAccounts);
         setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
+        setMyTokenAccounts(myTokenAccounts);
       })();
     }
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
