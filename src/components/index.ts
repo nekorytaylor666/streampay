@@ -16,3 +16,4 @@ export { default as Modal } from "./Modal";
 export * from "./Modal";
 export { default as Input } from "./Input";
 export { default as Select } from "./Select";
+export { default as FallbackComponent } from "./Fallback";

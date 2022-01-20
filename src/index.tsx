@@ -2,16 +2,20 @@ import React from "react";
 
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
 
-import "./index.css";
 import App from "./App";
+import { FallbackComponent } from "./components";
+import "./index.css";
 // import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <ErrorBoundary FallbackComponent={FallbackComponent}>
+      <Router>
+        <App />
+      </Router>
+    </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById("root")
 );
