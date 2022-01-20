@@ -6,6 +6,7 @@ import cx from "classnames";
 import { toast } from "react-toastify";
 import { Wallet } from "@project-serum/anchor/src/provider";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
+import * as Sentry from "@sentry/react";
 
 import {
   AIRDROP_AMOUNT,
@@ -43,7 +44,7 @@ interface AccountProps {
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-const sussessfulAirdropMsg = (
+const successfulAirdropMsg = (
   <>
     <p>Airdrop successful!</p>
     <p> Check STRM balance!</p>
@@ -102,11 +103,14 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         connection.confirmTransaction(tx, TX_FINALITY_CONFIRMED),
       ]).then(
         ([res1, res2]) => {
-          if (res2.value.err) toast.error("Airdrop failed!");
-          else if (res1.value.err) {
-            toast.success(sussessfulAirdropMsg);
+          if (res2.value.err) {
+            toast.error("Airdrop failed!");
+            Sentry.captureException(res2.value.err);
+          } else if (res1.value.err) {
+            toast.success(successfulAirdropMsg);
             toast.error("Error getting SOL!");
-          } else toast.success(sussessfulAirdropMsg);
+            Sentry.captureException(res1.value.err);
+          } else toast.success(successfulAirdropMsg);
 
           updateBalance(connection, wallet as Wallet, AIRDROP_TEST_TOKEN);
           setTimeout(() => setIsGimmeSolDisabled(false), 7000);
@@ -115,12 +119,12 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       );
 
       setLoading(false);
-    } catch (error) {
+    } catch (err) {
       setLoading(false);
       setIsGimmeSolDisabled(false);
+      Sentry.captureException(err);
 
-      if ((error as Error).message.includes("429"))
-        toast.error("Airdrop failed! Too many requests");
+      if ((err as Error).message.includes("429")) toast.error("Airdrop failed! Too many requests");
       else toast.error("Airdrop failed!");
     }
   }

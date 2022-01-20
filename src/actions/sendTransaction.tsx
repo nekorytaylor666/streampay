@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
 import Stream from "@streamflow/timelock";
+import * as Sentry from "@sentry/react";
 
 import ToastrLink from "../components/ToastrLink";
 import {
@@ -121,18 +122,17 @@ export default async function sendTransaction(
       { autoClose: 10000, closeOnClick: true }
     );
     return response.data || true;
-  } catch (e: any) {
+  } catch (err: any) {
     toast.dismiss();
-    //todo log these errors somewhere for our reference
-    let errorMsg = e.message;
-    if (e.message.includes("Owner cannot sign")) errorMsg = "Recipient can not sign!";
+    let errorMsg = err.message;
+    if (err.message.includes("Owner cannot sign")) errorMsg = "Recipient can not sign!";
     else if (
-      e.message.includes("Attempt to debit an account but found no record of a prior credit.")
+      err.message.includes("Attempt to debit an account but found no record of a prior credit.")
     )
       errorMsg = ERR_NO_PRIOR_CREDIT;
 
     toast.error(errorMsg);
-    console.error("error", e);
+    Sentry.captureException(err);
     return false;
   }
 }
