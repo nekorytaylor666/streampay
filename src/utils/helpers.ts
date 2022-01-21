@@ -171,3 +171,13 @@ export const formatPeriodOfTime = (period: number) => {
   const seconds = period / PERIOD.SECOND;
   if (Math.floor(seconds)) return `${seconds} second${isMoreThanOne(seconds)}`;
 };
+
+export const formatDate = (data: string, setValue: any) => {
+  // eslint-disable-next-line prefer-const
+  let [year, month, day] = data.split("-");
+  if (year.length > 4) {
+    year = year.slice(year.length - 4);
+  }
+
+  setValue([year, month, day].join("-"));
+};

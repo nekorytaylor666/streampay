@@ -31,7 +31,7 @@ import {
   Modal,
   ModalRef,
 } from "./index";
-import { getTokenAmount } from "../utils/helpers";
+import { getTokenAmount, formatDate } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
@@ -278,14 +278,14 @@ export default function CreateStreamForm({
         <DateTime
           title={START}
           date={startDate}
-          updateDate={setStartDate}
+          updateDate={(date) => formatDate(date, setStartDate)}
           time={startTime}
           updateTime={updateStartTime}
         />
         <DateTime
           title={END}
           date={endDate}
-          updateDate={setEndDate}
+          updateDate={(date) => formatDate(date, setEndDate)}
           time={endTime}
           updateTime={setEndTime}
         />
