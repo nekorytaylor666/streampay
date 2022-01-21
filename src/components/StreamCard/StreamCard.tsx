@@ -96,6 +96,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   const isCliffDateAfterStart = cliff > start_time;
   const isCliffAmount = cliff_amount.toNumber() > 0;
   const isSender = myAddress === sender.toBase58();
+  const isRecipient = myAddress === recipient.toBase58();
 
   const releaseFrequency = calculateReleaseFrequency(
     period.toNumber(),
@@ -134,7 +135,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     (status === StreamStatus.streaming ||
       (status === StreamStatus.complete &&
         withdrawn_amount.toNumber() < net_deposited_amount.toNumber())) &&
-    myAddress === recipient.toBase58();
+    isRecipient;
 
   const showCancelOnSender =
     cancelable_by_sender &&
@@ -143,7 +144,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
   const showCancelOnRecipient =
     cancelable_by_recipient &&
-    myAddress === recipient.toBase58() &&
+    isRecipient &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancel = showCancelOnSender || showCancelOnRecipient;
@@ -152,9 +153,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     transferable_by_sender && isSender && status !== StreamStatus.canceled;
 
   const showTransferOnRecipient =
-    transferable_by_recipient &&
-    myAddress === recipient.toBase58() &&
-    status !== StreamStatus.canceled;
+    transferable_by_recipient && isRecipient && status !== StreamStatus.canceled;
 
   const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
@@ -213,7 +212,10 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         return;
       }
 
-      if (isSender && newRecipientAddress === sender.toBase58()) {
+      if (
+        (isSender && newRecipientAddress === sender.toBase58()) ||
+        (isRecipient && newRecipientAddress === recipient.toBase58())
+      ) {
         toast.error("You can't transfer stream to yourself.");
         return;
       }
