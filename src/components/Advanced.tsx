@@ -7,7 +7,7 @@ import ReactTooltip from "react-tooltip";
 import { DateTime } from "./index";
 import { formatPeriodOfTime } from "../utils/helpers";
 import { Token } from "../types";
-import { PERIOD } from "../utils/helpers";
+import { PERIOD, formatDate } from "../utils/helpers";
 
 export default function Advanced({
   visible,
@@ -68,7 +68,7 @@ export default function Advanced({
         <DateTime
           title="cliff"
           date={cliffDate}
-          updateDate={updateCliffDate}
+          updateDate={(date) => formatDate(date, updateCliffDate)}
           time={cliffTime}
           updateTime={updateCliffTime}
           classes="col-span-2 sm:col-span-2"
