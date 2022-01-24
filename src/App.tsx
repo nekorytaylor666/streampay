@@ -2,12 +2,13 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
-import { Footer, Header, Nav } from "./components";
+import { Footer, Header, Nav, Banner } from "./components";
 import { Page404 } from "./pages";
 import routes from "./RoutesConfig";
 
 const App = () => (
   <div className="min-h-screen flex flex-col">
+    <Banner title="This is a devnet version!" classes="top-0 left-0 w-full"></Banner>
     <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
       <Header />
       <Nav classes="block lg:hidden mb-2" />
