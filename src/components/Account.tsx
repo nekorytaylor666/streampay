@@ -78,7 +78,13 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   let myAddress = null;
 
   if (walletPubKey) {
-    myWalletLink = <Link url={getExplorerLink("address", walletPubKey)} title="Address" />;
+    myWalletLink = (
+      <Link
+        url={getExplorerLink("address", walletPubKey)}
+        title="Address"
+        classes="text-gray-300 hover:text-white"
+      />
+    );
     myAddress = <Address address={walletPubKey} classes="block truncate" />;
   }
 

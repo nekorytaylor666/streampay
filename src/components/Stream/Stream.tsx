@@ -198,7 +198,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())}
           title={"Recipient"}
-          classes="col-span-4 sm:col-span-3 text-base"
+          classes="col-span-4 sm:col-span-3 text-base text-gray-300 hover:text-white"
         />
         <Address
           address={recipient.toBase58()}
