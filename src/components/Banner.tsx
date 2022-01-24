@@ -4,7 +4,8 @@ import { XIcon } from "@heroicons/react/outline";
 
 interface BannerProps {
   title: string;
-  message: string;
+  message?: string;
+  classes?: string;
 }
 interface BannerState {
   hidden: boolean;
