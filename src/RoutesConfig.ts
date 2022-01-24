@@ -6,6 +6,7 @@ export interface Route {
   redirect?: string;
   label?: string;
   exact?: boolean;
+  disabled?: boolean;
 }
 
 const routes: Route[] = [
@@ -26,18 +27,21 @@ const routes: Route[] = [
     Component: StreamsPage,
     label: "Streams",
     exact: true,
+    disabled: true,
   },
   {
     path: "/multisig",
     Component: MultisigPage,
     label: "Multisig",
     exact: true,
+    disabled: true,
   },
   {
     path: "/multipay",
     Component: MultipayPage,
     label: "Multipay",
     exact: true,
+    disabled: true,
   },
 ];
 

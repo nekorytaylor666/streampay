@@ -9,7 +9,7 @@ import routes from "./RoutesConfig";
 const App = () => (
   <div className="min-h-screen flex flex-col">
     <Banner
-      title="Try out new version!"
+      title="Try out the new (devnet) version!"
       classes="top-0 left-0 w-full"
       navigateTo="https://streamflow-dev.netlify.app/vesting"
     ></Banner>

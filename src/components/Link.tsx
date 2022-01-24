@@ -1,7 +1,6 @@
 import { FC } from "react";
 
 import { ExternalLinkIcon } from "@heroicons/react/outline";
-import cx from "classnames";
 
 interface LinkProps {
   url: string;
@@ -18,7 +17,7 @@ const Link: FC<LinkProps> = ({ url, title, hideIcon, classes }) => {
   );
 
   return (
-    <strong className={cx("text-gray-300 hover:text-white", classes)}>
+    <strong className={classes}>
       <a href={url} target="_blank" rel="noopener noreferrer">
         {title || url}
         {icon}

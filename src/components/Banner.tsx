@@ -3,6 +3,8 @@ import { Component } from "react";
 import { XIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 
+import Link from "./Link";
+
 interface BannerProps {
   title?: string;
   message?: string;
@@ -24,15 +26,15 @@ export default class Banner extends Component<BannerProps, BannerState> {
       <div className={cx(this.props.classes, `bg-primary ${this.state.hidden && "hidden"}`)}>
         <div className="mx-auto py-2 px-3 sm:px-6 lg:px-8">
           <div className="pr-16 sm:text-center sm:px-16">
-            <a
-              className="text-base sm:text-lg font-bold text-white"
-              href={this.props.navigateTo}
-              target="_blank"
-            >
-              {this.props.title}
-              &nbsp;
-              <span className="hidden lg:inline">{this.props.message}</span>
-            </a>
+            {this.props.navigateTo ? (
+              <Link
+                classes="text-white font-semibold"
+                url={this.props.navigateTo}
+                title={this.props.title}
+              ></Link>
+            ) : (
+              <p> {this.props.title}</p>
+            )}
           </div>
           <div className="absolute inset-y-0 right-0 pt-1 pr-1 flex items-start sm:pt-1 sm:pr-2 sm:items-start">
             <button
