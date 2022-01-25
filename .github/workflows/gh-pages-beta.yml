@@ -1,9 +1,9 @@
-name: Deploy (dev)
+name: Deploy (beta)
 
 on:
   push:
     branches:
-      - dev
+      - beta
 
 env:
   NODE_VERSION: "16.x"
@@ -32,8 +32,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
-          publish_branch: publish_branch: dev-deploy
+          publish_branch: beta-deploy
 
       - name: Hook
         run: |
-          curl -X POST https://api.netlify.com/build_hooks/61efe3d0d5a539fd7fb74286
+          curl -X POST https://api.netlify.com/build_hooks/61efe264827564f07f6eaad2
