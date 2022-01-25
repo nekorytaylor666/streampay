@@ -4,22 +4,20 @@ import { Dispatch, SetStateAction } from "react";
 import { Switch } from "@headlessui/react";
 import cx from "classnames";
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
-
 export default function Toggle({
   enabled,
   labelLeft,
   labelRight,
   setEnabled,
   classes,
+  disabled = false,
 }: {
   enabled: boolean;
   labelLeft?: string;
   labelRight?: string;
   setEnabled: Dispatch<SetStateAction<any>>;
   classes?: string;
+  disabled?: boolean;
 }) {
   return (
     <Switch.Group as="div" className={cx(classes, "flex items-center")}>
@@ -31,14 +29,16 @@ export default function Toggle({
       <Switch
         checked={enabled}
         onChange={setEnabled}
-        className={classNames(
+        disabled={disabled}
+        className={cx(
           enabled ? "bg-primary" : "bg-gray-900",
+          { "cursor-not-allowed": disabled },
           "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full transition-colors ease-in-out duration-200 ring-1 ring-primary focus:ring-2 focus:outline-none focus:ring-primary"
         )}
       >
         <span
           aria-hidden="true"
-          className={classNames(
+          className={cx(
             enabled ? "translate-x-5" : "translate-x-0",
             "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
           )}

@@ -29,6 +29,7 @@ const Header = () => {
             labelLeft="devnet"
             labelRight="mainnet"
             classes="hidden sm:flex mr-2"
+            disabled
           />
           <WalletPicker
             title="Connect"
@@ -44,6 +45,7 @@ const Header = () => {
         labelLeft="devnet"
         labelRight="mainnet"
         classes="flex sm:hidden"
+        disabled
       />
     </div>
   );
