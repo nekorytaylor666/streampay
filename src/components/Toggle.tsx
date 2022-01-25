@@ -31,10 +31,9 @@ export default function Toggle({
       <Switch
         checked={enabled}
         onChange={setEnabled}
-        disabled
         className={classNames(
           enabled ? "bg-primary" : "bg-gray-900",
-          "relative inline-flex cursor-not-allowed flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full transition-colors ease-in-out duration-200 ring-1 ring-primary focus:ring-2 focus:outline-none focus:ring-primary"
+          "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full transition-colors ease-in-out duration-200 ring-1 ring-primary focus:ring-2 focus:outline-none focus:ring-primary"
         )}
       >
         <span
