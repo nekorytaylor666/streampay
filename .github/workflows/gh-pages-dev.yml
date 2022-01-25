@@ -1,39 +1,39 @@
-name: Deploy (beta)
+name: Deploy (dev)
 
 on:
-    push:
-        branches:
-            - dev
+  push:
+    branches:
+      - dev
 
 env:
-    NODE_VERSION: '16.x'
+  NODE_VERSION: "16.x"
 
 jobs:
-    deploy:
-        runs-on: ubuntu-20.04
-        steps:
-            - uses: actions/checkout@v2
-              with:
-                submodules: true
-                fetch-depth: 0
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v2
-              with:
-                node-version: ${{ env.NODE_VERSION }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-            - name: Build static website
-              run: |
-                npm ci
-                CI=false && GENERATE_SOURCEMAP=false && npm run build
+      - name: Build static website
+        run: |
+          npm ci
+          CI=false && GENERATE_SOURCEMAP=false && npm run build
 
-            - name: Deploy
-              uses: peaceiris/actions-gh-pages@v3
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                publish_dir: ./build
-                publish_branch: beta
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          publish_branch: dev-deploy
 
-            - name: Hook
-              run: |
-                curl -X POST https://api.netlify.com/build_hooks/617adb4e1a84ba227a017b37
+      - name: Hook
+        run: |
+          curl -X POST https://api.netlify.com/build_hooks/61efd66ee2d4aee1a26b64da
