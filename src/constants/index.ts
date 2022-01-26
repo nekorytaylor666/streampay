@@ -116,7 +116,7 @@ export const EVENT_CATEGORY = {
 export const EVENT_ACTION = {
   TRANSFERRED: "transferred",
   CANCELED: "canceled",
-  TOP_UPPED: "top_upped",
+  TOPPED_UP: "topped_up",
   WITHDRAWN: "withdrawn",
   CONNECTED: "connected",
 };
@@ -133,3 +133,4 @@ export const EVENT_TYPE = {
 
 export const STREAMFLOW_WEB_AFFILIATION = "streamflow_web";
 export const DEFAULT_PURCHASE_CURRENCY = "USD";
+export const USD_PEGGED_COINS = ["USDT", "USDC"];

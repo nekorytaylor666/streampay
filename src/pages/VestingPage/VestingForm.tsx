@@ -233,7 +233,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
       const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
-      const totalDepositedAmount = amount * 10 ** decimals * tokenPriceUSD;
+      const totalDepositedAmount = amount * tokenPriceUSD;
       trackTransaction(
         id.toBase58(),
         token.info.symbol,

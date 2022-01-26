@@ -201,8 +201,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
       const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
-      const totalDepositedAmount =
-        depositedAmount * 10 ** token.uiTokenAmount.decimals * tokenPriceUSD;
+      const totalDepositedAmount = depositedAmount * tokenPriceUSD;
       trackTransaction(
         id.toBase58(),
         token.info.symbol,

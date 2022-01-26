@@ -38,7 +38,7 @@ import useStore, { StoreType } from "../../stores";
 import sendTransaction from "../../actions/sendTransaction";
 import { trackEvent } from "../../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
-import { fetchTokenPrice } from "../../api";
+import { fetchTokenPrice } from "../../api/";
 
 interface StreamProps {
   data: StreamData;
@@ -210,7 +210,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       }
       trackEvent(
         EVENT_CATEGORY.STREAM,
-        EVENT_ACTION.TOP_UPPED,
+        EVENT_ACTION.TOPPED_UP,
         EVENT_LABEL.NONE,
         topupAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))
       );

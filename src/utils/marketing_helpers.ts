@@ -51,6 +51,7 @@ export function trackTransaction(
         title: tokenName,
         price: feeValue,
         quantity: totalDepositedAmount,
+        variant: "v2",
       },
     ]),
     purchaseDetails: JSON.stringify({
