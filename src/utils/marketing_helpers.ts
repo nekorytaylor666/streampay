@@ -24,7 +24,7 @@ export function trackPageView() {
   });
 }
 
-export function trackEvent(category: string, action: string, label: string, value: string) {
+export function trackEvent(category: string, action: string, label: string, value: number) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: EVENT_TYPE.EVENT,
@@ -35,7 +35,6 @@ export function trackEvent(category: string, action: string, label: string, valu
   });
 }
 
-//Da li feeValue: number podrzava decimale?
 export function trackTransaction(
   streamId: string,
   tokenTicker: string,

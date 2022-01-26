@@ -94,7 +94,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
           EVENT_CATEGORY.STREAM,
           EVENT_ACTION.CANCELED,
           wallet?.publicKey?.toBase58() as string,
-          "0"
+          0
         );
       }
     }

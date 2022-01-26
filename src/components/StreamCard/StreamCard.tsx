@@ -184,7 +184,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         EVENT_CATEGORY.STREAM,
         EVENT_ACTION.WITHDRAWN,
         EVENT_LABEL.NONE,
-        (withdrawAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))).toString()
+        withdrawAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))
       );
     }
   };
@@ -212,7 +212,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         EVENT_CATEGORY.STREAM,
         EVENT_ACTION.TOP_UPPED,
         EVENT_LABEL.NONE,
-        (topupAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))).toString()
+        topupAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))
       );
     }
   };
@@ -248,7 +248,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
             const stream = await Stream.getOne(connection, new PublicKey(id));
             updateStream([id, stream]);
           } else deleteStream(id);
-          trackEvent(EVENT_CATEGORY.STREAM, EVENT_ACTION.TRANSFERRED, EVENT_LABEL.NONE, "0");
+          trackEvent(EVENT_CATEGORY.STREAM, EVENT_ACTION.TRANSFERRED, EVENT_LABEL.NONE, 0);
         }
       } catch (err) {
         Sentry.captureException(err);

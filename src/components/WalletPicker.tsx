@@ -94,7 +94,7 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
       EVENT_CATEGORY.WALLET,
       EVENT_ACTION.CONNECTED,
       localStorage.wallet?.publicKey?.toBase58(),
-      "0"
+      0
     );
   }, [setWalletType, walletTypes]);
 
