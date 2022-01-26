@@ -20,6 +20,8 @@ import {
 } from "../../constants";
 import { StringOption } from "../../types";
 import Overview from "./Overview";
+import { trackTransaction } from "../../utils/marketing_helpers";
+import { fetchTokenPrice } from "../../api";
 
 interface StreamsFormProps {
   loading: boolean;
@@ -198,6 +200,16 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
+      const totalDepositedAmount =
+        depositedAmount * 10 ** token.uiTokenAmount.decimals * tokenPriceUSD;
+      trackTransaction(
+        id.toBase58(),
+        token.info.symbol,
+        token.info.name,
+        totalDepositedAmount * 0.0025,
+        totalDepositedAmount
+      );
     }
   };
 
