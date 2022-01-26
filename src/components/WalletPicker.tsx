@@ -14,7 +14,7 @@ import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
 import Button from "./Button";
 import { trackEvent } from "../utils/marketing_helpers";
-import { EVENT_CATEGORY, EVENT_ACTION } from "../constants";
+import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../constants";
 
 const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
   walletType,
@@ -93,7 +93,8 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
     trackEvent(
       EVENT_CATEGORY.WALLET,
       EVENT_ACTION.CONNECTED,
-      localStorage.wallet?.publicKey?.toBase58(),
+      // localStorage.wallet?.publicKey?.toBase58(),
+      EVENT_LABEL.NONE,
       0
     );
   }, [setWalletType, walletTypes]);

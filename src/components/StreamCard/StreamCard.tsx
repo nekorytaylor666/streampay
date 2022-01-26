@@ -181,10 +181,10 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         updateStream([id, stream]);
       }
       trackEvent(
-        EVENT_CATEGORY.STREAM,
+        data.can_topup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
         EVENT_ACTION.WITHDRAWN,
         EVENT_LABEL.NONE,
-        withdrawAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))
+        withdrawAmount * (await fetchTokenPrice(token.info.symbol))
       );
     }
   };
@@ -212,7 +212,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         EVENT_CATEGORY.STREAM,
         EVENT_ACTION.TOPPED_UP,
         EVENT_LABEL.NONE,
-        topupAmount * 10 ** decimals * (await fetchTokenPrice(token.info.symbol))
+        topupAmount * (await fetchTokenPrice(token.info.symbol))
       );
     }
   };

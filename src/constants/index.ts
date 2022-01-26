@@ -111,6 +111,7 @@ export const timePeriodOptions = [
 export const EVENT_CATEGORY = {
   WALLET: "wallet",
   STREAM: "stream",
+  VESTING: "vesting",
 };
 
 export const EVENT_ACTION = {
