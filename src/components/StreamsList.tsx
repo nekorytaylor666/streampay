@@ -8,9 +8,10 @@ import Stream from "@streamflow/timelock";
 
 import { StreamCard } from ".";
 import sendTransaction from "../actions/sendTransaction";
-import { ProgramInstruction } from "../constants";
+import { ProgramInstruction, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
+import { trackEvent } from "../utils/marketing_helpers";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
@@ -89,6 +90,12 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       if (stream) {
         updateToken();
         updateStream([id, stream]);
+        trackEvent(
+          EVENT_CATEGORY.STREAM,
+          EVENT_ACTION.CANCELED,
+          wallet?.publicKey?.toBase58() as string,
+          0
+        );
       }
     }
 
