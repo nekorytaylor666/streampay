@@ -17,6 +17,7 @@ import {
   timePeriodOptions,
   ProgramInstruction,
   TIME_FORMAT,
+  TRANSACTION_VARIANT,
 } from "../../constants";
 import { StringOption } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
@@ -238,6 +239,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         id.toBase58(),
         token.info.symbol,
         token.info.name,
+        TRANSACTION_VARIANT.CREATED,
         totalDepositedAmount * 0.0025,
         totalDepositedAmount
       );

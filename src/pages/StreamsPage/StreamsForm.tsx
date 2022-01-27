@@ -17,6 +17,7 @@ import {
   ProgramInstruction,
   timePeriodOptions,
   ERRORS,
+  TRANSACTION_VARIANT,
 } from "../../constants";
 import { StringOption } from "../../types";
 import Overview from "./Overview";
@@ -206,6 +207,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         id.toBase58(),
         token.info.symbol,
         token.info.name,
+        TRANSACTION_VARIANT.CREATED,
         totalDepositedAmount * 0.0025,
         totalDepositedAmount
       );
