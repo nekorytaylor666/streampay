@@ -1,4 +1,4 @@
-import { EVENT_TYPE, STREAMFLOW_WEB_AFFILIATION, DEFAULT_PURCHASE_CURRENCY } from "../constants";
+import { EVENT_TYPE, STREAMFLOW_WEB_AFFILIATION, DEFAULT_PURCHASE_CURRENCY, PRODUCT_BRAND } from "../constants";
 
 declare global {
   interface Window {
@@ -52,7 +52,7 @@ export function trackTransaction(
         title: tokenName,
         price: feeValue,
         quantity: totalDepositedAmount,
-        brand: "v2",
+        brand: PRODUCT_BRAND.V2,
         variant,
       },
     ]),
