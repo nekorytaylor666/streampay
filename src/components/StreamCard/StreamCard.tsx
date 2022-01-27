@@ -36,6 +36,9 @@ import Duration from "./components/Duration";
 import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
 import sendTransaction from "../../actions/sendTransaction";
+import { trackEvent } from "../../utils/marketing_helpers";
+import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+import { fetchTokenPrice } from "../../api/";
 
 interface StreamProps {
   data: StreamData;
@@ -177,6 +180,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onWithdraw();
         updateStream([id, stream]);
       }
+      trackEvent(
+        data.can_topup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
+        EVENT_ACTION.WITHDRAWN,
+        EVENT_LABEL.NONE,
+        withdrawAmount * (await fetchTokenPrice(token.info.symbol))
+      );
     }
   };
 
@@ -199,6 +208,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onTopup();
         updateStream([id, stream]);
       }
+      trackEvent(
+        EVENT_CATEGORY.STREAM,
+        EVENT_ACTION.TOPPED_UP,
+        EVENT_LABEL.NONE,
+        topupAmount * (await fetchTokenPrice(token.info.symbol))
+      );
     }
   };
 
@@ -233,6 +248,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
             const stream = await Stream.getOne(connection, new PublicKey(id));
             updateStream([id, stream]);
           } else deleteStream(id);
+          trackEvent(EVENT_CATEGORY.STREAM, EVENT_ACTION.TRANSFERRED, EVENT_LABEL.NONE, 0);
         }
       } catch (err) {
         Sentry.captureException(err);
