@@ -57,6 +57,8 @@ const isRecipientAddressValid = async (address: string, connection: Connection |
   return true;
 };
 
+const encoder = new TextEncoder();
+
 interface UseStreamFormProps {
   tokenBalance: number;
 }
@@ -85,7 +87,13 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           )
           .moreThan(0, ERRORS.amount_greater_than),
         tokenSymbol: yup.string().required(ERRORS.token_required),
-        subject: yup.string().required(ERRORS.subject_required).max(30, ERRORS.subject_max),
+        subject: yup
+          .string()
+          .required(ERRORS.subject_required)
+          .test("is not too long in representation", ERRORS.subject_too_long, (subject) => {
+            const view = encoder.encode(subject);
+            return view.length > 64 ? false : true;
+          }),
         recipient: yup
           .string()
           .required(ERRORS.recipient_required)

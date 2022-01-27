@@ -66,7 +66,6 @@ export const ERRORS = {
   token_required: "Token is required.",
   recipient_required: "You must choose a recipient.",
   subject_required: "Please provide a subject (title).",
-  subject_max: "Title can have maximum of 30 characters.",
   start_date_required: "Start date is required.",
   start_date_is_in_the_past: "Cannot start stream in the past.",
   start_time_required: "Start time is required.",
@@ -86,6 +85,7 @@ export const ERRORS = {
     "Should be smaller or equal to difference between END and CLIFF time.",
   should_be_greater_than_0: "Should be greater than 0.",
   max_year: "Year should be less than 9999.",
+  subject_too_long: "It is either too long or there are many complex characters.",
 };
 
 export const PERIOD = {
