@@ -11,7 +11,7 @@ import "./index.css";
 // import reportWebVitals from './reportWebVitals';
 
 Sentry.init({
-  dsn: "https://e1175a6e5c6044fa9dc031fa9e47f548@o1121893.ingest.sentry.io/6158981",
+  dsn: "https://ffe6dfabe4ea43d9947978472d9f11d6@o1068887.ingest.sentry.io/6063180",
   integrations: [new Integrations.BrowserTracing()],
 
   // We recommend adjusting this value in production, or using tracesSampler
