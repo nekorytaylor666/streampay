@@ -32,6 +32,8 @@ import {
   ModalRef,
 } from "./index";
 import { getTokenAmount, formatDate } from "../utils/helpers";
+import { trackTransaction } from "../utils/marketing_helpers";
+import { fetchTokenPrice } from "../api";
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
@@ -257,6 +259,14 @@ export default function CreateStreamForm({
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const tokenPriceInUsd = await fetchTokenPrice(token.info.symbol);
+      trackTransaction(
+        newStream.publicKey.toBase58(),
+        token.info.symbol,
+        token.info.name,
+        tokenPriceInUsd * amount * 0.0025,
+        tokenPriceInUsd * amount
+      );
     }
   }
 

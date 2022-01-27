@@ -16,6 +16,8 @@ import {
 } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
+import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../constants";
+import { trackEvent } from "../utils/marketing_helpers";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
@@ -126,6 +128,12 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
         updateToken();
         addStream(id, decode(stream.data));
       }
+      trackEvent(
+        EVENT_CATEGORY.VESTING,
+        EVENT_ACTION.CANCELED,
+        wallet?.publicKey?.toBase58() ?? EVENT_LABEL.NONE,
+        0
+      );
     }
 
     return isCancelled;
