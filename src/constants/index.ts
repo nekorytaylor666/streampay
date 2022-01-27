@@ -108,11 +108,6 @@ export const timePeriodOptions = [
   { value: PERIOD.YEAR, label: "year" },
 ];
 
-export const TRANSACTION_VARIANT = {
-  CREATED: "created",
-  TOPPED_UP: "topped_up",
-};
-
 export const EVENT_CATEGORY = {
   WALLET: "wallet",
   STREAM: "stream",
@@ -136,6 +131,16 @@ export const EVENT_TYPE = {
   PAGEVIEW: "pageview",
   PURCHASE: "purchase",
 };
+
+export const TRANSACTION_VARIANT = {
+  CREATED: "created",
+  TOPPED_UP: "topped_up",
+};
+
+export const PRODUCT_BRAND = {
+  V1: "v1",
+  V2: "v2"
+}
 
 export const STREAMFLOW_WEB_AFFILIATION = "streamflow_web";
 export const DEFAULT_PURCHASE_CURRENCY = "USD";
