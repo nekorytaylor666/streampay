@@ -55,3 +55,38 @@ export const TIMELOCK_STRUCT_OFFSET_SENDER = 48;
 export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 112;
 
 export const DEFAULT_DECIMAL_PLACES = 3;
+
+export const EVENT_CATEGORY = {
+  WALLET: "wallet",
+  STREAM: "stream",
+  VESTING: "vesting",
+};
+
+export const EVENT_ACTION = {
+  TRANSFERRED: "transferred",
+  CANCELED: "canceled",
+  TOPPED_UP: "topped_up",
+  WITHDRAWN: "withdrawn",
+  CONNECTED: "connected",
+};
+
+export const EVENT_LABEL = {
+  NONE: "none",
+};
+
+export const EVENT_TYPE = {
+  EVENT: "event",
+  PAGEVIEW: "pageview",
+  PURCHASE: "purchase",
+};
+
+export const TRANSACTION_VARIANT = {
+  CREATED: "created",
+  TOPPED_UP: "topped_up",
+};
+
+export const STREAMFLOW_WEB_V1_AFFILIATION = "streamflow_web_v1";
+export const STREAMFLOW_WEB_V2_AFFILIATION = "streamflow_web_v2";
+
+export const DEFAULT_PURCHASE_CURRENCY = "USD";
+export const USD_PEGGED_COINS = ["USDT", "USDC"];

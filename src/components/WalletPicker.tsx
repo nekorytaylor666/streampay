@@ -13,6 +13,8 @@ import swal from "sweetalert";
 import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
 import Button from "./Button";
+import { trackEvent } from "../utils/marketing_helpers";
+import { EVENT_ACTION, EVENT_CATEGORY, EVENT_LABEL } from "../constants";
 
 const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
   walletType,
@@ -53,6 +55,7 @@ const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => an
     content: { element: div },
     className: "bg-gray-800",
   }).then(setWalletType);
+  trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECTED, EVENT_LABEL.NONE, 0);
 };
 
 let walletInitialized = false;

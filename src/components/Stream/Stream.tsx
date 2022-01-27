@@ -12,6 +12,8 @@ import {
   ProgramInstruction,
   TX_FINALITY_CONFIRMED,
   DEFAULT_DECIMAL_PLACES,
+  EVENT_CATEGORY,
+  EVENT_ACTION,
 } from "../../constants";
 import { StreamStatus } from "../../types";
 import {
@@ -33,6 +35,8 @@ import Duration from "./components/Duration";
 import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
 import sendTransaction from "../../actions/sendTransaction";
+import { trackEvent } from "../../utils/marketing_helpers";
+import { fetchTokenPrice } from "../../api";
 
 interface StreamProps {
   data: TokenStreamData;
@@ -139,6 +143,12 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
         addStream(id, decode(stream.data));
       }
     }
+    trackEvent(
+      EVENT_CATEGORY.VESTING,
+      EVENT_ACTION.WITHDRAWN,
+      recipient.toBase58(),
+      withdrawAmount * (await fetchTokenPrice(symbol))
+    );
   };
 
   useEffect(() => {
