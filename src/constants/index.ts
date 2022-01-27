@@ -139,8 +139,8 @@ export const TRANSACTION_VARIANT = {
 
 export const PRODUCT_BRAND = {
   V1: "v1",
-  V2: "v2"
-}
+  V2: "v2",
+};
 
 export const STREAMFLOW_WEB_AFFILIATION = "streamflow_web";
 export const DEFAULT_PURCHASE_CURRENCY = "USD";

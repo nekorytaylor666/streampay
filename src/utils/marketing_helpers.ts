@@ -1,4 +1,9 @@
-import { EVENT_TYPE, STREAMFLOW_WEB_AFFILIATION, DEFAULT_PURCHASE_CURRENCY, PRODUCT_BRAND } from "../constants";
+import {
+  EVENT_TYPE,
+  STREAMFLOW_WEB_AFFILIATION,
+  DEFAULT_PURCHASE_CURRENCY,
+  PRODUCT_BRAND,
+} from "../constants";
 
 declare global {
   interface Window {
