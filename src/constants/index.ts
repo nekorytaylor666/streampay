@@ -137,11 +137,7 @@ export const TRANSACTION_VARIANT = {
   TOPPED_UP: "topped_up",
 };
 
-export const PRODUCT_BRAND = {
-  V1: "v1",
-  V2: "v2",
-};
-
-export const STREAMFLOW_WEB_AFFILIATION = "streamflow_web";
+export const STREAMFLOW_WEB_V1_AFFILIATION = "streamflow_web_v1";
+export const STREAMFLOW_WEB_V2_AFFILIATION = "streamflow_web_v2";
 export const DEFAULT_PURCHASE_CURRENCY = "USD";
 export const USD_PEGGED_COINS = ["USDT", "USDC"];

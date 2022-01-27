@@ -1,8 +1,7 @@
 import {
   EVENT_TYPE,
-  STREAMFLOW_WEB_AFFILIATION,
+  STREAMFLOW_WEB_V2_AFFILIATION,
   DEFAULT_PURCHASE_CURRENCY,
-  PRODUCT_BRAND,
 } from "../constants";
 
 declare global {
@@ -56,15 +55,14 @@ export function trackTransaction(
         id: tokenTicker,
         title: tokenName,
         price: feeValue,
-        quantity: totalDepositedAmount,
-        brand: PRODUCT_BRAND.V2,
+        quantity: Math.round(totalDepositedAmount),
         variant,
       },
     ]),
     purchaseDetails: JSON.stringify({
       id: streamId,
       revenue: feeValue,
-      affiliation: STREAMFLOW_WEB_AFFILIATION,
+      affiliation: STREAMFLOW_WEB_V2_AFFILIATION,
       currency: DEFAULT_PURCHASE_CURRENCY,
     }),
     streamId: streamId,

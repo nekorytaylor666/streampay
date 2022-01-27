@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { COIN_MARKET_CAP_API_ENDPOINT } from "../constants/api";
+import { COIN_MARKET_CAP_API_DETAILS } from "../constants/api";
 import { USD_PEGGED_COINS } from "../constants";
 
 export async function fetchTokenPrice(symbol: string) {
@@ -8,12 +8,12 @@ export async function fetchTokenPrice(symbol: string) {
     return 1;
   }
   try {
-    const response = await axios.get(COIN_MARKET_CAP_API_ENDPOINT, {
+    const response = await axios.get(COIN_MARKET_CAP_API_DETAILS.ENDPOINT, {
       params: {
         symbol,
       },
       headers: {
-        "X-CMC_PRO_API_KEY": "383197cd-c064-4342-9a5f-05fe3224c335",
+        "X-CMC_PRO_API_KEY": COIN_MARKET_CAP_API_DETAILS.API_KEY,
       },
     });
     return response.data.data[symbol].quote.usd.price;
