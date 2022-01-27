@@ -108,6 +108,11 @@ export const timePeriodOptions = [
   { value: PERIOD.YEAR, label: "year" },
 ];
 
+export const TRANSACTION_VARIANT = {
+  CREATED: "created",
+  TOPPED_UP: "topped_up",
+};
+
 export const EVENT_CATEGORY = {
   WALLET: "wallet",
   STREAM: "stream",

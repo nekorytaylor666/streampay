@@ -15,6 +15,7 @@ import {
   STREAM_STATUS_COLOR,
   ProgramInstruction,
   DEFAULT_DECIMAL_PLACES,
+  TRANSACTION_VARIANT,
 } from "../../constants";
 import { StreamStatus } from "../../types";
 import {
@@ -36,7 +37,7 @@ import Duration from "./components/Duration";
 import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
 import sendTransaction from "../../actions/sendTransaction";
-import { trackEvent } from "../../utils/marketing_helpers";
+import { trackEvent, trackTransaction } from "../../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
 import { fetchTokenPrice } from "../../api/";
 
@@ -208,11 +209,14 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onTopup();
         updateStream([id, stream]);
       }
-      trackEvent(
-        EVENT_CATEGORY.STREAM,
-        EVENT_ACTION.TOPPED_UP,
-        EVENT_LABEL.NONE,
-        topupAmount * (await fetchTokenPrice(token.info.symbol))
+      const tokenPriceUsd = await fetchTokenPrice(token.info.symbol);
+      trackTransaction(
+        id,
+        token.info.symbol,
+        token.info.name,
+        TRANSACTION_VARIANT.TOPPED_UP,
+        tokenPriceUsd * 0.0025,
+        tokenPriceUsd
       );
     }
   };

@@ -39,6 +39,7 @@ export function trackTransaction(
   streamId: string,
   tokenTicker: string,
   tokenName: string,
+  variant: string,
   feeValue: number,
   totalDepositedAmount: number
 ) {
@@ -52,6 +53,7 @@ export function trackTransaction(
         price: feeValue,
         quantity: totalDepositedAmount,
         brand: "v2",
+        variant,
       },
     ]),
     purchaseDetails: JSON.stringify({
