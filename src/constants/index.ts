@@ -107,3 +107,31 @@ export const timePeriodOptions = [
   { value: PERIOD.MONTH, label: "month" },
   { value: PERIOD.YEAR, label: "year" },
 ];
+
+export const EVENT_CATEGORY = {
+  WALLET: "wallet",
+  STREAM: "stream",
+  VESTING: "vesting",
+};
+
+export const EVENT_ACTION = {
+  TRANSFERRED: "transferred",
+  CANCELED: "canceled",
+  TOPPED_UP: "topped_up",
+  WITHDRAWN: "withdrawn",
+  CONNECTED: "connected",
+};
+
+export const EVENT_LABEL = {
+  NONE: "none",
+};
+
+export const EVENT_TYPE = {
+  EVENT: "event",
+  PAGEVIEW: "pageview",
+  PURCHASE: "purchase",
+};
+
+export const STREAMFLOW_WEB_AFFILIATION = "streamflow_web";
+export const DEFAULT_PURCHASE_CURRENCY = "USD";
+export const USD_PEGGED_COINS = ["USDT", "USDC"];

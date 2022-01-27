@@ -20,6 +20,8 @@ import {
 } from "../../constants";
 import { StringOption } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
+import { fetchTokenPrice } from "../../api";
+import { trackTransaction } from "../../utils/marketing_helpers";
 
 interface VestingFormProps {
   loading: boolean;
@@ -230,6 +232,15 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
+      const totalDepositedAmount = amount * tokenPriceUSD;
+      trackTransaction(
+        id.toBase58(),
+        token.info.symbol,
+        token.info.name,
+        totalDepositedAmount * 0.0025,
+        totalDepositedAmount
+      );
     }
   };
 
