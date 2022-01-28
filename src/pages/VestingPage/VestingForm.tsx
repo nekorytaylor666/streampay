@@ -9,10 +9,18 @@ import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
 import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
-import { DATE_FORMAT, ERR_NOT_CONNECTED, timePeriodOptions, TIME_FORMAT } from "../../constants";
+import {
+  DATE_FORMAT,
+  ERR_NOT_CONNECTED,
+  timePeriodOptions,
+  TIME_FORMAT,
+  TRANSACTION_VARIANT,
+} from "../../constants";
 import { createStream } from "../../api/transactions";
 import { StringOption } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
+import { fetchTokenPrice } from "../../api";
+import { trackTransaction } from "../../utils/marketing_helpers";
 
 interface VestingFormProps {
   loading: boolean;
@@ -216,6 +224,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
+      const totalDepositedAmount = amount * tokenPriceUSD;
+      trackTransaction(
+        response.id,
+        token.info.symbol,
+        token.info.name,
+        TRANSACTION_VARIANT.CREATED,
+        totalDepositedAmount * 0.0025,
+        totalDepositedAmount
+      );
     }
   };
 

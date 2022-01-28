@@ -8,7 +8,12 @@ import cx from "classnames";
 import { toast } from "react-toastify";
 // import * as Sentry from "@sentry/react";
 
-import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR, DEFAULT_DECIMAL_PLACES } from "../../constants";
+import {
+  EXPLORER_TYPE_ADDR,
+  STREAM_STATUS_COLOR,
+  DEFAULT_DECIMAL_PLACES,
+  TRANSACTION_VARIANT,
+} from "../../constants";
 import { StreamStatus } from "../../types";
 import {
   getExplorerLink,
@@ -29,6 +34,9 @@ import Duration from "./components/Duration";
 import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
 import { withdrawStream, topupStream, transferStream } from "../../api/transactions";
+import { trackEvent, trackTransaction } from "../../utils/marketing_helpers";
+import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+import { fetchTokenPrice } from "../../api/";
 
 interface StreamProps {
   data: StreamData;
@@ -157,6 +165,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onWithdraw();
         updateStream([id, stream]);
       }
+      trackEvent(
+        data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
+        EVENT_ACTION.WITHDRAWN,
+        EVENT_LABEL.NONE,
+        withdrawAmount * (await fetchTokenPrice(token.info.symbol))
+      );
     }
   };
 
@@ -182,6 +196,15 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onTopup();
         updateStream([id, stream]);
       }
+      const tokenPriceUsd = await fetchTokenPrice(token.info.symbol);
+      trackTransaction(
+        id,
+        token.info.symbol,
+        token.info.name,
+        TRANSACTION_VARIANT.TOPPED_UP,
+        tokenPriceUsd * 0.0025,
+        tokenPriceUsd
+      );
     }
   };
 

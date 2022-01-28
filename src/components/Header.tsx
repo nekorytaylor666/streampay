@@ -1,4 +1,3 @@
-import { Cluster } from "@streamflow/timelock";
 import cx from "classnames";
 
 import { Logo, Nav, WalletPicker, Toggle } from ".";
@@ -12,23 +11,24 @@ const storeGetter = ({ cluster, wallet, setCluster }: StoreType) => ({
 });
 
 const Header = () => {
-  const { cluster, wallet, setCluster } = useStore(storeGetter);
-  const isMainnet = cluster === Cluster.Mainnet;
+  const { wallet } = useStore(storeGetter);
+  // const isMainnet = cluster === Cluster.Mainnet;
 
-  const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
+  // const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
 
   return (
     <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">
       <div className="flex justify-between items-center">
-        <Logo src={logo} />
+        <Logo src={logo} classes="mr-36" />
         <Nav classes="hidden lg:block" />
         <div className="flex items-center">
           <Toggle
-            enabled={isMainnet}
-            setEnabled={toggleCluster}
+            enabled={false}
+            setEnabled={() => {}}
             labelLeft="devnet"
             labelRight="mainnet"
             classes="hidden sm:flex mr-2"
+            disabled
           />
           <WalletPicker
             title="Connect"
@@ -39,11 +39,12 @@ const Header = () => {
         </div>
       </div>
       <Toggle
-        enabled={isMainnet}
-        setEnabled={toggleCluster}
+        enabled={false}
+        setEnabled={() => {}}
         labelLeft="devnet"
         labelRight="mainnet"
         classes="flex sm:hidden"
+        disabled
       />
     </div>
   );

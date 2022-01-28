@@ -15,9 +15,12 @@ import {
   ERR_NOT_CONNECTED,
   timePeriodOptions,
   ERRORS,
+  TRANSACTION_VARIANT,
 } from "../../constants";
 import { StringOption } from "../../types";
 import Overview from "./Overview";
+import { trackTransaction } from "../../utils/marketing_helpers";
+import { fetchTokenPrice } from "../../api";
 
 interface StreamsFormProps {
   loading: boolean;
@@ -148,9 +151,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setLoading(true);
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
-    // const end =
-    //   start +
-    //   Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
       depositedAmount: depositedAmount * 10 ** token.uiTokenAmount.decimals,
@@ -188,6 +188,16 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
+      const totalDepositedAmount = depositedAmount * tokenPriceUSD;
+      trackTransaction(
+        response.id,
+        token.info.symbol,
+        token.info.name,
+        TRANSACTION_VARIANT.CREATED,
+        totalDepositedAmount * 0.0025,
+        totalDepositedAmount
+      );
     }
   };
 
