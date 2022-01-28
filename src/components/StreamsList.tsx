@@ -3,12 +3,12 @@ import { useEffect, FC } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
-import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import { Stream as StreamData } from "@streamflow/timelock";
 import Stream from "@streamflow/timelock";
 
 import { StreamCard } from ".";
-import sendTransaction from "../actions/sendTransaction";
-import { ProgramInstruction, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
+import { cancelStream } from "../api/transactions";
+import { EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
@@ -30,8 +30,8 @@ const storeGetter = (state: StoreType) => ({
 const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
   const isVesting = type === "vesting";
 
-  if (isVesting) return streams.filter((stream) => !stream[1].can_topup);
-  return streams.filter((stream) => stream[1].can_topup);
+  if (isVesting) return streams.filter((stream) => !stream[1].canTopup);
+  return streams.filter((stream) => stream[1].canTopup);
 };
 
 interface StreamsListProps {
@@ -67,26 +67,23 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     if (!connection || !wallet?.publicKey) return;
 
     (async () => {
-      const allStreams = await Stream.get(
+      const allStreams = await Stream.get({
         connection,
-        wallet.publicKey as PublicKey,
-        "all",
-        "all",
-        cluster
-      );
+        wallet: wallet.publicKey as PublicKey,
+        cluster,
+      });
       addStreamsToStore(allStreams);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  async function cancelStream(id: string) {
-    const isCancelled = await sendTransaction(ProgramInstruction.Cancel, {
-      stream: new PublicKey(id),
-    });
+  async function handleCancel(id: string) {
+    // @ts-ignore
+    const isCancelled = await cancelStream({ id }, connection, wallet, cluster);
 
     if (isCancelled) {
-      const stream = await Stream.getOne(connection, new PublicKey(id));
+      const stream = await Stream.getOne({ connection, id });
       if (stream) {
         updateToken();
         updateStream([id, stream]);
@@ -98,8 +95,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         );
       }
     }
-
-    return isCancelled;
   }
 
   return (
@@ -107,7 +102,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
       {filterStreams(streams, type).map(([id, data]) => (
         <StreamCard
           key={id}
-          onCancel={() => cancelStream(id)}
+          onCancel={() => handleCancel(id)}
           onWithdraw={updateToken}
           onTopup={updateToken}
           id={id}
