@@ -256,7 +256,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
       return () => clearInterval(interval);
     } else {
-      setAvailable(streamed - depositedAmount);
+      setAvailable(streamed - withdrawnAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, streamed, withdrawnAmount]);
@@ -264,7 +264,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   useEffect(() => {
     if (status === StreamStatus.complete) {
       setStreamed(depositedAmount);
-      setAvailable(depositedAmount - depositedAmount);
+      setAvailable(depositedAmount - withdrawnAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
