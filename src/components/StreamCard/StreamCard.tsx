@@ -3,7 +3,7 @@ import { useEffect, useState, FC, useRef } from "react";
 import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
-import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import Stream from "@streamflow/timelock";

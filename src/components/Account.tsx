@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState, FC } from "react";
 
-import { Cluster } from "@streamflow/timelock/dist/layout";
+import { Cluster } from "@streamflow/timelock";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";

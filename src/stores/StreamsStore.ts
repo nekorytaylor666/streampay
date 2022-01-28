@@ -1,4 +1,4 @@
-import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import { Stream as StreamData } from "@streamflow/timelock";
 
 interface StreamStore {
   streams: [string, StreamData][];
@@ -10,9 +10,7 @@ interface StreamStore {
 }
 
 const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
-  streams.sort(
-    ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
-  );
+  streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
 
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
   streams: [],
