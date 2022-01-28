@@ -1,24 +1,22 @@
 import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
-import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
-import sendTransaction from "../../actions/sendTransaction";
 import Overview from "./Overview";
 import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
   timePeriodOptions,
-  ProgramInstruction,
   TIME_FORMAT,
   TRANSACTION_VARIANT,
 } from "../../constants";
+import { createStream } from "../../api/transactions";
 import { StringOption } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 import { fetchTokenPrice } from "../../api";
@@ -37,11 +35,20 @@ const storeGetter = (state: StoreType) => ({
   setMyTokenAccounts: state.setMyTokenAccounts,
   addStream: state.addStream,
   setToken: state.setToken,
+  cluster: state.cluster,
 });
 
 const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
-  const { connection, wallet, token, myTokenAccounts, setMyTokenAccounts, addStream, setToken } =
-    useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    token,
+    myTokenAccounts,
+    setMyTokenAccounts,
+    addStream,
+    setToken,
+    cluster,
+  } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
 
@@ -180,21 +187,21 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     );
 
     const data = {
-      net_deposited_amount: new BN(amount * 10 ** decimals),
-      recipient: new PublicKey(recipient),
-      mint: new PublicKey(token.info.address),
-      start_time: new BN(start),
-      period: new BN(releaseFrequencyPeriod * releaseFrequencyCounter),
-      cliff: new BN(cliff),
-      cliff_amount: new BN(cliffAmountCalculated),
-      amount_per_period: new BN(amountPerPeriod),
-      stream_name: subject,
-      cancelable_by_sender: senderCanCancel,
-      cancelable_by_recipient: recipientCanCancel,
-      transferable_by_sender: senderCanTransfer,
-      transferable_by_recipient: recipientCanTransfer,
-      automatic_withdrawal: false,
-      can_topup: false,
+      depositedAmount: amount * 10 ** decimals,
+      recipient: recipient,
+      mint: token.info.address,
+      start,
+      period: releaseFrequencyPeriod * releaseFrequencyCounter,
+      cliff: cliff,
+      cliffAmount: cliffAmountCalculated,
+      amountPerPeriod: amountPerPeriod,
+      name: subject,
+      cancelableBySender: senderCanCancel,
+      cancelableByRecipient: recipientCanCancel,
+      transferableBySender: senderCanTransfer,
+      transferableByRecipient: recipientCanTransfer,
+      automaticWithdrawal: false,
+      canTopup: false,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -202,28 +209,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-
-    const id = await sendTransaction(ProgramInstruction.Create, data);
+    // @ts-ignore
+    const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
 
-    if (id) {
-      addStream([
-        id.toBase58(),
-        // @ts-ignore
-        {
-          ...data,
-          end_time: new BN(end),
-          last_withdrawn_at: new BN(0),
-          withdrawn_amount: new BN(0),
-          canceled_at: new BN(0),
-          created_at: new BN(+new Date() / 1000),
-          escrow_tokens: undefined as any,
-          magic: new BN(0),
-          recipient_tokens: undefined as any,
-          sender: wallet.publicKey,
-          sender_tokens: undefined as any,
-        },
-      ]);
+    if (response) {
+      addStream([response.id, response.data]);
 
       const mint = token.info.address;
 
@@ -236,7 +227,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
       const totalDepositedAmount = amount * tokenPriceUSD;
       trackTransaction(
-        id.toBase58(),
+        response.id,
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.CREATED,

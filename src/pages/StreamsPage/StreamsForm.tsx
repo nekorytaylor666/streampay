@@ -1,20 +1,18 @@
 import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
-import { BN } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
-import sendTransaction from "../../actions/sendTransaction";
+import { createStream } from "../../api/transactions";
 import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
   ERR_NOT_CONNECTED,
-  ProgramInstruction,
   timePeriodOptions,
   ERRORS,
   TRANSACTION_VARIANT,
@@ -32,6 +30,7 @@ interface StreamsFormProps {
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
+  cluster: state.cluster,
   token: state.token,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
@@ -40,8 +39,16 @@ const storeGetter = (state: StoreType) => ({
 });
 
 const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
-  const { connection, wallet, token, myTokenAccounts, setMyTokenAccounts, addStream, setToken } =
-    useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    token,
+    myTokenAccounts,
+    setMyTokenAccounts,
+    addStream,
+    setToken,
+    cluster,
+  } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
 
@@ -144,26 +151,23 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setLoading(true);
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
-    const end =
-      start +
-      Math.ceil(depositedAmount / releaseAmount) * releaseFrequencyCounter * releaseFrequencyPeriod;
 
     const data = {
-      net_deposited_amount: new BN(depositedAmount * 10 ** token.uiTokenAmount.decimals),
-      recipient: new PublicKey(recipient),
-      mint: new PublicKey(token.info.address),
-      start_time: new BN(start),
-      period: new BN(releaseFrequencyCounter * releaseFrequencyPeriod),
-      cliff: new BN(start),
-      cliff_amount: new BN(0),
-      amount_per_period: new BN(releaseAmount * 10 ** token.uiTokenAmount.decimals),
-      stream_name: subject,
-      cancelable_by_sender: senderCanCancel,
-      cancelable_by_recipient: recipientCanCancel,
-      transferable_by_sender: senderCanTransfer,
-      transferable_by_recipient: recipientCanTransfer,
-      automatic_withdrawal: false,
-      can_topup: true,
+      depositedAmount: depositedAmount * 10 ** token.uiTokenAmount.decimals,
+      recipient: recipient,
+      mint: token.info.address,
+      start,
+      period: releaseFrequencyCounter * releaseFrequencyPeriod,
+      cliff: start,
+      cliffAmount: 0,
+      amountPerPeriod: releaseAmount * 10 ** token.uiTokenAmount.decimals,
+      name: subject,
+      cancelableBySender: senderCanCancel,
+      cancelableByRecipient: recipientCanCancel,
+      transferableBySender: senderCanTransfer,
+      transferableByRecipient: recipientCanTransfer,
+      automaticWithdrawal: false,
+      canTopup: true,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -171,28 +175,11 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-
-    const id = await sendTransaction(ProgramInstruction.Create, data);
+    // @ts-ignore
+    const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
-    if (id) {
-      addStream([
-        id.toBase58(),
-        // @ts-ignore
-        {
-          ...data,
-          end_time: new BN(end),
-          last_withdrawn_at: new BN(0),
-          withdrawn_amount: new BN(0),
-          canceled_at: new BN(0),
-          created_at: new BN(+new Date() / 1000),
-          escrow_tokens: undefined as any,
-          magic: new BN(0),
-          recipient_tokens: undefined as any,
-          sender: wallet?.publicKey,
-          sender_tokens: undefined as any,
-        },
-      ]);
-
+    if (response) {
+      addStream([response.id, response.data]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -204,7 +191,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
       const totalDepositedAmount = depositedAmount * tokenPriceUSD;
       trackTransaction(
-        id.toBase58(),
+        response.id,
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.CREATED,

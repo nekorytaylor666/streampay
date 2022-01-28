@@ -6,7 +6,7 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 import { format } from "date-fns";
-import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock/dist/layout";
+import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock";
 
 import useStore from "../stores";
 import { StringOption } from "../types";

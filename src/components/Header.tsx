@@ -1,4 +1,3 @@
-// import { Cluster } from "@streamflow/timelock/dist/layout";
 import cx from "classnames";
 
 import { Logo, Nav, WalletPicker, Toggle } from ".";

@@ -8,7 +8,7 @@ import {
   getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
 import swal from "sweetalert";
-import { Cluster } from "@streamflow/timelock/dist/layout";
+import { Cluster } from "@streamflow/timelock";
 
 import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
