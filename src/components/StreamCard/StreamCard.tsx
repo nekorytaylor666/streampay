@@ -259,7 +259,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       setAvailable(streamed - withdrawnAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, streamed, withdrawnAmount]);
+  }, [status, streamed, withdrawnAmount, canceledAt]);
 
   useEffect(() => {
     if (status === StreamStatus.complete) {
