@@ -1,21 +1,14 @@
 import { useEffect, useState, FC, useRef } from "react";
 
-import { BN } from "@project-serum/anchor";
 import { format, fromUnixTime } from "date-fns";
-import { PublicKey } from "@solana/web3.js";
-import { Stream as StreamData } from "@streamflow/timelock/dist/layout";
+import Stream from "@streamflow/timelock";
+import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
-import Stream from "@streamflow/timelock";
 import { toast } from "react-toastify";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 
-import {
-  EXPLORER_TYPE_ADDR,
-  STREAM_STATUS_COLOR,
-  ProgramInstruction,
-  DEFAULT_DECIMAL_PLACES,
-} from "../../constants";
+import { EXPLORER_TYPE_ADDR, STREAM_STATUS_COLOR, DEFAULT_DECIMAL_PLACES } from "../../constants";
 import { StreamStatus } from "../../types";
 import {
   getExplorerLink,
@@ -35,13 +28,13 @@ import Badge from "./components/Badge";
 import Duration from "./components/Duration";
 import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
-import sendTransaction from "../../actions/sendTransaction";
+import { withdrawStream, topupStream, transferStream } from "../../api/transactions";
 
 interface StreamProps {
   data: StreamData;
   myAddress: string;
   id: string;
-  onCancel: () => Promise<boolean>;
+  onCancel: () => Promise<void>;
   onWithdraw: () => Promise<void>;
   onTopup: () => Promise<void>;
 }
@@ -53,6 +46,7 @@ const storeGetter = ({
   connection,
   wallet,
   token,
+  cluster,
 }: StoreType) => ({
   myTokenAccounts,
   updateStream,
@@ -60,6 +54,7 @@ const storeGetter = ({
   connection: connection(),
   wallet,
   token,
+  cluster,
 });
 
 const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
@@ -69,96 +64,78 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
 
 const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
   const {
-    start_time,
-    end_time,
+    start,
+    end,
     period,
     cliff,
-    cliff_amount,
-    withdrawn_amount,
-    net_deposited_amount,
-    canceled_at,
+    cliffAmount,
+    withdrawnAmount,
+    depositedAmount,
+    canceledAt,
     recipient,
-    stream_name,
+    name,
     sender,
     mint,
-    cancelable_by_sender,
-    cancelable_by_recipient,
-    transferable_by_sender,
-    transferable_by_recipient,
-    amount_per_period,
-    can_topup,
+    cancelableBySender,
+    cancelableByRecipient,
+    transferableBySender,
+    transferableByRecipient,
+    amountPerPeriod,
+    canTopup,
   } = data;
 
-  const address = mint.toBase58();
-  const { myTokenAccounts, connection, updateStream, deleteStream, token } = useStore(storeGetter);
-  const decimals = myTokenAccounts[address].uiTokenAmount.decimals;
-  const symbol = myTokenAccounts[address].info.symbol;
-  const isCliffDateAfterStart = cliff > start_time;
-  const isCliffAmount = cliff_amount.toNumber() > 0;
-  const isSender = myAddress === sender.toBase58();
-  const isRecipient = myAddress === recipient.toBase58();
+  const { myTokenAccounts, connection, updateStream, deleteStream, token, cluster, wallet } =
+    useStore(storeGetter);
+  const decimals = myTokenAccounts[mint].uiTokenAmount.decimals;
+  const symbol = myTokenAccounts[mint].info.symbol;
+  const isCliffDateAfterStart = cliff > start;
+  const isCliffAmount = cliffAmount > 0;
+  const isSender = myAddress === sender;
+  const isRecipient = myAddress === recipient;
 
-  const releaseFrequency = calculateReleaseFrequency(
-    period.toNumber(),
-    cliff.toNumber(),
-    end_time.toNumber()
-  );
+  const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   const withdrawModalRef = useRef<ModalRef>(null);
   const topupModalRef = useRef<ModalRef>(null);
   const transferModalRef = useRef<ModalRef>(null);
 
-  const status_enum = getStreamStatus(
-    canceled_at,
-    start_time,
-    end_time,
-    new BN(+new Date() / 1000)
-  );
-  const color = STREAM_STATUS_COLOR[status_enum];
+  const statusAtStart = getStreamStatus(canceledAt, start, end, +new Date() / 1000);
+  const color = STREAM_STATUS_COLOR[statusAtStart];
 
-  const [status, setStatus] = useState(status_enum);
+  const [status, setStatus] = useState(statusAtStart);
   const isCanceled = status === StreamStatus.canceled;
   const [streamed, setStreamed] = useState(
-    getStreamed(
-      end_time.toNumber(),
-      cliff.toNumber(),
-      cliff_amount.toNumber(),
-      net_deposited_amount.toNumber(),
-      period.toNumber(),
-      amount_per_period.toNumber()
-    )
+    getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod)
   );
 
-  const [available, setAvailable] = useState(streamed.toNumber() - withdrawn_amount.toNumber());
+  const [available, setAvailable] = useState(streamed - withdrawnAmount);
 
   const showWithdraw =
     (status === StreamStatus.streaming ||
-      (status === StreamStatus.complete &&
-        withdrawn_amount.toNumber() < net_deposited_amount.toNumber())) &&
+      (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
     isRecipient;
 
   const showCancelOnSender =
-    cancelable_by_sender &&
+    cancelableBySender &&
     isSender &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancelOnRecipient =
-    cancelable_by_recipient &&
+    cancelableByRecipient &&
     isRecipient &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
   const showCancel = showCancelOnSender || showCancelOnRecipient;
 
-  const showTransferOnSender =
-    transferable_by_sender && isSender && status !== StreamStatus.canceled;
+  const showTransferOnSender = transferableBySender && isSender && status !== StreamStatus.canceled;
 
   const showTransferOnRecipient =
-    transferable_by_recipient && isRecipient && status !== StreamStatus.canceled;
+    transferableByRecipient && isRecipient && status !== StreamStatus.canceled;
 
   const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
   const showTopup =
-    can_topup &&
+    canTopup &&
     isSender &&
     (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
@@ -166,13 +143,16 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
     if (!connection || !withdrawAmount) return;
 
-    const isWithdrawn = await sendTransaction(ProgramInstruction.Withdraw, {
-      stream: new PublicKey(id),
-      amount: new BN(withdrawAmount * 10 ** decimals),
-    });
+    const isWithdrawn = await withdrawStream(
+      { id, amount: withdrawAmount * 10 ** decimals },
+      connection,
+      // @ts-ignore
+      wallet,
+      cluster
+    );
 
     if (isWithdrawn) {
-      const stream = await Stream.getOne(connection, new PublicKey(id));
+      const stream = await Stream.getOne({ connection, id });
       if (stream) {
         onWithdraw();
         updateStream([id, stream]);
@@ -188,13 +168,16 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       topupAmount = 0;
     }
 
-    const isTopupped = await sendTransaction(ProgramInstruction.Topup, {
-      stream: new PublicKey(id),
-      amount: new BN(topupAmount * 10 ** decimals),
-    });
+    const isTopupped = await topupStream(
+      { id, amount: topupAmount * 10 ** decimals },
+      connection,
+      // @ts-ignore
+      wallet,
+      cluster
+    );
 
     if (isTopupped) {
-      const stream = await Stream.getOne(connection, new PublicKey(id));
+      const stream = await Stream.getOne({ connection, id });
       if (stream) {
         onTopup();
         updateStream([id, stream]);
@@ -203,40 +186,35 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   };
 
   async function handleTransfer() {
-    if (!connection) return;
-    const newRecipientAddress = await transferModalRef?.current?.show();
+    if (!connection || !wallet || !wallet?.publicKey) return;
+    const newRecipient = await transferModalRef?.current?.show();
 
-    if (newRecipientAddress !== undefined) {
-      if (!newRecipientAddress) {
+    if (newRecipient !== undefined) {
+      if (!newRecipient) {
         toast.error("You didn't provide the address.");
         return;
       }
 
-      if (
-        (isSender && newRecipientAddress === sender.toBase58()) ||
-        (isRecipient && newRecipientAddress === recipient.toBase58())
-      ) {
+      if ((isSender && newRecipient === sender) || (isRecipient && newRecipient === recipient)) {
         toast.error("You can't transfer stream to yourself.");
         return;
       }
 
-      try {
-        const newRecipient = new PublicKey(newRecipientAddress);
-        const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
-          stream: new PublicKey(id),
-          new_recipient: new PublicKey(newRecipient),
-        });
-        if (success) {
-          toast.success("Stream transferred to " + newRecipientAddress);
+      const response = await transferStream(
+        { id, recipientId: newRecipient },
+        connection,
+        // @ts-ignore
+        wallet,
+        cluster
+      );
 
-          if (isSender) {
-            const stream = await Stream.getOne(connection, new PublicKey(id));
-            updateStream([id, stream]);
-          } else deleteStream(id);
-        }
-      } catch (err) {
-        Sentry.captureException(err);
-        toast.error("Invalid address");
+      if (response) {
+        toast.success("Stream transferred to " + newRecipient);
+
+        if (isSender) {
+          const stream = await Stream.getOne({ connection, id });
+          updateStream([id, stream]);
+        } else deleteStream(id);
       }
     }
   }
@@ -244,24 +222,10 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   useEffect(() => {
     if (status === StreamStatus.scheduled || status === StreamStatus.streaming) {
       const interval = setInterval(() => {
-        setStreamed(
-          getStreamed(
-            end_time.toNumber(),
-            cliff.toNumber(),
-            cliff_amount.toNumber(),
-            net_deposited_amount.toNumber(),
-            period.toNumber(),
-            amount_per_period.toNumber()
-          )
-        );
-        setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
+        setStreamed(getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod));
+        setAvailable(streamed - withdrawnAmount);
 
-        const tmpStatus = updateStatus(
-          status,
-          start_time.toNumber(),
-          end_time.toNumber(),
-          canceled_at.toNumber()
-        );
+        const tmpStatus = updateStatus(status, start, end, canceledAt);
         if (tmpStatus !== status) {
           setStatus(tmpStatus);
         }
@@ -269,15 +233,15 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
       return () => clearInterval(interval);
     } else {
-      setAvailable(streamed.toNumber() - withdrawn_amount.toNumber());
+      setAvailable(streamed - depositedAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, streamed, withdrawn_amount]);
+  }, [status, streamed, withdrawnAmount]);
 
   useEffect(() => {
     if (status === StreamStatus.complete) {
-      setStreamed(net_deposited_amount);
-      setAvailable(net_deposited_amount.toNumber() - withdrawn_amount.toNumber());
+      setStreamed(depositedAmount);
+      setAvailable(depositedAmount - depositedAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
@@ -289,15 +253,15 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       >
         <Badge classes="col-span-full" type={status} color={color} />
         <Duration
-          start_time={start_time}
-          end_time={end_time}
-          canceled_at={canceled_at}
+          start={start}
+          end={end}
+          canceledAt={canceledAt}
           isCanceled={isCanceled}
           cliff={cliff}
           isAdvanced={isCliffDateAfterStart}
         />
         <p className="col-span-4 sm:col-span-3">Subject</p>
-        <p className="col-span-8 sm:col-span-9 text-gray-400 pt-0.5 capitalize">{stream_name}</p>
+        <p className="col-span-8 sm:col-span-9 text-gray-400 pt-0.5 capitalize">{name}</p>
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
           title={"Stream ID"}
@@ -306,13 +270,13 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         />
         <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5" />
         <Link
-          url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient.toBase58())}
+          url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
           title={"Recipient"}
           classes="col-span-4 sm:col-span-3 text-base"
           Icon={ExternalLinkIcon}
         />
         <Address
-          address={recipient.toBase58()}
+          address={recipient}
           classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5"
         />
         {isCliffAmount && (
@@ -324,7 +288,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
               } date`}</small>
             </dd>
             <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">{`${formatAmount(
-              cliff_amount.toNumber(),
+              cliffAmount,
               decimals,
               DEFAULT_DECIMAL_PLACES
             )} ${symbol}`}</dt>
@@ -342,31 +306,25 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           })}
         >
           {`${formatAmount(
-            can_topup
-              ? amount_per_period.toNumber()
-              : calculateReleaseRate(
-                  end_time.toNumber(),
-                  cliff.toNumber(),
-                  net_deposited_amount.toNumber(),
-                  cliff_amount.toNumber(),
-                  period.toNumber()
-                ),
+            canTopup
+              ? amountPerPeriod
+              : calculateReleaseRate(end, cliff, depositedAmount, cliffAmount, period),
             decimals,
             DEFAULT_DECIMAL_PLACES
           )} ${symbol} per ${formatPeriodOfTime(releaseFrequency)}`}
         </dt>
         <Progress
           title="Withdrawn"
-          value={withdrawn_amount.toNumber()}
-          max={net_deposited_amount}
+          value={withdrawnAmount}
+          max={depositedAmount}
           decimals={decimals}
           symbol={symbol}
         />
         {status === StreamStatus.canceled && (
           <Progress
             title="Returned"
-            value={net_deposited_amount.toNumber() - withdrawn_amount.toNumber()}
-            max={net_deposited_amount}
+            value={depositedAmount - withdrawnAmount}
+            max={depositedAmount}
             rtl={true}
             decimals={decimals}
             symbol={symbol}
@@ -379,14 +337,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
                 <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
                 <dt className="col-span-8 text-gray-400 text-sm">
                   {format(
-                    fromUnixTime(
-                      getNextUnlockTime(
-                        cliff.toNumber(),
-                        period.toNumber(),
-                        end_time.toNumber(),
-                        cliff_amount.toNumber()
-                      )
-                    ),
+                    fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)),
                     "ccc do MMM, yy HH:mm:ss"
                   )}
                 </dt>
@@ -394,8 +345,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
             )}
             <Progress
               title="Unlocked"
-              value={streamed.toNumber()}
-              max={net_deposited_amount}
+              value={streamed}
+              max={depositedAmount}
               decimals={decimals}
               symbol={symbol}
             />

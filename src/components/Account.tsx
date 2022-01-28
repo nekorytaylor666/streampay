@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState, FC } from "react";
 
-import { Cluster } from "@streamflow/timelock/dist/layout";
+import { Cluster } from "@streamflow/timelock";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
@@ -18,7 +18,7 @@ import {
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink, getTokenAmount } from "../utils/helpers";
 import { Address, Button, Link } from ".";
-import { cancel, initialize, getAirdrop } from "../actions/airdrop";
+import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
 const storeGetter = ({
   cluster,
