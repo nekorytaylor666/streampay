@@ -18,7 +18,7 @@ import {
 import useStore, { StoreType } from "../stores";
 import { getExplorerLink, getTokenAmount } from "../utils/helpers";
 import { Address, Button, Link } from ".";
-import { cancel, initialize, getAirdrop } from "../actions/airdrop";
+import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
 const storeGetter = ({
   cluster,
