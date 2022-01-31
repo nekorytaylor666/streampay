@@ -35,7 +35,7 @@ const useNetworkStore = (set: Function, get: Function): NetworkStore => ({
       : cluster;
   },
   setCluster: (cluster: Cluster): Dispatch<SetStateAction<{ cluster: Cluster }>> => {
-    get().persistStoreToLocalStorage();
+    // get().persistStoreToLocalStorage();
     return set({ cluster });
   },
 });

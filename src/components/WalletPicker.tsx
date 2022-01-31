@@ -1,4 +1,4 @@
-import { useMemo, useEffect, FC } from "react";
+import { useMemo, FC } from "react";
 
 import {
   getPhantomWallet,
@@ -13,8 +13,6 @@ import { Cluster } from "@streamflow/timelock";
 import useStore, { StoreType } from "../stores";
 import { WalletType } from "../types";
 import Button from "./Button";
-import { trackEvent } from "../utils/marketing_helpers";
-import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../constants";
 
 const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
   walletType,
@@ -57,8 +55,6 @@ const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => an
   }).then(setWalletType);
 };
 
-let walletInitialized = false;
-
 interface WalletPickerProps {
   classes: string;
   title: string;
@@ -77,27 +73,26 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
     [cluster]
   );
 
-  useEffect(() => {
-    if (walletInitialized) {
-      return;
-    }
-    walletInitialized = true;
+  // useEffect(() => {
+  //   if (walletType) return;
 
-    const type = localStorage.walletType;
-    if (type) {
-      const restoredWalletType = walletTypes.find((w) => w.name === type);
-      if (restoredWalletType) {
-        setWalletType(restoredWalletType);
-      }
-    }
-    trackEvent(
-      EVENT_CATEGORY.WALLET,
-      EVENT_ACTION.CONNECTED,
-      // localStorage.wallet?.publicKey?.toBase58(),
-      EVENT_LABEL.NONE,
-      0
-    );
-  }, [setWalletType, walletTypes]);
+  //   const type = localStorage.walletType;
+  //   if (!type || type === "undefined") return;
+
+  //   const restoredWalletType = walletTypes.find((w) => w.name === type);
+  //   if (restoredWalletType) {
+  //     setWalletType(restoredWalletType);
+
+  //     trackEvent(
+  //       EVENT_CATEGORY.WALLET,
+  //       EVENT_ACTION.CONNECTED,
+  //       // localStorage.wallet?.publicKey?.toBase58(),
+  //       EVENT_LABEL.NONE,
+  //       0
+  //     );
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <Button primary classes={classes} onClick={() => pickWallet(walletTypes, setWalletType)}>

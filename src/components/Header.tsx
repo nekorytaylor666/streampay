@@ -19,7 +19,7 @@ const Header = () => {
   return (
     <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">
       <div className="flex justify-between items-center">
-        <Logo src={logo} classes="mr-36" />
+        <Logo src={logo} classes="mr-10 lg:mr-36" />
         <Nav classes="hidden lg:block" />
         <div className="flex items-center">
           <Toggle
@@ -43,7 +43,7 @@ const Header = () => {
         setEnabled={() => {}}
         labelLeft="devnet"
         labelRight="mainnet"
-        classes="flex sm:hidden"
+        classes="flex sm:hidden justify-end mt-1"
         disabled
       />
     </div>

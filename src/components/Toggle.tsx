@@ -45,7 +45,7 @@ export default function Toggle({
         />
       </Switch>
       {labelRight && (
-        <Switch.Label as="span" className="mr-4 ml-2">
+        <Switch.Label as="span" className="sm:mr-3 lg:mr-4 ml-2">
           <span className="text-white text-sm sm:text-base flex-grow">{labelRight}</span>
         </Switch.Label>
       )}
