@@ -4,6 +4,8 @@ import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { WalletType } from "../types";
+import { trackEvent } from "../utils/marketing_helpers";
+import { EVENT_CATEGORY, EVENT_ACTION } from "../constants";
 
 interface WalletState {
   walletType: WalletType | null;
@@ -43,16 +45,17 @@ const walletStore: WalletStore = (set, get) => ({
     const state = get();
     if (walletType?.name === state.walletType?.name) return;
 
-    state.persistStoreToLocalStorage();
-
     const wallet = walletType?.adapter();
     if (wallet) {
       wallet.on("connect", async () => {
         set({ walletType, wallet });
+        // state.persistStoreToLocalStorage();
         toast.success("Wallet connected!");
+        trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECTED, wallet.publicKey.toBase58(), 0);
       });
       wallet.on("disconnect", () => {
         set({ walletType: null, wallet: null });
+        // state.persistStoreToLocalStorage();
         toast.info("Disconnected from wallet");
       });
       wallet.connect().catch((e: Error) => {

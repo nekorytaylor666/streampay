@@ -19,7 +19,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Banner title="This is a devnet version!" classes="top-0 left-0 w-full"></Banner>
+      <Banner title="You are on Streamflow devnet!" classes="top-0 left-0 w-full"></Banner>
       <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
         <Header />
         <Nav classes="block lg:hidden mb-2" />
