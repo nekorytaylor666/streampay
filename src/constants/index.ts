@@ -115,11 +115,12 @@ export const EVENT_CATEGORY = {
 };
 
 export const EVENT_ACTION = {
-  TRANSFERRED: "transferred",
-  CANCELED: "canceled",
-  TOPPED_UP: "topped_up",
-  WITHDRAWN: "withdrawn",
-  CONNECTED: "connected",
+  TRANSFER: "transfer",
+  CANCEL: "cancel",
+  TOP_UP: "top_up",
+  WITHDRAW: "withdraw",
+  CONNECT: "connect",
+  DISCONNECT: "disconnect",
 };
 
 export const EVENT_LABEL = {
@@ -133,11 +134,26 @@ export const EVENT_TYPE = {
 };
 
 export const TRANSACTION_VARIANT = {
-  CREATED: "created",
-  TOPPED_UP: "topped_up",
+  CREATE_VESTING: "create_vesting",
+  CREATE_STREAM: "create_stream",
+  TOP_UP_STREAM: "top_up_stream",
 };
 
-export const STREAMFLOW_WEB_V1_AFFILIATION = "streamflow_web_v1";
-export const STREAMFLOW_WEB_V2_AFFILIATION = "streamflow_web_v2";
-export const DEFAULT_PURCHASE_CURRENCY = "USD";
-export const USD_PEGGED_COINS = ["USDT", "USDC"];
+export const AFFILIATION = {
+  FREE: "free",
+  APP: "app",
+};
+export const DEFAULT_GA_PURCHASE_CURRENCY = "USD";
+export const USD_PEGGED_COINS = ["USDT", "USDC", "STRM"];
+
+export const DATA_LAYER_VARIABLE = {
+  WALLET_TYPE: "walletType",
+  TOKEN_FEE: "tokenFee",
+  TOKEN_SYMBOL: "tokenSymbol",
+  STREAM_ADDRESS: "streamAddress",
+  TOKEN_WITHDRAW_USD: "tokenWithdrawUsd",
+  STREAMFLOW_FEE_USD: "streamflowFeeUsd",
+  STREAMFLOW_FEE_TOKEN: "streamflowFeeToken",
+  TOTAL_AMOUNT_TOKEN: "totalAmountToken",
+  TOTAL_AMOUNT_USD: "totalAmountUsd",
+};

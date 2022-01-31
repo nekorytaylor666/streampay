@@ -8,7 +8,7 @@ import Stream from "@streamflow/timelock";
 
 import { StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
-import { EVENT_ACTION, EVENT_CATEGORY } from "../constants";
+import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
@@ -21,10 +21,12 @@ const storeGetter = (state: StoreType) => ({
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
   cluster: state.cluster,
+  walletType: state.walletType,
 });
 
 const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
@@ -46,10 +48,12 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     addStreams: addStreamsToStore,
     clearStreams,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     setToken,
     cluster,
+    walletType,
   } = useStore(storeGetter);
   const updateToken = async () => {
     const address = token.info.address;
@@ -84,14 +88,22 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
     if (isCancelled) {
       const stream = await Stream.getOne({ connection, id });
+      const cancelledAmount = stream.depositedAmount - stream.withdrawnAmount;
       if (stream) {
         updateToken();
         updateStream([id, stream]);
         trackEvent(
           EVENT_CATEGORY.STREAM,
-          EVENT_ACTION.CANCELED,
+          EVENT_ACTION.CANCEL,
           wallet?.publicKey?.toBase58() as string,
-          0
+          (cancelledAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+          {
+            [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: token.info.symbol,
+            [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
+            [DATA_LAYER_VARIABLE.TOKEN_FEE]:
+              (cancelledAmount * 0.0025) / 10 ** token.uiTokenAmount.decimals,
+            [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+          }
         );
       }
     }

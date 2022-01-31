@@ -20,7 +20,6 @@ import {
 import { StringOption } from "../../types";
 import Overview from "./Overview";
 import { trackTransaction } from "../../utils/marketing_helpers";
-import { fetchTokenPrice } from "../../api";
 
 interface StreamsFormProps {
   loading: boolean;
@@ -32,6 +31,7 @@ const storeGetter = (state: StoreType) => ({
   wallet: state.wallet,
   cluster: state.cluster,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   addStream: state.addStream,
@@ -43,6 +43,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     connection,
     wallet,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     addStream,
@@ -188,15 +189,16 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
-      const totalDepositedAmount = depositedAmount * tokenPriceUSD;
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
-        TRANSACTION_VARIANT.CREATED,
-        totalDepositedAmount * 0.0025,
-        totalDepositedAmount
+        TRANSACTION_VARIANT.CREATE_STREAM,
+        (response.data.streamflowFeeTotal * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+        response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals,
+        depositedAmount / 10 ** token.uiTokenAmount.decimals,
+        (depositedAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+        localStorage.walletType.name
       );
     }
   };

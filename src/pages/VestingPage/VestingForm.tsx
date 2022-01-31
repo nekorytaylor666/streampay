@@ -19,7 +19,6 @@ import {
 import { createStream } from "../../api/transactions";
 import { StringOption } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
-import { fetchTokenPrice } from "../../api";
 import { trackTransaction } from "../../utils/marketing_helpers";
 
 interface VestingFormProps {
@@ -30,7 +29,9 @@ interface VestingFormProps {
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
+  walletType: state.walletType,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   addStream: state.addStream,
@@ -42,7 +43,9 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const {
     connection,
     wallet,
+    walletType,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     addStream,
@@ -144,8 +147,9 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     if (!wallet) setTokenOptions([]);
   }, [wallet]);
 
-  const updateToken = (tokenSymbol: string) => {
+  const updateToken = async (tokenSymbol: string) => {
     const token = Object.values(myTokenAccounts).find(({ info }) => info.symbol === tokenSymbol);
+
     if (token) setToken(token);
   };
 
@@ -224,15 +228,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
-      const totalDepositedAmount = amount * tokenPriceUSD;
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
-        TRANSACTION_VARIANT.CREATED,
-        totalDepositedAmount * 0.0025,
-        totalDepositedAmount
+        TRANSACTION_VARIANT.CREATE_VESTING,
+        (response.data.streamflowFeeTotal * tokenPriceUsd) / 10 ** decimals,
+        response.data.streamflowFeeTotal / 10 ** decimals,
+        response.data.depositedAmount / 10 ** decimals,
+        (response.data.depositedAmount * tokenPriceUsd) / 10 ** decimals,
+        walletType?.name
       );
     }
   };
