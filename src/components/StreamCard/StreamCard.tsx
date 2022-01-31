@@ -215,15 +215,16 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onTopup();
         updateStream([id, stream]);
       }
+      console.log(topupAmount);
       trackTransaction(
         id,
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.TOP_UP_STREAM,
-        (stream.streamflowFeeTotal * tokenPriceUsd) / 10 ** decimals,
-        stream.streamflowFeeTotal / 10 ** decimals,
-        stream.depositedAmount / 10 ** decimals,
-        (stream.depositedAmount * tokenPriceUsd) / 10 ** decimals,
+        topupAmount * 0.0025 * tokenPriceUsd,
+        topupAmount * 0.0025,
+        topupAmount,
+        topupAmount * tokenPriceUsd,
         walletType?.name
       );
     }
