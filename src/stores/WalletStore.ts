@@ -56,9 +56,6 @@ const walletStore: WalletStore = (set, get) => ({
         });
       });
       wallet.on("disconnect", () => {
-        trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.DISCONNECT, "", 0, {
-          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
-        });
         set({ walletType: null, wallet: null });
         // state.persistStoreToLocalStorage();
         toast.info("Disconnected from wallet");
@@ -76,9 +73,12 @@ const walletStore: WalletStore = (set, get) => ({
     }
   },
   disconnectWallet: () => {
-    const state = get();
-    state.wallet?.disconnect();
-    state.setWalletType(null);
+    const { wallet, walletType, setWalletType } = get();
+    trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.DISCONNECT, wallet.publicKey.toBase58(), 0, {
+      [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+    });
+    wallet?.disconnect();
+    setWalletType(null);
   },
 });
 

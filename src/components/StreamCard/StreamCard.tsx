@@ -178,6 +178,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onWithdraw();
         updateStream([id, stream]);
       }
+
       trackEvent(
         data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
         EVENT_ACTION.WITHDRAW,
@@ -186,7 +187,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         {
           [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: token.info.symbol,
           [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
-          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawAmount * tokenPriceUsd * 10 ** decimals,
+          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]:
+            (stream.withdrawnAmount * tokenPriceUsd) / 10 ** decimals,
           [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
         }
       );

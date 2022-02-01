@@ -29,6 +29,7 @@ interface StreamsFormProps {
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
+  walletType: state.walletType,
   cluster: state.cluster,
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
@@ -42,6 +43,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const {
     connection,
     wallet,
+    walletType,
     token,
     tokenPriceUsd,
     myTokenAccounts,
@@ -147,7 +149,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       recipientCanTransfer,
     } = values;
 
-    if (!wallet?.publicKey || !connection) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -196,9 +198,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         TRANSACTION_VARIANT.CREATE_STREAM,
         (response.data.streamflowFeeTotal * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
         response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals,
-        depositedAmount / 10 ** token.uiTokenAmount.decimals,
-        (depositedAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
-        localStorage.walletType.name
+        response.data.depositedAmount / 10 ** token.uiTokenAmount.decimals,
+        (response.data.depositedAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+        walletType.name
       );
     }
   };

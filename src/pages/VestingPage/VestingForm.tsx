@@ -147,9 +147,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     if (!wallet) setTokenOptions([]);
   }, [wallet]);
 
-  const updateToken = async (tokenSymbol: string) => {
+  const updateToken = (tokenSymbol: string) => {
     const token = Object.values(myTokenAccounts).find(({ info }) => info.symbol === tokenSymbol);
-
     if (token) setToken(token);
   };
 
@@ -173,7 +172,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliffAmount,
     } = values;
 
-    if (!wallet?.publicKey || !connection) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -237,7 +236,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         response.data.streamflowFeeTotal / 10 ** decimals,
         response.data.depositedAmount / 10 ** decimals,
         (response.data.depositedAmount * tokenPriceUsd) / 10 ** decimals,
-        walletType?.name
+        walletType.name
       );
     }
   };
