@@ -6,7 +6,6 @@ import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import { toast } from "react-toastify";
-// import * as Sentry from "@sentry/react";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -21,13 +20,7 @@ import {
   formatPeriodOfTime,
   roundAmount,
 } from "../../utils/helpers";
-import {
-  getStreamStatus,
-  getStreamed,
-  updateStatus,
-  calculateReleaseRate,
-  getNextUnlockTime,
-} from "./helpers";
+import { getStreamStatus, getStreamed, updateStatus, getNextUnlockTime } from "./helpers";
 import { Address, Link, Button, Modal, ModalRef } from "../index";
 import Badge from "./components/Badge";
 import Duration from "./components/Duration";
@@ -329,9 +322,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           })}
         >
           {`${formatAmount(
-            canTopup
-              ? amountPerPeriod
-              : calculateReleaseRate(end, cliff, depositedAmount, cliffAmount, period),
+            amountPerPeriod,
             decimals,
             DEFAULT_DECIMAL_PLACES
           )} ${symbol} per ${formatPeriodOfTime(releaseFrequency)}`}
