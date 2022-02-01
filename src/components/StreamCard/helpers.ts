@@ -57,8 +57,9 @@ export const calculateReleaseRate = (
   period: number
 ): number => {
   const amount = depositedAmount - cliffAmount;
-  const numberOfReleases = (end - cliff) / period;
-  return numberOfReleases > 1 ? amount / numberOfReleases : amount;
+  const numberOfReleases = Math.floor((end - cliff) / period);
+  console.log("rate", numberOfReleases > 1 ? Math.ceil(amount / numberOfReleases) : amount);
+  return numberOfReleases > 1 ? Math.ceil(amount / numberOfReleases) : amount;
 };
 
 export const getNextUnlockTime = (
