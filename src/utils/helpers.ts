@@ -188,3 +188,26 @@ export const didTokenOptionsChange = (
 
   return compare2Arrays(previousValues, newValues);
 };
+
+export const calculateEndTimeLikeOnBE = ({
+  cliff,
+  depositedAmount,
+  cliffAmount,
+  amountPerPeriod,
+  period,
+}: {
+  cliff: number;
+  depositedAmount: number;
+  cliffAmount: number;
+  amountPerPeriod: number;
+  period: number;
+}): number => {
+  if (!cliff || !depositedAmount || !Math.floor(amountPerPeriod) || !period) return 0;
+
+  const cliffAmountCalculated = Math.floor((+cliffAmount / 100) * depositedAmount);
+  const periodsLeft = Math.floor((depositedAmount - cliffAmountCalculated) / amountPerPeriod);
+
+  const secondsLeft = periodsLeft * period;
+
+  return cliff + secondsLeft * 1000;
+};

@@ -27,7 +27,6 @@ export const createStream = async (
     }
 
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-
     const response = await Stream.create({ ...data, sender: wallet, connection, cluster });
 
     const url = getExplorerLink("tx", response.tx); // TODO print transaction here.

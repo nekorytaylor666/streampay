@@ -84,7 +84,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     amountPerPeriod,
     canTopup,
   } = data;
-
   const { myTokenAccounts, connection, updateStream, deleteStream, token, cluster, wallet } =
     useStore(storeGetter);
   const decimals = myTokenAccounts[mint].uiTokenAmount.decimals;
