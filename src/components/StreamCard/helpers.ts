@@ -70,8 +70,8 @@ export const getNextUnlockTime = (
   const currentTime = getUnixTime(new Date());
   if (currentTime <= cliff) return cliffAmount > 0 ? cliff : cliff + period;
 
-  const numberOfPeriods = Math.ceil((currentTime - end) / period);
+  const numberOfPeriods = Math.ceil((currentTime - cliff) / period);
   const nextUnlockTime = cliff + numberOfPeriods * period;
 
-  return nextUnlockTime <= cliff ? nextUnlockTime : end;
+  return nextUnlockTime <= end ? nextUnlockTime : end;
 };
