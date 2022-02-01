@@ -45,7 +45,7 @@ const Overview: React.FC<OverviewProps> = ({
     amountPerPeriod: (releaseRate * amount * 10 ** 9) / 100,
   });
 
-  const showEndTimeTooltip = end && endTimeFromBE && end.getDate() !== endTimeFromBE;
+  const showEndTimeTooltip = end && endTimeFromBE && end.getTime() !== endTimeFromBE;
 
   return (
     <div className="col-span-full mt-4 leading-6">
