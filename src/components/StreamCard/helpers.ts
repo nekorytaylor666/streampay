@@ -57,8 +57,8 @@ export const calculateReleaseRate = (
   period: number
 ): number => {
   const amount = depositedAmount - cliffAmount;
-  const numberOfReleases = (end - cliff) / period;
-  return numberOfReleases > 1 ? amount / numberOfReleases : amount;
+  const numberOfReleases = Math.floor((end - cliff) / period);
+  return numberOfReleases > 1 ? Math.ceil(amount / numberOfReleases) : amount;
 };
 
 export const getNextUnlockTime = (
@@ -70,8 +70,8 @@ export const getNextUnlockTime = (
   const currentTime = getUnixTime(new Date());
   if (currentTime <= cliff) return cliffAmount > 0 ? cliff : cliff + period;
 
-  const numberOfPeriods = Math.ceil((currentTime - end) / period);
+  const numberOfPeriods = Math.ceil((currentTime - cliff) / period);
   const nextUnlockTime = cliff + numberOfPeriods * period;
 
-  return nextUnlockTime <= cliff ? nextUnlockTime : end;
+  return nextUnlockTime <= end ? nextUnlockTime : end;
 };

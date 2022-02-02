@@ -16,7 +16,7 @@ import { trackEvent } from "../utils/marketing_helpers";
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
   addStream: state.addStream,
-  addStreams: state.addStreams,
+  populateStreams: state.populateStreams,
   updateStream: state.updateStream,
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
@@ -45,7 +45,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const {
     streams,
     updateStream,
-    addStreams: addStreamsToStore,
+    populateStreams,
     clearStreams,
     token,
     tokenPriceUsd,
@@ -76,7 +76,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
         wallet: wallet.publicKey as PublicKey,
         cluster,
       });
-      addStreamsToStore(allStreams);
+      populateStreams(allStreams);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

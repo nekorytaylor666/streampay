@@ -6,7 +6,6 @@ import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import { toast } from "react-toastify";
-// import * as Sentry from "@sentry/react";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -22,13 +21,7 @@ import {
   formatPeriodOfTime,
   roundAmount,
 } from "../../utils/helpers";
-import {
-  getStreamStatus,
-  getStreamed,
-  updateStatus,
-  calculateReleaseRate,
-  getNextUnlockTime,
-} from "./helpers";
+import { getStreamStatus, getStreamed, updateStatus, getNextUnlockTime } from "./helpers";
 import { Address, Link, Button, Modal, ModalRef } from "../index";
 import Badge from "./components/Badge";
 import Duration from "./components/Duration";
@@ -96,17 +89,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     canTopup,
   } = data;
 
-  const {
-    myTokenAccounts,
-    connection,
-    updateStream,
-    deleteStream,
-    token,
-    tokenPriceUsd,
-    cluster,
-    wallet,
-    walletType,
-  } = useStore(storeGetter);
+  const { myTokenAccounts, connection, updateStream, deleteStream, token, tokenPriceUsd, cluster, wallet, walletType } =
+    useStore(storeGetter);
   const decimals = myTokenAccounts[mint].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[mint].info.symbol;
   const isCliffDateAfterStart = cliff > start;
@@ -353,9 +337,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           })}
         >
           {`${formatAmount(
-            canTopup
-              ? amountPerPeriod
-              : calculateReleaseRate(end, cliff, depositedAmount, cliffAmount, period),
+            amountPerPeriod,
             decimals,
             DEFAULT_DECIMAL_PLACES
           )} ${symbol} per ${formatPeriodOfTime(releaseFrequency)}`}
@@ -397,11 +379,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
               decimals={decimals}
               symbol={symbol}
             />
-            {showTopup && (
-              <Button onClick={handleTopup} primary classes="col-span-3 text-sm py-1 w-full">
-                Top Up
-              </Button>
-            )}
             {showWithdraw && (
               <>
                 <dd className="col-span-4">
@@ -412,14 +389,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
                 <dt className="col-span-8 pt-1.5">
                   ~ {formatAmount(available, decimals, DEFAULT_DECIMAL_PLACES)} {symbol}
                 </dt>
-                <Button
-                  onClick={handleWithdraw}
-                  background={STREAM_STATUS_COLOR[StreamStatus.streaming]}
-                  classes="col-span-3 text-sm py-1 w-full"
-                >
-                  Withdraw
-                </Button>
               </>
+            )}
+            {showTopup && (
+              <Button onClick={handleTopup} primary classes="col-span-3 text-sm py-1 w-full">
+                Top Up
+              </Button>
             )}
             {showTransfer && (
               <Button
@@ -438,6 +413,17 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
               >
                 Cancel
               </Button>
+            )}
+            {showWithdraw && (
+              <>
+                <Button
+                  onClick={handleWithdraw}
+                  background={STREAM_STATUS_COLOR[StreamStatus.streaming]}
+                  classes="col-span-3 text-sm py-1 w-full"
+                >
+                  Withdraw
+                </Button>
+              </>
             )}
           </>
         )}
