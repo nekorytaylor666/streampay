@@ -201,7 +201,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onTopup();
         updateStream([id, stream]);
       }
-      console.log(topupAmount);
       trackTransaction(
         id,
         token.info.symbol,
