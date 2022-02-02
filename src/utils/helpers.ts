@@ -7,6 +7,7 @@ import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 import { format } from "date-fns";
 import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock";
+import BN from "bn.js";
 
 import useStore from "../stores";
 import { StringOption } from "../types";
@@ -125,17 +126,25 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
   return token.value[0].account.data.parsed.info.tokenAmount;
 };
 
-export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) => {
-  return amount.toFixed(decimalPlaces || decimals);
-};
+export const formatAmount = (amount: BN, decimals: number, decimalPlaces?: number) =>
+  amount > new BN(2 ^ (53 - 1))
+    ? amount
+        .div(new BN(10 ** decimals))
+        .toNumber()
+        .toFixed(decimalPlaces || decimals)
+    : (amount.toNumber() / 10 ** 9).toFixed(decimalPlaces || decimals);
 
 export const roundAmount = (
-  amount: number,
+  amount: BN,
   decimals: number,
   decimalPlaces = DEFAULT_DECIMAL_PLACES
 ) => {
-  const tens = 10 ** decimalPlaces;
-  return Math.round(amount * tens) / tens;
+  const tens = 10 ** decimals;
+  const amountInCoins = amount.gt(new BN(2 ^ (53 - 1)))
+    ? amount.div(new BN(tens)).toNumber()
+    : amount.toNumber() / tens;
+
+  return Math.round(amountInCoins * 10 ** decimalPlaces) / 10 ** decimalPlaces;
 };
 
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");

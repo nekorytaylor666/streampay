@@ -18,9 +18,6 @@ const App = () => {
     history.listen(trackPageView);
   }, [history]);
 
-  const broj = new BN(35000000).mul(new BN(10 ** 9));
-  console.log("mul bn", broj);
-  console.log("mul bn", broj.div(new BN(10 ** 9)).toNumber());
   return (
     <div className="min-h-screen flex flex-col">
       <Banner title="You are on Streamflow devnet!" classes="top-0 left-0 w-full"></Banner>

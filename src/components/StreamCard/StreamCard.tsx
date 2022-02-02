@@ -243,12 +243,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       }
     }
   }
-  console.log("amount", amountPerPeriod);
+
   useEffect(() => {
     if (status === StreamStatus.scheduled || status === StreamStatus.streaming) {
       const interval = setInterval(() => {
         setStreamed(getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod));
-        setAvailable(streamed - withdrawnAmount);
+        setAvailable(streamed.sub(withdrawnAmount));
 
         const tmpStatus = updateStatus(status, start, end, canceledAt);
         if (tmpStatus !== status) {
@@ -258,7 +258,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
       return () => clearInterval(interval);
     } else {
-      setAvailable(streamed - withdrawnAmount);
+      setAvailable(streamed.mul(withdrawnAmount));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, streamed, withdrawnAmount, canceledAt]);
@@ -266,7 +266,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   useEffect(() => {
     if (status === StreamStatus.complete) {
       setStreamed(depositedAmount);
-      setAvailable(depositedAmount - withdrawnAmount);
+      setAvailable(depositedAmount.sub(withdrawnAmount));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
@@ -346,7 +346,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         {status === StreamStatus.canceled && (
           <Progress
             title="Returned"
-            value={depositedAmount - withdrawnAmount}
+            value={depositedAmount.sub(withdrawnAmount)}
             max={depositedAmount}
             rtl={true}
             decimals={decimals}

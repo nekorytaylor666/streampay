@@ -22,12 +22,13 @@ export function getStreamed(
   cliffAmount: BN,
   depositedAmount: BN,
   period: number,
-  releaseRate: number
+  releaseRate: BN
 ): BN {
   const currentTime = getUnixTime(new Date());
   if (currentTime < cliffTime) return new BN(0);
   if (currentTime > endTime) return depositedAmount;
-  const streamed = cliffAmount + Math.floor((currentTime - cliffTime) / period) * releaseRate;
+
+  const streamed = cliffAmount.add(new BN((currentTime - cliffTime) / period)).mul(releaseRate);
 
   return streamed < depositedAmount ? streamed : depositedAmount;
 }
@@ -66,10 +67,10 @@ export const getNextUnlockTime = (
   cliff: number,
   period: number,
   end: number,
-  cliffAmount: number
+  cliffAmount: BN
 ): number => {
   const currentTime = getUnixTime(new Date());
-  if (currentTime <= cliff) return cliffAmount > 0 ? cliff : cliff + period;
+  if (currentTime <= cliff) return cliffAmount.gt(new BN(0)) ? cliff : cliff + period;
 
   const numberOfPeriods = Math.ceil((currentTime - cliff) / period);
   const nextUnlockTime = cliff + numberOfPeriods * period;
