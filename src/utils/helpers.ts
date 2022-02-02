@@ -126,7 +126,7 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
 };
 
 export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
-  (amount / 10 ** decimals).toFixed(decimalPlaces || decimals);
+  amount.toFixed(decimalPlaces || decimals);
 
 export const roundAmount = (
   amount: number,
@@ -134,7 +134,7 @@ export const roundAmount = (
   decimalPlaces = DEFAULT_DECIMAL_PLACES
 ) => {
   const tens = 10 ** decimalPlaces;
-  return Math.round((amount / 10 ** decimals) * tens) / tens;
+  return Math.round(amount * tens) / tens;
 };
 
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");

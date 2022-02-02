@@ -1,4 +1,6 @@
 import { getUnixTime } from "date-fns";
+import BN from "bn.js";
+import { Stream } from "@streamflow/timelock";
 
 import { StreamStatus } from "../../types";
 
@@ -75,3 +77,11 @@ export const getNextUnlockTime = (
 
   return nextUnlockTime <= end ? nextUnlockTime : end;
 };
+
+export const formatStreamData = (data: Stream, decimals: number): any => ({
+  ...data,
+  depositedAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
+  cliffAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
+  amountPerPeriod: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
+  withdrawnAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
+});
