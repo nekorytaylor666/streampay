@@ -145,7 +145,7 @@ const Stream: FC<StreamProps> = ({ data, myAddress, id, onCancel, onTransfer, on
     }
     trackEvent(
       EVENT_CATEGORY.VESTING,
-      EVENT_ACTION.WITHDRAWN,
+      EVENT_ACTION.WITHDRAW,
       recipient.toBase58(),
       withdrawAmount * (await fetchTokenPrice(symbol))
     );

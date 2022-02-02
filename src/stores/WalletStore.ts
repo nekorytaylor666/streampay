@@ -4,6 +4,8 @@ import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { WalletType } from "../types";
+import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
+import { trackEvent } from "../utils/marketing_helpers";
 
 interface WalletState {
   walletType: WalletType | null;
@@ -50,6 +52,9 @@ const walletStore: WalletStore = (set, get) => ({
       wallet.on("connect", async () => {
         set({ walletType, wallet });
         toast.success("Wallet connected!");
+        trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECT, wallet.publicKey.toBase58(), 0, {
+          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+        });
       });
       wallet.on("disconnect", () => {
         set({ walletType: null, wallet: null });
@@ -68,9 +73,12 @@ const walletStore: WalletStore = (set, get) => ({
     }
   },
   disconnectWallet: () => {
-    const state = get();
-    state.wallet?.disconnect();
-    state.setWalletType(null);
+    const { wallet, walletType, setWalletType } = get();
+    trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.DISCONNECT, wallet.publicKey.toBase58(), 0, {
+      [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+    });
+    wallet?.disconnect();
+    setWalletType(null);
   },
 });
 
