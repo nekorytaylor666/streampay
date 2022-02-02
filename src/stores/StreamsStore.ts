@@ -2,6 +2,7 @@ import { Stream as StreamData } from "@streamflow/timelock";
 
 interface StreamStore {
   streams: [string, StreamData][];
+  populateStreams: (streams: [string, StreamData][]) => void;
   addStream: (stream: [string, StreamData]) => void;
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;
@@ -14,6 +15,7 @@ const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
 
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
   streams: [],
+  populateStreams: (streams) => set({ streams: sortStreams(streams) }),
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),
   addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
   updateStream: (updatedStream) => {

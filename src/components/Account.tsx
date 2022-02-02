@@ -62,6 +62,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     myTokenAccounts,
     setToken,
   } = useStore(storeGetter);
+
   const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
   const hideAirdrop =
     isMainnet || AIRDROP_WHITELIST.indexOf(wallet?.publicKey?.toBase58() as string) === -1;
