@@ -3,6 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
+import BN from "bn.js";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -153,14 +154,14 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     const start = getUnixTime(new Date(startDate + "T" + startTime));
 
     const data = {
-      depositedAmount: depositedAmount * 10 ** token.uiTokenAmount.decimals,
+      depositedAmount: new BN(depositedAmount).mul(new BN(10 ** token.uiTokenAmount.decimals)),
       recipient: recipient,
       mint: token.info.address,
       start,
       period: releaseFrequencyCounter * releaseFrequencyPeriod,
       cliff: start,
-      cliffAmount: 0,
-      amountPerPeriod: releaseAmount * 10 ** token.uiTokenAmount.decimals,
+      cliffAmount: new BN(0),
+      amountPerPeriod: new BN(releaseAmount).mul(new BN(10 ** token.uiTokenAmount.decimals)),
       name: subject,
       cancelableBySender: senderCanCancel,
       cancelableByRecipient: recipientCanCancel,

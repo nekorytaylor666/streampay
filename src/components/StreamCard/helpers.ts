@@ -1,6 +1,6 @@
 import { getUnixTime } from "date-fns";
 import BN from "bn.js";
-import { Stream } from "@streamflow/timelock";
+// import { Stream } from "@streamflow/timelock";
 
 import { StreamStatus } from "../../types";
 
@@ -19,15 +19,14 @@ export function getStreamStatus(
 export function getStreamed(
   endTime: number,
   cliffTime: number,
-  cliffAmount: number,
-  depositedAmount: number,
+  cliffAmount: BN,
+  depositedAmount: BN,
   period: number,
   releaseRate: number
-): number {
+): BN {
   const currentTime = getUnixTime(new Date());
-  if (currentTime < cliffTime) return 0;
+  if (currentTime < cliffTime) return new BN(0);
   if (currentTime > endTime) return depositedAmount;
-
   const streamed = cliffAmount + Math.floor((currentTime - cliffTime) / period) * releaseRate;
 
   return streamed < depositedAmount ? streamed : depositedAmount;
@@ -54,13 +53,13 @@ export function updateStatus(
 export const calculateReleaseRate = (
   end: number,
   cliff: number,
-  depositedAmount: number,
-  cliffAmount: number,
+  depositedAmount: BN,
+  cliffAmount: BN,
   period: number
-): number => {
-  const amount = depositedAmount - cliffAmount;
-  const numberOfReleases = Math.floor((end - cliff) / period);
-  return numberOfReleases > 1 ? Math.ceil(amount / numberOfReleases) : amount;
+): BN => {
+  const amount = depositedAmount.sub(cliffAmount);
+  const numberOfReleases = (end - cliff) / period;
+  return numberOfReleases > 1 ? amount.div(new BN(numberOfReleases)) : amount;
 };
 
 export const getNextUnlockTime = (
@@ -78,10 +77,23 @@ export const getNextUnlockTime = (
   return nextUnlockTime <= end ? nextUnlockTime : end;
 };
 
-export const formatStreamData = (data: Stream, decimals: number): any => ({
-  ...data,
-  depositedAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
-  cliffAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
-  amountPerPeriod: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
-  withdrawnAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
-});
+// export const formatStreamData = (data: Stream, decimals: number): any => {
+//   console.log("amountPerPeriod", data.amountPerPeriod.toNumber());
+//   console.log("per perios", data.amountPerPeriod.div(new BN(10 ** decimals)).toNumber());
+//   let depositedAmountPeriod;
+//   let amountPerPeriod;
+//   let withdrawnAmount;
+//   let cliffAmount;
+
+//   try {
+//     depositedAmount
+//   } catch {}
+
+//   return {
+//     ...data,
+//     depositedAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
+//     cliffAmount: data.cliffAmount.div(new BN(10 ** decimals)).toNumber(),
+//     amountPerPeriod: data.amountPerPeriod.div(new BN(10 ** decimals)).toNumber(),
+//     withdrawnAmount: data.withdrawnAmount.div(new BN(10 ** decimals)).toNumber(),
+//   };
+// };

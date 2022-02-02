@@ -3,6 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
+import BN from "bn.js";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -177,17 +178,17 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const end = getUnixTime(new Date(endDate + "T" + endTime));
     const decimals = token.uiTokenAmount.decimals;
     const cliff = advanced ? getUnixTime(new Date(cliffDate + "T" + cliffTime)) : start;
-    const cliffAmountCalculated = (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** decimals;
+    const cliffAmountCalculated = new BN((cliffAmount / 100) * amount).mul(new BN(10 ** decimals));
     const amountPerPeriod = calculateReleaseRate(
       end,
       cliff,
-      amount * 10 ** decimals,
+      new BN(amount).mul(new BN(10 ** decimals)),
       cliffAmountCalculated,
       releaseFrequencyCounter * releaseFrequencyPeriod
     );
 
     const data = {
-      depositedAmount: amount * 10 ** decimals,
+      depositedAmount: new BN(amount).mul(new BN(10 ** decimals)),
       recipient: recipient,
       mint: token.info.address,
       start,

@@ -26,7 +26,7 @@ import {
   getStreamed,
   updateStatus,
   getNextUnlockTime,
-  formatStreamData,
+  // formatStreamData,
 } from "./helpers";
 import { Address, Link, Button, Modal, ModalRef } from "../index";
 import Badge from "./components/Badge";
@@ -94,12 +94,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     transferableByRecipient,
     amountPerPeriod,
     canTopup,
-  } = formatStreamData(data, decimals);
+  } = data;
 
   const symbol = myTokenAccounts[mint].info.symbol;
   const isCliffDateAfterStart = cliff > start;
-  console.log("cliff", cliffAmount);
-  const isCliffAmount = cliffAmount > 0;
+  // console.log("cliff", cliffAmount);
+  const isCliffAmount = cliffAmount.gt(new BN(0));
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
 
@@ -118,7 +118,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod)
   );
 
-  const [available, setAvailable] = useState(streamed - withdrawnAmount);
+  const [available, setAvailable] = useState(streamed.sub(withdrawnAmount));
 
   const showWithdraw =
     (status === StreamStatus.streaming ||
@@ -243,7 +243,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       }
     }
   }
-
+  console.log("amount", amountPerPeriod);
   useEffect(() => {
     if (status === StreamStatus.scheduled || status === StreamStatus.streaming) {
       const interval = setInterval(() => {

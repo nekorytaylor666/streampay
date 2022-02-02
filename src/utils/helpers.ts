@@ -125,8 +125,9 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
   return token.value[0].account.data.parsed.info.tokenAmount;
 };
 
-export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
-  amount.toFixed(decimalPlaces || decimals);
+export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) => {
+  return amount.toFixed(decimalPlaces || decimals);
+};
 
 export const roundAmount = (
   amount: number,

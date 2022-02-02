@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import BN from "bn.js";
 
 import { trackPageView } from "./utils/marketing_helpers";
 import { Footer, Header, Nav, Banner } from "./components";
@@ -17,6 +18,9 @@ const App = () => {
     history.listen(trackPageView);
   }, [history]);
 
+  const broj = new BN(35000000).mul(new BN(10 ** 9));
+  console.log("mul bn", broj);
+  console.log("mul bn", broj.div(new BN(10 ** 9)).toNumber());
   return (
     <div className="min-h-screen flex flex-col">
       <Banner title="You are on Streamflow devnet!" classes="top-0 left-0 w-full"></Banner>
