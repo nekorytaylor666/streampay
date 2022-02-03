@@ -267,7 +267,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
-  // console.log("end from be", end);
+
   return (
     <>
       <dl

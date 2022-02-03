@@ -203,9 +203,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       automaticWithdrawal: false,
       canTopup: false,
     };
-    console.log("deposited", data.depositedAmount.toNumber());
-    console.log("cliff", data.cliffAmount.toNumber());
-    console.log("amountPerPeriod", data.amountPerPeriod.toNumber());
+
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
     if (!recipientAccount) {
       const shouldContinue = await modalRef?.current?.show();
