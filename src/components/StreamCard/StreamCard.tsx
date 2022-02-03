@@ -6,7 +6,6 @@ import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import { toast } from "react-toastify";
-import BN from "bn.js";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -20,13 +19,14 @@ import {
   formatAmount,
   formatPeriodOfTime,
   roundAmount,
+  getBN,
 } from "../../utils/helpers";
 import {
   getStreamStatus,
   getStreamed,
   updateStatus,
   getNextUnlockTime,
-  // formatStreamData,
+  formatStreamData,
 } from "./helpers";
 import { Address, Link, Button, Modal, ModalRef } from "../index";
 import Badge from "./components/Badge";
@@ -94,12 +94,10 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     transferableByRecipient,
     amountPerPeriod,
     canTopup,
-  } = data;
-
+  } = formatStreamData(data, decimals);
   const symbol = myTokenAccounts[mint].info.symbol;
   const isCliffDateAfterStart = cliff > start;
-  // console.log("cliff", cliffAmount);
-  const isCliffAmount = cliffAmount.gt(new BN(0));
+  const isCliffAmount = cliffAmount > 0;
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
 
@@ -118,8 +116,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod)
   );
 
-  const [available, setAvailable] = useState(streamed.sub(withdrawnAmount));
-
+  const [available, setAvailable] = useState(streamed - withdrawnAmount);
   const showWithdraw =
     (status === StreamStatus.streaming ||
       (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
@@ -154,7 +151,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     if (!connection || !withdrawAmount) return;
 
     const isWithdrawn = await withdrawStream(
-      { id, amount: new BN(withdrawAmount).mul(new BN(10 ** decimals)) },
+      { id, amount: getBN(withdrawAmount, decimals) },
       connection,
       // @ts-ignore
       wallet,
@@ -185,7 +182,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
 
     const isTopupped = await topupStream(
-      { id, amount: new BN(topupAmount).mul(new BN(10 ** decimals)) },
+      { id, amount: getBN(topupAmount, decimals) },
       connection,
       // @ts-ignore
       wallet,
@@ -248,7 +245,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     if (status === StreamStatus.scheduled || status === StreamStatus.streaming) {
       const interval = setInterval(() => {
         setStreamed(getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod));
-        setAvailable(streamed.sub(withdrawnAmount));
+        setAvailable(streamed - withdrawnAmount);
 
         const tmpStatus = updateStatus(status, start, end, canceledAt);
         if (tmpStatus !== status) {
@@ -258,7 +255,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
       return () => clearInterval(interval);
     } else {
-      setAvailable(streamed.mul(withdrawnAmount));
+      setAvailable(streamed - withdrawnAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, streamed, withdrawnAmount, canceledAt]);
@@ -266,11 +263,11 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   useEffect(() => {
     if (status === StreamStatus.complete) {
       setStreamed(depositedAmount);
-      setAvailable(depositedAmount.sub(withdrawnAmount));
+      setAvailable(depositedAmount - withdrawnAmount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
-
+  // console.log("end from be", end);
   return (
     <>
       <dl
@@ -346,7 +343,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         {status === StreamStatus.canceled && (
           <Progress
             title="Returned"
-            value={depositedAmount.sub(withdrawnAmount)}
+            value={depositedAmount - withdrawnAmount}
             max={depositedAmount}
             rtl={true}
             decimals={decimals}

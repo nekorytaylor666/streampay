@@ -41,6 +41,15 @@ export function copyToClipboard(value: string): void {
 const ourTokens = [
   {
     chainId: 103, //devnet
+    address: "AhitdMW8uWA5tfkRxv4zbRw7dN4sqdqgeVHHCjFo2u9G", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "KIDA",
+    name: "KIDALICA",
+    decimals: 9, //default is 9
+    logoURI: "https://streamflow.finance/public/img/icon.png",
+    tags: [],
+  },
+  {
+    chainId: 103, //devnet
     address: "Gssm3vfi8s65R31SBdmQRq6cKeYojGgup7whkw4VCiQj", //ADD YOUR LOCAL TOKEN HERE
     symbol: "STRM",
     name: "STREAMFLOW",
@@ -126,25 +135,16 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
   return token.value[0].account.data.parsed.info.tokenAmount;
 };
 
-export const formatAmount = (amount: BN, decimals: number, decimalPlaces?: number) =>
-  amount > new BN(2 ^ (53 - 1))
-    ? amount
-        .div(new BN(10 ** decimals))
-        .toNumber()
-        .toFixed(decimalPlaces || decimals)
-    : (amount.toNumber() / 10 ** 9).toFixed(decimalPlaces || decimals);
+export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
+  amount.toFixed(decimalPlaces || decimals);
 
 export const roundAmount = (
-  amount: BN,
+  amount: number,
   decimals: number,
   decimalPlaces = DEFAULT_DECIMAL_PLACES
 ) => {
-  const tens = 10 ** decimals;
-  const amountInCoins = amount.gt(new BN(2 ^ (53 - 1)))
-    ? amount.div(new BN(tens)).toNumber()
-    : amount.toNumber() / tens;
-
-  return Math.round(amountInCoins * 10 ** decimalPlaces) / 10 ** decimalPlaces;
+  const tens = 10 ** decimalPlaces;
+  return Math.round(amount * tens) / tens;
 };
 
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
@@ -212,12 +212,19 @@ export const calculateEndTimeLikeOnBE = ({
   amountPerPeriod: number;
   period: number;
 }): number => {
-  if (!cliff || !depositedAmount || !Math.floor(amountPerPeriod) || !period) return 0;
+  if (!cliff || !Number(depositedAmount) || !amountPerPeriod || !period) return 0;
 
-  const cliffAmountCalculated = Math.floor((+cliffAmount / 100) * depositedAmount);
-  const periodsLeft = Math.floor((depositedAmount - cliffAmountCalculated) / amountPerPeriod);
+  const periodsLeft = getBN(depositedAmount, 9)
+    .sub(getBN(cliffAmount, 9))
+    .div(getBN(amountPerPeriod, 9))
+    .toNumber();
 
   const secondsLeft = periodsLeft * period;
 
-  return cliff + secondsLeft * 1000;
+  return (cliff + secondsLeft) * 1000;
 };
+
+export const getBN = (data: number, decimals: number): BN =>
+  data > (2 ** 53 - 1) / 10 ** decimals
+    ? new BN(data).mul(new BN(10 ** decimals))
+    : new BN(data * 10 ** decimals);

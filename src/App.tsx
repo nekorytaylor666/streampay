@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import BN from "bn.js";
 
 import { trackPageView } from "./utils/marketing_helpers";
 import { Footer, Header, Nav, Banner } from "./components";

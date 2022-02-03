@@ -9,7 +9,7 @@ import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "..
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getBN, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -154,14 +154,14 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     const start = getUnixTime(new Date(startDate + "T" + startTime));
 
     const data = {
-      depositedAmount: new BN(depositedAmount).mul(new BN(10 ** token.uiTokenAmount.decimals)),
+      depositedAmount: getBN(depositedAmount, token.uiTokenAmount.decimals),
       recipient: recipient,
       mint: token.info.address,
       start,
       period: releaseFrequencyCounter * releaseFrequencyPeriod,
       cliff: start,
       cliffAmount: new BN(0),
-      amountPerPeriod: new BN(releaseAmount).mul(new BN(10 ** token.uiTokenAmount.decimals)),
+      amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
       name: subject,
       cancelableBySender: senderCanCancel,
       cancelableByRecipient: recipientCanCancel,

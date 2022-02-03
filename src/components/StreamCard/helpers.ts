@@ -1,6 +1,6 @@
 import { getUnixTime } from "date-fns";
 import BN from "bn.js";
-// import { Stream } from "@streamflow/timelock";
+import { Stream } from "@streamflow/timelock";
 
 import { StreamStatus } from "../../types";
 
@@ -19,16 +19,16 @@ export function getStreamStatus(
 export function getStreamed(
   endTime: number,
   cliffTime: number,
-  cliffAmount: BN,
-  depositedAmount: BN,
+  cliffAmount: number,
+  depositedAmount: number,
   period: number,
-  releaseRate: BN
-): BN {
+  releaseRate: number
+): number {
   const currentTime = getUnixTime(new Date());
-  if (currentTime < cliffTime) return new BN(0);
+  if (currentTime < cliffTime) return 0;
   if (currentTime > endTime) return depositedAmount;
 
-  const streamed = cliffAmount.add(new BN((currentTime - cliffTime) / period)).mul(releaseRate);
+  const streamed = cliffAmount + Math.floor((currentTime - cliffTime) / period) * releaseRate;
 
   return streamed < depositedAmount ? streamed : depositedAmount;
 }
@@ -54,23 +54,23 @@ export function updateStatus(
 export const calculateReleaseRate = (
   end: number,
   cliff: number,
-  depositedAmount: BN,
-  cliffAmount: BN,
+  depositedAmount: number,
+  cliffAmount: number,
   period: number
-): BN => {
-  const amount = depositedAmount.sub(cliffAmount);
-  const numberOfReleases = (end - cliff) / period;
-  return numberOfReleases > 1 ? amount.div(new BN(numberOfReleases)) : amount;
+): number => {
+  const amount = depositedAmount - cliffAmount;
+  const numberOfReleases = Math.floor((end - cliff) / period);
+  return numberOfReleases > 1 ? amount / numberOfReleases : amount;
 };
 
 export const getNextUnlockTime = (
   cliff: number,
   period: number,
   end: number,
-  cliffAmount: BN
+  cliffAmount: number
 ): number => {
   const currentTime = getUnixTime(new Date());
-  if (currentTime <= cliff) return cliffAmount.gt(new BN(0)) ? cliff : cliff + period;
+  if (currentTime <= cliff) return cliffAmount > 0 ? cliff : cliff + period;
 
   const numberOfPeriods = Math.ceil((currentTime - cliff) / period);
   const nextUnlockTime = cliff + numberOfPeriods * period;
@@ -78,23 +78,30 @@ export const getNextUnlockTime = (
   return nextUnlockTime <= end ? nextUnlockTime : end;
 };
 
-// export const formatStreamData = (data: Stream, decimals: number): any => {
-//   console.log("amountPerPeriod", data.amountPerPeriod.toNumber());
-//   console.log("per perios", data.amountPerPeriod.div(new BN(10 ** decimals)).toNumber());
-//   let depositedAmountPeriod;
-//   let amountPerPeriod;
-//   let withdrawnAmount;
-//   let cliffAmount;
+export const formatStreamData = (data: Stream, decimals: number): any => {
+  const { depositedAmount, cliffAmount, amountPerPeriod, withdrawnAmount } = data;
 
-//   try {
-//     depositedAmount
-//   } catch {}
+  const depositedAmountInFullTokens = depositedAmount.gt(new BN(2 ** 53 - 1))
+    ? depositedAmount.div(new BN(10 ** decimals)).toNumber()
+    : depositedAmount.toNumber() / 10 ** decimals;
 
-//   return {
-//     ...data,
-//     depositedAmount: data.depositedAmount.div(new BN(10 ** decimals)).toNumber(),
-//     cliffAmount: data.cliffAmount.div(new BN(10 ** decimals)).toNumber(),
-//     amountPerPeriod: data.amountPerPeriod.div(new BN(10 ** decimals)).toNumber(),
-//     withdrawnAmount: data.withdrawnAmount.div(new BN(10 ** decimals)).toNumber(),
-//   };
-// };
+  const cliffAmountInFullTokens = cliffAmount.gt(new BN(2 ** 53 - 1))
+    ? cliffAmount.div(new BN(10 ** decimals)).toNumber()
+    : cliffAmount.toNumber() / 10 ** decimals;
+
+  const withdrawnAmountInFullTokens = withdrawnAmount.gt(new BN(2 ** 53 - 1))
+    ? withdrawnAmount.div(new BN(10 ** decimals)).toNumber()
+    : withdrawnAmount.toNumber() / 10 ** decimals;
+
+  const amountPerPeriodInFullTokens = amountPerPeriod.gt(new BN(2 ** 53 - 1))
+    ? amountPerPeriod.div(new BN(10 ** decimals)).toNumber()
+    : amountPerPeriod.toNumber() / 10 ** decimals;
+
+  return {
+    ...data,
+    depositedAmount: depositedAmountInFullTokens,
+    cliffAmount: cliffAmountInFullTokens,
+    amountPerPeriod: amountPerPeriodInFullTokens,
+    withdrawnAmount: withdrawnAmountInFullTokens,
+  };
+};
