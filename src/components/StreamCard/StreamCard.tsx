@@ -19,8 +19,15 @@ import {
   formatAmount,
   formatPeriodOfTime,
   roundAmount,
+  getBN,
 } from "../../utils/helpers";
-import { getStreamStatus, getStreamed, updateStatus, getNextUnlockTime } from "./helpers";
+import {
+  getStreamStatus,
+  getStreamed,
+  updateStatus,
+  getNextUnlockTime,
+  formatStreamData,
+} from "./helpers";
 import { Address, Link, Button, Modal, ModalRef } from "../index";
 import Badge from "./components/Badge";
 import Duration from "./components/Duration";
@@ -64,6 +71,10 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
 };
 
 const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
+  const { myTokenAccounts, connection, updateStream, deleteStream, token, cluster, wallet } =
+    useStore(storeGetter);
+  const decimals = myTokenAccounts[data.mint].uiTokenAmount.decimals;
+
   const {
     start,
     end,
@@ -83,10 +94,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     transferableByRecipient,
     amountPerPeriod,
     canTopup,
-  } = data;
-  const { myTokenAccounts, connection, updateStream, deleteStream, token, cluster, wallet } =
-    useStore(storeGetter);
-  const decimals = myTokenAccounts[mint].uiTokenAmount.decimals;
+  } = formatStreamData(data, decimals);
   const symbol = myTokenAccounts[mint].info.symbol;
   const isCliffDateAfterStart = cliff > start;
   const isCliffAmount = cliffAmount > 0;
@@ -109,7 +117,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   );
 
   const [available, setAvailable] = useState(streamed - withdrawnAmount);
-
   const showWithdraw =
     (status === StreamStatus.streaming ||
       (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
@@ -144,7 +151,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     if (!connection || !withdrawAmount) return;
 
     const isWithdrawn = await withdrawStream(
-      { id, amount: withdrawAmount * 10 ** decimals },
+      { id, amount: getBN(withdrawAmount, decimals) },
       connection,
       // @ts-ignore
       wallet,
@@ -175,7 +182,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
 
     const isTopupped = await topupStream(
-      { id, amount: topupAmount * 10 ** decimals },
+      { id, amount: getBN(topupAmount, decimals) },
       connection,
       // @ts-ignore
       wallet,

@@ -1,9 +1,10 @@
-import { format } from "date-fns";
+import { format, getUnixTime } from "date-fns";
 import { ExternalLinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import ReactTooltip from "react-tooltip";
 
 import { formatPeriodOfTime, roundAmount, calculateEndTimeLikeOnBE } from "../../utils/helpers";
 import { Link } from "../../components";
+import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
 interface OverviewProps {
   amount: number;
@@ -24,28 +25,28 @@ const Overview: React.FC<OverviewProps> = ({
   endTime,
   cliffDate,
   cliffTime,
-  cliffAmount,
+  cliffAmount: cliffAmountPercent,
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
-  const end = new Date(endDate + "T" + endTime);
-  const cliff = new Date(cliffDate + "T" + cliffTime);
-  const lengthSeconds = (+end - +cliff) / 1000;
-  const numPeriods = lengthSeconds / releasePeriod;
-  const releaseRate = (100 - cliffAmount) / (numPeriods > 1 ? numPeriods : 1);
+  const end = getUnixTime(new Date(endDate + "T" + endTime));
+  const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
+  const cliffAmount = (cliffAmountPercent * amount) / 100;
+  const amountPerPeriod = calculateReleaseRate(end, cliff, amount, cliffAmount, releasePeriod);
+  const amountPerPeriodPercent = (amountPerPeriod * 100) / amount;
   const formattedReleasePeriod = formatPeriodOfTime(releasePeriod);
   const isReleasePerMonth = formattedReleasePeriod?.includes("month");
   const isReleasePerYear = formattedReleasePeriod?.includes("year");
   const endTimeFromBE = calculateEndTimeLikeOnBE({
-    cliff: cliff.getTime(),
-    cliffAmount: Number(cliffAmount),
-    depositedAmount: Number(amount * 10 ** 9),
-    period: releasePeriod,
-    amountPerPeriod: (releaseRate * amount * 10 ** 9) / 100,
+    cliff,
+    cliffAmount,
+    depositedAmount: amount,
+    period: Math.floor(releasePeriod),
+    amountPerPeriod,
   });
 
-  const showEndTimeTooltip = end && endTimeFromBE && end.getTime() !== endTimeFromBE;
+  const showEndTimeTooltip = end && endTimeFromBE && end * 1000 !== endTimeFromBE;
 
   return (
     <div className="col-span-full mt-4 leading-6">
@@ -53,11 +54,11 @@ const Overview: React.FC<OverviewProps> = ({
       <p className="text-gray-400 text-sm leading-6">
         First
         <span className="text-gray-100 text-sm">
-          {` ${cliffAmount}% (${(((amount || 0) * cliffAmount) / 100).toFixed(2)} ${tokenSymbol}) `}
+          {` ${cliffAmountPercent}% (${cliffAmount.toFixed(3)} ${tokenSymbol}) `}
         </span>
         <br className="sm:hidden" />
         released on
-        {cliff.getTime() ? (
+        {cliff ? (
           <span className="text-gray-100 text-sm">{` ${cliffDate} `}</span>
         ) : (
           <span> ____ </span>
@@ -67,10 +68,9 @@ const Overview: React.FC<OverviewProps> = ({
       </p>
       <p className="text-gray-400 text-sm leading-6 sm:inline-block">
         And then
-        <span className="text-gray-100 text-sm">{` ${releaseRate.toFixed(3)}% (${(
-          ((amount || 0) * releaseRate) /
-          100
-        ).toFixed(2)} ${tokenSymbol}) `}</span>
+        <span className="text-gray-100 text-sm">{` ${amountPerPeriodPercent.toFixed(
+          3
+        )}% (${amountPerPeriod.toFixed(3)} ${tokenSymbol}) `}</span>
         <br className="sm:hidden" />
         released every
         {releaseFrequencyCounter ? (

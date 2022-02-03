@@ -1,4 +1,6 @@
 import { getUnixTime } from "date-fns";
+import BN from "bn.js";
+import { Stream } from "@streamflow/timelock";
 
 import { StreamStatus } from "../../types";
 
@@ -74,4 +76,32 @@ export const getNextUnlockTime = (
   const nextUnlockTime = cliff + numberOfPeriods * period;
 
   return nextUnlockTime <= end ? nextUnlockTime : end;
+};
+
+export const formatStreamData = (data: Stream, decimals: number): any => {
+  const { depositedAmount, cliffAmount, amountPerPeriod, withdrawnAmount } = data;
+
+  const depositedAmountInFullTokens = depositedAmount.gt(new BN(2 ** 53 - 1))
+    ? depositedAmount.div(new BN(10 ** decimals)).toNumber()
+    : depositedAmount.toNumber() / 10 ** decimals;
+
+  const cliffAmountInFullTokens = cliffAmount.gt(new BN(2 ** 53 - 1))
+    ? cliffAmount.div(new BN(10 ** decimals)).toNumber()
+    : cliffAmount.toNumber() / 10 ** decimals;
+
+  const withdrawnAmountInFullTokens = withdrawnAmount.gt(new BN(2 ** 53 - 1))
+    ? withdrawnAmount.div(new BN(10 ** decimals)).toNumber()
+    : withdrawnAmount.toNumber() / 10 ** decimals;
+
+  const amountPerPeriodInFullTokens = amountPerPeriod.gt(new BN(2 ** 53 - 1))
+    ? amountPerPeriod.div(new BN(10 ** decimals)).toNumber()
+    : amountPerPeriod.toNumber() / 10 ** decimals;
+
+  return {
+    ...data,
+    depositedAmount: depositedAmountInFullTokens,
+    cliffAmount: cliffAmountInFullTokens,
+    amountPerPeriod: amountPerPeriodInFullTokens,
+    withdrawnAmount: withdrawnAmountInFullTokens,
+  };
 };
