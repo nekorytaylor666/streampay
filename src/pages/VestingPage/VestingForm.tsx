@@ -192,7 +192,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       mint: token.info.address,
       start,
       name: subject,
-      period: releaseFrequencyPeriod * releaseFrequencyCounter,
+      period: Math.floor(releaseFrequencyPeriod * releaseFrequencyCounter),
       cliff: cliff,
       cliffAmount: getBN(cliffAmountCalculated, decimals),
       amountPerPeriod: getBN(amountPerPeriod, decimals),

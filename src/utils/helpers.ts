@@ -216,7 +216,7 @@ export const calculateEndTimeLikeOnBE = ({
 
   const periodsLeft = getBN(depositedAmount, 9)
     .sub(getBN(cliffAmount, 9))
-    .div(getBN(amountPerPeriod, 9))
+    .divRound(getBN(amountPerPeriod, 9))
     .toNumber();
 
   const secondsLeft = periodsLeft * period;
