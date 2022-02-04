@@ -50,7 +50,7 @@ const Overview: React.FC<OverviewProps> = ({
   const isReleasePerYear = formattedReleasePeriod?.includes("year");
   const { periods, endTimeFromBE } = calculateEndTimeLikeOnBE({
     cliff,
-    cliffAmount,
+    cliffAmount: parseFloat(cliffAmount.toFixed(decimals)),
     depositedAmount: amount,
     period: Math.floor(releasePeriod),
     amountPerPeriod,
