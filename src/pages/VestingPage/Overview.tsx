@@ -38,7 +38,7 @@ const Overview: React.FC<OverviewProps> = ({
   const formattedReleasePeriod = formatPeriodOfTime(releasePeriod);
   const isReleasePerMonth = formattedReleasePeriod?.includes("month");
   const isReleasePerYear = formattedReleasePeriod?.includes("year");
-  const endTimeFromBE = calculateEndTimeLikeOnBE({
+  const { periods, endTimeFromBE } = calculateEndTimeLikeOnBE({
     cliff,
     cliffAmount,
     depositedAmount: amount,
@@ -115,25 +115,28 @@ const Overview: React.FC<OverviewProps> = ({
                 <QuestionMarkCircleIcon
                   className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-primary"
                   data-tip
-                  data-for="overviewTooltip"
+                  data-for="endTimeTooltip"
                 />
                 <ReactTooltip
-                  id="overviewTooltip"
+                  id="endTimeTooltip"
                   type="info"
                   effect="solid"
                   place="top"
                   backgroundColor="#18A2D9"
                 >
-                  <span>
-                    Due to the rounding, there might be a slight difference between specified and
-                    the actual end time.
+                  <span className="inline-block">
+                    {`Stream ends after ${periods} ${periods > 1 ? "periods" : "period"}`}{" "}
                   </span>
+                  <span className="inline-block">{`( ${periods} x ${formattedReleasePeriod} ). `}</span>
                 </ReactTooltip>
               </>
             )}
           </>
         ) : (
-          <span> ____ .</span>
+          <span className="text-gray-100 text-sm">{` ${format(
+            new Date(end * 1000),
+            "ccc do MMM, yyyy - HH:mm"
+          )}. `}</span>
         )}
       </p>
       <p className="text-gray-400 text-xxs leading-4 mt-6">

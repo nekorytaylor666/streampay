@@ -78,30 +78,15 @@ export const getNextUnlockTime = (
   return nextUnlockTime <= end ? nextUnlockTime : end;
 };
 
-export const formatStreamData = (data: Stream, decimals: number): any => {
-  const { depositedAmount, cliffAmount, amountPerPeriod, withdrawnAmount } = data;
+export const formatStreamData = (data: Stream, decimals: number): any => ({
+  ...data,
+  depositedAmount: amountInFullTokens(data.depositedAmount, decimals),
+  cliffAmount: amountInFullTokens(data.cliffAmount, decimals),
+  amountPerPeriod: amountInFullTokens(data.amountPerPeriod, decimals),
+  withdrawnAmount: amountInFullTokens(data.withdrawnAmount, decimals),
+});
 
-  const depositedAmountInFullTokens = depositedAmount.gt(new BN(2 ** 53 - 1))
-    ? depositedAmount.div(new BN(10 ** decimals)).toNumber()
-    : depositedAmount.toNumber() / 10 ** decimals;
-
-  const cliffAmountInFullTokens = cliffAmount.gt(new BN(2 ** 53 - 1))
-    ? cliffAmount.div(new BN(10 ** decimals)).toNumber()
-    : cliffAmount.toNumber() / 10 ** decimals;
-
-  const withdrawnAmountInFullTokens = withdrawnAmount.gt(new BN(2 ** 53 - 1))
-    ? withdrawnAmount.div(new BN(10 ** decimals)).toNumber()
-    : withdrawnAmount.toNumber() / 10 ** decimals;
-
-  const amountPerPeriodInFullTokens = amountPerPeriod.gt(new BN(2 ** 53 - 1))
-    ? amountPerPeriod.div(new BN(10 ** decimals)).toNumber()
-    : amountPerPeriod.toNumber() / 10 ** decimals;
-
-  return {
-    ...data,
-    depositedAmount: depositedAmountInFullTokens,
-    cliffAmount: cliffAmountInFullTokens,
-    amountPerPeriod: amountPerPeriodInFullTokens,
-    withdrawnAmount: withdrawnAmountInFullTokens,
-  };
-};
+export const amountInFullTokens = (amount: BN, decimals: number): number =>
+  amount.gt(new BN(2 ** 53 - 1))
+    ? amount.div(new BN(10 ** decimals)).toNumber()
+    : amount.toNumber() / 10 ** decimals;

@@ -211,8 +211,9 @@ export const calculateEndTimeLikeOnBE = ({
   cliffAmount: number;
   amountPerPeriod: number;
   period: number;
-}): number => {
-  if (!cliff || !Number(depositedAmount) || !amountPerPeriod || !period) return 0;
+}): { periods: number; endTimeFromBE: number } => {
+  if (!cliff || !Number(depositedAmount) || !amountPerPeriod || !period)
+    return { periods: 0, endTimeFromBE: 0 };
 
   const periodsLeft = getBN(depositedAmount, 9)
     .sub(getBN(cliffAmount, 9))
@@ -221,7 +222,7 @@ export const calculateEndTimeLikeOnBE = ({
 
   const secondsLeft = periodsLeft * period;
 
-  return (cliff + secondsLeft) * 1000;
+  return { periods: periodsLeft, endTimeFromBE: (cliff + secondsLeft) * 1000 };
 };
 
 export const getBN = (data: number, decimals: number): BN =>
