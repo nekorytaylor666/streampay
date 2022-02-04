@@ -16,6 +16,7 @@ interface OverviewProps {
   cliffAmount: number;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
+  decimals: number;
 }
 
 const Overview: React.FC<OverviewProps> = ({
@@ -28,12 +29,21 @@ const Overview: React.FC<OverviewProps> = ({
   cliffAmount: cliffAmountPercent,
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
+  decimals,
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
   const end = getUnixTime(new Date(endDate + "T" + endTime));
   const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
   const cliffAmount = (cliffAmountPercent * amount) / 100;
-  const amountPerPeriod = calculateReleaseRate(end, cliff, amount, cliffAmount, releasePeriod);
+  const amountPerPeriod = calculateReleaseRate(
+    end,
+    cliff,
+    amount,
+    cliffAmount,
+    releasePeriod,
+    decimals
+  );
+
   const amountPerPeriodPercent = (amountPerPeriod * 100) / amount;
   const formattedReleasePeriod = formatPeriodOfTime(releasePeriod);
   const isReleasePerMonth = formattedReleasePeriod?.includes("month");

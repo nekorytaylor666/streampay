@@ -27,7 +27,13 @@ export const createStream = async (
     }
 
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-    const response = await Stream.create({ ...data, sender: wallet, connection, cluster });
+    const response = await Stream.create({
+      ...data,
+      sender: wallet,
+      connection,
+      cluster,
+      partner: wallet.publicKey.toBase58(),
+    });
 
     const stream = await Stream.getOne({ connection, id: response.id });
 
