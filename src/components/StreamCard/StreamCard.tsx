@@ -89,8 +89,17 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     canTopup,
   } = data;
 
-  const { myTokenAccounts, connection, updateStream, deleteStream, token, tokenPriceUsd, cluster, wallet, walletType } =
-    useStore(storeGetter);
+  const {
+    myTokenAccounts,
+    connection,
+    updateStream,
+    deleteStream,
+    token,
+    tokenPriceUsd,
+    cluster,
+    wallet,
+    walletType,
+  } = useStore(storeGetter);
   const decimals = myTokenAccounts[mint].uiTokenAmount.decimals;
   const symbol = myTokenAccounts[mint].info.symbol;
   const isCliffDateAfterStart = cliff > start;
