@@ -3,12 +3,13 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
+import { getBN, getNumberFromBN } from "@streamflow/timelock";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount, getBN } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -229,9 +230,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const streamflowFeeTotal =
-        response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals;
-      const depositedAmount = response.data.depositedAmount.toNumber() / 10 ** decimals;
+
+      const streamflowFeeTotal = getNumberFromBN(
+        response.stream.streamflowFeeTotal,
+        token.uiTokenAmount.decimals
+      );
+
+      const depositedAmount = getNumberFromBN(
+        response.stream.streamflowFeeTotal,
+        token.uiTokenAmount.decimals
+      );
       trackTransaction(
         response.id,
         token.info.symbol,

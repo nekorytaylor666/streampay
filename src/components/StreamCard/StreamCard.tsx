@@ -1,7 +1,7 @@
 import { useEffect, useState, FC, useRef } from "react";
 
 import { format, fromUnixTime } from "date-fns";
-import Stream from "@streamflow/timelock";
+import Stream, { getBN } from "@streamflow/timelock";
 import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
@@ -20,7 +20,6 @@ import {
   formatAmount,
   formatPeriodOfTime,
   roundAmount,
-  getBN,
 } from "../../utils/helpers";
 import {
   getStreamStatus,

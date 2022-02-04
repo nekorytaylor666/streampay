@@ -7,7 +7,6 @@ import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 import { format } from "date-fns";
 import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock";
-import BN from "bn.js";
 
 import useStore from "../stores";
 import { StringOption } from "../types";
@@ -216,8 +215,3 @@ export const calculateEndTimeLikeOnBE = ({
 
   return { periods: periodsLeft, endTimeFromBE: (cliff + secondsLeft) * 1000 };
 };
-
-export const getBN = (data: number, decimals: number): BN =>
-  data > (2 ** 53 - 1) / 10 ** decimals
-    ? new BN(data).mul(new BN(10 ** decimals))
-    : new BN(data * 10 ** decimals);

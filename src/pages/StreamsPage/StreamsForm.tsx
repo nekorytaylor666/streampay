@@ -4,12 +4,13 @@ import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import BN from "bn.js";
+import { getBN, getNumberFromBN } from "@streamflow/timelock";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
-import { didTokenOptionsChange, getBN, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -192,8 +193,11 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const streamflowFeeTotal =
-        response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals;
+      const streamflowFeeTotal = getNumberFromBN(
+        response.stream.streamflowFeeTotal,
+        token.uiTokenAmount.decimals
+      );
+
       trackTransaction(
         response.id,
         token.info.symbol,

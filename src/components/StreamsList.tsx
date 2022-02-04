@@ -3,8 +3,7 @@ import { useEffect, FC } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
-import { Stream as StreamData } from "@streamflow/timelock";
-import Stream from "@streamflow/timelock";
+import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/timelock";
 
 import { StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
@@ -55,6 +54,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     cluster,
     walletType,
   } = useStore(storeGetter);
+
   const updateToken = async () => {
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
@@ -88,9 +88,12 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
     if (isCancelled) {
       const stream = await Stream.getOne({ connection, id });
+      const decimals = myTokenAccounts[stream.mint].uiTokenAmount.decimals;
+
       const cancelledAmount =
-        (stream.depositedAmount.toNumber() - stream.withdrawnAmount.toNumber()) /
-        10 ** token.uiTokenAmount.decimals;
+        getNumberFromBN(stream.depositedAmount, decimals) -
+        getNumberFromBN(stream.withdrawnAmount, decimals);
+
       if (stream) {
         updateToken();
         updateStream([id, stream]);
