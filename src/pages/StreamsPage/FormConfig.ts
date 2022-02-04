@@ -37,8 +37,8 @@ const getDefaultValues = () => ({
   releaseFrequencyPeriod: timePeriodOptions[0].value,
   senderCanCancel: true,
   recipientCanCancel: false,
-  senderCanTransfer: true,
-  recipientCanTransfer: false,
+  senderCanTransfer: false,
+  recipientCanTransfer: true,
 });
 
 const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
