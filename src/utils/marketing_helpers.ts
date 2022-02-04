@@ -1,4 +1,9 @@
-import { EVENT_TYPE, STREAMFLOW_WEB_V1_AFFILIATION, DEFAULT_PURCHASE_CURRENCY } from "../constants";
+import {
+  EVENT_TYPE,
+  DEFAULT_GA_PURCHASE_CURRENCY,
+  DATA_LAYER_VARIABLE,
+  AFFILIATION,
+} from "../constants";
 
 declare global {
   interface Window {
@@ -24,7 +29,13 @@ export function trackPageView() {
   });
 }
 
-export function trackEvent(category: string, action: string, label: string, value: number) {
+export function trackEvent(
+  category: string,
+  action: string,
+  label: string,
+  value: number,
+  additionalDataLayerVariables: object = {}
+) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: EVENT_TYPE.EVENT,
@@ -32,35 +43,44 @@ export function trackEvent(category: string, action: string, label: string, valu
     eventAction: action,
     eventLabel: label,
     eventValue: value,
+    ...additionalDataLayerVariables,
   });
 }
 
 export function trackTransaction(
-  streamId: string,
-  tokenTicker: string,
+  streamAddress: string,
+  tokenSymbol: string,
   tokenName: string,
-  feeValue: number,
-  totalDepositedAmount: number
+  variant: string,
+  streamflowFeeUsd: number,
+  streamflowFeeToken: number,
+  totalAmountToken: number,
+  totalAmountUsd: number,
+  walletType: string | undefined
 ) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: EVENT_TYPE.PURCHASE,
     products: JSON.stringify([
       {
-        id: tokenTicker,
+        id: tokenSymbol,
         title: tokenName,
-        price: feeValue,
-        quantity: Math.round(totalDepositedAmount),
+        price: streamflowFeeUsd,
+        quantity: Math.round(totalAmountToken),
+        variant,
       },
     ]),
     purchaseDetails: JSON.stringify({
-      id: streamId,
-      revenue: feeValue,
-      affiliation: STREAMFLOW_WEB_V1_AFFILIATION,
-      currency: DEFAULT_PURCHASE_CURRENCY,
+      id: streamAddress,
+      revenue: streamflowFeeUsd,
+      affiliation: AFFILIATION.FREE,
+      currency: DEFAULT_GA_PURCHASE_CURRENCY,
     }),
-    streamId: streamId,
-    revenue: feeValue,
-    totalDepositedAmount,
+    [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: streamAddress,
+    [DATA_LAYER_VARIABLE.STREAMFLOW_FEE_USD]: streamflowFeeUsd,
+    [DATA_LAYER_VARIABLE.STREAMFLOW_FEE_TOKEN]: streamflowFeeToken,
+    [DATA_LAYER_VARIABLE.TOTAL_AMOUNT_TOKEN]: totalAmountToken,
+    [DATA_LAYER_VARIABLE.TOTAL_AMOUNT_USD]: totalAmountUsd,
+    [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType,
   });
 }

@@ -55,7 +55,7 @@ const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => an
     content: { element: div },
     className: "bg-gray-800",
   }).then(setWalletType);
-  trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECTED, EVENT_LABEL.NONE, 0);
+  trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECT, EVENT_LABEL.NONE, 0);
 };
 
 let walletInitialized = false;

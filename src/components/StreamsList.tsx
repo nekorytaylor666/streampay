@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { Stream, EmptyStreams, Modal, ModalRef } from ".";
 import sendTransaction from "../actions/sendTransaction";
 import {
+  DATA_LAYER_VARIABLE,
   ProgramInstruction,
   TIMELOCK_STRUCT_OFFSET_RECIPIENT,
   TIMELOCK_STRUCT_OFFSET_SENDER,
@@ -16,7 +17,7 @@ import {
 } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
-import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../constants";
+import { EVENT_CATEGORY, EVENT_ACTION } from "../constants";
 import { trackEvent } from "../utils/marketing_helpers";
 
 const storeGetter = (state: StoreType) => ({
@@ -26,10 +27,12 @@ const storeGetter = (state: StoreType) => ({
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
   programId: state.programId,
+  walletType: state.walletType,
 });
 
 interface ProgramAccount {
@@ -71,10 +74,12 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     deleteStream,
     clearStreams,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     setToken,
     programId,
+    walletType,
   } = useStore(storeGetter);
   const modalRef = useRef<ModalRef>(null);
 
@@ -124,16 +129,27 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
 
     if (isCancelled) {
       const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
+
       if (stream) {
         updateToken();
-        addStream(id, decode(stream.data));
+        const decodedStreamData = decode(stream.data);
+        addStream(id, decodedStreamData);
+        const cancelledAmount =
+          decodedStreamData.deposited_amount.toNumber() -
+          decodedStreamData.withdrawn_amount.toNumber();
+        trackEvent(
+          EVENT_CATEGORY.STREAM,
+          EVENT_ACTION.CANCEL,
+          wallet?.publicKey?.toBase58() as string,
+          (cancelledAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+          {
+            [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: token.info.symbol,
+            [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
+            [DATA_LAYER_VARIABLE.TOKEN_FEE]: 0,
+            [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+          }
+        );
       }
-      trackEvent(
-        EVENT_CATEGORY.VESTING,
-        EVENT_ACTION.CANCELED,
-        wallet?.publicKey?.toBase58() ?? EVENT_LABEL.NONE,
-        0
-      );
     }
 
     return isCancelled;

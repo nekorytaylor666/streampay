@@ -15,6 +15,7 @@ import {
   ProgramInstruction,
   START,
   TIME_SUFFIX,
+  TRANSACTION_VARIANT,
 } from "../constants";
 import { useFormContext } from "../contexts/FormContext";
 import useStore, { StoreType } from "../stores";
@@ -33,13 +34,14 @@ import {
 } from "./index";
 import { getTokenAmount, formatDate } from "../utils/helpers";
 import { trackTransaction } from "../utils/marketing_helpers";
-import { fetchTokenPrice } from "../api";
 
 const storeGetter = (state: StoreType) => ({
   addStream: state.addStream,
   connection: state.connection(),
   wallet: state.wallet,
+  walletType: state.walletType,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   setToken: state.setToken,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
@@ -82,8 +84,17 @@ export default function CreateStreamForm({
 
   const modalRef = useRef<ModalRef>(null);
 
-  const { connection, wallet, addStream, token, setToken, myTokenAccounts, setMyTokenAccounts } =
-    useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    walletType,
+    addStream,
+    token,
+    tokenPriceUsd,
+    setToken,
+    myTokenAccounts,
+    setMyTokenAccounts,
+  } = useStore(storeGetter);
 
   async function validate(element: HTMLFormElement): Promise<string> {
     const { name, value } = element;
@@ -164,7 +175,7 @@ export default function CreateStreamForm({
   async function createStream(e: any) {
     e.preventDefault();
 
-    if (!wallet?.publicKey || !connection) {
+    if (!wallet?.publicKey || !connection || !walletType) {
       toast.error(ERR_NOT_CONNECTED);
       return false;
     }
@@ -259,13 +270,16 @@ export default function CreateStreamForm({
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const tokenPriceInUsd = await fetchTokenPrice(token.info.symbol);
       trackTransaction(
         newStream.publicKey.toBase58(),
         token.info.symbol,
         token.info.name,
-        tokenPriceInUsd * amount * 0.0025,
-        tokenPriceInUsd * amount
+        TRANSACTION_VARIANT.CREATE_VESTING,
+        0,
+        0,
+        amount,
+        amount * tokenPriceUsd,
+        walletType.name
       );
     }
   }
