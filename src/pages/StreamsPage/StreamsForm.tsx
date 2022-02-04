@@ -192,16 +192,17 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const streamflowFeeTotal = response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals;
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.CREATE_STREAM,
-        (response.data.streamflowFeeTotal * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
-        response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals,
-        response.data.depositedAmount / 10 ** token.uiTokenAmount.decimals,
-        (response.data.depositedAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
-        walletType.name
+        streamflowFeeTotal * tokenPriceUsd,
+        streamflowFeeTotal,
+        depositedAmount,
+        depositedAmount * tokenPriceUsd,
+        walletType.name,
       );
     }
   };
