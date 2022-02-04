@@ -219,7 +219,6 @@ export const calculateEndTimeLikeOnBE = ({
     .sub(getBN(cliffAmount, 9))
     .divRound(getBN(amountPerPeriod, 9))
     .toNumber();
-
   const secondsLeft = periodsLeft * period;
 
   return { periods: periodsLeft, endTimeFromBE: (cliff + secondsLeft) * 1000 };

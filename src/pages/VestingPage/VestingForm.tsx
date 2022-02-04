@@ -149,6 +149,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     if (token) setToken(token);
   };
 
+  const decimals = token.uiTokenAmount.decimals;
+
   const onSubmit = async (values: VestingFormData) => {
     const {
       amount,
@@ -175,7 +177,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end = getUnixTime(new Date(endDate + "T" + endTime));
-    const decimals = token.uiTokenAmount.decimals;
     const cliff = advanced ? getUnixTime(new Date(cliffDate + "T" + cliffTime)) : start;
     const cliffAmountCalculated = (cliffAmount / 100) * amount;
     const amountPerPeriod = calculateReleaseRate(
@@ -183,7 +184,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliff,
       amount,
       cliffAmountCalculated,
-      releaseFrequencyCounter * releaseFrequencyPeriod
+      releaseFrequencyCounter * releaseFrequencyPeriod,
+      decimals
     );
 
     const data = {
@@ -444,6 +446,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 cliffAmount,
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
+                decimals,
               }}
             />
             <Button
