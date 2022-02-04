@@ -216,7 +216,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setLoading(false);
 
     if (response) {
-      addStream([response.id, response.data]);
+      addStream([response.id, response.stream]);
 
       const mint = token.info.address;
 
