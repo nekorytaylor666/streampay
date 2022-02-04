@@ -149,7 +149,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     if (token) setToken(token);
   };
 
-  const decimals = token.uiTokenAmount.decimals;
+  const decimals = token?.uiTokenAmount?.decimals || 0;
 
   const onSubmit = async (values: VestingFormData) => {
     const {
