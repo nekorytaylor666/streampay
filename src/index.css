@@ -181,7 +181,3 @@ input[type="range"]::-ms-track {
   font-size: 12px !important;
   line-height: 1.4 !important;
 }
-
-#endTimeTooltip {
-  max-width: 200px !important;
-}
