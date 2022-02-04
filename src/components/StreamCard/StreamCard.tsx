@@ -452,13 +452,12 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       <Modal
         ref={topupModalRef}
         title={`You can top up between 0 and ${roundAmount(
-          parseInt(token?.uiTokenAmount?.amount) || 0,
-          decimals
+          parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0
         )} ${symbol}.`}
         symbol={symbol}
         type="range"
         min={0}
-        max={roundAmount(parseInt(token?.uiTokenAmount?.amount) || 0, decimals)}
+        max={roundAmount(parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0)}
         confirm={{ color: "green", text: "Top Up" }}
       />
       <Modal

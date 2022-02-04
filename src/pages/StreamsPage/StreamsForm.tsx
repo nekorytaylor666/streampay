@@ -183,7 +183,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
     if (response) {
-      addStream([response.id, response.data]);
+      addStream([response.id, response.stream]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);

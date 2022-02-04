@@ -92,9 +92,7 @@ const Overview: React.FC<OverviewProps> = ({
       </p>
       <p className="text-gray-400 text-xxs leading-4 mt-6">
         {`Streamflow charges 0.25% service fee (${roundAmount(
-          depositedAmount * 0.0025,
-          0,
-          3
+          depositedAmount * 0.0025
         )} ${tokenSymbol}) on top of the
         specified amount, while respecting the given schedule. `}
         <Link
