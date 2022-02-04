@@ -1,7 +1,7 @@
 import { useEffect, useState, FC, useRef } from "react";
 
 import { format, fromUnixTime } from "date-fns";
-import Stream from "@streamflow/timelock";
+import Stream, { getBN } from "@streamflow/timelock";
 import { Stream as StreamData } from "@streamflow/timelock";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
@@ -12,6 +12,7 @@ import {
   STREAM_STATUS_COLOR,
   DEFAULT_DECIMAL_PLACES,
   TRANSACTION_VARIANT,
+  DATA_LAYER_VARIABLE,
 } from "../../constants";
 import { StreamStatus } from "../../types";
 import {
@@ -19,7 +20,6 @@ import {
   formatAmount,
   formatPeriodOfTime,
   roundAmount,
-  getBN,
 } from "../../utils/helpers";
 import {
   getStreamStatus,
@@ -36,7 +36,6 @@ import useStore, { StoreType } from "../../stores";
 import { withdrawStream, topupStream, transferStream } from "../../api/transactions";
 import { trackEvent, trackTransaction } from "../../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
-import { fetchTokenPrice } from "../../api/";
 
 interface StreamProps {
   data: StreamData;
@@ -53,7 +52,9 @@ const storeGetter = ({
   deleteStream,
   connection,
   wallet,
+  walletType,
   token,
+  tokenPriceUsd,
   cluster,
 }: StoreType) => ({
   myTokenAccounts,
@@ -61,7 +62,9 @@ const storeGetter = ({
   deleteStream,
   connection: connection(),
   wallet,
+  walletType,
   token,
+  tokenPriceUsd,
   cluster,
 });
 
@@ -71,8 +74,17 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
 };
 
 const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
-  const { myTokenAccounts, connection, updateStream, deleteStream, token, cluster, wallet } =
-    useStore(storeGetter);
+  const {
+    myTokenAccounts,
+    connection,
+    updateStream,
+    deleteStream,
+    token,
+    tokenPriceUsd,
+    cluster,
+    wallet,
+    walletType,
+  } = useStore(storeGetter);
   const decimals = myTokenAccounts[data.mint].uiTokenAmount.decimals;
 
   const {
@@ -164,11 +176,18 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onWithdraw();
         updateStream([id, stream]);
       }
+
       trackEvent(
         data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
-        EVENT_ACTION.WITHDRAWN,
+        EVENT_ACTION.WITHDRAW,
         EVENT_LABEL.NONE,
-        withdrawAmount * (await fetchTokenPrice(token.info.symbol))
+        withdrawAmount * tokenPriceUsd,
+        {
+          [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: symbol,
+          [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
+          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawnAmount * tokenPriceUsd,
+          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+        }
       );
     }
   };
@@ -195,14 +214,16 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         onTopup();
         updateStream([id, stream]);
       }
-      const tokenPriceUsd = await fetchTokenPrice(token.info.symbol);
       trackTransaction(
         id,
         token.info.symbol,
         token.info.name,
-        TRANSACTION_VARIANT.TOPPED_UP,
-        tokenPriceUsd * 0.0025,
-        tokenPriceUsd
+        TRANSACTION_VARIANT.TOP_UP_STREAM,
+        topupAmount * 0.0025 * tokenPriceUsd,
+        topupAmount * 0.0025,
+        topupAmount,
+        topupAmount * tokenPriceUsd,
+        walletType?.name
       );
     }
   };

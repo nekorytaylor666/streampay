@@ -3,12 +3,11 @@ import { useEffect, FC } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
-import { Stream as StreamData } from "@streamflow/timelock";
-import Stream from "@streamflow/timelock";
+import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/timelock";
 
 import { StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
-import { EVENT_ACTION, EVENT_CATEGORY } from "../constants";
+import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
@@ -21,10 +20,12 @@ const storeGetter = (state: StoreType) => ({
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
   cluster: state.cluster,
+  walletType: state.walletType,
 });
 
 const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
@@ -46,11 +47,14 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     populateStreams,
     clearStreams,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     setToken,
     cluster,
+    walletType,
   } = useStore(storeGetter);
+
   const updateToken = async () => {
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
@@ -84,14 +88,26 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
     if (isCancelled) {
       const stream = await Stream.getOne({ connection, id });
+      const decimals = myTokenAccounts[stream.mint].uiTokenAmount.decimals;
+
+      const cancelledAmount =
+        getNumberFromBN(stream.depositedAmount, decimals) -
+        getNumberFromBN(stream.withdrawnAmount, decimals);
+
       if (stream) {
         updateToken();
         updateStream([id, stream]);
         trackEvent(
           EVENT_CATEGORY.STREAM,
-          EVENT_ACTION.CANCELED,
+          EVENT_ACTION.CANCEL,
           wallet?.publicKey?.toBase58() as string,
-          0
+          cancelledAmount * tokenPriceUsd,
+          {
+            [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: token.info.symbol,
+            [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
+            [DATA_LAYER_VARIABLE.TOKEN_FEE]: cancelledAmount * 0.0025,
+            [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+          }
         );
       }
     }

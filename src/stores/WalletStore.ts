@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 import { WalletType } from "../types";
 import { trackEvent } from "../utils/marketing_helpers";
-import { EVENT_CATEGORY, EVENT_ACTION } from "../constants";
+import { EVENT_CATEGORY, EVENT_ACTION, DATA_LAYER_VARIABLE } from "../constants";
 
 interface WalletState {
   walletType: WalletType | null;
@@ -51,7 +51,9 @@ const walletStore: WalletStore = (set, get) => ({
         set({ walletType, wallet });
         // state.persistStoreToLocalStorage();
         toast.success("Wallet connected!");
-        trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECTED, wallet.publicKey.toBase58(), 0);
+        trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECT, wallet.publicKey.toBase58(), 0, {
+          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+        });
       });
       wallet.on("disconnect", () => {
         set({ walletType: null, wallet: null });
@@ -71,9 +73,12 @@ const walletStore: WalletStore = (set, get) => ({
     }
   },
   disconnectWallet: () => {
-    const state = get();
-    state.wallet?.disconnect();
-    state.setWalletType(null);
+    const { wallet, walletType, setWalletType } = get();
+    trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.DISCONNECT, wallet.publicKey.toBase58(), 0, {
+      [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+    });
+    wallet?.disconnect();
+    setWalletType(null);
   },
 });
 

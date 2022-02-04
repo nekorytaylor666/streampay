@@ -3,12 +3,13 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
+import { getBN, getNumberFromBN } from "@streamflow/timelock";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount, getBN } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -19,7 +20,6 @@ import {
 import { createStream } from "../../api/transactions";
 import { StringOption } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
-import { fetchTokenPrice } from "../../api";
 import { trackTransaction } from "../../utils/marketing_helpers";
 
 interface VestingFormProps {
@@ -30,7 +30,9 @@ interface VestingFormProps {
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
+  walletType: state.walletType,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   addStream: state.addStream,
@@ -42,7 +44,9 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const {
     connection,
     wallet,
+    walletType,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     addStream,
@@ -171,7 +175,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliffAmount,
     } = values;
 
-    if (!wallet?.publicKey || !connection) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -226,15 +230,26 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
-      const totalDepositedAmount = amount * tokenPriceUSD;
+
+      const streamflowFeeTotal = getNumberFromBN(
+        response.stream.streamflowFeeTotal,
+        token.uiTokenAmount.decimals
+      );
+
+      const depositedAmount = getNumberFromBN(
+        response.stream.streamflowFeeTotal,
+        token.uiTokenAmount.decimals
+      );
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
-        TRANSACTION_VARIANT.CREATED,
-        totalDepositedAmount * 0.0025,
-        totalDepositedAmount
+        TRANSACTION_VARIANT.CREATE_VESTING,
+        streamflowFeeTotal * tokenPriceUsd,
+        streamflowFeeTotal,
+        depositedAmount,
+        depositedAmount * tokenPriceUsd,
+        walletType.name
       );
     }
   };

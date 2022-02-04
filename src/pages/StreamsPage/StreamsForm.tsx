@@ -3,13 +3,13 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import BN from "bn.js";
+import { BN, getBN, getNumberFromBN } from "@streamflow/timelock";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
-import { didTokenOptionsChange, getBN, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -21,7 +21,6 @@ import {
 import { StringOption } from "../../types";
 import Overview from "./Overview";
 import { trackTransaction } from "../../utils/marketing_helpers";
-import { fetchTokenPrice } from "../../api";
 
 interface StreamsFormProps {
   loading: boolean;
@@ -31,8 +30,10 @@ interface StreamsFormProps {
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
+  walletType: state.walletType,
   cluster: state.cluster,
   token: state.token,
+  tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   addStream: state.addStream,
@@ -43,7 +44,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const {
     connection,
     wallet,
+    walletType,
     token,
+    tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     addStream,
@@ -147,7 +150,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       recipientCanTransfer,
     } = values;
 
-    if (!wallet?.publicKey || !connection) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -189,15 +192,21 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const tokenPriceUSD = await fetchTokenPrice(token.info.symbol);
-      const totalDepositedAmount = depositedAmount * tokenPriceUSD;
+      const streamflowFeeTotal = getNumberFromBN(
+        response.stream.streamflowFeeTotal,
+        token.uiTokenAmount.decimals
+      );
+
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
-        TRANSACTION_VARIANT.CREATED,
-        totalDepositedAmount * 0.0025,
-        totalDepositedAmount
+        TRANSACTION_VARIANT.CREATE_STREAM,
+        streamflowFeeTotal * tokenPriceUsd,
+        streamflowFeeTotal,
+        depositedAmount,
+        depositedAmount * tokenPriceUsd,
+        walletType.name
       );
     }
   };
