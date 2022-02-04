@@ -8,7 +8,7 @@ import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "..
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount, getBN } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -180,25 +180,25 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const end = getUnixTime(new Date(endDate + "T" + endTime));
     const decimals = token.uiTokenAmount.decimals;
     const cliff = advanced ? getUnixTime(new Date(cliffDate + "T" + cliffTime)) : start;
-    const cliffAmountCalculated = (advanced ? (cliffAmount / 100) * amount : 0) * 10 ** decimals;
+    const cliffAmountCalculated = (cliffAmount / 100) * amount;
     const amountPerPeriod = calculateReleaseRate(
       end,
       cliff,
-      amount * 10 ** decimals,
+      amount,
       cliffAmountCalculated,
       releaseFrequencyCounter * releaseFrequencyPeriod
     );
 
     const data = {
-      depositedAmount: amount * 10 ** decimals,
+      depositedAmount: getBN(amount, decimals),
       recipient: recipient,
       mint: token.info.address,
       start,
-      period: releaseFrequencyPeriod * releaseFrequencyCounter,
-      cliff: cliff,
-      cliffAmount: cliffAmountCalculated,
-      amountPerPeriod: amountPerPeriod,
       name: subject,
+      period: Math.floor(releaseFrequencyPeriod * releaseFrequencyCounter),
+      cliff: cliff,
+      cliffAmount: getBN(cliffAmountCalculated, decimals),
+      amountPerPeriod: getBN(amountPerPeriod, decimals),
       cancelableBySender: senderCanCancel,
       cancelableByRecipient: recipientCanCancel,
       transferableBySender: senderCanTransfer,

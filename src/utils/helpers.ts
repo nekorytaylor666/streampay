@@ -7,6 +7,7 @@ import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 import { format } from "date-fns";
 import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock";
+import BN from "bn.js";
 
 import useStore from "../stores";
 import { StringOption } from "../types";
@@ -38,6 +39,15 @@ export function copyToClipboard(value: string): void {
 }
 
 const ourTokens = [
+  {
+    chainId: 103, //devnet
+    address: "AhitdMW8uWA5tfkRxv4zbRw7dN4sqdqgeVHHCjFo2u9G", //ADD YOUR LOCAL TOKEN HERE
+    symbol: "KIDA",
+    name: "KIDALICA",
+    decimals: 9, //default is 9
+    logoURI: "https://streamflow.finance/public/img/icon.png",
+    tags: [],
+  },
   {
     chainId: 103, //devnet
     address: "Gssm3vfi8s65R31SBdmQRq6cKeYojGgup7whkw4VCiQj", //ADD YOUR LOCAL TOKEN HERE
@@ -126,7 +136,7 @@ export const getTokenAmount = async (connection: Connection, wallet: Wallet, min
 };
 
 export const formatAmount = (amount: number, decimals: number, decimalPlaces?: number) =>
-  (amount / 10 ** decimals).toFixed(decimalPlaces || decimals);
+  amount.toFixed(decimalPlaces || decimals);
 
 export const roundAmount = (
   amount: number,
@@ -134,7 +144,7 @@ export const roundAmount = (
   decimalPlaces = DEFAULT_DECIMAL_PLACES
 ) => {
   const tens = 10 ** decimalPlaces;
-  return Math.round((amount / 10 ** decimals) * tens) / tens;
+  return Math.round(amount * tens) / tens;
 };
 
 const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
@@ -201,13 +211,21 @@ export const calculateEndTimeLikeOnBE = ({
   cliffAmount: number;
   amountPerPeriod: number;
   period: number;
-}): number => {
-  if (!cliff || !depositedAmount || !Math.floor(amountPerPeriod) || !period) return 0;
+}): { periods: number; endTimeFromBE: number } => {
+  if (!cliff || !Number(depositedAmount) || !amountPerPeriod || !period)
+    return { periods: 0, endTimeFromBE: 0 };
 
-  const cliffAmountCalculated = Math.floor((+cliffAmount / 100) * depositedAmount);
-  const periodsLeft = Math.floor((depositedAmount - cliffAmountCalculated) / amountPerPeriod);
+  const periodsLeft = getBN(depositedAmount, 9)
+    .sub(getBN(cliffAmount, 9))
+    .divRound(getBN(amountPerPeriod, 9))
+    .toNumber();
 
   const secondsLeft = periodsLeft * period;
 
-  return cliff + secondsLeft * 1000;
+  return { periods: periodsLeft, endTimeFromBE: (cliff + secondsLeft) * 1000 };
 };
+
+export const getBN = (data: number, decimals: number): BN =>
+  data > (2 ** 53 - 1) / 10 ** decimals
+    ? new BN(data).mul(new BN(10 ** decimals))
+    : new BN(data * 10 ** decimals);
