@@ -192,7 +192,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const streamflowFeeTotal = response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals;
+      const streamflowFeeTotal =
+        response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals;
       trackTransaction(
         response.id,
         token.info.symbol,
@@ -202,7 +203,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         streamflowFeeTotal,
         depositedAmount,
         depositedAmount * tokenPriceUsd,
-        walletType.name,
+        walletType.name
       );
     }
   };

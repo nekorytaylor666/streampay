@@ -75,8 +75,17 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
 };
 
 const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
-  const { myTokenAccounts, connection, updateStream, deleteStream, token, tokenPriceUsd, cluster, wallet, walletType } =
-    useStore(storeGetter);
+  const {
+    myTokenAccounts,
+    connection,
+    updateStream,
+    deleteStream,
+    token,
+    tokenPriceUsd,
+    cluster,
+    wallet,
+    walletType,
+  } = useStore(storeGetter);
   const decimals = myTokenAccounts[data.mint].uiTokenAmount.decimals;
 
   const {
@@ -177,8 +186,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         {
           [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: symbol,
           [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
-          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]:
-            withdrawnAmount * tokenPriceUsd,
+          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawnAmount * tokenPriceUsd,
           [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
         }
       );

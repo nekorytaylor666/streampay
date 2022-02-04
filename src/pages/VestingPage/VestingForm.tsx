@@ -229,15 +229,18 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
       });
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      const streamflowFeeTotal =
+        response.data.streamflowFeeTotal / 10 ** token.uiTokenAmount.decimals;
+      const depositedAmount = response.data.depositedAmount.toNumber() / 10 ** decimals;
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.CREATE_VESTING,
-        (response.data.streamflowFeeTotal * tokenPriceUsd) / 10 ** decimals,
-        response.data.streamflowFeeTotal / 10 ** decimals,
-        response.data.depositedAmount / 10 ** decimals,
-        (response.data.depositedAmount * tokenPriceUsd) / 10 ** decimals,
+        streamflowFeeTotal * tokenPriceUsd,
+        streamflowFeeTotal,
+        depositedAmount,
+        depositedAmount * tokenPriceUsd,
         walletType.name
       );
     }

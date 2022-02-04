@@ -88,7 +88,9 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
     if (isCancelled) {
       const stream = await Stream.getOne({ connection, id });
-      const cancelledAmount = stream.depositedAmount - stream.withdrawnAmount;
+      const cancelledAmount =
+        (stream.depositedAmount.toNumber() - stream.withdrawnAmount.toNumber()) /
+        10 ** token.uiTokenAmount.decimals;
       if (stream) {
         updateToken();
         updateStream([id, stream]);
@@ -96,12 +98,11 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
           EVENT_CATEGORY.STREAM,
           EVENT_ACTION.CANCEL,
           wallet?.publicKey?.toBase58() as string,
-          (cancelledAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+          cancelledAmount * tokenPriceUsd,
           {
             [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: token.info.symbol,
             [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
-            [DATA_LAYER_VARIABLE.TOKEN_FEE]:
-              (cancelledAmount * 0.0025) / 10 ** token.uiTokenAmount.decimals,
+            [DATA_LAYER_VARIABLE.TOKEN_FEE]: cancelledAmount * 0.0025,
             [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
           }
         );
