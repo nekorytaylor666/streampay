@@ -467,7 +467,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             <Button
               type="submit"
               primary
-              classes="px-16 py-4 font-bold text-xl my-5"
+              classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
               disabled={loading}
             >
               Create
@@ -475,7 +475,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           </>
         ) : (
           <WalletPicker
-            classes="px-8 py-4 font-bold text-xl my-8 sm:my-10"
+            classes="px-8 py-4 mx-auto font-bold text-xl my-8 sm:my-10"
             title="Connect wallet"
           />
         )}

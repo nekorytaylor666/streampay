@@ -371,14 +371,17 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <Button
             type="submit"
             primary
-            classes="px-20 py-4 font-bold text-2xl my-5"
+            classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
             disabled={loading}
           >
             Create
           </Button>
         </>
       ) : (
-        <WalletPicker classes="px-8 py-4 font-bold text-xl my-8 sm:my-10" title="Connect wallet" />
+        <WalletPicker
+          classes="px-8 mx-auto py-4 font-bold text-xl my-8 sm:my-10"
+          title="Connect wallet"
+        />
       )}
       <Modal
         ref={modalRef}

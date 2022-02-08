@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,18 +8,71 @@ import { trackPageView } from "./utils/marketing_helpers";
 import { Footer, Header, Nav, Banner } from "./components";
 import { Page404 } from "./pages";
 import routes from "./RoutesConfig";
+import { getProgramAccounts } from "./utils/helpers";
+import {
+  COMMUNITY_PROGRAM_ID,
+  STREAMS_COMMUNITY_OFFSET_SENDER,
+  STREAMS_COMMUNITY_OFFSET_RECIPIENT,
+} from "./constants";
+import useStore, { StoreType } from "./stores";
+
+const storeGetter = ({ connection, wallet }: StoreType) => ({
+  connection: connection(),
+  wallet,
+});
 
 const App = () => {
   const history = useHistory();
+  const { wallet, connection } = useStore(storeGetter);
+  const [showCommunityBanner, setShowCommunityBanner] = useState(false);
 
   useEffect(() => {
     trackPageView();
     history.listen(trackPageView);
   }, [history]);
 
+  useEffect(() => {
+    if (!connection || !wallet || !wallet.publicKey) return setShowCommunityBanner(false);
+
+    const publicKey = wallet.publicKey?.toBase58();
+
+    Promise.all([
+      getProgramAccounts(
+        connection,
+        COMMUNITY_PROGRAM_ID,
+        STREAMS_COMMUNITY_OFFSET_SENDER,
+        publicKey
+      ),
+      getProgramAccounts(
+        connection,
+        COMMUNITY_PROGRAM_ID,
+        STREAMS_COMMUNITY_OFFSET_RECIPIENT,
+        publicKey
+      ),
+    ]).then(([outgoing, incoming]) =>
+      setShowCommunityBanner(outgoing.length > 0 || incoming.length > 0)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connection, wallet]);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Banner title="You are on Streamflow devnet!" classes="top-0 left-0 w-full"></Banner>
+      {showCommunityBanner && (
+        <Banner classes="top-0 left-0 w-full">
+          <p className="font-small text-white">
+            Streamflow has upgraded to v2. Your existing streams are SAFU, please use the{" "}
+            <a
+              href="https://free.streamflow.finance"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold underline"
+            >
+              Community version
+            </a>{" "}
+            to interact with them.
+          </p>
+        </Banner>
+      )}
       <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
         <Header />
         <Nav classes="block lg:hidden mb-2" />

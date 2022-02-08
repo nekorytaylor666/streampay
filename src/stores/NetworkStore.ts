@@ -8,7 +8,7 @@ export const CLUSTER_LOCAL = "local";
 const clusterUrls: { [s: string]: () => string } = {
   [CLUSTER_LOCAL]: () => "http://localhost:8899", // http://127.0.0.1:8899",
   [Cluster.Devnet]: () => clusterApiUrl(Cluster.Devnet),
-  [Cluster.Mainnet]: () => clusterApiUrl(Cluster.Mainnet),
+  [Cluster.Mainnet]: () => "https://solana-api.projectserum.com",
 };
 
 interface NetworkStore {
@@ -24,7 +24,7 @@ interface NetworkStore {
 
 const useNetworkStore = (set: Function, get: Function): NetworkStore => ({
   // state
-  cluster: Cluster.Devnet,
+  cluster: Cluster.Mainnet,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),

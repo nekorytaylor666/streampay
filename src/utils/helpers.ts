@@ -215,3 +215,20 @@ export const calculateEndTimeLikeOnBE = ({
 
   return { periods: periodsLeft, endTimeFromBE: (cliff + secondsLeft) * 1000 };
 };
+
+export const getProgramAccounts = (
+  connection: Connection,
+  programId: string,
+  offset: number,
+  bytes: string
+) =>
+  connection?.getProgramAccounts(new PublicKey(programId), {
+    filters: [
+      {
+        memcmp: {
+          offset,
+          bytes,
+        },
+      },
+    ],
+  });

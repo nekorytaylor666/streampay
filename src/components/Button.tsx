@@ -28,7 +28,7 @@ const Button: FC<ButtonProps> = ({
     : "";
 
   const baseClasses =
-    "block mx-auto border-transparent font-medium rounded-md shadow-sm text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50";
+    "block border-transparent font-medium rounded-md shadow-sm text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50";
 
   return (
     <button
