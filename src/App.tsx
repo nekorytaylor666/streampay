@@ -77,7 +77,7 @@ const App = () => {
         </Banner>
       )}
       {!isMainnet && (
-        <Banner title="You are on Streamflow devnet!" classes="top-0 left-0 w-full"></Banner>
+        <Banner title="DEVNET VERSION, sandbox environment!" classes="top-0 left-0 w-full"></Banner>
       )}
       <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
         <Header />
