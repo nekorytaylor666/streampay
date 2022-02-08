@@ -408,7 +408,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               <div className="col-span-full grid grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
                 <div className="col-span-1">
                   <label className="text-gray-200 text-base cursor-pointer mb-1 block">
-                    Who can transfer?
+                    Who can transfer the contract?
                   </label>
                   <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-2 px-2.5 sm:px-3 py-2">
                     <Input

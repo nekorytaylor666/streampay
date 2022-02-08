@@ -63,8 +63,8 @@ const App = () => {
     <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
       {showCommunityBanner && (
         <Banner classes="top-0 left-0 w-full">
-          <p className="font-small text-white">
-            Streamflow has upgraded to v2. Your existing streams are SAFU, please use the{" "}
+          <p className="text-sm text-white">
+            Streamflow has upgraded to v2. Your existing streams are safu, please use the{" "}
             <a
               href="https://free.streamflow.finance"
               target="_blank"
@@ -78,7 +78,10 @@ const App = () => {
         </Banner>
       )}
       {!isMainnet && (
-        <Banner title="DEVNET VERSION, sandbox environment!" classes="top-0 left-0 w-full"></Banner>
+        <Banner
+          title="This is devnet (sandbox) environment!"
+          classes="top-0 left-0 w-full"
+        ></Banner>
       )}
       <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
         <Header />

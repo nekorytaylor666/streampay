@@ -36,7 +36,7 @@ export default class Banner extends Component<BannerProps, BannerState> {
             <button
               type="button"
               onClick={() => this.setState({ hidden: true })}
-              className="flex p-2 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex p-1 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-white"
             >
               <span className="sr-only">Dismiss</span>
               <XIcon className="h-6 w-6 text-white" />

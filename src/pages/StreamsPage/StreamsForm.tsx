@@ -216,7 +216,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
         <Input
           type="number"
-          label="Deposited Amount"
+          label="Amount to stream"
           customChange={updateReleaseAmountError}
           placeholder="0.00"
           classes="col-span-3 sm:col-span-1"
@@ -316,7 +316,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <>
             <div className="col-span-3 sm:col-span-1">
               <label className="text-gray-200 text-base cursor-pointer mb-1 block">
-                Who can transfer?
+                Who can transfer the stream?
               </label>
               <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                 <Input
