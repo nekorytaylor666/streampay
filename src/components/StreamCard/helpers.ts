@@ -1,5 +1,5 @@
 import { getUnixTime } from "date-fns";
-import { Stream, getNumberFromBN } from "@streamflow/timelock";
+import { Stream, getNumberFromBN } from "@streamflow/stream";
 
 import { StreamStatus } from "../../types";
 

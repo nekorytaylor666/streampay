@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
 import { clusterApiUrl } from "@solana/web3.js";
-import { Cluster, ClusterExtended, LocalCluster } from "@streamflow/timelock";
+import { Cluster, ClusterExtended, LocalCluster } from "@streamflow/stream";
 
 export const CLUSTER_LOCAL = "local";
 

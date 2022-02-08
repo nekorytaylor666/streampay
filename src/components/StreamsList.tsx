@@ -3,7 +3,7 @@ import { useEffect, FC } from "react";
 import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
-import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/timelock";
+import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
 
 import { StreamCard } from ".";
 import { cancelStream } from "../api/transactions";

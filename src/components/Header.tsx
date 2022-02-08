@@ -1,6 +1,7 @@
 import cx from "classnames";
+import { Cluster } from "@streamflow/stream";
 
-import { Logo, Nav, WalletPicker } from ".";
+import { Logo, Nav, WalletPicker, Toggle } from ".";
 import logo from "../assets/icons/logo.png";
 import useStore, { StoreType } from "../stores";
 
@@ -11,7 +12,10 @@ const storeGetter = ({ cluster, wallet, setCluster }: StoreType) => ({
 });
 
 const Header = () => {
-  const { wallet } = useStore(storeGetter);
+  const { wallet, cluster, setCluster } = useStore(storeGetter);
+  const isMainnet = cluster === Cluster.Mainnet;
+
+  const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
 
   return (
     <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">
@@ -19,6 +23,13 @@ const Header = () => {
         <Logo src={logo} classes="w-44" />
         <Nav classes="hidden lg:block" />
         <div className="flex justify-end items-center w-44">
+          <Toggle
+            enabled={isMainnet}
+            setEnabled={toggleCluster}
+            labelLeft="devnet"
+            labelRight="mainnet"
+            classes="hidden sm:flex mr-2"
+          />
           <WalletPicker
             title="Connect"
             classes={cx("px-3 py-1 sm:px-6 sm:py-2", {
@@ -27,6 +38,13 @@ const Header = () => {
           />
         </div>
       </div>
+      <Toggle
+        enabled={isMainnet}
+        setEnabled={toggleCluster}
+        labelLeft="devnet"
+        labelRight="mainnet"
+        classes="flex sm:hidden justify-end mt-1"
+      />
     </div>
   );
 };

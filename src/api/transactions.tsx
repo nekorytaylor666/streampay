@@ -6,7 +6,7 @@ import Stream, {
   TransferStreamData,
   TopupStreamData,
   CancelStreamData,
-} from "@streamflow/timelock";
+} from "@streamflow/stream";
 import * as Sentry from "@sentry/react";
 import { Wallet } from "@project-serum/anchor/src/provider";
 import { Connection } from "@solana/web3.js";

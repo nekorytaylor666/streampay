@@ -1,8 +1,7 @@
 import { useEffect, useState, FC, useRef } from "react";
 
 import { format, fromUnixTime } from "date-fns";
-import Stream, { getBN } from "@streamflow/timelock";
-import { Stream as StreamData } from "@streamflow/timelock";
+import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import { toast } from "react-toastify";

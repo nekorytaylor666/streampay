@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import { Cluster } from "@streamflow/stream";
 
 import { trackPageView } from "./utils/marketing_helpers";
 import { Footer, Header, Nav, Banner } from "./components";
@@ -16,14 +17,15 @@ import {
 } from "./constants";
 import useStore, { StoreType } from "./stores";
 
-const storeGetter = ({ connection, wallet }: StoreType) => ({
+const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
   connection: connection(),
   wallet,
+  isMainnet: cluster === Cluster.Mainnet,
 });
 
 const App = () => {
   const history = useHistory();
-  const { wallet, connection } = useStore(storeGetter);
+  const { wallet, connection, isMainnet } = useStore(storeGetter);
   const [showCommunityBanner, setShowCommunityBanner] = useState(false);
 
   useEffect(() => {
@@ -32,7 +34,8 @@ const App = () => {
   }, [history]);
 
   useEffect(() => {
-    if (!connection || !wallet || !wallet.publicKey) return setShowCommunityBanner(false);
+    if (!isMainnet || !connection || !wallet || !wallet.publicKey)
+      return setShowCommunityBanner(false);
 
     const publicKey = wallet.publicKey?.toBase58();
 
@@ -72,6 +75,9 @@ const App = () => {
             to interact with them.
           </p>
         </Banner>
+      )}
+      {!isMainnet && (
+        <Banner title="You are on Streamflow devnet!" classes="top-0 left-0 w-full"></Banner>
       )}
       <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
         <Header />
