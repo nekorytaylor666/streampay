@@ -49,7 +49,7 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
             id={name}
             name={name}
             onChange={onChange}
-            className="mr-2 cursor-pointer bg-gray-900 border-0 rounded-sm font-light"
+            className="mr-2 cursor-pointer bg-main border-0 rounded-sm font-light"
             {...rest}
             ref={ref}
           />
@@ -68,7 +68,7 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
           aria-describedby={`${name}-description`}
           onChange={handleChange}
           className={cx(
-            "text-gray-100 font-light p-2 pr-1.5 sm:pl-3 sm:pr-2 bg-gray-800 block w-full rounded-md shadow-sm",
+            "text-gray-100 font-light p-2 pr-1.5 sm:pl-3 sm:pr-2 bg-field block w-full rounded-md shadow-sm",
             inputClasses,
             error
               ? "border-red-700 focus:ring-red-700 focus:border-red-700"

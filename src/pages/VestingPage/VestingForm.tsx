@@ -3,7 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { getBN, getNumberFromBN } from "@streamflow/timelock";
+import { getBN, getNumberFromBN } from "@streamflow/stream";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -408,7 +408,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               <div className="col-span-full grid grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
                 <div className="col-span-1">
                   <label className="text-gray-200 text-base cursor-pointer mb-1 block">
-                    Who can transfer?
+                    Who can transfer the contract?
                   </label>
                   <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-2 px-2.5 sm:px-3 py-2">
                     <Input
@@ -467,7 +467,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             <Button
               type="submit"
               primary
-              classes="px-16 py-4 font-bold text-xl my-5"
+              classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
               disabled={loading}
             >
               Create
@@ -475,7 +475,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           </>
         ) : (
           <WalletPicker
-            classes="px-8 py-4 font-bold text-xl my-8 sm:my-10"
+            classes="px-8 py-4 mx-auto font-bold text-xl my-8 sm:my-10"
             title="Connect wallet"
           />
         )}

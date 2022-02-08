@@ -1,4 +1,4 @@
-import { Stream as StreamData } from "@streamflow/timelock";
+import { Stream as StreamData } from "@streamflow/stream";
 
 interface StreamStore {
   streams: [string, StreamData][];

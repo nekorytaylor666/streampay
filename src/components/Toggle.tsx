@@ -31,7 +31,7 @@ export default function Toggle({
         onChange={setEnabled}
         disabled={disabled}
         className={cx(
-          enabled ? "bg-primary" : "bg-gray-900",
+          enabled ? "bg-primary" : "bg-field",
           { "cursor-not-allowed": disabled },
           "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full transition-colors ease-in-out duration-200 ring-1 ring-primary focus:ring-2 focus:outline-none focus:ring-primary"
         )}

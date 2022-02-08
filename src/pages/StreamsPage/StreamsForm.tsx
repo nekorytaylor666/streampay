@@ -3,7 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { BN, getBN, getNumberFromBN } from "@streamflow/timelock";
+import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -216,7 +216,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
         <Input
           type="number"
-          label="Deposited Amount"
+          label="Amount to stream"
           customChange={updateReleaseAmountError}
           placeholder="0.00"
           classes="col-span-3 sm:col-span-1"
@@ -316,9 +316,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <>
             <div className="col-span-3 sm:col-span-1">
               <label className="text-gray-200 text-base cursor-pointer mb-1 block">
-                Who can transfer?
+                Who can transfer the stream?
               </label>
-              <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+              <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                 <Input
                   type="checkbox"
                   label="sender"
@@ -337,7 +337,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
               <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
                 Who can cancel?
               </label>
-              <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+              <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                 <Input
                   type="checkbox"
                   label="sender"
@@ -371,14 +371,17 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <Button
             type="submit"
             primary
-            classes="px-20 py-4 font-bold text-2xl my-5"
+            classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
             disabled={loading}
           >
             Create
           </Button>
         </>
       ) : (
-        <WalletPicker classes="px-8 py-4 font-bold text-xl my-8 sm:my-10" title="Connect wallet" />
+        <WalletPicker
+          classes="px-8 mx-auto py-4 font-bold text-xl my-8 sm:my-10"
+          title="Connect wallet"
+        />
       )}
       <Modal
         ref={modalRef}

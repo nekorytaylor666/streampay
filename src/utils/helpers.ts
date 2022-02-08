@@ -6,7 +6,7 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import swal from "sweetalert";
 import { format } from "date-fns";
-import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/timelock";
+import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/stream";
 
 import useStore from "../stores";
 import { StringOption } from "../types";
@@ -215,3 +215,20 @@ export const calculateEndTimeLikeOnBE = ({
 
   return { periods: periodsLeft, endTimeFromBE: (cliff + secondsLeft) * 1000 };
 };
+
+export const getProgramAccounts = (
+  connection: Connection,
+  programId: string,
+  offset: number,
+  bytes: string
+) =>
+  connection?.getProgramAccounts(new PublicKey(programId), {
+    filters: [
+      {
+        memcmp: {
+          offset,
+          bytes,
+        },
+      },
+    ],
+  });
