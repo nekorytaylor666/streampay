@@ -318,7 +318,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
               <label className="text-gray-200 text-base cursor-pointer mb-1 block">
                 Who can transfer?
               </label>
-              <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+              <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                 <Input
                   type="checkbox"
                   label="sender"
@@ -337,7 +337,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
               <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
                 Who can cancel?
               </label>
-              <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+              <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                 <Input
                   type="checkbox"
                   label="sender"

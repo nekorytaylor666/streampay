@@ -18,7 +18,12 @@ const Header = () => {
   const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
 
   return (
-    <div className="items-center py-3 lg:mb-16 sticky top-0 bg-gray-900 bg-opacity-90 z-10 mb-2">
+    <div
+      className={cx(
+        "items-center py-3 lg:mb-16 sticky top-0 bg-opacity-90 z-10 mb-2",
+        isMainnet ? "bg-main" : "bg-sandbox"
+      )}
+    >
       <div className="flex justify-between items-center">
         <Logo src={logo} classes="w-44" />
         <Nav classes="hidden lg:block" />

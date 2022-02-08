@@ -39,6 +39,9 @@ module.exports = {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
         ternary: "var(--ternary)",
+        main: "#1C2530",
+        sandbox: "#131722",
+        field: "#2A3441",
       },
       fontSize: {
         xxs: "11px",

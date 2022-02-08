@@ -4,6 +4,7 @@ import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Cluster } from "@streamflow/stream";
+import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
 import { Footer, Header, Nav, Banner } from "./components";
@@ -59,7 +60,7 @@ const App = () => {
   }, [connection, wallet]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
       {showCommunityBanner && (
         <Banner classes="top-0 left-0 w-full">
           <p className="font-small text-white">
