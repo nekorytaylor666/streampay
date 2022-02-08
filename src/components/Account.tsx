@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useState, FC } from "react";
 
-import { Cluster } from "@streamflow/timelock";
+import { Cluster, ClusterExtended } from "@streamflow/timelock";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
@@ -16,7 +16,7 @@ import {
   TX_FINALITY_CONFIRMED,
 } from "../constants";
 import useStore, { StoreType } from "../stores";
-import { getExplorerLink, getTokenAmount } from "../utils/helpers";
+import { getExplorerLink, getTokenAccounts, getTokenAmount } from "../utils/helpers";
 import { Address, Button, Link } from ".";
 import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
@@ -30,7 +30,7 @@ const storeGetter = ({
   myTokenAccounts,
   setToken,
 }: StoreType) => ({
-  isMainnet: cluster === Cluster.Mainnet,
+  cluster,
   connection: connection(),
   wallet,
   disconnectWallet,
@@ -55,7 +55,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   const {
     connection,
     wallet,
-    isMainnet,
+    cluster,
     disconnectWallet,
     token,
     setMyTokenAccounts,
@@ -63,6 +63,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     setToken,
   } = useStore(storeGetter);
 
+  const isMainnet = cluster === Cluster.Mainnet;
   const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
   const hideAirdrop =
     isMainnet || AIRDROP_WHITELIST.indexOf(wallet?.publicKey?.toBase58() as string) === -1;
@@ -78,7 +79,19 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
     });
 
-    if (address === token.info.address) setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+    if (address === token?.info?.address) setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+  };
+
+  const updateTokenAccounts = async (
+    connection: Connection,
+    wallet: Wallet,
+    cluster: ClusterExtended
+  ) => {
+    // @ts-ignore
+    const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+
+    setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
+    setMyTokenAccounts(myTokenAccounts);
   };
 
   async function requestAirdrop() {
@@ -113,7 +126,10 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             Sentry.captureException(res1.value.err);
           } else toast.success(successfulAirdropMsg);
 
-          updateBalance(connection, wallet as Wallet, AIRDROP_TEST_TOKEN);
+          if (!token || !Object.keys(token).length)
+            updateTokenAccounts(connection, wallet as Wallet, cluster);
+          else updateBalance(connection, wallet as Wallet, AIRDROP_TEST_TOKEN);
+
           setTimeout(() => setIsGimmeSolDisabled(false), 7000);
         },
         () => toast.warning("Airdrop was not confirmed!")
