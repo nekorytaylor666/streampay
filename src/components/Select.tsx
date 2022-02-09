@@ -12,7 +12,7 @@ interface SelectProps {
   error?: string;
   onChange: ChangeHandler;
   plural?: boolean;
-  customChange?: any;
+  customChange?: (value: string) => void;
   options: StringOption[] | NumberOption[];
 }
 

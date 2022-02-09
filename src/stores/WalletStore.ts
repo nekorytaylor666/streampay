@@ -1,16 +1,17 @@
-import type { Wallet as WalletType, Adapter } from "@solana/wallet-adapter-base";
+import type { Wallet } from "@solana/wallet-adapter-base";
 import { WalletNotReadyError } from "@solana/wallet-adapter-base";
 import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
 import { trackEvent } from "../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, DATA_LAYER_VARIABLE } from "../constants";
+import { WalletAdapter } from "../types";
 
 interface WalletState {
-  walletType: WalletType | null;
-  wallet: Adapter | null;
+  walletType: Wallet | null;
+  wallet: WalletAdapter | null;
   connection: () => Connection | null;
-  setWalletType: (walletType: WalletType | null) => Promise<void>;
+  setWalletType: (walletType: Wallet | null) => Promise<void>;
   disconnectWallet: () => void;
 }
 
@@ -44,29 +45,29 @@ const walletStore: WalletStore = (set, get) => ({
     const state = get();
     if (walletType?.name === state.walletType?.name) return;
 
-    const wallet = walletType?.adapter;
-    if (wallet) {
-      wallet.on("connect", async () => {
-        set({ walletType, wallet });
+    const walletAdapter = walletType?.adapter;
+    if (walletAdapter) {
+      walletAdapter.on("connect", async () => {
+        set({ walletType, wallet: walletAdapter });
         // state.persistStoreToLocalStorage();
 
         toast.success("Wallet connected!");
         trackEvent(
           EVENT_CATEGORY.WALLET,
           EVENT_ACTION.CONNECT,
-          wallet.publicKey?.toBase58() || "",
+          walletAdapter.publicKey?.toBase58() || "",
           0,
           {
             [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
           }
         );
       });
-      wallet.on("disconnect", () => {
+      walletAdapter.on("disconnect", () => {
         set({ walletType: null, wallet: null });
         // state.persistStoreToLocalStorage();
         toast.info("Disconnected from wallet");
       });
-      wallet.connect().catch((e: Error) => {
+      walletAdapter.connect().catch((e: Error) => {
         set({ walletType: null, wallet: null });
         toast.error(
           e instanceof WalletNotReadyError
@@ -75,7 +76,7 @@ const walletStore: WalletStore = (set, get) => ({
         );
       });
     } else {
-      set({ walletType, wallet });
+      set({ walletType, wallet: walletAdapter });
     }
   },
   disconnectWallet: () => {

@@ -6,7 +6,7 @@ interface LinkProps {
   url: string;
   title?: string;
   classes?: string;
-  Icon?: any;
+  Icon?: React.ElementType;
 }
 
 const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (

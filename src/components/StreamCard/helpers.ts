@@ -1,7 +1,7 @@
 import { getUnixTime } from "date-fns";
 import { Stream, getNumberFromBN } from "@streamflow/stream";
 
-import { StreamStatus } from "../../types";
+import { StreamFE, StreamStatus } from "../../types";
 
 export function getStreamStatus(
   canceledAt: number | undefined,
@@ -81,7 +81,7 @@ export const getNextUnlockTime = (
   return nextUnlockTime <= end ? nextUnlockTime : end;
 };
 
-export const formatStreamData = (data: Stream, decimals: number): any => ({
+export const formatStreamData = (data: Stream, decimals: number): StreamFE => ({
   ...data,
   depositedAmount: getNumberFromBN(data.depositedAmount, decimals),
   cliffAmount: getNumberFromBN(data.cliffAmount, decimals),

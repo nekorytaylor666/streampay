@@ -1,6 +1,5 @@
 import { useEffect, FC } from "react";
 
-import type { Adapter } from "@solana/wallet-adapter-base";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
@@ -11,6 +10,7 @@ import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants"
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
+import { WalletAdapter } from "../types";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
@@ -37,7 +37,7 @@ const filterStreams = (streams: [string, StreamData][], type: "vesting" | "strea
 
 interface StreamsListProps {
   connection: Connection;
-  wallet: Adapter;
+  wallet: WalletAdapter;
   type: "vesting" | "streams";
 }
 const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
@@ -83,7 +83,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   }, [cluster]);
 
   async function handleCancel(id: string) {
-    // @ts-ignore
     const isCancelled = await cancelStream({ id }, connection, wallet, cluster);
 
     if (isCancelled) {

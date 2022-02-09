@@ -4,7 +4,6 @@ import { Cluster, ClusterExtended } from "@streamflow/stream";
 import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
-import { Wallet } from "@project-serum/anchor/src/provider";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import * as Sentry from "@sentry/react";
 
@@ -16,6 +15,7 @@ import {
   TX_FINALITY_CONFIRMED,
 } from "../constants";
 import useStore, { StoreType } from "../stores";
+import { WalletAdapter } from "../types";
 import { getExplorerLink, getTokenAccounts, getTokenAmount } from "../utils/helpers";
 import { Address, Button, Link } from ".";
 import { cancel, initialize, getAirdrop } from "../api/airdrop";
@@ -70,8 +70,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   const isConnected = wallet?.connected && connection;
   const hasTokens = Object.keys(myTokenAccounts).length;
 
-  const updateBalance = async (connection: Connection, wallet: Wallet, address: string) => {
-    // @ts-ignore
+  const updateBalance = async (connection: Connection, wallet: WalletAdapter, address: string) => {
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
 
     setMyTokenAccounts({
@@ -84,10 +83,9 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
 
   const updateTokenAccounts = async (
     connection: Connection,
-    wallet: Wallet,
+    wallet: WalletAdapter,
     cluster: ClusterExtended
   ) => {
-    // @ts-ignore
     const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
 
     setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
@@ -110,7 +108,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
 
-      const tx = await getAirdrop(connection, wallet as Wallet);
+      const tx = await getAirdrop(connection, wallet);
 
       Promise.all([
         connection.confirmTransaction(signature, TX_FINALITY_CONFIRMED),
@@ -127,8 +125,8 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
           } else toast.success(successfulAirdropMsg);
 
           if (!token || !Object.keys(token).length)
-            updateTokenAccounts(connection, wallet as Wallet, cluster);
-          else updateBalance(connection, wallet as Wallet, AIRDROP_TEST_TOKEN);
+            updateTokenAccounts(connection, wallet, cluster);
+          else updateBalance(connection, wallet, AIRDROP_TEST_TOKEN);
 
           setTimeout(() => setIsGimmeSolDisabled(false), 7000);
         },
@@ -147,14 +145,14 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   }
 
   const initializeOrCancelAirdrop = async (
-    cb: (connection: Connection, wallet: Wallet) => Promise<boolean>
+    cb: (connection: Connection, wallet: WalletAdapter) => Promise<boolean>
   ) => {
     if (!wallet?.publicKey || !connection) {
       toast.error(ERR_NOT_CONNECTED);
       return;
     }
-    await cb(connection, wallet as Wallet);
-    updateBalance(connection, wallet as Wallet, AIRDROP_TEST_TOKEN);
+    await cb(connection, wallet);
+    updateBalance(connection, wallet, AIRDROP_TEST_TOKEN);
   };
 
   const walletPubKey = wallet?.publicKey?.toBase58();

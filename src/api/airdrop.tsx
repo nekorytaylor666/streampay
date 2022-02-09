@@ -1,5 +1,4 @@
 import { BN, Program, Provider } from "@project-serum/anchor";
-import { Wallet } from "@project-serum/anchor/src/provider";
 import { Connection, Keypair, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import type { Idl } from "@project-serum/anchor/dist/cjs/idl";
@@ -9,15 +8,16 @@ import * as Sentry from "@sentry/react";
 
 import airdrop from "../idl/airdrop";
 import { AIRDROP_TEST_TOKEN } from "../constants";
+import { WalletAdapter } from "../types";
 
 const PROGRAM_ID = "Ek6Jpdv5iEEDLXTVQ8UFcntms3DT2ewHtzzwH2R5MpvN";
 
-function initProgram(connection: Connection, wallet: Wallet): Program {
+function initProgram(connection: Connection, wallet: WalletAdapter): Program {
   const provider = new Provider(connection, wallet, {});
   return new Program(airdrop as Idl, PROGRAM_ID, provider);
 }
 
-export async function initialize(connection: Connection, wallet: Wallet): Promise<boolean> {
+export async function initialize(connection: Connection, wallet: WalletAdapter): Promise<boolean> {
   const program = initProgram(connection, wallet);
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
   const airdropAccount = new Keypair();
@@ -41,7 +41,7 @@ export async function initialize(connection: Connection, wallet: Wallet): Promis
     mint,
     assAirdropTokAcc,
     airdropAccount.publicKey,
-    wallet?.publicKey as PublicKey
+    wallet.publicKey
   );
 
   try {
@@ -68,7 +68,7 @@ export async function initialize(connection: Connection, wallet: Wallet): Promis
 
 export async function getAirdrop(
   connection: Connection,
-  wallet: Wallet
+  wallet: WalletAdapter
 ): Promise<TransactionSignature> {
   const program = initProgram(connection, wallet);
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
@@ -78,7 +78,7 @@ export async function getAirdrop(
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mint,
-    wallet?.publicKey as PublicKey
+    wallet.publicKey
   );
 
   const pda = (await connection?.getProgramAccounts(program.programId))[0].pubkey;
@@ -116,7 +116,7 @@ export async function getAirdrop(
   }
 }
 
-export async function cancel(connection: Connection, wallet: Wallet): Promise<boolean> {
+export async function cancel(connection: Connection, wallet: WalletAdapter): Promise<boolean> {
   const program = initProgram(connection, wallet);
   const mint = new PublicKey(AIRDROP_TEST_TOKEN);
 
@@ -126,7 +126,7 @@ export async function cancel(connection: Connection, wallet: Wallet): Promise<bo
     ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     mint,
-    wallet?.publicKey as PublicKey
+    wallet.publicKey
   );
 
   const pda = (await connection?.getProgramAccounts(program.programId))[0].pubkey;
