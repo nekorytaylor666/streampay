@@ -179,7 +179,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-    // @ts-ignore
+
     const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
     if (response) {

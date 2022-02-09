@@ -1,4 +1,4 @@
-import { FC, forwardRef } from "react";
+import { FC, forwardRef, ChangeEvent } from "react";
 
 import type { ChangeHandler } from "react-hook-form";
 import cx from "classnames";
@@ -20,7 +20,7 @@ interface InputProps {
   customChange?: (value: string) => void;
 }
 
-const Input: FC<InputProps> = forwardRef<any, InputProps>(
+const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
   (
     {
       type,
@@ -36,7 +36,7 @@ const Input: FC<InputProps> = forwardRef<any, InputProps>(
     },
     ref
   ) => {
-    const handleChange = (e: any) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       onChange(e);
       if (customChange) customChange(e.target.value);
     };

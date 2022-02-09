@@ -1,4 +1,4 @@
-import type { Adapter } from "@solana/wallet-adapter-base";
+import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 import type { TokenInfo } from "@solana/spl-token-registry";
@@ -69,7 +69,7 @@ const ourTokens = [
 
 export const getTokenAccounts = async (
   connection: Connection,
-  wallet: Adapter,
+  wallet: SignerWalletAdapter,
   cluster: ClusterExtended
 ) => {
   // is default Strategy (in resolve()) way to go?
@@ -116,7 +116,11 @@ export const getTokenAccounts = async (
   return myTokenAccountsDerived;
 };
 
-export const getTokenAmount = async (connection: Connection, wallet: Adapter, mint: string) => {
+export const getTokenAmount = async (
+  connection: Connection,
+  wallet: SignerWalletAdapter,
+  mint: string
+) => {
   const token = await connection.getParsedTokenAccountsByOwner(wallet.publicKey as PublicKey, {
     mint: new PublicKey(mint),
   });
