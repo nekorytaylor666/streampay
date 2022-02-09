@@ -42,6 +42,7 @@ module.exports = {
         main: "#1C2530",
         sandbox: "#131722",
         field: "#2A3441",
+        dark: "#18181b",
       },
       fontSize: {
         xxs: "11px",

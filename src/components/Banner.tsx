@@ -22,9 +22,9 @@ export default class Banner extends Component<BannerProps, BannerState> {
     return (
       <div className={`relative bg-primary ${this.state.hidden && "hidden"}`}>
         <div className="max-w-7xl mx-auto py-2 px-3 sm:px-6 lg:px-8">
-          <div className="pr-16 sm:text-center sm:px-16">
+          <div className="pr-6 sm:text-center sm:px-16">
             {this.props.title && (
-              <p className="font-small text-white">
+              <p className="text-sm sm:text-base text-white">
                 <b>{this.props.title}</b>
                 &nbsp;
                 <span className="hidden lg:inline">{this.props.message}</span>

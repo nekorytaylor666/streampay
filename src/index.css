@@ -1,7 +1,7 @@
 :root {
   --primary: #18a2d9;
   --secondary: #00ffa3;
-  --ternary: #2c4161;
+  --ternary: #2a3849;
 }
 
 @tailwind base;
