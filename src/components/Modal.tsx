@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle, MouseEvent } from "react";
 
 import cx from "classnames";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
@@ -67,8 +67,12 @@ const Modal = forwardRef<ModalRef, ModalProps>(
           "h-screen fixed z-10 w-screen backdrop-filter backdrop-blur-xs bg-opacity-70 bg-gray-900 top-0 left-0 flex justify-center items-center",
           visible ? "block" : "hidden"
         )}
+        onClick={onCancel}
       >
-        <div className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-gradient-to-br to-ternary from-gray-800">
+        <div
+          className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-gradient-to-br to-ternary from-gray-800"
+          onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+        >
           <p className="mb-2 text-center text-sm sm:text-base text-gray-100">{modalTitle}</p>
           <p className="mb-2 text-center text-xs sm:text-sm text-gray-100">{text}</p>
           {isRangeInput && (

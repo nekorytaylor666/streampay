@@ -1,15 +1,14 @@
-import Wallet from "@project-serum/sol-wallet-adapter";
-import { WalletNotFoundError } from "@solana/wallet-adapter-base";
+import type { Wallet as WalletType, Adapter } from "@solana/wallet-adapter-base";
+import { WalletNotReadyError } from "@solana/wallet-adapter-base";
 import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 
-import { WalletType } from "../types";
 import { trackEvent } from "../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, DATA_LAYER_VARIABLE } from "../constants";
 
 interface WalletState {
   walletType: WalletType | null;
-  wallet: Wallet | null;
+  wallet: Adapter | null;
   connection: () => Connection | null;
   setWalletType: (walletType: WalletType | null) => Promise<void>;
   disconnectWallet: () => void;
@@ -45,15 +44,22 @@ const walletStore: WalletStore = (set, get) => ({
     const state = get();
     if (walletType?.name === state.walletType?.name) return;
 
-    const wallet = walletType?.adapter();
+    const wallet = walletType?.adapter;
     if (wallet) {
       wallet.on("connect", async () => {
         set({ walletType, wallet });
         // state.persistStoreToLocalStorage();
+
         toast.success("Wallet connected!");
-        trackEvent(EVENT_CATEGORY.WALLET, EVENT_ACTION.CONNECT, wallet.publicKey.toBase58(), 0, {
-          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
-        });
+        trackEvent(
+          EVENT_CATEGORY.WALLET,
+          EVENT_ACTION.CONNECT,
+          wallet.publicKey?.toBase58() || "",
+          0,
+          {
+            [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+          }
+        );
       });
       wallet.on("disconnect", () => {
         set({ walletType: null, wallet: null });
@@ -63,7 +69,7 @@ const walletStore: WalletStore = (set, get) => ({
       wallet.connect().catch((e: Error) => {
         set({ walletType: null, wallet: null });
         toast.error(
-          e instanceof WalletNotFoundError
+          e instanceof WalletNotReadyError
             ? "Wallet extension not installed." //todo: add link to install
             : "Wallet not connected, try again."
         );

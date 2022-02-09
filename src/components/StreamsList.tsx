@@ -1,6 +1,6 @@
 import { useEffect, FC } from "react";
 
-import Wallet from "@project-serum/sol-wallet-adapter";
+import type { Adapter } from "@solana/wallet-adapter-base";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
@@ -37,7 +37,7 @@ const filterStreams = (streams: [string, StreamData][], type: "vesting" | "strea
 
 interface StreamsListProps {
   connection: Connection;
-  wallet: Wallet;
+  wallet: Adapter;
   type: "vesting" | "streams";
 }
 const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
