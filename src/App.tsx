@@ -83,7 +83,7 @@ const App = () => {
           classes="top-0 left-0 w-full"
         ></Banner>
       )}
-      <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
+      <div className="bg-blend-darken flex-grow flex flex-col">
         <Header />
         <Nav classes="block lg:hidden mb-2" />
         <Switch>

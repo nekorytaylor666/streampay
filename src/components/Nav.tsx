@@ -32,7 +32,7 @@ interface NavProps {
 
 const Nav: FC<NavProps> = ({ classes }) => (
   <nav className={classes}>
-    <ul className="text-center text-gray-400 flex justify-center">
+    <ul className="text-center text-gray-400 flex hidden justify-center">
       {routes.slice(1).map((route) => (
         <li key={route.path} className="relative">
           {route.disabled && <Tooltip />}

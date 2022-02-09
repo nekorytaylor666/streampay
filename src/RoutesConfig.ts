@@ -1,4 +1,4 @@
-import { VestingPage, StreamsPage, MultipayPage, MultisigPage } from "./pages";
+import { VestingPage, StreamsPage, MultipayPage, MultisigPage, HomePage } from "./pages";
 
 export interface Route {
   path: string;
@@ -12,8 +12,7 @@ export interface Route {
 const routes: Route[] = [
   {
     path: "/",
-    redirect: "/vesting",
-    Component: VestingPage,
+    Component: HomePage,
     exact: true,
   },
   {

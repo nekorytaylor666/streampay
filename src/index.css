@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+
 :root {
   --primary: #18a2d9;
   --secondary: #00ffa3;
@@ -16,6 +18,7 @@
 
 body {
   font-size: large;
+  font-family: 'Inter', sans-serif;
 }
 
 input[type="checkbox"] {

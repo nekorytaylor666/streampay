@@ -20,7 +20,7 @@ export default function Toggle({
   disabled?: boolean;
 }) {
   return (
-    <Switch.Group as="div" className={cx(classes, "flex items-center")}>
+    <Switch.Group as="div" className={cx(classes, "hidden flex items-center")}>
       {labelLeft && (
         <Switch.Label as="span" className="mr-2">
           <span className="text-white text-sm sm:text-base flex-grow">{labelLeft}</span>

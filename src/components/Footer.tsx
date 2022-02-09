@@ -1,10 +1,17 @@
-import { Link } from "./index";
-
 const Footer = () => (
-  <footer className="pb-4 text-center text-sm font-mono text-gray-400 mt-10 sm:mt-28">
-    <small className="block mt-2 text-gray-400 px-2">
-      <Link url="https://streamflow.finance" title="StreamFlow" /> is undergoing security audit.
-    </small>
+  <footer className="px-3.5 sm:px-5 pb-4 text-center text-white text-sm font-Inter text-gray-400">
+    {
+      <p className="text-white text-xs mb-3">
+        Protocol code and audit report available.{" "}
+        <a
+          href="https://github.com/streamflow-finance/timelock"
+          className="text-sf-blue font-bold hover:opacity-70 transition duration-500 ease-in-out"
+          target="_blank"
+        >
+          Learn More
+        </a>
+      </p>
+    }
   </footer>
 );
 
