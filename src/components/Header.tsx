@@ -20,7 +20,7 @@ const Header = () => {
   return (
     <div
       className={cx(
-        "items-center px-3.5 sm:px-5 py-3 lg:mb-16 sticky top-0 bg-opacity-90 z-10 mb-2",
+        "items-center px-3.5 sm:px-5 py-5 lg:mb-16 sticky top-0 bg-opacity-90 z-10 mb-2 border-b border-black",
         isMainnet ? "bg-main" : "bg-sandbox"
       )}
     >
