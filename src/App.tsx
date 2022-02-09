@@ -63,7 +63,7 @@ const App = () => {
     <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
       {showCommunityBanner && (
         <Banner classes="top-0 left-0 w-full">
-          <p className="text-sm text-white">
+          <p className="text-sm sm:text-base text-white">
             Streamflow has upgraded to v2. Your existing streams are safu, please use the{" "}
             <a
               href="https://free.streamflow.finance"

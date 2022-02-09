@@ -1,67 +1,28 @@
-import { useMemo, FC } from "react";
+import { useState, forwardRef, useImperativeHandle, useMemo, MouseEvent } from "react";
 
 import {
   getPhantomWallet,
+  getSlopeWallet,
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
-  getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
-import swal from "sweetalert";
+import type { Wallet } from "@solana/wallet-adapter-base";
+import cx from "classnames";
 import { Cluster } from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
-import { WalletType } from "../types";
-import Button from "./Button";
+import { ModalRef } from ".";
 
-const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
-  walletType,
+const storeGetter = ({ cluster, setWalletType }: StoreType) => ({
   setWalletType,
   cluster,
 });
 
-const div = document.createElement("div");
+const WalletPicker = forwardRef<ModalRef>(({}, ref) => {
+  const { cluster, setWalletType } = useStore(storeGetter);
+  const [visible, setVisible] = useState(false);
 
-const addWalletOption = (walletType: WalletType) => {
-  const button = document.createElement("div");
-  const p = document.createElement("p");
-  const img = document.createElement("img");
-  img.src = walletType.icon;
-  img.className = "h-8 inline-block mr-4";
-  p.innerHTML = walletType.name;
-  p.className = "inline-block";
-  button.className = "border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md";
-  button.onclick = () => {
-    if (swal.setActionValue && swal.close) {
-      //@ts-ignore
-      swal.setActionValue({ cancel: walletType });
-      swal.close();
-    }
-  };
-  button.appendChild(img);
-  button.appendChild(p);
-  div.appendChild(button);
-};
-
-const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => any) => {
-  div.innerHTML = "";
-  for (const w of walletTypes) {
-    addWalletOption(w);
-  }
-  swal({
-    buttons: {},
-    content: { element: div },
-    className: "bg-gray-800",
-  }).then(setWalletType);
-};
-
-interface WalletPickerProps {
-  classes: string;
-  title: string;
-}
-
-const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
-  const { setWalletType, cluster } = useStore(storeGetter);
   const walletTypes = useMemo(
     () => [
       getPhantomWallet(),
@@ -73,32 +34,46 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
     [cluster]
   );
 
-  // useEffect(() => {
-  //   if (walletType) return;
+  useImperativeHandle(ref, () => ({
+    show: () =>
+      new Promise(() => {
+        setVisible(true);
+      }),
+  }));
 
-  //   const type = localStorage.walletType;
-  //   if (!type || type === "undefined") return;
+  const onConfirm = (wallet: Wallet) => {
+    setVisible(false);
+    setWalletType(wallet);
+  };
 
-  //   const restoredWalletType = walletTypes.find((w) => w.name === type);
-  //   if (restoredWalletType) {
-  //     setWalletType(restoredWalletType);
-
-  //     trackEvent(
-  //       EVENT_CATEGORY.WALLET,
-  //       EVENT_ACTION.CONNECTED,
-  //       // localStorage.wallet?.publicKey?.toBase58(),
-  //       EVENT_LABEL.NONE,
-  //       0
-  //     );
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  const onCancel = () => {
+    setVisible(false);
+  };
 
   return (
-    <Button primary classes={classes} onClick={() => pickWallet(walletTypes, setWalletType)}>
-      {title}
-    </Button>
+    <div
+      className={cx(
+        "h-screen fixed z-10 w-screen backdrop-filter backdrop-blur-xs bg-opacity-70 bg-dark top-0 left-0 flex justify-center items-center",
+        visible ? "block" : "hidden"
+      )}
+      onClick={onCancel}
+    >
+      <div
+        className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-1 pt-5 sm:px-5 rounded-md bg-gradient-to-br to-ternary from-main flex flex-col"
+        onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+      >
+        {walletTypes.map((wallet) => (
+          <button
+            className="border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md"
+            onClick={() => onConfirm(wallet)}
+          >
+            <img className="h-8 inline-block mr-4" src={wallet.icon}></img>
+            <p className="inline-block text-base">{wallet.name}</p>
+          </button>
+        ))}
+      </div>
+    </div>
   );
-};
+});
 
 export default WalletPicker;
