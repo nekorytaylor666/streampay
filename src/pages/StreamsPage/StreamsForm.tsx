@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, WalletPicker, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, WalletPickerCTA, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
@@ -179,7 +179,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-    // @ts-ignore
+
     const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
     if (response) {
@@ -212,173 +212,176 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
-      <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
-        <Input
-          type="number"
-          label="Amount to stream"
-          customChange={updateReleaseAmountError}
-          placeholder="0.00"
-          classes="col-span-3 sm:col-span-1"
-          error={errors?.depositedAmount?.message}
-          {...register("depositedAmount")}
-        />
-        {wallet && tokenOptions.length ? (
-          <Select
-            label="Token"
-            options={tokenOptions}
-            error={errors?.tokenSymbol?.message}
-            customChange={updateToken}
-            {...register("tokenSymbol")}
-            classes="col-span-3 sm:col-span-1"
-          />
-        ) : (
-          <div className="col-span-3 sm:col-span-1">
-            <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
-            <p className="text-base font-medium text-primary">
-              {wallet ? "No tokens. :(" : "Please connect."}
-            </p>
-          </div>
-        )}
-        <Input
-          type="number"
-          label="Release Amount"
-          placeholder="0.00"
-          error={errors?.releaseAmount?.message}
-          classes="col-span-3 sm:col-span-1"
-          {...register("releaseAmount")}
-        />
-        <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
-          <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
-            Release Frequency
-          </label>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
+        <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
           <Input
             type="number"
-            min={1}
-            step={1}
-            classes="col-span-2 sm:col-span-1"
-            error={
-              errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
-            }
-            customChange={updateReleaseFrequencyCounter}
-            {...register("releaseFrequencyCounter")}
-          />
-          <Select
-            options={timePeriodOptions}
-            plural={releaseFrequencyCounter > 1}
-            {...register("releaseFrequencyPeriod")}
+            label="Amount to stream"
+            customChange={updateReleaseAmountError}
+            placeholder="0.00"
             classes="col-span-3 sm:col-span-1"
-            error={errors?.releaseFrequencyPeriod?.message}
+            error={errors?.depositedAmount?.message}
+            {...register("depositedAmount")}
           />
+          {wallet && tokenOptions.length ? (
+            <Select
+              label="Token"
+              options={tokenOptions}
+              error={errors?.tokenSymbol?.message}
+              customChange={updateToken}
+              {...register("tokenSymbol")}
+              classes="col-span-3 sm:col-span-1"
+            />
+          ) : (
+            <div className="col-span-3 sm:col-span-1">
+              <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
+              <p className="text-base font-medium text-primary">
+                {wallet ? "No tokens. :(" : "Please connect."}
+              </p>
+            </div>
+          )}
+          <Input
+            type="number"
+            label="Release Amount"
+            placeholder="0.00"
+            error={errors?.releaseAmount?.message}
+            classes="col-span-3 sm:col-span-1"
+            {...register("releaseAmount")}
+          />
+          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
+            <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
+              Release Frequency
+            </label>
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              classes="col-span-2 sm:col-span-1"
+              error={
+                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
+              }
+              customChange={updateReleaseFrequencyCounter}
+              {...register("releaseFrequencyCounter")}
+            />
+            <Select
+              options={timePeriodOptions}
+              plural={releaseFrequencyCounter > 1}
+              {...register("releaseFrequencyPeriod")}
+              classes="col-span-3 sm:col-span-1"
+              error={errors?.releaseFrequencyPeriod?.message}
+            />
+          </div>
+          <Input
+            type="text"
+            label="Subject / Title"
+            placeholder="e.g. StreamFlow VC - seed round"
+            classes="col-span-full"
+            error={errors?.subject?.message}
+            {...register("subject")}
+          />
+          <Input
+            type="text"
+            label="Recipient Account"
+            placeholder="Please double check the address"
+            classes="col-span-full"
+            error={errors?.recipient?.message}
+            {...register("recipient")}
+          />
+          <Input
+            type="date"
+            label="Start Date"
+            min={format(new Date(), DATE_FORMAT)}
+            onClick={updateStartDate}
+            classes="col-span-3 sm:col-span-1"
+            error={errors?.startDate?.message || ""}
+            required
+            {...register("startDate")}
+          />
+          <Input
+            type="time"
+            label="Start Time"
+            classes="col-span-3 sm:col-span-1"
+            error={errors?.startDate?.message ? "" : errors?.startTime?.message}
+            onClick={updateStartTime}
+            required
+            {...register("startTime")}
+          />
+          <Toggle
+            enabled={advanced}
+            setEnabled={setAdvanced}
+            labelRight="Advanced"
+            classes="col-span-full"
+          />
+          {advanced && (
+            <>
+              <div className="col-span-3 sm:col-span-1">
+                <label className="text-gray-200 text-base cursor-pointer mb-1 block">
+                  Who can transfer the stream?
+                </label>
+                <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+                  <Input
+                    type="checkbox"
+                    label="sender"
+                    classes="col-span-2 sm:col-span-1"
+                    {...register("senderCanTransfer")}
+                  />
+                  <Input
+                    type="checkbox"
+                    label="recipient"
+                    classes="col-span-2 sm:col-span-1"
+                    {...register("recipientCanTransfer")}
+                  />
+                </div>
+              </div>
+              <div className="col-span-3 sm:col-span-1">
+                <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+                  Who can cancel?
+                </label>
+                <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+                  <Input
+                    type="checkbox"
+                    label="sender"
+                    classes="col-span-2 sm:col-span-1"
+                    {...register("senderCanCancel")}
+                  />
+                  <Input
+                    type="checkbox"
+                    label="recipient"
+                    classes="col-span-2 sm:col-span-1"
+                    {...register("recipientCanCancel")}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </div>
-        <Input
-          type="text"
-          label="Subject / Title"
-          placeholder="e.g. StreamFlow VC - seed round"
-          classes="col-span-full"
-          error={errors?.subject?.message}
-          {...register("subject")}
-        />
-        <Input
-          type="text"
-          label="Recipient Account"
-          placeholder="Please double check the address"
-          classes="col-span-full"
-          error={errors?.recipient?.message}
-          {...register("recipient")}
-        />
-        <Input
-          type="date"
-          label="Start Date"
-          min={format(new Date(), DATE_FORMAT)}
-          onClick={updateStartDate}
-          classes="col-span-3 sm:col-span-1"
-          error={errors?.startDate?.message || ""}
-          required
-          {...register("startDate")}
-        />
-        <Input
-          type="time"
-          label="Start Time"
-          classes="col-span-3 sm:col-span-1"
-          error={errors?.startDate?.message ? "" : errors?.startTime?.message}
-          onClick={updateStartTime}
-          required
-          {...register("startTime")}
-        />
-        <Toggle
-          enabled={advanced}
-          setEnabled={setAdvanced}
-          labelRight="Advanced"
-          classes="col-span-full"
-        />
-        {advanced && (
+        {wallet?.connected && (
           <>
-            <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-200 text-base cursor-pointer mb-1 block">
-                Who can transfer the stream?
-              </label>
-              <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
-                <Input
-                  type="checkbox"
-                  label="sender"
-                  classes="col-span-2 sm:col-span-1"
-                  {...register("senderCanTransfer")}
-                />
-                <Input
-                  type="checkbox"
-                  label="recipient"
-                  classes="col-span-2 sm:col-span-1"
-                  {...register("recipientCanTransfer")}
-                />
-              </div>
-            </div>
-            <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
-                Who can cancel?
-              </label>
-              <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
-                <Input
-                  type="checkbox"
-                  label="sender"
-                  classes="col-span-2 sm:col-span-1"
-                  {...register("senderCanCancel")}
-                />
-                <Input
-                  type="checkbox"
-                  label="recipient"
-                  classes="col-span-2 sm:col-span-1"
-                  {...register("recipientCanCancel")}
-                />
-              </div>
-            </div>
+            <Overview
+              {...{
+                depositedAmount,
+                releaseAmount,
+                tokenSymbol,
+                startDate,
+                startTime,
+                releaseFrequencyCounter,
+                releaseFrequencyPeriod,
+              }}
+            />
+            <Button
+              type="submit"
+              primary
+              classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
+              disabled={loading}
+            >
+              Create
+            </Button>
           </>
         )}
-      </div>
-      {wallet?.connected ? (
-        <>
-          <Overview
-            {...{
-              depositedAmount,
-              releaseAmount,
-              tokenSymbol,
-              startDate,
-              startTime,
-              releaseFrequencyCounter,
-              releaseFrequencyPeriod,
-            }}
-          />
-          <Button
-            type="submit"
-            primary
-            classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
-            disabled={loading}
-          >
-            Create
-          </Button>
-        </>
-      ) : (
-        <WalletPicker
+      </form>
+      {!wallet?.connected && (
+        <WalletPickerCTA
           classes="px-8 mx-auto py-4 font-bold text-xl my-8 sm:my-10"
           title="Connect wallet"
         />
@@ -390,7 +393,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         type="info"
         confirm={{ color: "red", text: "Continue" }}
       />
-    </form>
+    </>
   );
 };
 

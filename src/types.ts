@@ -1,5 +1,7 @@
 import type { TokenInfo } from "@solana/spl-token-registry";
+import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import type { PublicKey, TokenAmount } from "@solana/web3.js";
+import { Stream } from "@streamflow/stream";
 
 export interface WalletType {
   name: string;
@@ -35,3 +37,17 @@ export interface NumberOption {
   label: string;
   icon?: string;
 }
+
+export interface WalletAdapter extends SignerWalletAdapter {
+  publicKey: PublicKey;
+}
+
+export type StreamFE = Omit<
+  Stream,
+  "depositedAmount" | "cliffAmount" | "amountPerPeriod" | "withdrawnAmount"
+> & {
+  depositedAmount: number;
+  cliffAmount: number;
+  amountPerPeriod: number;
+  withdrawnAmount: number;
+};

@@ -4,7 +4,7 @@ import cx from "classnames";
 
 interface ButtonProps {
   children: React.ReactNode;
-  onClick?: (value?: any) => void;
+  onClick?: () => void;
   disabled?: boolean;
   background?: string;
   primary?: boolean;

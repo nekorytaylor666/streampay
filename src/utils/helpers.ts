@@ -1,10 +1,9 @@
-import Wallet from "@project-serum/sol-wallet-adapter";
+import type { SignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 import type { TokenInfo } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
-import swal from "sweetalert";
 import { format } from "date-fns";
 import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/stream";
 
@@ -14,15 +13,6 @@ import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES, PERIOD } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
-}
-
-export function _swal(): Promise<void> {
-  return swal({
-    dangerMode: true,
-    text: "Are you sure?",
-    icon: "warning",
-    buttons: { cancel: true, confirm: true },
-  });
 }
 
 export function copyToClipboard(value: string): void {
@@ -79,7 +69,7 @@ const ourTokens = [
 
 export const getTokenAccounts = async (
   connection: Connection,
-  wallet: Wallet,
+  wallet: SignerWalletAdapter,
   cluster: ClusterExtended
 ) => {
   // is default Strategy (in resolve()) way to go?
@@ -126,7 +116,11 @@ export const getTokenAccounts = async (
   return myTokenAccountsDerived;
 };
 
-export const getTokenAmount = async (connection: Connection, wallet: Wallet, mint: string) => {
+export const getTokenAmount = async (
+  connection: Connection,
+  wallet: SignerWalletAdapter,
+  mint: string
+) => {
   const token = await connection.getParsedTokenAccountsByOwner(wallet.publicKey as PublicKey, {
     mint: new PublicKey(mint),
   });

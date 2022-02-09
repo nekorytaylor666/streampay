@@ -1,7 +1,7 @@
 import cx from "classnames";
 import { Cluster } from "@streamflow/stream";
 
-import { Logo, Nav, WalletPicker, Toggle } from ".";
+import { Logo, Nav, Toggle, WalletPickerCTA } from ".";
 import logo from "../assets/icons/logo.png";
 import useStore, { StoreType } from "../stores";
 
@@ -36,8 +36,7 @@ const Header = () => {
             labelRight="mainnet"
             classes="hidden mr-2"
           />
-          {/* Deleted Toggle class sm:flex*/}
-          <WalletPicker
+          <WalletPickerCTA
             title="Connect"
             classes={cx("hidden px-3 py-1 sm:px-6 sm:py-2", {
               hidden: wallet?.connected,

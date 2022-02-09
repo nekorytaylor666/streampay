@@ -7,11 +7,11 @@ import {
   getSolletWallet,
   getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
+import type { Wallet } from "@solana/wallet-adapter-base";
 import swal from "sweetalert";
 import { Cluster } from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
-import { WalletType } from "../types";
 import Button from "./Button";
 
 const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
@@ -22,7 +22,7 @@ const storeGetter = ({ walletType, setWalletType, cluster }: StoreType) => ({
 
 const div = document.createElement("div");
 
-const addWalletOption = (walletType: WalletType) => {
+const addWalletOption = (walletType: Wallet) => {
   const button = document.createElement("div");
   const p = document.createElement("p");
   const img = document.createElement("img");
@@ -43,7 +43,7 @@ const addWalletOption = (walletType: WalletType) => {
   div.appendChild(button);
 };
 
-const pickWallet = (walletTypes: WalletType[], setWalletType: (value: any) => any) => {
+const pickWallet = (walletTypes: Wallet[], setWalletType: (value: any) => any) => {
   div.innerHTML = "";
   for (const w of walletTypes) {
     addWalletOption(w);
@@ -62,7 +62,7 @@ interface WalletPickerProps {
 
 const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
   const { setWalletType, cluster } = useStore(storeGetter);
-  const walletTypes = useMemo(
+  const walletTypes: Wallet[] = useMemo(
     () => [
       getPhantomWallet(),
       getSlopeWallet(),
@@ -72,27 +72,6 @@ const WalletPicker: FC<WalletPickerProps> = ({ classes, title }) => {
     ],
     [cluster]
   );
-
-  // useEffect(() => {
-  //   if (walletType) return;
-
-  //   const type = localStorage.walletType;
-  //   if (!type || type === "undefined") return;
-
-  //   const restoredWalletType = walletTypes.find((w) => w.name === type);
-  //   if (restoredWalletType) {
-  //     setWalletType(restoredWalletType);
-
-  //     trackEvent(
-  //       EVENT_CATEGORY.WALLET,
-  //       EVENT_ACTION.CONNECTED,
-  //       // localStorage.wallet?.publicKey?.toBase58(),
-  //       EVENT_LABEL.NONE,
-  //       0
-  //     );
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
 
   return (
     <div className="wallet-list mx-auto font-Inter max-w-400px">

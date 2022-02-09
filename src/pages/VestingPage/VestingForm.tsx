@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPicker } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPickerCTA } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
@@ -215,7 +215,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-    // @ts-ignore
+
     const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
 
@@ -448,7 +448,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             </div>
           )}
         </div>
-        {wallet?.connected ? (
+        {wallet?.connected && (
           <>
             <Overview
               {...{
@@ -473,13 +473,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               Create
             </Button>
           </>
-        ) : (
-          <WalletPicker
-            classes="px-8 py-4 mx-auto font-bold text-xl my-8 sm:my-10"
-            title="Connect wallet"
-          />
         )}
       </form>
+      {!wallet?.connected && (
+        <WalletPickerCTA
+          classes="px-8 py-4 mx-auto font-bold text-xl my-8 sm:my-10"
+          title="Connect wallet"
+        />
+      )}
       <Modal
         ref={modalRef}
         title="Seems like the recipient address has empty balance."

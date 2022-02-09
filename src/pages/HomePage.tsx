@@ -1,8 +1,5 @@
-import {} from "react";
-
 import cx from "classnames";
 
-//import WalletPicker from "../components/WalletPicker"
 import WalletPickerHome from "../components/WalletPickerHome";
 import useStore, { StoreType } from "../stores";
 
@@ -21,7 +18,7 @@ const HomePage = () => {
         Connect Crypto Wallet
       </h1>
       <p className="text-center text-sf-gray mb-8">
-        Welcome to Streamflow Finance! Connect your crypto wallet to start using the app.{" "}
+        Welcome to Streamflow Finance! Connect your crypto wallet to start using the app.
       </p>
       <WalletPickerHome
         title="Connect"

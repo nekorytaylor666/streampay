@@ -164,7 +164,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     const isWithdrawn = await withdrawStream(
       { id, amount: getBN(withdrawAmount, decimals) },
       connection,
-      // @ts-ignore
       wallet,
       cluster
     );
@@ -202,7 +201,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     const isTopupped = await topupStream(
       { id, amount: getBN(topupAmount, decimals) },
       connection,
-      // @ts-ignore
       wallet,
       cluster
     );
@@ -245,7 +243,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
       const response = await transferStream(
         { id, recipientId: newRecipient },
         connection,
-        // @ts-ignore
         wallet,
         cluster
       );
