@@ -98,7 +98,7 @@ const App = () => {
           <Route component={Page404} />
         </Switch>
       </div>
-      <ToastContainer hideProgressBar position="bottom-left" limit={5} />
+      <ToastContainer hideProgressBar position="top-right" limit={5} />
       <Footer />
     </div>
   );
