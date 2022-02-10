@@ -85,6 +85,7 @@ module.exports = {
     extend: {
       backgroundColor: ["active", "hover", "odd"],
       opacity: ["disabled"],
+      textColor: ['group-hover'],
     },
   },
   plugins: [require("@tailwindcss/forms")],

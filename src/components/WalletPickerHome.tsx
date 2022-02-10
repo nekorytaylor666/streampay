@@ -43,11 +43,16 @@ const WalletPickerHome = () => {
     >
       {walletTypes.map((wallet) => (
         <button
-          className="flex cursor-pointer w-full mb-4 p-6 text-primary rounded-2xl bg-black-sidebar hover:bg-blue-primary transition duration-500 ease-in-out"
+          className="group flex justify-between cursor-pointer w-full mb-4 p-6 text-primary rounded-2xl bg-black-sidebar hover:bg-blue-primary transition duration-500 ease-in-out"
           onClick={() => onConfirm(wallet)}
         >
-          <img className="h-6 inline-block mr-4" src={wallet.icon}></img>
-          <p className="flex items-center text-white font-bold">{wallet.name}</p>
+          <div className="flex">
+            <img className="h-6 inline-block mr-4" src={wallet.icon}></img>
+            <p className="flex items-center text-white font-bold">{wallet.name}</p>
+          </div>
+          <p className="group-hover:text-white flex items-right text-gray-500 font-normal transition duration-500 ease-in-out">
+            Installed
+          </p>
         </button>
       ))}
     </div>
