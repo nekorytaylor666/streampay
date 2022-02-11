@@ -139,12 +139,36 @@ input[type="range"]::-ms-track {
 }
 
 /* Override styles */
-.Toastify__toast--success {
-  background: var(--secondary) !important;
+
+.Toastify__toast-container {
+  width: 100%;
+  max-width: 400px;
 }
 
-.Toastify__toast--info {
-  background: var(--primary) !important;
+.Toastify__toast--success,
+.Toastify__toast--info,
+.Toastify__toast--error {
+  background: #2A3441!important;
+  filter: drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.25));
+  border-radius: 8px;
+}
+.Toastify__toast--success h3 {
+  color: #6FCF97!important;
+}
+.Toastify__toast--success .success svg path {
+  color: #6FCF97!important;
+}
+.Toastify__toast--info h3 {
+  color: #18A2D9!important;
+}
+.Toastify__toast--info .info svg path {
+  fill:#18A2D9!important;
+}
+.Toastify__toast--error h3 {
+  color: #EB5757!important;
+}
+.Toastify__toast--error .error svg path {
+  fill: #EB5757!important;
 }
 
 .clearfix::after {

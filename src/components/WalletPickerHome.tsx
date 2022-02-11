@@ -9,6 +9,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import type { Wallet } from "@solana/wallet-adapter-base";
 import { Cluster } from "@streamflow/stream";
+//import { WalletAdapter } from "../types";
 
 import useStore, { StoreType } from "../stores";
 
@@ -50,9 +51,10 @@ const WalletPickerHome = () => {
             <img className="h-6 inline-block mr-4" src={wallet.icon}></img>
             <p className="flex items-center text-white font-bold">{wallet.name}</p>
           </div>
-          <p className="group-hover:text-white flex items-right text-gray-500 font-normal transition duration-500 ease-in-out">
+
+          {/*<p className="group-hover:text-white flex items-right text-gray-500 font-normal transition duration-500 ease-in-out">
             Installed
-          </p>
+          </p>  todo:// Check if wallet is installed  */}
         </button>
       ))}
     </div>
