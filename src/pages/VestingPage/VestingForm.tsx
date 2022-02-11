@@ -130,11 +130,13 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
   useEffect(() => {
     if (myTokenAccounts) {
-      const newTokenOptions = Object.values(myTokenAccounts).map(({ info }) => ({
-        value: info.symbol,
-        label: info.symbol,
-        icon: info.logoURI,
-      }));
+      const newTokenOptions = Object.values(myTokenAccounts)
+        .sort((token1, token2) => (token1.info.name < token2.info.name ? 1 : -1))
+        .map(({ info }) => ({
+          value: info.symbol,
+          label: info.symbol,
+          icon: info.logoURI,
+        }));
 
       if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
