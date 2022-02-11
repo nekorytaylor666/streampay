@@ -27,8 +27,8 @@ export function copyToClipboard(value: string): void {
   document.body.removeChild(el);
 }
 
-export const ourTokens: { [key: string]: TokenInfo } = {
-  Gssm3vfi8s65R31SBdmQRq6cKeYojGgup7whkw4VCiQj: {
+export const ourTokens = [
+  {
     chainId: 103, //devnet
     address: "Gssm3vfi8s65R31SBdmQRq6cKeYojGgup7whkw4VCiQj", //ADD YOUR LOCAL TOKEN HERE
     symbol: "STRM",
@@ -37,7 +37,7 @@ export const ourTokens: { [key: string]: TokenInfo } = {
     logoURI: "https://streamflow.finance/public/img/icon.png",
     tags: [],
   },
-  B8DVFHFWFKtqXcN7Up5MyTJNsqSZTSTQw4totxGEJ3Q5: {
+  {
     chainId: 103, //devnet
     address: "B8DVFHFWFKtqXcN7Up5MyTJNsqSZTSTQw4totxGEJ3Q5", //ADD YOUR LOCAL TOKEN HERE
     symbol: "TEST",
@@ -47,7 +47,7 @@ export const ourTokens: { [key: string]: TokenInfo } = {
       "https://raw.githubusercontent.com/millionsy/token-list/main/assets/mainnet/HDLRMKW1FDz2q5Zg778CZx26UgrtnqpUDkNNJHhmVUFr/logo.png",
     tags: [],
   },
-  FGHYWaEkycB1bhkQKN7GqJTzySgQzFgvdFc8RuVzmkNF: {
+  {
     chainId: 103, //devnet
     address: "FGHYWaEkycB1bhkQKN7GqJTzySgQzFgvdFc8RuVzmkNF", //ADD YOUR LOCAL TOKEN HERE
     symbol: "META",
@@ -56,7 +56,7 @@ export const ourTokens: { [key: string]: TokenInfo } = {
     logoURI: "https://streamflow.finance/public/img/solana.png",
     tags: [],
   },
-  AhitdMW8uWA5tfkRxv4zbRw7dN4sqdqgeVHHCjFo2u9G: {
+  {
     chainId: 103, //devnet
     address: "AhitdMW8uWA5tfkRxv4zbRw7dN4sqdqgeVHHCjFo2u9G", //ADD YOUR LOCAL TOKEN HERE
     symbol: "KIDA",
@@ -65,7 +65,7 @@ export const ourTokens: { [key: string]: TokenInfo } = {
     logoURI: "https://streamflow.finance/public/img/icon.png",
     tags: [],
   },
-};
+];
 
 export const getTokenAccounts = async (
   connection: Connection,
@@ -74,7 +74,6 @@ export const getTokenAccounts = async (
 ) => {
   // is default Strategy (in resolve()) way to go?
   const tokenListContainer = await new TokenListProvider().resolve();
-  const isMainnet = cluster === Cluster.Mainnet;
 
   const myTokenAccounts = await connection.getParsedTokenAccountsByOwner(
     wallet.publicKey as PublicKey,
@@ -95,41 +94,28 @@ export const getTokenAccounts = async (
     .filterByClusterSlug(cluster === LocalCluster.Local ? Cluster.Devnet : cluster)
     .getList();
 
-  const devnetTokens: { [key: string]: TokenInfo } = isMainnet ? {} : { ...ourTokens };
-
-  if (!isMainnet) {
-    Object.entries(myTokenAccountsObj).forEach(([key, value]) => {
-      if (!devnetTokens[key])
-        devnetTokens[key] = {
-          chainId: 103,
-          address: key,
-          symbol: key.slice(0, 6),
-          name: key,
-          decimals: value.uiTokenAmount.decimals,
-          logoURI: "",
-          tags: [],
-        };
-    });
-  }
-
-  //for localhost development add our token with tokenList.concat([ourToken])
   const myTokenAccountsDerived: {
     [mint: string]: { uiTokenAmount: TokenAmount; info: TokenInfo };
-  } = tokenList.concat(Object.values(devnetTokens)).reduce((previous, current) => {
-    if (Object.keys(myTokenAccountsObj).indexOf(current.address) !== -1) {
-      const { uiTokenAmount } = myTokenAccountsObj[current.address];
+  } = {};
 
-      return {
-        ...previous,
-        [current.address]: {
-          uiTokenAmount,
-          info: current,
-        },
-      };
-    }
+  Object.entries(myTokenAccountsObj).forEach(([key, tokenInfo]) => {
+    const { uiTokenAmount } = myTokenAccountsObj[key];
 
-    return previous;
-  }, {});
+    const tokenFromList = tokenList.concat(ourTokens).find((item) => item.address === key);
+
+    myTokenAccountsDerived[key] = {
+      uiTokenAmount,
+      info: tokenFromList ?? {
+        chainId: 103,
+        address: key,
+        symbol: key.slice(0, 6),
+        name: "",
+        decimals: tokenInfo.uiTokenAmount.decimals,
+        logoURI: "",
+        tags: [],
+      },
+    };
+  });
 
   return myTokenAccountsDerived;
 };
