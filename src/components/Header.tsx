@@ -29,10 +29,10 @@ const Header = () => {
         <Nav classes="hidden lg:block" />
         <div className="flex justify-end items-center w-44">
           <Toggle
-            enabled={isMainnet}
+            enabled={!isMainnet}
             setEnabled={toggleCluster}
-            labelLeft="devnet"
-            labelRight="mainnet"
+            labelLeft="mainnet"
+            labelRight="devnet"
             classes="hidden sm:flex mr-2"
           />
           <WalletPickerCTA
@@ -44,10 +44,10 @@ const Header = () => {
         </div>
       </div>
       <Toggle
-        enabled={isMainnet}
+        enabled={!isMainnet}
         setEnabled={toggleCluster}
-        labelLeft="devnet"
-        labelRight="mainnet"
+        labelLeft="mainnet"
+        labelRight="devnet"
         classes="flex sm:hidden justify-end mt-1"
       />
     </div>
