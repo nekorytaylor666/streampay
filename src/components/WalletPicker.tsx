@@ -2,7 +2,6 @@ import { useState, forwardRef, useImperativeHandle, useMemo, MouseEvent } from "
 
 import {
   getPhantomWallet,
-  getSlopeWallet,
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
