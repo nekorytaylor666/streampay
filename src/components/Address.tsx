@@ -10,8 +10,6 @@ interface AddressProps {
   classes: string;
 }
 
-const iconClassName = "h-4 inline mr-1 cursor-pointer hover:opacity-80 align-text-bottom ";
-
 const Address: FC<AddressProps> = ({ address, classes }) => {
   const [copied, setCopied] = useState(false);
 
@@ -27,13 +25,16 @@ const Address: FC<AddressProps> = ({ address, classes }) => {
     <span className={cx("block truncate", classes)}>
       {copied ? (
         <span className="text-green-300 mr-1">
-          <CheckIcon className={iconClassName} />
+          <CheckIcon className="h-4 inline mr-1 align-text-bottom" />
           <small>Copied!</small>
         </span>
       ) : (
-        <DuplicateIcon className={iconClassName} onClick={copy} />
+        <DuplicateIcon
+          className="h-4 inline mr-1 align-text-bottom hover:opacity-60 cursor-pointer"
+          onClick={copy}
+        />
       )}
-      {address}
+      <span className="font-light text-base ">{address}</span>
     </span>
   );
 };

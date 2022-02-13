@@ -1,7 +1,7 @@
 import { ClockIcon } from "@heroicons/react/outline";
 import { CheckCircleIcon } from "@heroicons/react/solid";
 
-import { Button, Recipient } from "../components";
+import { Button } from "../components";
 
 const MultisigPage = () => (
   <div className="mx-auto relative max-w-lg xl:max-w-xl">
@@ -12,7 +12,7 @@ const MultisigPage = () => (
       Treasury (<b>MyTr...easury</b>) sends 1 SOL to:
     </div>
     <div className="col-span-3">
-      <Recipient onChange={() => null} value="reci...pient" />
+      {/* <Recipient onChange={() => null} value="reci...pient" /> */}
       <hr />
       <ul className="text-white mt-4">
         <li>

@@ -1,29 +1,22 @@
-import { useEffect, FC, useRef } from "react";
+import { useEffect, FC } from "react";
 
-import Wallet from "@project-serum/sol-wallet-adapter";
 import { PublicKey } from "@solana/web3.js";
-import type { Connection, AccountInfo } from "@solana/web3.js";
-import { decode, TokenStreamData } from "@streamflow/timelock/dist/layout";
-import { toast } from "react-toastify";
+import type { Connection } from "@solana/web3.js";
+import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
 
-import { Stream, EmptyStreams, Modal, ModalRef } from ".";
-import sendTransaction from "../actions/sendTransaction";
-import {
-  DATA_LAYER_VARIABLE,
-  ProgramInstruction,
-  TIMELOCK_STRUCT_OFFSET_RECIPIENT,
-  TIMELOCK_STRUCT_OFFSET_SENDER,
-  TX_FINALITY_CONFIRMED,
-} from "../constants";
+import { StreamCard } from ".";
+import { cancelStream } from "../api/transactions";
+import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount } from "../utils/helpers";
-import { EVENT_CATEGORY, EVENT_ACTION } from "../constants";
 import { trackEvent } from "../utils/marketing_helpers";
+import { WalletAdapter } from "../types";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
   addStream: state.addStream,
-  addStreams: state.addStreams,
+  populateStreams: state.populateStreams,
+  updateStream: state.updateStream,
   deleteStream: state.deleteStream,
   clearStreams: state.clearStreams,
   token: state.token,
@@ -31,59 +24,36 @@ const storeGetter = (state: StoreType) => ({
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setToken: state.setToken,
-  programId: state.programId,
+  cluster: state.cluster,
   walletType: state.walletType,
 });
 
-interface ProgramAccount {
-  pubkey: PublicKey;
-  account: AccountInfo<Buffer>;
-}
+const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
+  const isVesting = type === "vesting";
 
-const getProgramAccounts = (
-  connection: Connection,
-  programId: string,
-  offset: number,
-  bytes: string
-) =>
-  connection?.getProgramAccounts(new PublicKey(programId), {
-    filters: [
-      {
-        memcmp: {
-          offset,
-          bytes,
-        },
-      },
-    ],
-  });
-
-const sortStreams = (streams: { [s: string]: TokenStreamData }) =>
-  Object.entries(streams).sort(
-    ([, stream1], [, stream2]) => stream2.start_time.toNumber() - stream1.start_time.toNumber()
-  );
+  if (isVesting) return streams.filter((stream) => !stream[1].canTopup);
+  return streams.filter((stream) => stream[1].canTopup);
+};
 
 interface StreamsListProps {
   connection: Connection;
-  wallet: Wallet;
+  wallet: WalletAdapter;
+  type: "vesting" | "streams";
 }
-const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
+const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const {
     streams,
-    addStream,
-    addStreams: addStreamsToStore,
-    deleteStream,
+    updateStream,
+    populateStreams,
     clearStreams,
     token,
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     setToken,
-    programId,
+    cluster,
     walletType,
   } = useStore(storeGetter);
-  const modalRef = useRef<ModalRef>(null);
-
-  const publicKey = wallet.publicKey?.toBase58();
 
   const updateToken = async () => {
     const address = token.info.address;
@@ -96,107 +66,65 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet }) => {
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
-  const addStreams = (accounts: ProgramAccount[]) => {
-    let newStreams = {};
-    accounts.forEach((account) => {
-      const decoded = decode(account.account.data);
-      newStreams = { ...newStreams, [account.pubkey.toBase58()]: decoded };
-    });
-
-    addStreamsToStore(newStreams);
-  };
-
   useEffect(() => {
     clearStreams();
-    if (!connection || !publicKey) return;
+    if (!connection || !wallet?.publicKey) return;
 
-    Promise.all([
-      getProgramAccounts(connection, programId, TIMELOCK_STRUCT_OFFSET_SENDER, publicKey),
-      getProgramAccounts(connection, programId, TIMELOCK_STRUCT_OFFSET_RECIPIENT, publicKey),
-    ]).then(([senderStreams, recepientStreams]) =>
-      addStreams([...senderStreams, ...recepientStreams])
-    );
-
-    //todo: issue #11 https://github.com/StreamFlow-Finance/streamflow-app/issues/1
+    (async () => {
+      const allStreams = await Stream.get({
+        connection,
+        wallet: wallet.publicKey as PublicKey,
+        cluster,
+      });
+      populateStreams(allStreams);
+    })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cluster]);
 
-  async function cancelStream(id: string) {
-    const isCancelled = await sendTransaction(ProgramInstruction.Cancel, {
-      stream: new PublicKey(id),
-    });
+  async function handleCancel(id: string) {
+    const isCancelled = await cancelStream({ id }, connection, wallet, cluster);
 
     if (isCancelled) {
-      const stream = await connection.getAccountInfo(new PublicKey(id), TX_FINALITY_CONFIRMED);
+      const stream = await Stream.getOne({ connection, id });
+      const decimals = myTokenAccounts[stream.mint].uiTokenAmount.decimals;
+
+      const cancelledAmount =
+        getNumberFromBN(stream.depositedAmount, decimals) -
+        getNumberFromBN(stream.withdrawnAmount, decimals);
 
       if (stream) {
         updateToken();
-        const decodedStreamData = decode(stream.data);
-        addStream(id, decodedStreamData);
-        const cancelledAmount =
-          decodedStreamData.deposited_amount.toNumber() -
-          decodedStreamData.withdrawn_amount.toNumber();
+        updateStream([id, stream]);
         trackEvent(
           EVENT_CATEGORY.STREAM,
           EVENT_ACTION.CANCEL,
           wallet?.publicKey?.toBase58() as string,
-          (cancelledAmount * tokenPriceUsd) / 10 ** token.uiTokenAmount.decimals,
+          cancelledAmount * tokenPriceUsd,
           {
             [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: token.info.symbol,
             [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
-            [DATA_LAYER_VARIABLE.TOKEN_FEE]: 0,
+            [DATA_LAYER_VARIABLE.TOKEN_FEE]: cancelledAmount * 0.0025,
             [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
           }
         );
       }
     }
-
-    return isCancelled;
   }
-
-  async function transferStream(id: string) {
-    const newRecipientAddress = await modalRef?.current?.show();
-
-    if (newRecipientAddress !== undefined) {
-      try {
-        const newRecipient = new PublicKey(newRecipientAddress);
-        const success = await sendTransaction(ProgramInstruction.TransferRecipient, {
-          stream: new PublicKey(id),
-          new_recipient: new PublicKey(newRecipient),
-        });
-        if (success) {
-          toast.success("Stream transferred to " + newRecipientAddress);
-          deleteStream(id); //todo: let's keep it there, just as readonly.
-        }
-      } catch (e) {
-        toast.error("Invalid address");
-      }
-    }
-  }
-
-  if (!Object.keys(streams).length || !wallet?.publicKey?.toBase58()) return <EmptyStreams />;
 
   return (
     <>
-      {sortStreams(streams).map(([id, data]) => (
-        <Stream
+      {filterStreams(streams, type).map(([id, data]) => (
+        <StreamCard
           key={id}
-          onCancel={() => cancelStream(id)}
-          onTransfer={() => transferStream(id)}
+          onCancel={() => handleCancel(id)}
           onWithdraw={updateToken}
+          onTopup={updateToken}
           id={id}
           data={data}
           myAddress={wallet?.publicKey?.toBase58() as string}
         />
       ))}
-      <Modal
-        ref={modalRef}
-        title="Transfer recipient:"
-        type="text"
-        placeholder="Recipient address"
-        confirm={{ color: "blue", text: "Transfer" }}
-      />
     </>
   );
 };

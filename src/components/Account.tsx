@@ -1,77 +1,159 @@
-import { Dispatch, SetStateAction, useEffect, useState, FC } from "react";
+import { Dispatch, SetStateAction, useState, FC } from "react";
 
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Cluster, ClusterExtended } from "@streamflow/stream";
+import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
+import * as Sentry from "@sentry/react";
 
-import { AIRDROP_AMOUNT, ERR_NOT_CONNECTED, TX_FINALITY_CONFIRMED } from "../constants";
+import {
+  AIRDROP_AMOUNT,
+  AIRDROP_TEST_TOKEN,
+  AIRDROP_WHITELIST,
+  ERR_NOT_CONNECTED,
+  TX_FINALITY_CONFIRMED,
+} from "../constants";
 import useStore, { StoreType } from "../stores";
-import { getExplorerLink } from "../utils/helpers";
+import { WalletAdapter } from "../types";
+import { getExplorerLink, getTokenAccounts, getTokenAmount } from "../utils/helpers";
 import { Address, Button, Link } from ".";
+import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
-const storeGetter = ({ cluster, connection, wallet, disconnectWallet, token }: StoreType) => ({
-  isMainnet: cluster === WalletAdapterNetwork.Mainnet,
+const storeGetter = ({
+  cluster,
+  connection,
+  wallet,
+  disconnectWallet,
+  token,
+  setMyTokenAccounts,
+  myTokenAccounts,
+  setToken,
+}: StoreType) => ({
+  cluster,
   connection: connection(),
   wallet,
   disconnectWallet,
   token,
+  setMyTokenAccounts,
+  myTokenAccounts,
+  setToken,
 });
 
 interface AccountProps {
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
+const successfulAirdropMsg = (
+  <>
+    <p>Airdrop successful!</p>
+    <p> Check STRM balance!</p>
+  </>
+);
+
 const Account: FC<AccountProps> = ({ setLoading }) => {
-  const [airdropTxSignature, setAirdropTxSignature] = useState<string | undefined>(undefined);
-  const { connection, wallet, isMainnet, disconnectWallet, token } = useStore(storeGetter);
+  const {
+    connection,
+    wallet,
+    cluster,
+    disconnectWallet,
+    token,
+    setMyTokenAccounts,
+    myTokenAccounts,
+    setToken,
+  } = useStore(storeGetter);
+
+  const isMainnet = cluster === Cluster.Mainnet;
   const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
+  const hideAirdrop =
+    isMainnet || AIRDROP_WHITELIST.indexOf(wallet?.publicKey?.toBase58() as string) === -1;
+  const isConnected = wallet?.connected && connection;
+  const hasTokens = Object.keys(myTokenAccounts).length;
 
-  useEffect(() => {
-    if (airdropTxSignature && connection) {
-      connection.confirmTransaction(airdropTxSignature, TX_FINALITY_CONFIRMED).then(
-        (result) => {
-          if (result.value.err) {
-            toast.error("Airdrop failed!");
-          } else {
-            toast.success("Airdrop confirmed!");
-          }
+  const updateBalance = async (connection: Connection, wallet: WalletAdapter, address: string) => {
+    const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
 
-          setTimeout(() => setIsGimmeSolDisabled(false), 7000);
-        },
-        () => toast.warning("Airdrop was not confirmed!")
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [airdropTxSignature]);
+    setMyTokenAccounts({
+      ...myTokenAccounts,
+      [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
+    });
+
+    if (address === token?.info?.address) setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+  };
+
+  const updateTokenAccounts = async (
+    connection: Connection,
+    wallet: WalletAdapter,
+    cluster: ClusterExtended
+  ) => {
+    const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+
+    setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
+    setMyTokenAccounts(myTokenAccounts);
+  };
 
   async function requestAirdrop() {
     if (!wallet?.publicKey || !connection) {
       toast.error(ERR_NOT_CONNECTED);
       return;
     }
+
     setLoading(true);
     setIsGimmeSolDisabled(true);
+    toast.success("Airdrop requested!");
+
     try {
       const signature = await connection.requestAirdrop(
         wallet.publicKey,
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
-      setAirdropTxSignature(signature);
+
+      const tx = await getAirdrop(connection, wallet);
+
+      Promise.all([
+        connection.confirmTransaction(signature, TX_FINALITY_CONFIRMED),
+        connection.confirmTransaction(tx, TX_FINALITY_CONFIRMED),
+      ]).then(
+        ([res1, res2]) => {
+          if (res2.value.err) {
+            toast.error("Airdrop failed!");
+            Sentry.captureException(res2.value.err);
+          } else if (res1.value.err) {
+            toast.success(successfulAirdropMsg);
+            toast.error("Error getting SOL!");
+            Sentry.captureException(res1.value.err);
+          } else toast.success(successfulAirdropMsg);
+
+          if (!token || !Object.keys(token).length)
+            updateTokenAccounts(connection, wallet, cluster);
+          else updateBalance(connection, wallet, AIRDROP_TEST_TOKEN);
+
+          setTimeout(() => setIsGimmeSolDisabled(false), 7000);
+        },
+        () => toast.warning("Airdrop was not confirmed!")
+      );
 
       setLoading(false);
-      toast.success("Airdrop requested!");
-    } catch (error) {
+    } catch (err) {
       setLoading(false);
       setIsGimmeSolDisabled(false);
+      Sentry.captureException(err);
 
-      if ((error as Error).message.includes("429")) {
-        toast.error("Airdrop failed! Too many requests");
-      } else {
-        toast.error("Airdrop failed!");
-      }
+      if ((err as Error).message.includes("429")) toast.error("Airdrop failed! Too many requests");
+      else toast.error("Airdrop failed!");
     }
   }
+
+  const initializeOrCancelAirdrop = async (
+    cb: (connection: Connection, wallet: WalletAdapter) => Promise<boolean>
+  ) => {
+    if (!wallet?.publicKey || !connection) {
+      toast.error(ERR_NOT_CONNECTED);
+      return;
+    }
+    await cb(connection, wallet);
+    updateBalance(connection, wallet, AIRDROP_TEST_TOKEN);
+  };
 
   const walletPubKey = wallet?.publicKey?.toBase58();
   let myWalletLink = null;
@@ -82,7 +164,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       <Link
         url={getExplorerLink("address", walletPubKey)}
         title="Address"
-        classes="text-gray-300 hover:text-white"
+        Icon={ExternalLinkIcon}
       />
     );
     myAddress = <Address address={walletPubKey} classes="block truncate" />;
@@ -91,28 +173,27 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
   const tokenSymbol = token?.info?.symbol;
 
   return (
-    <>
+    <div className="mt-4">
       <div className="mb-4 text-white">
         {myWalletLink}
         {myAddress}
       </div>
-      <div className="pb-4 border-b border-gray-500 clearfix text-white">
+      <div className="pb-4 border-b border-gray-500 text-white grid gap-x-3 sm:gap-x-4 grid-cols-2">
         {token && (
           <>
-            <p className="font-bold">
+            <p className="text-gray-200 col-span-1">
               Balance
               {tokenSymbol && <span className="font-light text-sm">{` (${tokenSymbol})`}</span>}
             </p>
-            {token?.uiTokenAmount?.uiAmountString}
           </>
         )}
-        <Button
-          onClick={disconnectWallet}
-          classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs  font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-        >
-          Disconnect
-        </Button>
-        {wallet?.connected && (
+        <div className={cx("col-span-1", hasTokens ? "" : "col-start-2")}>
+          <Button
+            onClick={disconnectWallet}
+            classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Disconnect
+          </Button>
           <Button
             primary
             onClick={requestAirdrop}
@@ -121,11 +202,37 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             })}
             disabled={isGimmeSolDisabled}
           >
-            Gimme SOL!
+            Airdrop
           </Button>
+        </div>
+        {token && (
+          <span className="text-base text-primary">{token?.uiTokenAmount?.uiAmountString}</span>
+        )}
+        {isConnected && (
+          <div className="clearfix text-white col-span-1 col-start-2 mt-2">
+            <Button
+              primary
+              onClick={() => initializeOrCancelAirdrop(cancel)}
+              classes={cx("float-right px-4 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden: hideAirdrop,
+              })}
+              disabled={isGimmeSolDisabled}
+            >
+              Cancel
+            </Button>
+            <Button
+              primary
+              onClick={() => initializeOrCancelAirdrop(initialize)}
+              classes={cx("float-right mr-2 px-3.5 py-1.5 text-xs my-0 rounded active:bg-white", {
+                hidden: hideAirdrop,
+              })}
+            >
+              Initialize
+            </Button>
+          </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

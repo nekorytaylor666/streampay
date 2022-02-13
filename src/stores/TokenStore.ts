@@ -13,8 +13,8 @@ const useTokenStore = (set: Function) => ({
 
   //actions
   setToken: async (token: Token) => {
-    set({ token });
-    set({ tokenPriceUsd: await fetchTokenPrice(token?.info.symbol) });
+    const tokenPriceUsd = await fetchTokenPrice(token?.info.symbol);
+    set({ token, tokenPriceUsd });
   },
 
   setMyTokenAccounts: (myTokenAccounts: { [mint: string]: Token }) => set({ myTokenAccounts }),

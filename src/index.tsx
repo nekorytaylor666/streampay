@@ -2,19 +2,32 @@ import React from "react";
 
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
+import * as Sentry from "@sentry/react";
+import { Integrations } from "@sentry/tracing";
 
-import "./index.css";
 import App from "./App";
+import { FallbackComponent } from "./components";
+import "./index.css";
 // import reportWebVitals from './reportWebVitals';
-import { FormProvider } from "./contexts/FormContext";
+
+Sentry.init({
+  dsn: "https://ffe6dfabe4ea43d9947978472d9f11d6@o1068887.ingest.sentry.io/6063180",
+  integrations: [new Integrations.BrowserTracing()],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
+
+const fallback = <FallbackComponent />;
 
 ReactDOM.render(
   <React.StrictMode>
-    <FormProvider>
+    <Sentry.ErrorBoundary fallback={fallback}>
       <Router>
         <App />
       </Router>
-    </FormProvider>
+    </Sentry.ErrorBoundary>
   </React.StrictMode>,
   document.getElementById("root")
 );

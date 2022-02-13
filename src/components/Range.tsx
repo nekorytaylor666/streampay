@@ -27,8 +27,8 @@ const Range: FC<RangeProps> = ({ min, max, value, onChange }) => (
       step={0.001}
       className="col-span-4 mt-4 mb-2 bg-green-500"
     />
-    <p className="text-left text-primary pl-1">{min}</p>
-    <p className="col-start-4 text-right text-primary">{max.toFixed(3)}</p>
+    <p className="text-left text-primary pl-1 text-base">{min}</p>
+    <p className="col-start-4 text-right text-primary text-base">{max.toFixed(2)}</p>
   </div>
 );
 

@@ -1,8 +1,8 @@
 import {
   EVENT_TYPE,
   DEFAULT_GA_PURCHASE_CURRENCY,
-  DATA_LAYER_VARIABLE,
   AFFILIATION,
+  DATA_LAYER_VARIABLE,
 } from "../constants";
 
 declare global {
@@ -73,7 +73,7 @@ export function trackTransaction(
     purchaseDetails: JSON.stringify({
       id: streamAddress,
       revenue: streamflowFeeUsd,
-      affiliation: AFFILIATION.FREE,
+      affiliation: AFFILIATION.APP,
       currency: DEFAULT_GA_PURCHASE_CURRENCY,
     }),
     [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: streamAddress,

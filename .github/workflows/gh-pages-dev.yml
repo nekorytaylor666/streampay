@@ -37,4 +37,3 @@ jobs:
       - name: Hook
         run: |
           curl -X POST https://api.netlify.com/build_hooks/61efe3d0d5a539fd7fb74286
-

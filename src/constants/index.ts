@@ -1,6 +1,14 @@
 import { StreamStatus } from "../types";
 
 export const AIRDROP_AMOUNT = 1; // 1 SOL is the cap on the testnet
+export const AIRDROP_PDA = "DRCLpDJUNiMeKuRP9dcnGuibjTMjDGFwbZEXsq1RRgiR";
+export const AIRDROP_TEST_TOKEN = "Gssm3vfi8s65R31SBdmQRq6cKeYojGgup7whkw4VCiQj";
+export const AIRDROP_WHITELIST = [
+  "3r1cS6LS7Q5e2XzMhjV4jwuJEyMsPnTFSSEU8HitWYFc",
+  "9CTuPR1xDwyAnQmtAY7PawFDta7yjhkyZhLkXXsUQWFS",
+  "8HRZui7gdzueWfB1Bgj2GesaPMJFyqLEk4y67TnNXcJd",
+  "4pYeM1AhyqCXy63xtwfMtytz8keWxBD2gHWHqdwacK3C",
+];
 
 export const TX_FINALITY_CONFIRMED = "confirmed";
 export const TX_FINALITY_FINALIZED = "finalized";
@@ -13,17 +21,16 @@ export const INSTRUCTION_TRANSFER_RECIPIENT = 3;
 export enum ProgramInstruction {
   Create,
   Withdraw,
+  Topup,
   Cancel,
   TransferRecipient,
 }
-// export const INSTRUCTIONS = [INSTRUCTION_CREATE_STREAM, INSTRUCTION_WITHDRAW_STREAM, INSTRUCTION_CANCEL_STREAM, INSTRUCTION_TRANSFER_RECIPIENT];
 
 export const EXPLORER_TYPE_TX = "tx";
 export const EXPLORER_TYPE_ADDR = "address";
 
 export const DATE_FORMAT = "yyyy-MM-dd";
 export const TIME_FORMAT = "HH:mm";
-export const TIME_SUFFIX = "T00:00";
 
 export const START = "start";
 export const END = "end";
@@ -51,10 +58,55 @@ export const STREAM_STATUS_COLOR = {
   [StreamStatus.canceled]: "red",
 };
 
-export const TIMELOCK_STRUCT_OFFSET_SENDER = 48;
-export const TIMELOCK_STRUCT_OFFSET_RECIPIENT = 112;
+export const DEFAULT_DECIMAL_PLACES = 2;
 
-export const DEFAULT_DECIMAL_PLACES = 3;
+export const ERRORS = {
+  amount_required: "Amount is required.",
+  amount_greater_than: "Please provide amount greater than 0.",
+  token_required: "Token is required.",
+  recipient_required: "You must choose a recipient.",
+  subject_required: "Please provide a subject (title).",
+  start_date_required: "Start date is required.",
+  start_date_is_in_the_past: "Cannot start stream in the past.",
+  start_time_required: "Start time is required.",
+  start_time_is_in_the_past: "Should start in future.",
+  end_date_required: "End date is required.",
+  end_time_required: "End time is required.",
+  deposited_amount_required: "Deposited amount is required.",
+  amount_too_high: "You don't have enough tokens.",
+  invalid_address: "Please enter a valid Solana wallet address.",
+  address_is_a_program: "Address cannot be a program.",
+  release_amount_greater_than_deposited: "Should be <= deposited amount.",
+  end_should_be_after_start: "End should happen after start.",
+  cliff_should_be_after_start: "Cliff should happen after start.",
+  cliff_should_be_before_end: "Cliff should happen before end.",
+  required: "Required.",
+  release_frequency_is_too_slow:
+    "Should be smaller or equal to difference between END and CLIFF time.",
+  should_be_greater_than_0: "Should be greater than 0.",
+  max_year: "Year should be less than 9999.",
+  subject_too_long: "It is either too long or there are many complex characters.",
+};
+
+export const PERIOD = {
+  SECOND: 1,
+  MINUTE: 60,
+  HOUR: 3600,
+  DAY: 24 * 3600,
+  WEEK: 7 * 24 * 3600,
+  MONTH: Math.floor(30.4167 * 24 * 3600), //30.4167 days
+  YEAR: 365 * 24 * 3600, // 365 days
+};
+
+export const timePeriodOptions = [
+  { value: PERIOD.SECOND, label: "second" },
+  { value: PERIOD.MINUTE, label: "minute" },
+  { value: PERIOD.HOUR, label: "hour" },
+  { value: PERIOD.DAY, label: "day" },
+  { value: PERIOD.WEEK, label: "week" },
+  { value: PERIOD.MONTH, label: "month" },
+  { value: PERIOD.YEAR, label: "year" },
+];
 
 export const EVENT_CATEGORY = {
   WALLET: "wallet",
@@ -91,7 +143,6 @@ export const AFFILIATION = {
   FREE: "free",
   APP: "app",
 };
-
 export const DEFAULT_GA_PURCHASE_CURRENCY = "USD";
 export const USD_PEGGED_COINS = ["USDT", "USDC", "STRM"];
 
@@ -106,3 +157,8 @@ export const DATA_LAYER_VARIABLE = {
   TOTAL_AMOUNT_TOKEN: "totalAmountToken",
   TOTAL_AMOUNT_USD: "totalAmountUsd",
 };
+
+export const COMMUNITY_PROGRAM_ID = "8e72pYCDaxu3GqMfeQ5r8wFgoZSYk6oua1Qo9XpsZjX";
+
+export const STREAMS_COMMUNITY_OFFSET_SENDER = 48;
+export const STREAMS_COMMUNITY_OFFSET_RECIPIENT = 112;

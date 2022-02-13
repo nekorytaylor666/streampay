@@ -1,6 +1,6 @@
 import { UploadIcon } from "@heroicons/react/outline";
 
-import { Button, Recipient } from "../components";
+import { Button } from "../components";
 
 const MultipayPage = () => (
   <div className="mx-auto relative max-w-lg grid gap-2 xl:grid-cols-5 xl:max-w-2xl">
@@ -17,7 +17,7 @@ const MultipayPage = () => (
       }
     />
     <div className="col-span-3">
-      <Recipient onChange={() => null} value="1337...c0de" />
+      {/* <Recipient onChange={() => null} value="1337...c0de" /> */}
     </div>
     <div>
       <label htmlFor="amount" className="block font-medium text-gray-100">
