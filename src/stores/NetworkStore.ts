@@ -24,7 +24,7 @@ interface NetworkStore {
 
 const useNetworkStore = (set: Function, get: Function): NetworkStore => ({
   // state
-  cluster: Cluster.Devnet,
+  cluster: Cluster.Mainnet,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),
