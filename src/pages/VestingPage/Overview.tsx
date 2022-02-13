@@ -64,7 +64,7 @@ const Overview: React.FC<OverviewProps> = ({
       <p className="text-gray-400 text-sm leading-6">
         First
         <span className="text-gray-100 text-sm">
-          {` ${cliffAmountPercent}% (${cliffAmount.toFixed(3)} ${tokenSymbol}) `}
+          {` ${cliffAmountPercent}% (${cliffAmount.toFixed(2)} ${tokenSymbol}) `}
         </span>
         <br className="sm:hidden" />
         released on
@@ -79,8 +79,8 @@ const Overview: React.FC<OverviewProps> = ({
       <p className="text-gray-400 text-sm leading-6 sm:inline-block">
         And then
         <span className="text-gray-100 text-sm">{` ${amountPerPeriodPercent.toFixed(
-          3
-        )}% (${amountPerPeriod.toFixed(3)} ${tokenSymbol}) `}</span>
+          2
+        )}% (${amountPerPeriod.toFixed(2)} ${tokenSymbol}) `}</span>
         <br className="sm:hidden" />
         released every
         {releaseFrequencyCounter ? (

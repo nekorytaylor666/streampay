@@ -58,7 +58,7 @@ export const STREAM_STATUS_COLOR = {
   [StreamStatus.canceled]: "red",
 };
 
-export const DEFAULT_DECIMAL_PLACES = 3;
+export const DEFAULT_DECIMAL_PLACES = 2;
 
 export const ERRORS = {
   amount_required: "Amount is required.",
