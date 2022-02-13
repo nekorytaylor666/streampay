@@ -181,11 +181,16 @@ const ToastSuccess = ({ url, connection }: { url: string; connection: Connection
 
 const handleError = (err: any) => {
   let errorMsg = err.message;
-  if (err.message.includes("Owner cannot sign")) errorMsg = "Recipient can't sign!";
-  else if (
+
+  if (err.message.includes("Owner cannot sign")) {
+    errorMsg = "Recipient can't sign!";
+  } else if (
     err.message.includes("Attempt to debit an account but found no record of a prior credit.")
-  )
+  ) {
     errorMsg = ERR_NO_PRIOR_CREDIT;
+  } else if (errorMsg.length === 0) {
+    errorMsg = err.msg;
+  }
 
   toast.error(errorMsg);
   Sentry.captureException(err);
