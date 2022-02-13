@@ -64,16 +64,16 @@ const App = () => {
       {showCommunityBanner && (
         <Banner classes="top-0 left-0 w-full">
           <p className="text-sm sm:text-base text-white">
-            Streamflow has upgraded to v2. Your existing streams are safu, please use the{" "}
+            Streamflow has upgraded to v2. Your v1 streams are safu, please use the{" "}
             <a
               href="https://free.streamflow.finance"
               target="_blank"
               rel="noopener noreferrer"
               className="font-bold underline"
             >
-              Community version
+              Community app
             </a>{" "}
-            to interact with them.
+            to see them.
           </p>
         </Banner>
       )}
