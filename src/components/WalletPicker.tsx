@@ -6,6 +6,7 @@ import {
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
+  getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
 import type { Wallet } from "@solana/wallet-adapter-base";
 import cx from "classnames";

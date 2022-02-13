@@ -27,6 +27,7 @@ const routes: Route[] = [
     Component: StreamsPage,
     label: "Streams",
     exact: true,
+    disabled: true,
   },
   {
     path: "/multisig",

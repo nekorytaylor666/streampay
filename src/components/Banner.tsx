@@ -1,6 +1,9 @@
 import { Component, ReactNode } from "react";
 
 import { XIcon } from "@heroicons/react/outline";
+import cx from "classnames";
+
+import Link from "./Link";
 
 interface BannerProps {
   title?: string;

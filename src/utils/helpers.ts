@@ -144,7 +144,6 @@ const isMoreThanOne = (amount: number) => (amount > 1 ? "s" : "");
 
 export const formatPeriodOfTime = (period: number): string => {
   if (!period) return "0 seconds";
-
   const years = period / PERIOD.YEAR;
   if (Math.floor(years)) return `${years > 1 ? years : ""} year${isMoreThanOne(years)}`;
 
