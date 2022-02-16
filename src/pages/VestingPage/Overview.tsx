@@ -2,7 +2,12 @@ import { format, getUnixTime } from "date-fns";
 import { ExternalLinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import ReactTooltip from "react-tooltip";
 
-import { formatPeriodOfTime, roundAmount, calculateEndTimeLikeOnBE } from "../../utils/helpers";
+import {
+  formatPeriodOfTime,
+  roundAmount,
+  calculateEndTimeLikeOnBE,
+  calculateWithdrawalFees,
+} from "../../utils/helpers";
 import { Link } from "../../components";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
@@ -10,6 +15,8 @@ interface OverviewProps {
   amount: number;
   tokenSymbol: string;
   endDate: string;
+  startTime: string;
+  startDate: string;
   endTime: string;
   cliffDate: string;
   cliffTime: string;
@@ -17,11 +24,16 @@ interface OverviewProps {
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
   decimals: number;
+  automaticWithdrawal: boolean;
+  withdrawalFrequencyCounter: number;
+  withdrawalFrequencyPeriod: number;
 }
 
 const Overview: React.FC<OverviewProps> = ({
   amount,
   tokenSymbol,
+  startDate,
+  startTime,
   endDate,
   endTime,
   cliffDate,
@@ -30,8 +42,12 @@ const Overview: React.FC<OverviewProps> = ({
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
   decimals,
+  automaticWithdrawal,
+  withdrawalFrequencyPeriod,
+  withdrawalFrequencyCounter,
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
+  const start = getUnixTime(new Date(startDate + "T" + startTime));
   const end = getUnixTime(new Date(endDate + "T" + endTime));
   const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
   const cliffAmount = (cliffAmountPercent * amount) / 100;
@@ -57,6 +73,15 @@ const Overview: React.FC<OverviewProps> = ({
   });
 
   const showEndTimeTooltip = end && endTimeFromBE && end * 1000 !== endTimeFromBE;
+
+  const withdrawalFees = automaticWithdrawal
+    ? calculateWithdrawalFees(
+        start,
+        cliff,
+        end,
+        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+      )
+    : 0;
 
   return (
     <div className="col-span-full mt-4 leading-6">
@@ -161,6 +186,23 @@ const Overview: React.FC<OverviewProps> = ({
           classes="text-primary inline-block"
         />
       </p>
+      {automaticWithdrawal && (
+        <>
+          <p className="text-gray-400 text-xxs leading-4 mt-3">
+            When automatic withdrawal is enabled there are additional fees (5000 lamports) per every
+            withdrawal.
+          </p>
+          <p className="text-gray-400 text-xxs leading-4">
+            Feature might not always work as expected - some withdrawal requests might fail due to
+            potential infrastructure issues in solana network.
+          </p>
+        </>
+      )}
+      {withdrawalFees > 0 && (
+        <p className="text-gray-400 text-xxs leading-4 mt-1">
+          {`For this contract there will be ${withdrawalFees} SOL in withdrawal fees.`}
+        </p>
+      )}
     </div>
   );
 };

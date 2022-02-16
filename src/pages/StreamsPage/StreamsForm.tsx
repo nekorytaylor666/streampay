@@ -59,11 +59,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const [advanced, setAdvanced] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
-  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors } = useStreamsForm(
-    {
+  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors, trigger } =
+    useStreamsForm({
       tokenBalance: tokenBalance || 0,
-    }
-  );
+    });
 
   const [
     depositedAmount,
@@ -73,6 +72,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     startTime,
     releaseFrequencyCounter,
     releaseFrequencyPeriod,
+    automaticWithdrawal,
+    withdrawalFrequencyCounter,
+    withdrawalFrequencyPeriod,
   ] = watch([
     "depositedAmount",
     "releaseAmount",
@@ -81,6 +83,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     "startTime",
     "releaseFrequencyCounter",
     "releaseFrequencyPeriod",
+    "automaticWithdrawal",
+    "withdrawalFrequencyCounter",
+    "withdrawalFrequencyPeriod",
   ]);
 
   const updateStartDate = () => {
@@ -172,7 +177,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       cancelableByRecipient: recipientCanCancel,
       transferableBySender: senderCanTransfer,
       transferableByRecipient: recipientCanTransfer,
-      automaticWithdrawal: false,
+      automaticWithdrawal,
+      withdrawalFrequency: automaticWithdrawal
+        ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+        : 0,
       canTopup: true,
     };
 
@@ -310,14 +318,47 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             {...register("startTime")}
           />
           <Toggle
-            enabled={advanced}
-            setEnabled={setAdvanced}
+            checked={automaticWithdrawal}
+            labelRight="Automatic Withdrawal"
+            classes="col-span-full mt-4"
+            customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+            {...register("automaticWithdrawal")}
+          />
+          {automaticWithdrawal && (
+            <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-4 sm:col-span-1">
+              <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
+                Withdrawal Frequency
+              </label>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                classes="col-span-2 sm:col-span-1"
+                customChange={() => trigger("withdrawalFrequencyPeriod")}
+                error={
+                  errors?.withdrawalFrequencyCounter?.message ||
+                  errors?.withdrawalFrequencyPeriod?.message
+                }
+                {...register("withdrawalFrequencyCounter")}
+              />
+              <Select
+                options={timePeriodOptions.slice(1)}
+                plural={withdrawalFrequencyCounter > 1}
+                {...register("withdrawalFrequencyPeriod")}
+                classes="col-span-3 sm:col-span-1"
+                error={errors?.withdrawalFrequencyPeriod?.message}
+              />
+            </div>
+          )}
+          <Toggle
+            checked={advanced}
+            customChange={setAdvanced}
             labelRight="Advanced"
             classes="col-span-full"
           />
           {advanced && (
             <>
-              <div className="col-span-3 sm:col-span-1">
+              <div className="col-span-4 sm:col-span-1">
                 <label className="text-gray-200 text-base cursor-pointer mb-1 block">
                   Who can transfer the stream?
                 </label>
@@ -325,18 +366,18 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                   <Input
                     type="checkbox"
                     label="sender"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("senderCanTransfer")}
                   />
                   <Input
                     type="checkbox"
                     label="recipient"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("recipientCanTransfer")}
                   />
                 </div>
               </div>
-              <div className="col-span-3 sm:col-span-1">
+              <div className="col-span-4 sm:col-span-1">
                 <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
                   Who can cancel?
                 </label>
@@ -344,13 +385,13 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                   <Input
                     type="checkbox"
                     label="sender"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("senderCanCancel")}
                   />
                   <Input
                     type="checkbox"
                     label="recipient"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("recipientCanCancel")}
                   />
                 </div>
@@ -369,6 +410,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                 startTime,
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
+                automaticWithdrawal,
+                withdrawalFrequencyCounter,
+                withdrawalFrequencyPeriod,
               }}
             />
             <Button

@@ -229,3 +229,16 @@ export const getProgramAccounts = (
       },
     ],
   });
+
+export const calculateWithdrawalFees = (
+  start: number,
+  cliff: number,
+  end: number,
+  withdrawalFrequency: number
+): number => {
+  if (withdrawalFrequency == 0) return 0;
+
+  const startTime = cliff > 0 ? cliff : start;
+  const withdrawalsCounter = Math.floor((end - startTime) / withdrawalFrequency);
+  return 0.000005 * withdrawalsCounter;
+};

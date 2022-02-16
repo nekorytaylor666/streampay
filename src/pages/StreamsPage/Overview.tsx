@@ -3,7 +3,7 @@ import { ExternalLinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/outli
 import ReactTooltip from "react-tooltip";
 
 import { Link } from "../../components";
-import { formatPeriodOfTime, roundAmount } from "../../utils/helpers";
+import { formatPeriodOfTime, roundAmount, calculateWithdrawalFees } from "../../utils/helpers";
 
 interface OverviewProps {
   releaseAmount: number;
@@ -13,6 +13,9 @@ interface OverviewProps {
   depositedAmount: number;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
+  automaticWithdrawal: boolean;
+  withdrawalFrequencyCounter: number;
+  withdrawalFrequencyPeriod: number;
 }
 
 const Overview: React.FC<OverviewProps> = ({
@@ -23,6 +26,9 @@ const Overview: React.FC<OverviewProps> = ({
   startTime,
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
+  automaticWithdrawal,
+  withdrawalFrequencyCounter,
+  withdrawalFrequencyPeriod,
 }) => {
   const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
@@ -30,6 +36,15 @@ const Overview: React.FC<OverviewProps> = ({
   const formattedReleasePeriod = formatPeriodOfTime(releasePeriod);
   const isReleasePerMonth = formattedReleasePeriod?.includes("month");
   const isReleasePerYear = formattedReleasePeriod?.includes("year");
+
+  const withdrawalFees = automaticWithdrawal
+    ? calculateWithdrawalFees(
+        start,
+        start,
+        end,
+        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+      )
+    : 0;
 
   return (
     <div className="col-span-full mt-4 leading-6">
@@ -102,6 +117,23 @@ const Overview: React.FC<OverviewProps> = ({
           classes="text-primary inline-block"
         />
       </p>
+      {automaticWithdrawal && (
+        <>
+          <p className="text-gray-400 text-xxs leading-4 mt-3">
+            When automatic withdrawal is enabled there are additional fees (5000 lamports) per every
+            withdrawal.
+          </p>
+          <p className="text-gray-400 text-xxs leading-4">
+            Feature might not always work as expected - some withdrawal requests might fail due to
+            potential infrastructure issues in solana network.
+          </p>
+        </>
+      )}
+      {withdrawalFees > 0 && (
+        <p className="text-gray-400 text-xxs leading-4 mt-1">
+          {`For this contract there will be ${withdrawalFees} SOL in withdrawal fees.`}
+        </p>
+      )}
     </div>
   );
 };

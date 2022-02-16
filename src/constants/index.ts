@@ -86,6 +86,7 @@ export const ERRORS = {
   should_be_greater_than_0: "Should be greater than 0.",
   max_year: "Year should be less than 9999.",
   subject_too_long: "It is either too long or there are many complex characters.",
+  withdrawal_frequency_too_high: "Withdrawal frequency should be >= release frequency.",
 };
 
 export const PERIOD = {

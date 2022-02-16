@@ -29,8 +29,8 @@ const Header = () => {
         <Nav classes="hidden lg:block" />
         <div className="flex justify-end items-center w-44">
           <Toggle
-            enabled={!isMainnet}
-            setEnabled={toggleCluster}
+            checked={!isMainnet}
+            customChange={toggleCluster}
             labelLeft="mainnet"
             labelRight="devnet"
             classes="hidden sm:flex mr-2"
@@ -44,8 +44,8 @@ const Header = () => {
         </div>
       </div>
       <Toggle
-        enabled={!isMainnet}
-        setEnabled={toggleCluster}
+        checked={!isMainnet}
+        customChange={toggleCluster}
         labelLeft="mainnet"
         labelRight="devnet"
         classes="flex sm:hidden justify-end mt-1"

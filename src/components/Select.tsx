@@ -68,7 +68,7 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
               </option>
             ))}
           </select>
-          {name !== "releaseFrequencyPeriod" && (
+          {name !== "releaseFrequencyPeriod" && name !== "withdrawalFrequencyPeriod" && (
             <p className="text-red-600 absolute text-xs py-1 right-0">{error}</p>
           )}
         </div>
