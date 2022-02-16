@@ -1,37 +1,34 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Dispatch, SetStateAction } from "react";
+import { FC, forwardRef, Dispatch, SetStateAction } from "react";
 
 import { Switch } from "@headlessui/react";
 import cx from "classnames";
 
-export default function Toggle({
-  enabled,
-  labelLeft,
-  labelRight,
-  setEnabled,
-  classes,
-  disabled = false,
-}: {
-  enabled: boolean;
+interface ToggleProps {
+  name?: string;
+  checked: boolean;
   labelLeft?: string;
   labelRight?: string;
-  setEnabled: Dispatch<SetStateAction<any>>;
   classes?: string;
   disabled?: boolean;
-}) {
-  return (
+  customChange?: Dispatch<SetStateAction<any>>;
+}
+
+const Toggle: FC<ToggleProps> = forwardRef<any, ToggleProps>(
+  ({ checked, labelLeft, labelRight, customChange = () => {}, classes, disabled }, ref) => (
     <Switch.Group as="div" className={cx(classes, "flex items-center")}>
       {labelLeft && (
         <Switch.Label as="span" className="mr-2">
-          <span className="text-white text-sm sm:text-base flex-grow">{labelLeft}</span>
+          <span className="text-white text-base flex-grow">{labelLeft}</span>
         </Switch.Label>
       )}
       <Switch
-        checked={enabled}
-        onChange={setEnabled}
-        disabled={disabled}
+        ref={ref}
+        checked={checked}
+        // @ts-ignore
+        onChange={customChange}
         className={cx(
-          enabled ? "bg-primary" : "bg-field",
+          checked ? "bg-primary" : "bg-field",
           { "cursor-not-allowed": disabled },
           "relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full transition-colors ease-in-out duration-200 ring-1 ring-primary focus:ring-2 focus:outline-none focus:ring-primary"
         )}
@@ -39,16 +36,18 @@ export default function Toggle({
         <span
           aria-hidden="true"
           className={cx(
-            enabled ? "translate-x-5" : "translate-x-0",
+            checked ? "translate-x-5" : "translate-x-0",
             "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"
           )}
         />
       </Switch>
       {labelRight && (
         <Switch.Label as="span" className="sm:mr-3 lg:mr-4 ml-2">
-          <span className="text-white text-sm sm:text-base flex-grow">{labelRight}</span>
+          <span className="text-white text-base flex-grow">{labelRight}</span>
         </Switch.Label>
       )}
     </Switch.Group>
-  );
-}
+  )
+);
+
+export default Toggle;

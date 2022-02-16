@@ -79,7 +79,8 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
         />
         <p
           className={cx("text-red-700 absolute text-xs py-1", {
-            ["whitespace-nowrap"]: name === "releaseFrequencyCounter",
+            ["whitespace-nowrap"]:
+              name === "releaseFrequencyCounter" || name === "withdrawalFrequencyCounter",
           })}
         >
           {error}
