@@ -50,6 +50,7 @@ const getDefaultValues = () => ({
   cliffDate: format(new Date(), DATE_FORMAT),
   cliffTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   cliffAmount: 0,
+  automaticWithdrawal: false,
   withdrawalFrequencyCounter: 1,
   withdrawalFrequencyPeriod: timePeriodOptions[1].value,
 });
