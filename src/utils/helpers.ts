@@ -239,6 +239,6 @@ export const calculateWithdrawalFees = (
   if (withdrawalFrequency == 0) return 0;
 
   const startTime = cliff > 0 ? cliff : start;
-  const withdrawalsCounter = Math.floor((end - startTime) / withdrawalFrequency);
+  const withdrawalsCounter = Math.floor((end - startTime) / withdrawalFrequency) || 1;
   return 0.000005 * withdrawalsCounter;
 };

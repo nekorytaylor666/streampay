@@ -105,6 +105,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     transferableByRecipient,
     amountPerPeriod,
     canTopup,
+    automaticWithdrawal,
+    withdrawalFrequency,
   } = formatStreamData(data, decimals);
   const symbol = myTokenAccounts[mint].info.symbol;
   const isCliffDateAfterStart = cliff > start;
@@ -190,6 +192,16 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
   };
 
+  const fetchStream = async () => {
+    if (!connection) return;
+    const stream = await Stream.getOne({ connection, id });
+    console.log("strean", stream.withdrawnAmount.toNumber());
+    if (stream) {
+      onWithdraw();
+      updateStream([id, stream]);
+    }
+  };
+
   const handleTopup = async () => {
     let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
     if (!connection || !topupAmount) return;
@@ -259,6 +271,27 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   }
 
   useEffect(() => {
+    if (
+      automaticWithdrawal &&
+      status === StreamStatus.streaming
+      // (status === StreamStatus.complete && available > 0)
+    ) {
+      const withdrawalInterval = setInterval(() => {
+        fetchStream();
+      }, (withdrawalFrequency + 2) * 1000);
+
+      return () => clearInterval(withdrawalInterval);
+    }
+
+    if (status === StreamStatus.complete) {
+      setStreamed(depositedAmount);
+      setAvailable(depositedAmount - withdrawnAmount);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status]);
+
+  useEffect(() => {
     if (status === StreamStatus.scheduled || status === StreamStatus.streaming) {
       const interval = setInterval(() => {
         setStreamed(getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod));
@@ -276,14 +309,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, streamed, withdrawnAmount, canceledAt]);
-
-  useEffect(() => {
-    if (status === StreamStatus.complete) {
-      setStreamed(depositedAmount);
-      setAvailable(depositedAmount - withdrawnAmount);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
 
   return (
     <>
@@ -356,6 +381,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           max={depositedAmount}
           decimals={decimals}
           symbol={symbol}
+          subtitle={automaticWithdrawal ? "Automatic withdrawal enabled." : ""}
         />
         {status === StreamStatus.canceled && (
           <Progress
@@ -454,6 +480,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         min={0}
         max={roundAmount(parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0)}
         confirm={{ color: "green", text: "Top Up" }}
+        automaticWithdrawal={automaticWithdrawal}
       />
       <Modal
         ref={transferModalRef}

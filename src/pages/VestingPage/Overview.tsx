@@ -200,7 +200,7 @@ const Overview: React.FC<OverviewProps> = ({
       )}
       {withdrawalFees > 0 && (
         <p className="text-gray-400 text-xxs leading-4 mt-1">
-          {`For this contract there will be ${withdrawalFees} SOL in withdrawal fees.`}
+          {`For this contract there will be ${withdrawalFees.toFixed(6)} SOL in withdrawal fees.`}
         </p>
       )}
     </div>
