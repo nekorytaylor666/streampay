@@ -1,12 +1,27 @@
-:root {
-  --primary: #18a2d9;
-  --secondary: #00ffa3;
-  --ternary: #2a3849;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --white: #fff;
+  --red: #eb5757;
+  --blue: #18a2d9;
+  --green: #6fcf97;
+  --yellow: #f2c94c;
+  --gray: #718298;
+  --gray-light: #cdd7e3;
+  --gray-dark: #2a3441;
+  --primary-dark: #1c2530;
+  --secondary-dark: #131722;
+}
+
+.theme-main {
+  --dark: var(--primary-dark);
+}
+
+.theme-dev {
+  --dark: var(--secondary-dark);
+}
 
 @layer utilities {
   .backdrop-blur-xs {

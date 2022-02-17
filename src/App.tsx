@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, FC } from "react";
 
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,6 +17,7 @@ import {
   STREAMS_COMMUNITY_OFFSET_RECIPIENT,
 } from "./constants";
 import useStore, { StoreType } from "./stores";
+import { Theme, ThemeContext } from "./themeContext";
 
 const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
   connection: connection(),
@@ -24,7 +25,9 @@ const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
   isMainnet: cluster === Cluster.Mainnet,
 });
 
-const App = () => {
+const App: FC = () => {
+  const [theme, setTheme] = useState(Theme.Main);
+
   const history = useHistory();
   const { wallet, connection, isMainnet } = useStore(storeGetter);
   const [showCommunityBanner, setShowCommunityBanner] = useState(false);
@@ -60,47 +63,49 @@ const App = () => {
   }, [connection, wallet]);
 
   return (
-    <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
-      {showCommunityBanner && (
-        <Banner classes="top-0 left-0 w-full">
-          <p className="text-sm sm:text-base text-white">
-            Streamflow has upgraded to v2. Your v1 streams are safu, please use the{" "}
-            <a
-              href="https://free.streamflow.finance"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold underline"
-            >
-              Community app
-            </a>{" "}
-            to see them.
-          </p>
-        </Banner>
-      )}
-      {!isMainnet && (
-        <Banner
-          title="This is devnet (sandbox) environment!"
-          classes="top-0 left-0 w-full"
-        ></Banner>
-      )}
-      <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
-        <Header />
-        <Nav classes="block lg:hidden mb-2" />
-        <Switch>
-          {routes.map(({ path, exact, redirect, Component }) => (
-            <Route
-              key={path}
-              path={path}
-              exact={exact}
-              render={() => (redirect ? <Redirect to={redirect} /> : <Component />)}
-            />
-          ))}
-          <Route component={Page404} />
-        </Switch>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
+        {showCommunityBanner && (
+          <Banner classes="top-0 left-0 w-full">
+            <p className="text-sm sm:text-base text-white">
+              Streamflow has upgraded to v2. Your v1 streams are safu, please use the{" "}
+              <a
+                href="https://free.streamflow.finance"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold underline"
+              >
+                Community app
+              </a>{" "}
+              to see them.
+            </p>
+          </Banner>
+        )}
+        {!isMainnet && (
+          <Banner
+            title="This is devnet (sandbox) environment!"
+            classes="top-0 left-0 w-full"
+          ></Banner>
+        )}
+        <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
+          <Header />
+          <Nav classes="block lg:hidden mb-2" />
+          <Switch>
+            {routes.map(({ path, exact, redirect, Component }) => (
+              <Route
+                key={path}
+                path={path}
+                exact={exact}
+                render={() => (redirect ? <Redirect to={redirect} /> : <Component />)}
+              />
+            ))}
+            <Route component={Page404} />
+          </Switch>
+        </div>
+        <ToastContainer hideProgressBar position="bottom-left" limit={5} />
+        <Footer />
       </div>
-      <ToastContainer hideProgressBar position="bottom-left" limit={5} />
-      <Footer />
-    </div>
+    </ThemeContext.Provider>
   );
 };
 
