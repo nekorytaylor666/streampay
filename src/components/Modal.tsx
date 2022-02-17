@@ -16,6 +16,7 @@ export type ModalProps = {
   symbol?: string;
   disclaimer?: string;
   confirm: { text: string; color: string };
+  automaticWithdrawal?: boolean;
 } & (
   | { type: "info" }
   | { type: "text"; placeholder?: string }
@@ -23,7 +24,7 @@ export type ModalProps = {
 );
 
 const Modal = forwardRef<ModalRef, ModalProps>(
-  ({ title, text, type, confirm, symbol, disclaimer, ...rest }, ref) => {
+  ({ title, text, type, confirm, symbol, automaticWithdrawal, disclaimer, ...rest }, ref) => {
     const [visible, setVisible] = useState(false);
     const [modalInfo, setModalInfo] = useState<{ resolve?: any }>({});
 
@@ -114,6 +115,12 @@ specified amount, while respecting the given schedule.`}
                   classes="text-primary inline-block"
                 />
               </p>
+              {automaticWithdrawal && (
+                <p className="text-gray-400 text-xxs leading-4 mt-1">
+                  {`Since automatic withdrawal is enabled, there will be additional fees of
+                  5000 lamports per every withdrawal that happen.`}
+                </p>
+              )}
             </>
           )}
           {disclaimer && <p className="text-gray-400 text-xxs leading-4 mt-3">{disclaimer}</p>}

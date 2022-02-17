@@ -32,7 +32,7 @@ const Overview: React.FC<OverviewProps> = ({
 }) => {
   const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
-  const end = (start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod) * 1000; // convert to ms
+  const end = start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod;
   const formattedReleasePeriod = formatPeriodOfTime(releasePeriod);
   const isReleasePerMonth = formattedReleasePeriod?.includes("month");
   const isReleasePerYear = formattedReleasePeriod?.includes("year");
@@ -96,7 +96,7 @@ const Overview: React.FC<OverviewProps> = ({
         Ends on
         {depositedAmount && releaseAmount > 0 && start && releaseFrequencyCounter ? (
           <span className="text-gray-100 text-sm">{` ${format(
-            new Date(end),
+            new Date(end * 1000),
             "ccc do MMM, yyyy - HH:mm"
           )}`}</span>
         ) : (
@@ -131,7 +131,7 @@ const Overview: React.FC<OverviewProps> = ({
       )}
       {withdrawalFees > 0 && (
         <p className="text-gray-400 text-xxs leading-4 mt-1">
-          {`For this contract there will be ${withdrawalFees} SOL in withdrawal fees.`}
+          {`For this stream there will be ${withdrawalFees.toFixed(6)} SOL in withdrawal fees.`}
         </p>
       )}
     </div>
