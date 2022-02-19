@@ -7,7 +7,7 @@ import { Cluster } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
-import { Footer, Header, Banner, Nav } from "./components";
+import { Footer, Header, Banner, Nav, Link } from "./components";
 import { Page404 } from "./pages";
 import routes from "./router/RoutesConfig";
 import PrivateRoute from "./router/PrivateRoute";
@@ -72,7 +72,12 @@ const App: FC = () => {
             >
               Community app
             </a>{" "}
-            to see them.
+            to see them.{" "}
+            <Link
+              url={"https://docs.streamflow.finance/help/faq"}
+              title={"Learn more"}
+              classes={"font-bold underline"}
+            />
           </p>
         </Banner>
       )}

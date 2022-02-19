@@ -3,9 +3,8 @@ import { useEffect, FC } from "react";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
-import { ExternalLinkIcon } from "@heroicons/react/outline";
 
-import { StreamCard, Link } from ".";
+import { Link, StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
@@ -42,6 +41,7 @@ interface StreamsListProps {
   wallet: WalletAdapter;
   type: "vesting" | "streams";
 }
+
 const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const {
     streams,
@@ -119,15 +119,10 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     <>
       {oldStreams && (
         <>
-          <p className="text-gray-200 text-sm sm:text-base text-center">
-            It looks like you have streams on Streamflow V1. Streamflow has upgraded to V2. Your V1
-            streams are safu, please use the Community app to see them.{" "}
-            <Link
-              url="https://free.streamflow.finance/"
-              title="Go to Streamflow V1."
-              Icon={ExternalLinkIcon}
-              classes="inline-block text-green-400"
-            />
+          <p className="text-white font-bold text-sm sm:text-base text-center">
+            Your old streams are SAFU. View them{" "}
+            <Link url={"https://free.streamflow.finance"} title={"here"} classes={"text-blue"} />.
+            <br />
           </p>
         </>
       )}
