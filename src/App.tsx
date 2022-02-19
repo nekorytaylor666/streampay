@@ -1,4 +1,4 @@
-import { useEffect, useState, FC } from "react";
+import { useEffect } from "react";
 
 import { Switch, Route, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -19,16 +19,17 @@ import {
 } from "./constants";
 import useStore, { StoreType } from "./stores";
 
-const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
+const storeGetter = ({ connection, wallet, cluster, oldStreams, setOldStreams }: StoreType) => ({
   connection: connection(),
   wallet,
   isMainnet: cluster === Cluster.Mainnet,
+  oldStreams,
+  setOldStreams,
 });
 
 const App: FC = () => {
   const history = useHistory();
-  const { wallet, connection, isMainnet } = useStore(storeGetter);
-  const [showCommunityBanner, setShowCommunityBanner] = useState(false);
+  const { wallet, connection, isMainnet, oldStreams, setOldStreams } = useStore(storeGetter);
 
   useEffect(() => {
     trackPageView();
@@ -36,8 +37,7 @@ const App: FC = () => {
   }, [history]);
 
   useEffect(() => {
-    if (!isMainnet || !connection || !wallet || !wallet.publicKey)
-      return setShowCommunityBanner(false);
+    if (!isMainnet || !connection || !wallet || !wallet.publicKey) return setOldStreams(false);
 
     const publicKey = wallet.publicKey?.toBase58();
 
@@ -54,15 +54,13 @@ const App: FC = () => {
         STREAMS_COMMUNITY_OFFSET_RECIPIENT,
         publicKey
       ),
-    ]).then(([outgoing, incoming]) =>
-      setShowCommunityBanner(outgoing.length > 0 || incoming.length > 0)
-    );
+    ]).then(([outgoing, incoming]) => setOldStreams(outgoing.length > 0 || incoming.length > 0));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connection, wallet]);
 
   return (
     <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
-      {showCommunityBanner && (
+      {oldStreams && (
         <Banner classes="top-0 left-0 w-full">
           <p className="text-sm sm:text-base text-white">
             Streamflow has upgraded to v2. Your v1 streams are safu, please use the{" "}
