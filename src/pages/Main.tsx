@@ -43,7 +43,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     : "There are still no streams associated with this wallet.";
 
   return (
-    <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
+    <div className="mx-auto grid grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl px-4 pt-4">
       <div className="xl:mr-12">
         <Curtain visible={loading} />
         {wallet?.connected && <Account setLoading={setLoading} />}
@@ -58,12 +58,12 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
           Object.keys(myTokenAccounts).length ? (
             <StreamsList connection={connection} wallet={wallet} type={page} />
           ) : (
-            <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
+            <p className="text-sm sm:text-base text-gray-light text-center mt-4">
               {emptyStreamsText}
             </p>
           )
         ) : (
-          <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
+          <p className="text-sm sm:text-base text-gray-light text-center mt-4">
             {waitForStreamsText}
           </p>
         )}

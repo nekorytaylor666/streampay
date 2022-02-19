@@ -7,7 +7,10 @@ const Page404: React.FC = () => (
     <h1 className="text-5xl md:text-6xl mb-1">404</h1>
     <p className="text-base">This page does not exists.</p>
     <Link to="/vesting">
-      <Button primary classes="mt-4 md:mt-6 px-6 py-3 text-xl md:px-12 md:py-4 md:text-2xl">
+      <Button
+        background="blue"
+        classes="mt-4 md:mt-6 px-6 py-3 text-xl md:px-12 md:py-4 md:text-2xl"
+      >
         Go Home
       </Button>
     </Link>

@@ -23,13 +23,13 @@ const Progress: FC<ProgressProps> = ({ title, value, max, rtl, decimals, symbol,
     </dt>
     <label className="ml-1 col-span-8 sm:col-span-9 truncate text-base block">
       {formatAmount(value, decimals, DEFAULT_DECIMAL_PLACES)}
-      <small className="text-gray-400">
+      <small className="text-gray-light">
         / {formatAmount(Number(max), decimals, DEFAULT_DECIMAL_PLACES)} {symbol}
       </small>
     </label>
-    <div className="col-span-full rounded-sm h-3 bg-gray-900 w-full my-auto">
+    <div className="col-span-full rounded-sm h-3 bg-dark w-full my-auto">
       <div
-        className={cx(" bg-gradient-to-r from-primary to-secondary rounded-sm h-full", {
+        className={cx(" bg-gradient-to-r from-blue to-green rounded-sm h-full", {
           "float-right": rtl,
         })}
         style={{ width: Math.min((value / max) * 100, 100) + "%" }}

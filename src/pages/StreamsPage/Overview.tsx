@@ -1,5 +1,5 @@
 import { format, getUnixTime } from "date-fns";
-import { ExternalLinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import ReactTooltip from "react-tooltip";
 
 import { Link } from "../../components";
@@ -49,26 +49,26 @@ const Overview: React.FC<OverviewProps> = ({
   return (
     <div className="col-span-full mt-4 leading-6">
       <h3 className="font-bold text-lg text-white mb-3">Overview:</h3>
-      <p className="text-gray-400 text-sm leading-6">
+      <p className="text-gray-light text-sm leading-6">
         Stream starts on
         {start ? (
-          <span className="text-gray-100 text-sm">{` ${startDate} `}</span>
+          <span className="text-gray-light text-sm">{` ${startDate} `}</span>
         ) : (
           <span> ____ </span>
         )}
         at
-        <span className="text-gray-100 text-sm">{` ${startTime}`}</span>.
+        <span className="text-gray-light text-sm">{` ${startTime}`}</span>.
       </p>
-      <p className="text-gray-400 text-sm leading-6 sm:inline-block">
-        <span className="text-gray-100 text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
+      <p className="text-gray-light text-sm leading-6 sm:inline-block">
+        <span className="text-gray-light text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
         released every
         {releaseFrequencyCounter ? (
           <>
-            <span className="text-gray-100 text-sm">{` ${formattedReleasePeriod}. `}</span>
+            <span className="text-gray-light text-sm">{` ${formattedReleasePeriod}. `}</span>
             {(isReleasePerMonth || isReleasePerYear) && (
               <>
                 <QuestionMarkCircleIcon
-                  className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-primary"
+                  className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-blue"
                   data-tip
                   data-for="overviewTooltip"
                 />
@@ -92,10 +92,10 @@ const Overview: React.FC<OverviewProps> = ({
           <span> _____. </span>
         )}
       </p>
-      <p className="text-gray-400 text-sm leading-6">
+      <p className="text-gray-light text-sm leading-6">
         Ends on
         {depositedAmount && releaseAmount > 0 && start && releaseFrequencyCounter ? (
-          <span className="text-gray-100 text-sm">{` ${format(
+          <span className="text-gray-light text-sm">{` ${format(
             new Date(end * 1000),
             "ccc do MMM, yyyy - HH:mm"
           )}`}</span>
@@ -105,7 +105,7 @@ const Overview: React.FC<OverviewProps> = ({
         , <br className="sm:hidden" />
         unless topped up.
       </p>
-      <p className="text-gray-400 text-xxs leading-4 mt-6">
+      <p className="text-gray-light text-xxs leading-4 mt-6">
         {`Streamflow charges 0.25% service fee (${roundAmount(
           depositedAmount * 0.0025
         )} ${tokenSymbol}) on top of the
@@ -113,24 +113,23 @@ const Overview: React.FC<OverviewProps> = ({
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"
-          Icon={ExternalLinkIcon}
-          classes="text-primary inline-block"
+          classes="inline-block text-p3 text-blue"
         />
       </p>
       {automaticWithdrawal && (
         <>
-          <p className="text-gray-400 text-xxs leading-4 mt-3">
+          <p className="text-gray-light text-xxs leading-4 mt-3">
             When automatic withdrawal is enabled there are additional fees (5000 lamports) per every
             withdrawal.
           </p>
-          <p className="text-gray-400 text-xxs leading-4">
+          <p className="text-gray-light text-xxs leading-4">
             Feature might not always work as expected - some withdrawal requests might fail due to
             potential infrastructure issues in solana network.
           </p>
         </>
       )}
       {withdrawalFees > 0 && (
-        <p className="text-gray-400 text-xxs leading-4 mt-1">
+        <p className="text-gray-light text-xxs leading-4 mt-1">
           {`For this stream there will be ${withdrawalFees.toFixed(6)} SOL in withdrawal fees.`}
         </p>
       )}

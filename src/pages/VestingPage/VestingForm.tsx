@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPickerCTA } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
@@ -292,10 +292,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             />
           ) : (
             <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
-              <p className="text-base font-medium text-primary">
-                {wallet ? "No tokens. :(" : "Please connect."}
-              </p>
+              <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+              <p className="text-base font-medium text-blue">No tokens available.</p>
             </div>
           )}
           <Input
@@ -384,13 +382,13 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.cliffAmount?.message}
                 {...register("cliffAmount")}
               />
-              <span className="absolute text-gray-300 text-base right-2 sm:right-4 bottom-2">
+              <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
                 %
               </span>
             </div>
           </div>
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-            <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
+            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
               Release Frequency
             </label>
             <Input
@@ -419,7 +417,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           />
           {automaticWithdrawal && (
             <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4">
-              <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
+              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
                 Withdrawal Frequency
               </label>
               <Input
@@ -453,7 +451,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
               <div className="col-span-full grid grid-cols-6 sm:grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
                 <div className="col-span-4 sm:col-span-1">
-                  <label className="text-gray-200 text-base cursor-pointer mb-1 block">
+                  <label className="text-gray-light text-base cursor-pointer mb-1 block">
                     Who can transfer the stream?
                   </label>
                   <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
@@ -472,7 +470,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                   </div>
                 </div>
                 <div className="col-span-4 sm:col-span-1">
-                  <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+                  <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
                     Who can cancel?
                   </label>
                   <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
@@ -518,7 +516,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             />
             <Button
               type="submit"
-              primary
+              background="blue"
               classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
               disabled={loading}
             >
@@ -527,12 +525,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           </>
         )}
       </form>
-      {!wallet?.connected && (
-        <WalletPickerCTA
-          classes="px-8 py-4 mx-auto font-bold text-xl my-8 sm:my-10"
-          title="Connect wallet"
-        />
-      )}
       <Modal
         ref={modalRef}
         title="Seems like the recipient address has empty balance."

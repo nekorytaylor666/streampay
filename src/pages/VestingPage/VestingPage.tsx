@@ -1,7 +1,5 @@
 import Main from "../Main";
 
-const VestingPage = () => {
-  return <Main page="vesting" />;
-};
+const VestingPage = () => <Main page="vesting" />;
 
 export default VestingPage;

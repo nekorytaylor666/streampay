@@ -1,27 +1,26 @@
-import { useState, forwardRef, useImperativeHandle, useMemo, MouseEvent } from "react";
+import { useMemo, MouseEvent, FC, useEffect, useState } from "react";
 
+import { useHistory } from "react-router-dom";
 import {
   getPhantomWallet,
+  getSlopeWallet,
   getSolflareWebWallet,
   getSolflareWallet,
   getSolletWallet,
-  getSlopeWallet,
 } from "@solana/wallet-adapter-wallets";
-import type { Wallet } from "@solana/wallet-adapter-base";
-import cx from "classnames";
+import type { Wallet, WalletName } from "@solana/wallet-adapter-base";
 import { Cluster } from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
-import { ModalRef } from ".";
 
 const storeGetter = ({ cluster, setWalletType }: StoreType) => ({
   setWalletType,
   cluster,
 });
 
-const WalletPicker = forwardRef<ModalRef>(({}, ref) => {
+const WalletPicker: FC = () => {
+  const history = useHistory();
   const { cluster, setWalletType } = useStore(storeGetter);
-  const [visible, setVisible] = useState(false);
 
   const walletTypes = useMemo(
     () => [
@@ -34,46 +33,48 @@ const WalletPicker = forwardRef<ModalRef>(({}, ref) => {
     [cluster]
   );
 
-  useImperativeHandle(ref, () => ({
-    show: () =>
-      new Promise(() => {
-        setVisible(true);
-      }),
-  }));
+  const defaultIsInstalled: { [key: WalletName]: boolean } = walletTypes.reduce(
+    (acc, wallet) => ({ ...acc, [wallet.name]: false }),
+    {}
+  );
+
+  const [isWalletInstalled, setIsWalletInstalled] = useState(defaultIsInstalled);
 
   const onConfirm = (wallet: Wallet) => {
-    setVisible(false);
-    setWalletType(wallet);
+    setWalletType(wallet, history);
   };
 
-  const onCancel = () => {
-    setVisible(false);
-  };
+  useEffect(() => {
+    (async () => {
+      const isInstalled: { [key: WalletName]: boolean } = await walletTypes.reduce(
+        async (acc, wallet) => {
+          const isReady = await wallet.adapter.ready();
+          return { ...acc, [wallet.name]: isReady };
+        },
+        {}
+      );
+      return setIsWalletInstalled(isInstalled);
+    })();
+  }, [walletTypes]);
 
   return (
     <div
-      className={cx(
-        "h-screen fixed z-10 w-screen backdrop-filter backdrop-blur-xs bg-opacity-70 bg-dark top-0 left-0 flex justify-center items-center",
-        visible ? "block" : "hidden"
-      )}
-      onClick={onCancel}
+      className="w-full sm:w-100"
+      onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
     >
-      <div
-        className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-1 pt-5 sm:px-5 rounded-md bg-gradient-to-br to-ternary from-main flex flex-col"
-        onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
-      >
-        {walletTypes.map((wallet) => (
-          <button
-            className="border-primary border cursor-pointer mb-4 p-4 text-primary rounded-md"
-            onClick={() => onConfirm(wallet)}
-          >
-            <img className="h-8 inline-block mr-4" src={wallet.icon}></img>
-            <p className="inline-block text-base">{wallet.name}</p>
-          </button>
-        ))}
-      </div>
+      {walletTypes.map((wallet) => (
+        <button
+          className="flex cursor-pointer w-full mb-4 p-6 text-white rounded-2xl bg-gray-dark hover:bg-blue transition duration-300 ease-in-out"
+          onClick={() => onConfirm(wallet)}
+        >
+          <img className="h-6 inline-block mr-4" src={wallet.icon}></img>
+          <p className="text-white font-bold flex-grow text-left">{wallet.name}</p>
+
+          {isWalletInstalled[wallet.name] && <p className="text-gray text-p2">Installed</p>}
+        </button>
+      ))}
     </div>
   );
-});
+};
 
 export default WalletPicker;

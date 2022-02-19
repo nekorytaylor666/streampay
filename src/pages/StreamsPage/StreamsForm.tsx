@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, WalletPickerCTA, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
@@ -245,10 +245,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             />
           ) : (
             <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
-              <p className="text-base font-medium text-primary">
-                {wallet ? "No tokens. :(" : "Please connect."}
-              </p>
+              <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+              <p className="text-base font-medium text-blue">No tokens available.</p>
             </div>
           )}
           <Input
@@ -260,7 +258,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             {...register("releaseAmount")}
           />
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
-            <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
+            <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
               Release Frequency
             </label>
             <Input
@@ -326,7 +324,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           />
           {automaticWithdrawal && (
             <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-4 sm:col-span-1">
-              <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
+              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
                 Withdrawal Frequency
               </label>
               <Input
@@ -359,7 +357,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           {advanced && (
             <>
               <div className="col-span-4 sm:col-span-1">
-                <label className="text-gray-200 text-base cursor-pointer mb-1 block">
+                <label className="text-gray-light text-base cursor-pointer mb-1 block">
                   Who can transfer the stream?
                 </label>
                 <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
@@ -378,7 +376,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                 </div>
               </div>
               <div className="col-span-4 sm:col-span-1">
-                <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+                <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
                   Who can cancel?
                 </label>
                 <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
@@ -417,7 +415,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             />
             <Button
               type="submit"
-              primary
+              background="blue"
               classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
               disabled={loading}
             >
@@ -426,12 +424,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           </>
         )}
       </form>
-      {!wallet?.connected && (
-        <WalletPickerCTA
-          classes="px-8 mx-auto py-4 font-bold text-xl my-8 sm:my-10"
-          title="Connect wallet"
-        />
-      )}
       <Modal
         ref={modalRef}
         title="Seems like the recipient address has empty balance."

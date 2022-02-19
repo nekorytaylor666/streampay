@@ -23,7 +23,12 @@
     "project": "./tsconfig.json"
   },
   "rules": {
-    "prettier/prettier": ["error"],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
     "no-debugger": "warn",
     "no-console": "warn",
     "import/prefer-default-export": "off",
