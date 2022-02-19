@@ -4,7 +4,7 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import ReactTooltip from "react-tooltip";
 
 interface TooltipProps {
-  content: string;
+  content: string | FC;
 }
 
 const Tooltip: FC<TooltipProps> = ({ content }) => (
@@ -21,7 +21,7 @@ const Tooltip: FC<TooltipProps> = ({ content }) => (
       place="top"
       backgroundColor="#18A2D9"
     >
-      <span>{{ content }}</span>
+      {content}
     </ReactTooltip>
   </>
 );
