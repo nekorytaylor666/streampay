@@ -2,9 +2,9 @@ import { useEffect, useState, FC, useRef } from "react";
 
 import { format, fromUnixTime } from "date-fns";
 import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
-import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import { toast } from "react-toastify";
+import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -195,7 +195,6 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   const fetchStream = async () => {
     if (!connection) return;
     const stream = await Stream.getOne({ connection, id });
-    console.log("strean", stream.withdrawnAmount.toNumber());
     if (stream) {
       onWithdraw();
       updateStream([id, stream]);
@@ -313,7 +312,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   return (
     <>
       <dl
-        className={`text-gray-100 text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-${color}-300 bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
+        className={`text-gray-light text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-gray-dark bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
       >
         <Badge classes="col-span-full" type={status} color={color} />
         <Duration
@@ -325,33 +324,33 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           isAdvanced={isCliffDateAfterStart}
         />
         <p className="col-span-4 sm:col-span-3">Subject</p>
-        <p className="col-span-8 sm:col-span-9 text-gray-400 pt-0.5 capitalize">{name}</p>
+        <p className="col-span-8 sm:col-span-9 text-gray-light pt-0.5 capitalize">{name}</p>
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
           title={"Stream ID"}
-          classes="col-span-4 sm:col-span-3 text-sm text-base"
           Icon={ExternalLinkIcon}
+          classes="col-span-4 sm:col-span-3 text-p3"
         />
-        <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5" />
+        <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5" />
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
           title={"Recipient"}
-          classes="col-span-4 sm:col-span-3 text-base"
           Icon={ExternalLinkIcon}
+          classes="col-span-4 sm:col-span-3 text-p3"
         />
         <Address
           address={recipient}
-          classes="col-span-8 sm:col-span-9 text-sm text-gray-400 pt-0.5"
+          classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5"
         />
         {isCliffAmount && (
           <>
             <dd className="col-span-4 sm:col-span-3">
               Unlocked
-              <small className="text-xs block text-gray-400 align-top">{`at ${
+              <small className="text-xs block text-gray-light align-top">{`at ${
                 isCliffDateAfterStart ? "cliff" : "start"
               } date`}</small>
             </dd>
-            <dt className="col-span-8 sm:col-span-9 text-gray-400 pt-2">{`${formatAmount(
+            <dt className="col-span-8 sm:col-span-9 text-gray-light pt-2">{`${formatAmount(
               cliffAmount,
               decimals,
               DEFAULT_DECIMAL_PLACES
@@ -361,11 +360,11 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         <dd className="col-span-4 sm:col-span-3">
           Release rate
           {isCliffDateAfterStart && (
-            <small className="text-xs block text-gray-400 align-top">after cliff date</small>
+            <small className="text-xs block text-gray-light align-top">after cliff date</small>
           )}
         </dd>
         <dt
-          className={cx("col-span-8 sm:col-span-9 text-gray-400", {
+          className={cx("col-span-8 sm:col-span-9 text-gray-light", {
             "pt-2": isCliffDateAfterStart,
           })}
         >
@@ -398,7 +397,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
             {(status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
               <>
                 <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
-                <dt className="col-span-8 text-gray-400 text-sm">
+                <dt className="col-span-8 text-gray-light text-sm">
                   {format(
                     fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)),
                     "ccc do MMM, yy HH:mm:ss"
@@ -418,7 +417,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
                 <dd className="col-span-4">
                   Available
                   <br />
-                  <sup className="text-xs text-gray-400 align-top">for withdrawal</sup>
+                  <sup className="text-xs text-gray-light align-top">for withdrawal</sup>
                 </dd>
                 <dt className="col-span-8 pt-1.5">
                   ~ {formatAmount(available, decimals, DEFAULT_DECIMAL_PLACES)} {symbol}
@@ -426,7 +425,11 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
               </>
             )}
             {showTopup && (
-              <Button onClick={handleTopup} primary classes="col-span-3 text-sm py-1 w-full">
+              <Button
+                onClick={handleTopup}
+                background="blue"
+                classes="col-span-3 text-sm py-1 w-full"
+              >
                 Top Up
               </Button>
             )}

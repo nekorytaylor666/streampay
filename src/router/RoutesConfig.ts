@@ -1,10 +1,11 @@
-import { VestingPage, StreamsPage, MultipayPage, MultisigPage } from "./pages";
+import { HomePage, VestingPage, StreamsPage, MultisigPage, MultipayPage } from "../pages";
 
 export interface Route {
   path: string;
   Component: React.FC;
   redirect?: string;
   label?: string;
+  isPrivate?: boolean;
   exact?: boolean;
   disabled?: boolean;
 }
@@ -12,20 +13,21 @@ export interface Route {
 const routes: Route[] = [
   {
     path: "/",
-    redirect: "/vesting",
-    Component: VestingPage,
+    Component: HomePage,
     exact: true,
   },
   {
     path: "/vesting",
     Component: VestingPage,
     label: "Vesting",
+    isPrivate: true,
     exact: true,
   },
   {
     path: "/streams",
     Component: StreamsPage,
     label: "Streams",
+    isPrivate: true,
     exact: true,
     disabled: false,
   },
@@ -33,6 +35,7 @@ const routes: Route[] = [
     path: "/multisig",
     Component: MultisigPage,
     label: "Multisig",
+    isPrivate: true,
     exact: true,
     disabled: true,
   },
@@ -40,6 +43,7 @@ const routes: Route[] = [
     path: "/multipay",
     Component: MultipayPage,
     label: "Multipay",
+    isPrivate: true,
     exact: true,
     disabled: true,
   },

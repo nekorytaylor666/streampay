@@ -5,12 +5,12 @@ import cx from "classnames";
 import ReactTooltip from "react-tooltip";
 import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 
-import routes from "../RoutesConfig";
+import routes from "../router/RoutesConfig";
 
 const Tooltip = () => (
   <div className="absolute right-1">
     <QuestionMarkCircleIcon
-      className="h-3 w-3 inline mb-2 cursor-pointer text-primary"
+      className="h-3 w-3 inline mb-2 cursor-pointer text-blue"
       data-tip
       data-for="overviewTooltip"
     />
@@ -32,7 +32,7 @@ interface NavProps {
 
 const Nav: FC<NavProps> = ({ classes }) => (
   <nav className={classes}>
-    <ul className="text-center text-gray-400 flex justify-center">
+    <ul className="text-center text-gray-light flex justify-center">
       {routes.slice(1).map((route) => (
         <li key={route.path} className="relative">
           {route.disabled && <Tooltip />}

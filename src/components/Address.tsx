@@ -24,7 +24,7 @@ const Address: FC<AddressProps> = ({ address, classes }) => {
   return (
     <span className={cx("block truncate", classes)}>
       {copied ? (
-        <span className="text-green-300 mr-1">
+        <span className="text-green mr-1">
           <CheckIcon className="h-4 inline mr-1 align-text-bottom" />
           <small>Copied!</small>
         </span>
