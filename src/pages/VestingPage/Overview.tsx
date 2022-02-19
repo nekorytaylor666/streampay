@@ -8,7 +8,7 @@ import {
   calculateEndTimeLikeOnBE,
   calculateWithdrawalFees,
 } from "../../utils/helpers";
-import { Link } from "../../components";
+import { Link, Tooltip } from "../../components";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
 interface OverviewProps {
@@ -112,26 +112,13 @@ const Overview: React.FC<OverviewProps> = ({
           <>
             <span className="text-gray-light text-sm">{` ${formattedReleasePeriod}. `}</span>
             {(isReleasePerMonth || isReleasePerYear) && (
-              <>
-                <QuestionMarkCircleIcon
-                  className="h-3.5 w-3.5  inline mb-2 cursor-pointer text-blue"
-                  data-tip
-                  data-for="overviewTooltip"
-                />
-                <ReactTooltip
-                  id="overviewTooltip"
-                  type="info"
-                  effect="solid"
-                  place="top"
-                  backgroundColor="#18A2D9"
-                >
-                  <span>
-                    {isReleasePerYear
-                      ? "We assume that year has 365 days."
-                      : "A month is approximated to 30.4167 days."}
-                  </span>
-                </ReactTooltip>
-              </>
+              <Tooltip
+                content={
+                  isReleasePerYear
+                    ? "We assume that year has 365 days."
+                    : "A month is approximated to 30.4167 days."
+                }
+              />
             )}
           </>
         ) : (
