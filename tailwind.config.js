@@ -2,7 +2,17 @@ module.exports = {
   mode: "jit",
   purge: {
     content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/index.html"],
-    safelist: ["bg-blue-200", "bg-red-200", "bg-green-200", "bg-yellow-200", "bg-dark-opacity"],
+    safelist: [
+      "bg-blue",
+      "bg-red",
+      "bg-green",
+      "bg-yellow",
+      "bg-blue-200",
+      "bg-red-200",
+      "bg-green-200",
+      "bg-yellow-200",
+      "bg-dev-dark-700",
+    ],
   },
   devMode: "class",
   theme: {
@@ -29,12 +39,12 @@ module.exports = {
         gray: "var(--gray)",
         "gray-light": "var(--gray-light)",
         "gray-dark": "var(--gray-dark)",
-        dark: "var(--dark)",
+        dark: "rgb(var(--dark))",
         "blue-200": "rgba(var(--blue), 0.2)",
         "red-200": "rgba(var(--red), 0.2)",
         "green-200": "rgba(var(--green), 0.2)",
         "yellow-200": "rgba(var(--yellow), 0.2)",
-        "bg-dark-opacity": "rgba(var(--dark), 0.7)",
+        "dev-dark-700": "rgba(var(--dev-dark), 0.7)",
       },
       borderColor: () => ({
         black: "#2A3441",

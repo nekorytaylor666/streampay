@@ -329,14 +329,14 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
           title={"Stream ID"}
           Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3 text-p3"
+          classes="col-span-4 sm:col-span-3"
         />
         <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5" />
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
           title={"Recipient"}
           Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3 text-p3"
+          classes="col-span-4 sm:col-span-3"
         />
         <Address
           address={recipient}

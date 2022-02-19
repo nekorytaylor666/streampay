@@ -16,7 +16,7 @@ const Range: FC<RangeProps> = ({ min, max, value, onChange }) => (
       onChange={(e) => onChange(parseFloat(e.target.value))}
       min={min}
       max={max}
-      className="text-white py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-dark border-blue block w-full rounded-md focus:ring-blue focus:border-blue"
+      className="text-white py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-dark border-none block w-full rounded-md focus:ring-blue focus:border-blue"
     />
     <input
       type="range"

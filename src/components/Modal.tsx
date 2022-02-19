@@ -64,13 +64,13 @@ const Modal = forwardRef<ModalRef, ModalProps>(
     return (
       <div
         className={cx(
-          "h-screen fixed z-10 w-screen backdrop-filter backdrop-blur-xs bg-dark-opacity top-0 left-0 flex justify-center items-center",
+          "h-screen fixed z-10 w-screen bg-dev-dark-700 top-0 left-0 flex justify-center items-center",
           visible ? "block" : "hidden"
         )}
         onClick={onCancel}
       >
         <div
-          className="w-11/12 sm:w-96 xl:w-1/3 2xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-dark"
+          className="w-11/12 sm:w-100 xl:w-1/3 2xl:w-1/4 px-4 pb-5 pt-7 sm:pt-8 sm:px-6 rounded-md bg-dark"
           onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
         >
           <p className="mb-2 text-center text-sm sm:text-base text-gray-light">{modalTitle}</p>
@@ -89,7 +89,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(
               onChange={(e) => setValue(e.target.value)}
               type={type}
               {...rest}
-              className="text-gray-light py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-dark border-blue block w-full rounded-md focus:ring-blue focus:border-blue"
+              className="text-gray-light py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-dark border-0 block w-full rounded-md focus:ring-blue focus:border-blue"
             />
           )}
           <div className="grid gap-2 sm:gap-3 grid-cols-3 mt-4">
@@ -110,7 +110,7 @@ specified amount, while respecting the given schedule.`}
                 <Link
                   title="Learn more."
                   url="https://docs.streamflow.finance/help/fees"
-                  classes="inline-block text-p3"
+                  classes="inline-block"
                 />
               </p>
               {automaticWithdrawal && (
