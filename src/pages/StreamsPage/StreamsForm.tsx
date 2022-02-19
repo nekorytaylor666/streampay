@@ -283,7 +283,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <Input
             type="text"
             label="Subject / Title"
-            placeholder="e.g. StreamFlow VC - seed round"
+            placeholder="e.g. Streamflow VC - seed round"
             classes="col-span-full"
             error={errors?.subject?.message}
             {...register("subject")}
