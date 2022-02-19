@@ -9,7 +9,7 @@ const Footer: FC = () => (
       <Link
         url="https://github.com/streamflow-finance/js-sdk"
         title="Learn more"
-        classes="text-p3"
+        classes="text-p3 text-blue"
       />
     </p>
   </footer>

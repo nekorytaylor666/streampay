@@ -113,7 +113,7 @@ const Overview: React.FC<OverviewProps> = ({
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"
-          classes="inline-block text-p3"
+          classes="inline-block text-p3 text-blue"
         />
       </p>
       {automaticWithdrawal && (

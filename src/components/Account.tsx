@@ -165,6 +165,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         url={getExplorerLink("address", walletPubKey)}
         title="Address"
         Icon={ExternalLinkIcon}
+        classes="text-blue"
       />
     );
     myAddress = <Address address={walletPubKey} classes="block truncate" />;

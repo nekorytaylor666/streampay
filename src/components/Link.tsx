@@ -1,7 +1,5 @@
 import { FC, ElementType } from "react";
 
-import cx from "classnames";
-
 interface LinkProps {
   url: string;
   title?: string;
@@ -10,7 +8,7 @@ interface LinkProps {
 }
 
 const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (
-  <span className={cx("text-blue", classes)}>
+  <span className={classes}>
     {Icon ? (
       <a href={url} target="_blank" rel="noopener noreferrer">
         {title || url}
@@ -19,12 +17,7 @@ const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (
         </sup>
       </a>
     ) : (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hover:opacity-60 text-blue"
-      >
+      <a href={url} target="_blank" rel="noopener noreferrer" className="hover:opacity-60">
         {title || url}
       </a>
     )}

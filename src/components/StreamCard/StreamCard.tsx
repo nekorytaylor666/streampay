@@ -329,14 +329,14 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
           title={"Stream ID"}
           Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3"
+          classes="col-span-4 sm:col-span-3 text-blue"
         />
         <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5" />
         <Link
           url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
           title={"Recipient"}
           Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3"
+          classes="col-span-4 sm:col-span-3 text-blue"
         />
         <Address
           address={recipient}
@@ -482,7 +482,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         type="range"
         min={0}
         max={roundAmount(parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0)}
-        confirm={{ color: "green", text: "Top Up" }}
+        confirm={{ color: "blue", text: "Top Up" }}
         automaticWithdrawal={automaticWithdrawal}
       />
       <Modal

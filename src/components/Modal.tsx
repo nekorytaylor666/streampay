@@ -110,7 +110,7 @@ specified amount, while respecting the given schedule.`}
                 <Link
                   title="Learn more."
                   url="https://docs.streamflow.finance/help/fees"
-                  classes="inline-block"
+                  classes="inline-block text-blue"
                 />
               </p>
               {automaticWithdrawal && (
