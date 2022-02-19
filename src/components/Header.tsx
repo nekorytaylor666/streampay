@@ -13,7 +13,17 @@ const Header: FC = () => {
   const wallet = useStore((state) => state.wallet);
 
   const isMainnet = cluster === Cluster.Mainnet;
-  const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
+  const toggleCluster = () => {
+    if (isMainnet) {
+      setCluster(Cluster.Devnet);
+      document.documentElement.classList.remove("main");
+      document.documentElement.classList.add("dev");
+    } else {
+      setCluster(Cluster.Mainnet);
+      document.documentElement.classList.remove("dev");
+      document.documentElement.classList.add("main");
+    }
+  };
 
   return (
     <div className="flex sticky top-0 w-screen bg-dark justify-between items-center p-4 sm:p-6 border-b border-gray-dark z-10">
