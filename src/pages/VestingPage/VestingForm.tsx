@@ -99,7 +99,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const currentDate = format(new Date(), DATE_FORMAT);
     if (startDate < currentDate) setValue("startDate", currentDate, { shouldValidate: true });
     if (endDate < currentDate) setValue("endDate", currentDate);
-    if (!advanced || cliffDate < currentDate) setValue("cliffDate", currentDate);
+    if (cliffDate < currentDate) setValue("cliffDate", currentDate);
   };
 
   const updateStartTime = () => {
@@ -111,12 +111,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const in7Minutes = add(new Date(), { minutes: 7 });
 
     if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
-    if (!advanced || cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
+    if (cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
     if (end < in7Minutes) setValue("endTime", format(in7Minutes, TIME_FORMAT));
   };
 
   const onStartDateChange = (value: string) => {
-    if (!advanced || cliffDate < value) setValue("cliffDate", value);
+    if (cliffDate < value) setValue("cliffDate", value);
     if (endDate < value) setValue("endDate", value);
   };
 
@@ -130,7 +130,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         "endTime",
         format(add(new Date(startDate + "T" + value), { minutes: 5 }), TIME_FORMAT)
       );
-    if (!advanced || cliff < start)
+    if (cliff < start)
       setValue("cliffTime", format(new Date(startDate + "T" + value), TIME_FORMAT));
   };
 
@@ -189,7 +189,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end = getUnixTime(new Date(endDate + "T" + endTime));
-    const cliff = advanced ? getUnixTime(new Date(cliffDate + "T" + cliffTime)) : start;
+    const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
     const cliffAmountCalculated = (cliffAmount / 100) * amount;
     const amountPerPeriod = calculateReleaseRate(
       end,

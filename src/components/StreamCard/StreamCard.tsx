@@ -195,6 +195,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   const fetchStream = async () => {
     if (!connection) return;
     const stream = await Stream.getOne({ connection, id });
+
     if (stream) {
       onWithdraw();
       updateStream([id, stream]);
