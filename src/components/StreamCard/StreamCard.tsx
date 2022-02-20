@@ -195,7 +195,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   const fetchStream = async () => {
     if (!connection) return;
     const stream = await Stream.getOne({ connection, id });
-    console.log("strean", stream.withdrawnAmount.toNumber());
+
     if (stream) {
       onWithdraw();
       updateStream([id, stream]);
