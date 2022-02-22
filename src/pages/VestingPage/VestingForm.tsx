@@ -9,7 +9,7 @@ import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -34,7 +34,9 @@ const storeGetter = (state: StoreType) => ({
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   addStream: state.addStream,
   setToken: state.setToken,
   cluster: state.cluster,
@@ -49,6 +51,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
+    myTokenAccountsSorted,
     addStream,
     setToken,
     cluster,
@@ -135,14 +139,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   };
 
   useEffect(() => {
-    if (myTokenAccounts) {
-      const newTokenOptions = Object.values(myTokenAccounts)
-        .sort((token1, token2) => (token1.info.name < token2.info.name ? 1 : -1))
-        .map(({ info }) => ({
-          value: info.symbol,
-          label: info.symbol,
-          icon: info.logoURI,
-        }));
+    if (myTokenAccountsSorted) {
+      const newTokenOptions = myTokenAccountsSorted.map(({ info }) => ({
+        value: info.symbol,
+        label: info.symbol,
+        icon: info.logoURI,
+      }));
 
       if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
@@ -150,7 +152,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myTokenAccounts, setValue]);
+  }, [myTokenAccountsSorted, setValue]);
 
   useEffect(() => {
     if (!wallet) setTokenOptions([]);
@@ -236,10 +238,15 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
-      setMyTokenAccounts({
+      const updatedTokenAccounts = {
         ...myTokenAccounts,
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
-      });
+      };
+      setMyTokenAccounts(updatedTokenAccounts);
+
+      const myTokenAccountsSorted = sortTokenAccounts(updatedTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
 
       const streamflowFeeTotal = getNumberFromBN(

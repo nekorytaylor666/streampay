@@ -9,6 +9,7 @@ const useTokenStore = (set: Function) => ({
   token: {} as Token,
   tokenPriceUsd: 1 as number,
   myTokenAccounts: {} as { [mint: string]: Token },
+  myTokenAccountsSorted: [] as Token[],
   tokensStreaming: {} as { [mint: string]: TokenInfo },
 
   //actions
@@ -16,8 +17,8 @@ const useTokenStore = (set: Function) => ({
     const tokenPriceUsd = await fetchTokenPrice(token?.info.symbol);
     set({ token, tokenPriceUsd });
   },
-
   setMyTokenAccounts: (myTokenAccounts: { [mint: string]: Token }) => set({ myTokenAccounts }),
+  setMyTokenAccountsSorted: (myTokenAccountsSorted: Token[]) => set({ myTokenAccountsSorted }),
   setTokensStreaming: (tokensStreaming: {
     [mint: string]: { info: TokenInfo; uiTokenAmount: TokenAmount };
   }) => set({ tokensStreaming }),

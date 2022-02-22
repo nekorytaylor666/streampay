@@ -5,11 +5,13 @@ import StreamsForm from "./StreamsPage/StreamsForm";
 import VestingForm from "./VestingPage/VestingForm";
 import StreamsList from "../components/StreamsList";
 import useStore, { StoreType } from "../stores";
-import { getTokenAccounts } from "../utils/helpers";
+import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   setMyTokenAccounts: state.setMyTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   wallet: state.wallet,
   cluster: state.cluster,
   token: state.token,
@@ -18,8 +20,15 @@ const storeGetter = (state: StoreType) => ({
 });
 
 const Main = ({ page }: { page: "vesting" | "streams" }) => {
-  const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
-    useStore(storeGetter);
+  const {
+    wallet,
+    connection,
+    setMyTokenAccounts,
+    cluster,
+    setToken,
+    myTokenAccounts,
+    setMyTokenAccountsSorted,
+  } = useStore(storeGetter);
   const [loading, setLoading] = useState(false);
   const isVesting = page === "vesting";
 
@@ -27,11 +36,14 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     if (connection && wallet) {
       (async () => {
         const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+        const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
 
-        setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
         setMyTokenAccounts(myTokenAccounts);
+        setMyTokenAccountsSorted(myTokenAccountsSorted);
+        setToken(myTokenAccountsSorted[0]);
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
   const waitForStreamsText = isVesting

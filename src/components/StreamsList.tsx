@@ -8,7 +8,7 @@ import { Link, StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
-import { getTokenAmount } from "../utils/helpers";
+import { getTokenAmount, sortTokenAccounts } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
 import { WalletAdapter } from "../types";
 
@@ -23,6 +23,7 @@ const storeGetter = (state: StoreType) => ({
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   setToken: state.setToken,
   cluster: state.cluster,
   walletType: state.walletType,
@@ -52,6 +53,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
     setToken,
     cluster,
     walletType,
@@ -61,11 +63,15 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const updateToken = async () => {
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
-
-    setMyTokenAccounts({
+    const updatedTokenAccounts = {
       ...myTokenAccounts,
       [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
-    });
+    };
+
+    const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
+
+    setMyTokenAccounts(updatedTokenAccounts);
+    setMyTokenAccountsSorted(myTokenAccountsSorted);
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
