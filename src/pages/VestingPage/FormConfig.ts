@@ -218,7 +218,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
             "withdrawalFrequency is >= period",
             ERRORS.withdrawal_frequency_too_high,
             (period, ctx) => {
-              return period
+              return period && ctx.parent.automaticWithdrawal
                 ? period * ctx.parent.withdrawalFrequencyCounter >=
                     ctx.parent.releaseFrequencyCounter * ctx.parent.releaseFrequencyPeriod
                 : true;
