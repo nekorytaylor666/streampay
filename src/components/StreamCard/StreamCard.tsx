@@ -215,6 +215,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         id,
         token.info.symbol,
         token.info.name,
+        tokenPriceUsd,
         TRANSACTION_VARIANT.TOP_UP_STREAM,
         topupAmount * 0.0025 * tokenPriceUsd,
         topupAmount * 0.0025,

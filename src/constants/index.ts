@@ -144,7 +144,7 @@ export const AFFILIATION = {
   APP: "app",
 };
 export const DEFAULT_GA_PURCHASE_CURRENCY = "USD";
-export const USD_PEGGED_COINS = ["USDT", "USDC", "STRM"];
+export const USD_PEGGED_COINS = ["USDT", "USDC"];
 
 export const DATA_LAYER_VARIABLE = {
   WALLET_TYPE: "walletType",

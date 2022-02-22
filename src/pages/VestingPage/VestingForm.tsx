@@ -246,6 +246,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         response.id,
         token.info.symbol,
         token.info.name,
+        tokenPriceUsd,
         TRANSACTION_VARIANT.CREATE_VESTING,
         streamflowFeeTotal * tokenPriceUsd,
         streamflowFeeTotal,

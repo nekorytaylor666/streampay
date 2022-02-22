@@ -51,6 +51,7 @@ export function trackTransaction(
   streamAddress: string,
   tokenSymbol: string,
   tokenName: string,
+  tokenPriceUsd: number,
   variant: string,
   streamflowFeeUsd: number,
   streamflowFeeToken: number,
@@ -65,7 +66,7 @@ export function trackTransaction(
       {
         id: tokenSymbol,
         title: tokenName,
-        price: streamflowFeeUsd,
+        price: tokenPriceUsd,
         quantity: Math.round(totalAmountToken),
         variant,
       },
