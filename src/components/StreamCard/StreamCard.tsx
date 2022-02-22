@@ -322,7 +322,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           canceledAt={canceledAt}
           isCanceled={isCanceled}
           cliff={cliff}
-          isAdvanced={isCliffDateAfterStart}
+          hasCliff={isCliffDateAfterStart || cliffAmount > 0}
         />
         <p className="col-span-4 sm:col-span-3">Subject</p>
         <p className="col-span-8 sm:col-span-9 text-gray-light pt-0.5 capitalize">{name}</p>
