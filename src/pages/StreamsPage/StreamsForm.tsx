@@ -203,6 +203,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         response.id,
         token.info.symbol,
         token.info.name,
+        tokenPriceUsd,
         TRANSACTION_VARIANT.CREATE_STREAM,
         streamflowFeeTotal * tokenPriceUsd,
         streamflowFeeTotal,
