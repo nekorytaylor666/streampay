@@ -8,7 +8,7 @@ import useStore, { StoreType } from "../stores";
 import { getTokenAccounts } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  Stream: state.Stream,
   setMyTokenAccounts: state.setMyTokenAccounts,
   wallet: state.wallet,
   cluster: state.cluster,
@@ -18,21 +18,21 @@ const storeGetter = (state: StoreType) => ({
 });
 
 const Main = ({ page }: { page: "vesting" | "streams" }) => {
-  const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
+  const { wallet, Stream, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
     useStore(storeGetter);
   const [loading, setLoading] = useState(false);
   const isVesting = page === "vesting";
 
   useEffect(() => {
-    if (connection && wallet) {
+    if (Stream?.getConnection() && wallet) {
       (async () => {
-        const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+        const myTokenAccounts = await getTokenAccounts(Stream.getConnection(), wallet, cluster);
 
         setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
         setMyTokenAccounts(myTokenAccounts);
       })();
     }
-  }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
+  }, [wallet, Stream, cluster, setMyTokenAccounts, setToken]);
 
   const waitForStreamsText = isVesting
     ? "Your token vesting contracts will appear here once you connect."
@@ -54,9 +54,9 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
         )}
       </div>
       <div>
-        {connection && wallet?.connected ? (
+        {Stream?.getConnection() && wallet?.connected ? (
           Object.keys(myTokenAccounts).length ? (
-            <StreamsList connection={connection} wallet={wallet} type={page} />
+            <StreamsList wallet={wallet} type={page} />
           ) : (
             <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
               {emptyStreamsText}

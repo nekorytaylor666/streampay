@@ -1,7 +1,7 @@
 import { useEffect, useState, FC, useRef } from "react";
 
 import { format, fromUnixTime } from "date-fns";
-import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
+import { Stream as StreamData, getBN } from "@streamflow/stream";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import cx from "classnames";
 import { toast } from "react-toastify";
@@ -46,25 +46,24 @@ interface StreamProps {
 }
 
 const storeGetter = ({
+  Stream,
   myTokenAccounts,
   updateStream,
   deleteStream,
-  connection,
   wallet,
   walletType,
   token,
   tokenPriceUsd,
-  cluster,
 }: StoreType) => ({
+  Stream,
   myTokenAccounts,
   updateStream,
   deleteStream,
-  connection: connection(),
+  connection: Stream?.getConnection(),
   wallet,
   walletType,
   token,
   tokenPriceUsd,
-  cluster,
 });
 
 const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
@@ -74,13 +73,13 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
 
 const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
   const {
+    Stream,
     myTokenAccounts,
     connection,
     updateStream,
     deleteStream,
     token,
     tokenPriceUsd,
-    cluster,
     wallet,
     walletType,
   } = useStore(storeGetter);
@@ -159,17 +158,16 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
   const handleWithdraw = async () => {
     const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
-    if (!connection || !withdrawAmount) return;
+    if (!connection || !Stream || !withdrawAmount) return;
 
     const isWithdrawn = await withdrawStream(
+      Stream,
       { id, amount: getBN(withdrawAmount, decimals) },
-      connection,
-      wallet,
-      cluster
+      wallet
     );
 
     if (isWithdrawn) {
-      const stream = await Stream.getOne({ connection, id });
+      const stream = await Stream.getOne({ id });
       if (stream) {
         onWithdraw();
         updateStream([id, stream]);
@@ -192,21 +190,20 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
 
   const handleTopup = async () => {
     let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
-    if (!connection || !topupAmount) return;
+    if (!Stream || !connection || !topupAmount) return;
     if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
       // todo max
       topupAmount = 0;
     }
 
     const isTopupped = await topupStream(
+      Stream,
       { id, amount: getBN(topupAmount, decimals) },
-      connection,
-      wallet,
-      cluster
+      wallet
     );
 
     if (isTopupped) {
-      const stream = await Stream.getOne({ connection, id });
+      const stream = await Stream.getOne({ id });
       if (stream) {
         onTopup();
         updateStream([id, stream]);
@@ -226,7 +223,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
   };
 
   async function handleTransfer() {
-    if (!connection || !wallet || !wallet?.publicKey) return;
+    if (!Stream || !connection || !wallet || !wallet?.publicKey) return;
     const newRecipient = await transferModalRef?.current?.show();
 
     if (newRecipient !== undefined) {
@@ -240,18 +237,13 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         return;
       }
 
-      const response = await transferStream(
-        { id, recipientId: newRecipient },
-        connection,
-        wallet,
-        cluster
-      );
+      const response = await transferStream(Stream, { id, recipientId: newRecipient }, wallet);
 
       if (response) {
         toast.success("Stream transferred to " + newRecipient);
 
         if (isSender) {
-          const stream = await Stream.getOne({ connection, id });
+          const stream = await Stream.getOne({ id });
           updateStream([id, stream]);
         } else deleteStream(id);
       }

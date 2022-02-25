@@ -28,7 +28,8 @@ interface VestingFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  Stream: state.Stream,
+  connection: state.Stream?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
   token: state.token,
@@ -37,11 +38,11 @@ const storeGetter = (state: StoreType) => ({
   setMyTokenAccounts: state.setMyTokenAccounts,
   addStream: state.addStream,
   setToken: state.setToken,
-  cluster: state.cluster,
 });
 
 const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const {
+    Stream,
     connection,
     wallet,
     walletType,
@@ -51,7 +52,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setMyTokenAccounts,
     addStream,
     setToken,
-    cluster,
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
@@ -177,7 +177,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliffAmount,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !Stream || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -218,11 +219,11 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    const response = await createStream(data, connection, wallet, cluster);
+    const response = await createStream(Stream, data, wallet);
     setLoading(false);
 
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.metadata.publicKey.toBase58(), response.stream]);
 
       const mint = token.info.address;
 
@@ -243,7 +244,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         token.uiTokenAmount.decimals
       );
       trackTransaction(
-        response.id,
+        response.metadata.publicKey.toBase58(),
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.CREATE_VESTING,

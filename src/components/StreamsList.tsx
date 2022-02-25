@@ -1,8 +1,7 @@
 import { useEffect, FC } from "react";
 
 import { PublicKey } from "@solana/web3.js";
-import type { Connection } from "@solana/web3.js";
-import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
+import { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
 
 import { StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
@@ -13,6 +12,8 @@ import { trackEvent } from "../utils/marketing_helpers";
 import { WalletAdapter } from "../types";
 
 const storeGetter = (state: StoreType) => ({
+  Stream: state.Stream,
+  connection: state.Stream?.getConnection(),
   streams: state.streams,
   addStream: state.addStream,
   populateStreams: state.populateStreams,
@@ -36,12 +37,12 @@ const filterStreams = (streams: [string, StreamData][], type: "vesting" | "strea
 };
 
 interface StreamsListProps {
-  connection: Connection;
   wallet: WalletAdapter;
   type: "vesting" | "streams";
 }
-const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
+const StreamsList: FC<StreamsListProps> = ({ wallet, type }) => {
   const {
+    Stream,
     streams,
     updateStream,
     populateStreams,
@@ -53,9 +54,11 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     setToken,
     cluster,
     walletType,
+    connection,
   } = useStore(storeGetter);
 
   const updateToken = async () => {
+    if (!connection || !wallet?.publicKey) return;
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
 
@@ -68,13 +71,11 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
   useEffect(() => {
     clearStreams();
-    if (!connection || !wallet?.publicKey) return;
+    if (!Stream || !wallet?.publicKey) return;
 
     (async () => {
       const allStreams = await Stream.get({
-        connection,
         wallet: wallet.publicKey as PublicKey,
-        cluster,
       });
       populateStreams(allStreams);
     })();
@@ -83,10 +84,11 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   }, [cluster]);
 
   async function handleCancel(id: string) {
-    const isCancelled = await cancelStream({ id }, connection, wallet, cluster);
+    if (!Stream) return;
+    const isCancelled = await cancelStream(Stream, { id }, wallet);
 
     if (isCancelled) {
-      const stream = await Stream.getOne({ connection, id });
+      const stream = await Stream.getOne({ id });
       const decimals = myTokenAccounts[stream.mint].uiTokenAmount.decimals;
 
       const cancelledAmount =

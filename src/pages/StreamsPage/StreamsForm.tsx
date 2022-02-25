@@ -3,7 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
+import { u64 as BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
 import { Input, Button, Select, Modal, ModalRef, WalletPickerCTA, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -28,7 +28,8 @@ interface StreamsFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  Stream: state.Stream,
+  connection: state.Stream?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
   cluster: state.cluster,
@@ -51,7 +52,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     setMyTokenAccounts,
     addStream,
     setToken,
-    cluster,
+    Stream,
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
@@ -152,7 +153,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       recipientCanTransfer,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !Stream || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -182,10 +184,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    const response = await createStream(data, connection, wallet, cluster);
+    const response = await createStream(Stream, data, wallet);
     setLoading(false);
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.metadata.publicKey.toBase58(), response.stream]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -200,7 +202,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       );
 
       trackTransaction(
-        response.id,
+        response.metadata.publicKey.toBase58(),
         token.info.symbol,
         token.info.name,
         TRANSACTION_VARIANT.CREATE_STREAM,

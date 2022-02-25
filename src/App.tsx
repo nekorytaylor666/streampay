@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import { Cluster } from "@streamflow/stream";
+import Stream, { Cluster } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
@@ -18,15 +18,26 @@ import {
 } from "./constants";
 import useStore, { StoreType } from "./stores";
 
-const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
-  connection: connection(),
+const storeGetter = ({
+  wallet,
+  cluster,
+  Stream: StreamInstance,
+  setStream,
+  clusterUrl,
+}: StoreType) => ({
+  connection: StreamInstance?.getConnection(),
+  StreamInstance,
   wallet,
   isMainnet: cluster === Cluster.Mainnet,
+  cluster,
+  setStream,
+  clusterUrl: clusterUrl(),
 });
 
 const App = () => {
   const history = useHistory();
-  const { wallet, connection, isMainnet } = useStore(storeGetter);
+  const { wallet, connection, isMainnet, setStream, cluster, clusterUrl, StreamInstance } =
+    useStore(storeGetter);
   const [showCommunityBanner, setShowCommunityBanner] = useState(false);
 
   useEffect(() => {
@@ -57,7 +68,18 @@ const App = () => {
       setShowCommunityBanner(outgoing.length > 0 || incoming.length > 0)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connection, wallet]);
+  }, [connection, wallet, isMainnet]);
+
+  useEffect(() => {
+    if (!Stream) return;
+
+    if (!StreamInstance) {
+      setStream(
+        new Stream(clusterUrl, cluster, { commitment: "confirmed", disableRetryOnRateLimit: true })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cluster]);
 
   return (
     <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>

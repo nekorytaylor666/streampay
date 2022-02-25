@@ -1,6 +1,5 @@
 import { toast } from "react-toastify";
 import Stream, {
-  ClusterExtended,
   WithdrawStreamData,
   CreateStreamData,
   TransferStreamData,
@@ -16,13 +15,12 @@ import { ERR_NOT_CONNECTED, TX_FINALITY_FINALIZED, ERR_NO_PRIOR_CREDIT } from ".
 import { getExplorerLink } from "../utils/helpers";
 
 export const createStream = async (
+  Stream: Stream,
   data: CreateStreamData,
-  connection: Connection,
-  wallet: Wallet | null,
-  cluster: ClusterExtended
+  wallet: Wallet | null
 ) => {
   try {
-    if (!wallet || wallet?.publicKey === null || !connection) {
+    if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
     }
 
@@ -30,16 +28,14 @@ export const createStream = async (
     const response = await Stream.create({
       ...data,
       sender: wallet,
-      connection,
-      cluster,
       partner: wallet.publicKey.toBase58(),
     });
 
-    const stream = await Stream.getOne({ connection, id: response.id });
+    const stream = await Stream.getOne({ id: response.metadata.publicKey.toBase58() });
 
     const url = getExplorerLink("tx", response.tx); // TODO print transaction here.
     toast.dismiss();
-    toast.success(<ToastSuccess url={url} connection={connection} />, {
+    toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
       autoClose: 10000,
       closeOnClick: true,
     });
@@ -53,22 +49,21 @@ export const createStream = async (
 };
 
 export const withdrawStream = async (
+  Stream: Stream,
   data: WithdrawStreamData,
-  connection: Connection,
-  wallet: Wallet | null,
-  cluster: ClusterExtended
+  wallet: Wallet | null
 ) => {
   try {
-    if (!wallet || wallet?.publicKey === null || !connection) {
+    if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
     }
 
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-    const response = await Stream.withdraw({ ...data, connection, invoker: wallet, cluster });
+    const response = await Stream.withdraw({ ...data, invoker: wallet });
 
     const url = getExplorerLink("tx", response.tx);
     toast.dismiss();
-    toast.success(<ToastSuccess url={url} connection={connection} />, {
+    toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
       autoClose: 10000,
       closeOnClick: true,
     });
@@ -80,23 +75,18 @@ export const withdrawStream = async (
   }
 };
 
-export const topupStream = async (
-  data: TopupStreamData,
-  connection: Connection,
-  wallet: Wallet | null,
-  cluster: ClusterExtended
-) => {
+export const topupStream = async (Stream: Stream, data: TopupStreamData, wallet: Wallet | null) => {
   try {
-    if (!wallet || wallet?.publicKey === null || !connection) {
+    if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
     }
 
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-    const response = await Stream.topup({ ...data, connection, invoker: wallet, cluster });
+    const response = await Stream.topup({ ...data, invoker: wallet });
 
     const url = getExplorerLink("tx", response.tx);
     toast.dismiss();
-    toast.success(<ToastSuccess url={url} connection={connection} />, {
+    toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
       autoClose: 10000,
       closeOnClick: true,
     });
@@ -108,25 +98,18 @@ export const topupStream = async (
   }
 };
 
-export const transferStream = async (
-  data: TransferStreamData,
-  connection: Connection,
-  wallet: Wallet,
-  cluster: ClusterExtended
-) => {
+export const transferStream = async (Stream: Stream, data: TransferStreamData, wallet: Wallet) => {
   try {
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
 
     const response = await Stream.transfer({
       ...data,
-      connection,
       invoker: wallet,
-      cluster,
     });
 
     const url = getExplorerLink("tx", response.tx);
     toast.dismiss();
-    toast.success(<ToastSuccess url={url} connection={connection} />, {
+    toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
       autoClose: 10000,
       closeOnClick: true,
     });
@@ -139,22 +122,21 @@ export const transferStream = async (
 };
 
 export const cancelStream = async (
+  Stream: Stream,
   data: CancelStreamData,
-  connection: Connection,
-  wallet: Wallet | null,
-  cluster: ClusterExtended
+  wallet: Wallet | null
 ) => {
   try {
-    if (!wallet || wallet?.publicKey === null || !connection) {
+    if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
     }
 
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-    const response = await Stream.cancel({ ...data, connection, invoker: wallet, cluster });
+    const response = await Stream.cancel({ ...data, invoker: wallet });
 
     const url = getExplorerLink("tx", response.tx);
     toast.dismiss();
-    toast.success(<ToastSuccess url={url} connection={connection} />, {
+    toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
       autoClose: 10000,
       closeOnClick: true,
     });

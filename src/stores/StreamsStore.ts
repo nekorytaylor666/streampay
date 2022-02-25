@@ -1,8 +1,10 @@
-import { Stream as StreamData } from "@streamflow/stream";
+import Stream, { Stream as StreamData } from "@streamflow/stream";
 
 interface StreamStore {
+  Stream: Stream | null;
   streams: [string, StreamData][];
   populateStreams: (streams: [string, StreamData][]) => void;
+  setStream: (Stream: Stream) => void;
   addStream: (stream: [string, StreamData]) => void;
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;
@@ -14,8 +16,10 @@ const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
   streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
 
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
+  Stream: null,
   streams: [],
   populateStreams: (streams) => set({ streams: sortStreams(streams) }),
+  setStream: (Stream) => set({ Stream }),
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),
   addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
   updateStream: (updatedStream) => {
