@@ -1,10 +1,8 @@
-import { Link } from "./index";
+import { FC } from "react";
 
-const Footer = () => (
-  <footer className="pb-4 text-center text-sm font-mono text-gray-400 mt-10 sm:mt-28">
-    <small className="block mt-2 text-gray-400 px-2">
-      <Link url="https://streamflow.finance" title="StreamFlow" /> is undergoing security audit.
-    </small>
+const Footer: FC = () => (
+  <footer className="p-6 pb-8 text-center bg-dark text-p3">
+    <p className="text-gray-light text-p3">Streamflow is undergoing security audit.</p>
   </footer>
 );
 

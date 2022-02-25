@@ -43,13 +43,13 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
 
     return type === "checkbox" ? (
       <div className={cx(classes, "flex pb-0.5")}>
-        <label htmlFor={name} className="text-gray-200 text-base cursor-pointer block">
+        <label htmlFor={name} className="text-gray-light text-base cursor-pointer block">
           <input
             type={type}
             id={name}
             name={name}
             onChange={onChange}
-            className="mr-2 cursor-pointer bg-main border-0 rounded-sm font-light"
+            className="mr-2 cursor-pointer bg-gray-dark border-0 rounded-sm font-light"
             {...rest}
             ref={ref}
           />
@@ -58,7 +58,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
       </div>
     ) : (
       <div className={cx(classes, "relative")} onClick={onClick}>
-        <label htmlFor={name} className="block text-base text-gray-200 mb-1">
+        <label htmlFor={name} className="block text-base text-gray-light mb-1">
           {label}
         </label>
         <input
@@ -68,18 +68,19 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
           aria-describedby={`${name}-description`}
           onChange={handleChange}
           className={cx(
-            "text-gray-100 font-light p-2 pr-1.5 sm:pl-3 sm:pr-2 bg-field block w-full rounded-md shadow-sm",
+            "text-gray-light font-light p-2 pr-1.5 sm:pl-3 sm:pr-2 bg-gray-dark block w-full rounded-md shadow-sm",
             inputClasses,
             error
-              ? "border-red-700 focus:ring-red-700 focus:border-red-700"
-              : "border-0 focus:ring-primary focus:border-primary"
+              ? "border-red focus:ring-red focus:border-red"
+              : "border-0 focus:ring-blue focus:border-blue"
           )}
           {...rest}
           ref={ref}
         />
         <p
-          className={cx("text-red-700 absolute text-xs py-1", {
-            ["whitespace-nowrap"]: name === "releaseFrequencyCounter",
+          className={cx("text-red absolute text-xs py-1", {
+            ["whitespace-nowrap"]:
+              name === "releaseFrequencyCounter" || name === "withdrawalFrequencyCounter",
           })}
         >
           {error}

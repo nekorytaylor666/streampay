@@ -20,7 +20,7 @@ export default class Banner extends Component<BannerProps, BannerState> {
 
   render() {
     return (
-      <div className={`relative bg-primary ${this.state.hidden && "hidden"}`}>
+      <div className={`relative bg-blue w-screen t-0 ${this.state.hidden && "hidden"}`}>
         <div className="max-w-7xl mx-auto py-2 px-3 sm:px-6 lg:px-8">
           <div className="pr-6 sm:text-center sm:px-16">
             {this.props.title && (
@@ -36,7 +36,7 @@ export default class Banner extends Component<BannerProps, BannerState> {
             <button
               type="button"
               onClick={() => this.setState({ hidden: true })}
-              className="flex p-1 rounded-md hover:bg-primary focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex p-1 rounded-md hover:bg-blue focus:outline-none focus:ring-2 focus:ring-white"
             >
               <span className="sr-only">Dismiss</span>
               <XIcon className="h-6 w-6 text-white" />

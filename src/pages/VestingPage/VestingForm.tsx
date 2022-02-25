@@ -5,11 +5,11 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle, WalletPickerCTA } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -34,7 +34,9 @@ const storeGetter = (state: StoreType) => ({
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   addStream: state.addStream,
   setToken: state.setToken,
   cluster: state.cluster,
@@ -49,6 +51,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
+    myTokenAccountsSorted,
     addStream,
     setToken,
     cluster,
@@ -75,6 +79,9 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     cliffAmount,
     releaseFrequencyCounter,
     releaseFrequencyPeriod,
+    automaticWithdrawal,
+    withdrawalFrequencyCounter,
+    withdrawalFrequencyPeriod,
   ] = watch([
     "amount",
     "tokenSymbol",
@@ -87,13 +94,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     "cliffAmount",
     "releaseFrequencyCounter",
     "releaseFrequencyPeriod",
+    "automaticWithdrawal",
+    "withdrawalFrequencyCounter",
+    "withdrawalFrequencyPeriod",
   ]);
 
   const updateStartDate = () => {
     const currentDate = format(new Date(), DATE_FORMAT);
     if (startDate < currentDate) setValue("startDate", currentDate, { shouldValidate: true });
     if (endDate < currentDate) setValue("endDate", currentDate);
-    if (!advanced || cliffDate < currentDate) setValue("cliffDate", currentDate);
+    if (cliffDate < currentDate) setValue("cliffDate", currentDate);
   };
 
   const updateStartTime = () => {
@@ -105,12 +115,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const in7Minutes = add(new Date(), { minutes: 7 });
 
     if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
-    if (!advanced || cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
+    if (cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
     if (end < in7Minutes) setValue("endTime", format(in7Minutes, TIME_FORMAT));
   };
 
   const onStartDateChange = (value: string) => {
-    if (!advanced || cliffDate < value) setValue("cliffDate", value);
+    if (cliffDate < value) setValue("cliffDate", value);
     if (endDate < value) setValue("endDate", value);
   };
 
@@ -124,19 +134,17 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         "endTime",
         format(add(new Date(startDate + "T" + value), { minutes: 5 }), TIME_FORMAT)
       );
-    if (!advanced || cliff < start)
+    if (cliff < start)
       setValue("cliffTime", format(new Date(startDate + "T" + value), TIME_FORMAT));
   };
 
   useEffect(() => {
-    if (myTokenAccounts) {
-      const newTokenOptions = Object.values(myTokenAccounts)
-        .sort((token1, token2) => (token1.info.name < token2.info.name ? 1 : -1))
-        .map(({ info }) => ({
-          value: info.symbol,
-          label: info.symbol,
-          icon: info.logoURI,
-        }));
+    if (myTokenAccountsSorted) {
+      const newTokenOptions = myTokenAccountsSorted.map(({ info }) => ({
+        value: info.symbol,
+        label: info.symbol,
+        icon: info.logoURI,
+      }));
 
       if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
@@ -144,7 +152,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myTokenAccounts, setValue]);
+  }, [myTokenAccountsSorted, setValue]);
 
   useEffect(() => {
     if (!wallet) setTokenOptions([]);
@@ -183,7 +191,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end = getUnixTime(new Date(endDate + "T" + endTime));
-    const cliff = advanced ? getUnixTime(new Date(cliffDate + "T" + cliffTime)) : start;
+    const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
     const cliffAmountCalculated = (cliffAmount / 100) * amount;
     const amountPerPeriod = calculateReleaseRate(
       end,
@@ -208,7 +216,10 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cancelableByRecipient: recipientCanCancel,
       transferableBySender: senderCanTransfer,
       transferableByRecipient: recipientCanTransfer,
-      automaticWithdrawal: false,
+      automaticWithdrawal,
+      withdrawalFrequency: automaticWithdrawal
+        ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+        : 0,
       canTopup: false,
     };
 
@@ -227,10 +238,15 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
-      setMyTokenAccounts({
+      const updatedTokenAccounts = {
         ...myTokenAccounts,
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
-      });
+      };
+      setMyTokenAccounts(updatedTokenAccounts);
+
+      const myTokenAccountsSorted = sortTokenAccounts(updatedTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
 
       const streamflowFeeTotal = getNumberFromBN(
@@ -284,16 +300,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             />
           ) : (
             <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
-              <p className="text-base font-medium text-primary">
-                {wallet ? "No tokens. :(" : "Please connect."}
-              </p>
+              <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+              <p className="text-base font-medium text-blue">No tokens available.</p>
             </div>
           )}
           <Input
             type="text"
             label="Subject / Title"
-            placeholder="e.g. StreamFlow VC - seed round"
+            placeholder="e.g. Streamflow VC - seed round"
             classes="col-span-full"
             error={errors?.subject?.message}
             {...register("subject")}
@@ -346,8 +360,43 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             required
             {...register("endTime")}
           />
+          <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
+            <Input
+              type="date"
+              label="Cliff Date"
+              min={format(new Date(), DATE_FORMAT)}
+              customChange={() => trigger("releaseFrequencyPeriod")}
+              classes="col-span-2"
+              error={errors?.cliffDate?.message}
+              required
+              {...register("cliffDate")}
+            />
+            <Input
+              type="time"
+              label="Cliff Time"
+              classes="col-span-2"
+              customChange={() => trigger("releaseFrequencyPeriod")}
+              error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
+              required
+              {...register("cliffTime")}
+            />
+            <div className="relative col-span-1 sm:col-span-1">
+              <Input
+                type="number"
+                label="Release"
+                min={0}
+                max={100}
+                inputClasses="pr-9"
+                error={errors?.cliffAmount?.message}
+                {...register("cliffAmount")}
+              />
+              <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
+                %
+              </span>
+            </div>
+          </div>
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-            <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-2">
+            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
               Release Frequency
             </label>
             <Input
@@ -368,81 +417,81 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             />
           </div>
           <Toggle
-            enabled={advanced}
-            setEnabled={setAdvanced}
+            checked={automaticWithdrawal}
+            labelRight="Automatic Withdrawal"
+            classes="col-span-full"
+            customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+            {...register("automaticWithdrawal")}
+          />
+          {automaticWithdrawal && (
+            <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4">
+              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
+                Withdrawal Frequency
+              </label>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                classes="col-span-2 sm:col-span-1"
+                customChange={() => trigger("withdrawalFrequencyPeriod")}
+                error={
+                  errors?.withdrawalFrequencyCounter?.message ||
+                  errors?.withdrawalFrequencyPeriod?.message
+                }
+                {...register("withdrawalFrequencyCounter")}
+              />
+              <Select
+                options={timePeriodOptions.slice(1)}
+                plural={withdrawalFrequencyCounter > 1}
+                {...register("withdrawalFrequencyPeriod")}
+                classes="col-span-2 sm:col-span-1"
+                error={errors?.withdrawalFrequencyPeriod?.message}
+              />
+            </div>
+          )}
+          <Toggle
+            checked={advanced}
+            customChange={setAdvanced}
             labelRight="Advanced"
-            classes="col-span-full mt-1"
+            classes="col-span-full"
           />
           {advanced && (
             <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
-              <Input
-                type="date"
-                label="Cliff Date"
-                min={format(new Date(), DATE_FORMAT)}
-                customChange={() => trigger("releaseFrequencyPeriod")}
-                classes="col-span-2"
-                error={errors?.cliffDate?.message}
-                required
-                {...register("cliffDate")}
-              />
-              <Input
-                type="time"
-                label="Cliff Time"
-                classes="col-span-2"
-                customChange={() => trigger("releaseFrequencyPeriod")}
-                error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
-                required
-                {...register("cliffTime")}
-              />
-              <div className="relative col-span-1 sm:col-span-1">
-                <Input
-                  type="number"
-                  label="Release"
-                  min={0}
-                  max={100}
-                  inputClasses="pr-9"
-                  error={errors?.cliffAmount?.message}
-                  {...register("cliffAmount")}
-                />
-                <span className="absolute text-gray-300 text-base right-2 sm:right-4 bottom-2">
-                  %
-                </span>
-              </div>
-              <div className="col-span-full grid grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
-                <div className="col-span-1">
-                  <label className="text-gray-200 text-base cursor-pointer mb-1 block">
-                    Who can transfer the contract?
+              <div className="col-span-full grid grid-cols-6 sm:grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
+                <div className="col-span-4 sm:col-span-1">
+                  <label className="text-gray-light text-base cursor-pointer mb-1 block">
+                    Who can transfer the stream?
                   </label>
-                  <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-2 px-2.5 sm:px-3 py-2">
+                  <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                     <Input
                       type="checkbox"
                       label="sender"
-                      classes="col-span-2 sm:col-span-1"
+                      classes="col-span-1"
                       {...register("senderCanTransfer")}
                     />
                     <Input
                       type="checkbox"
-                      classes="col-span-2 sm:col-span-1"
                       label="recipient"
+                      classes="col-span-1"
                       {...register("recipientCanTransfer")}
                     />
                   </div>
                 </div>
-                <div className="col-span-1">
-                  <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+                <div className="col-span-4 sm:col-span-1">
+                  <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
                     Who can cancel?
                   </label>
-                  <div className="bg-gray-800 rounded-md grid grid-cols-2 gap-2 px-2.5 sm:px-3 py-2">
+                  <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                     <Input
                       type="checkbox"
                       label="sender"
-                      classes="col-span-2 sm:col-span-1"
+                      classes="col-span-1"
                       {...register("senderCanCancel")}
                     />
                     <Input
                       type="checkbox"
                       label="recipient"
-                      classes="col-span-2 sm:col-span-1"
+                      classes="col-span-1"
                       {...register("recipientCanCancel")}
                     />
                   </div>
@@ -451,6 +500,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             </div>
           )}
         </div>
+
         {wallet?.connected && (
           <>
             <Overview
@@ -465,11 +515,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
                 decimals,
+                automaticWithdrawal,
+                startTime,
+                startDate,
+                withdrawalFrequencyCounter,
+                withdrawalFrequencyPeriod,
               }}
             />
             <Button
               type="submit"
-              primary
+              background="blue"
               classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
               disabled={loading}
             >
@@ -478,12 +533,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           </>
         )}
       </form>
-      {!wallet?.connected && (
-        <WalletPickerCTA
-          classes="px-8 py-4 mx-auto font-bold text-xl my-8 sm:my-10"
-          title="Connect wallet"
-        />
-      )}
       <Modal
         ref={modalRef}
         title="Seems like the recipient address has empty balance."

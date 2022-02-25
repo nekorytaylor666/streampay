@@ -16,7 +16,12 @@ import {
 } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { WalletAdapter } from "../types";
-import { getExplorerLink, getTokenAccounts, getTokenAmount } from "../utils/helpers";
+import {
+  getExplorerLink,
+  getTokenAccounts,
+  getTokenAmount,
+  sortTokenAccounts,
+} from "../utils/helpers";
 import { Address, Button, Link } from ".";
 import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
@@ -28,6 +33,8 @@ const storeGetter = ({
   token,
   setMyTokenAccounts,
   myTokenAccounts,
+  myTokenAccountsSorted,
+  setMyTokenAccountsSorted,
   setToken,
 }: StoreType) => ({
   cluster,
@@ -36,6 +43,8 @@ const storeGetter = ({
   disconnectWallet,
   token,
   setMyTokenAccounts,
+  setMyTokenAccountsSorted,
+  myTokenAccountsSorted,
   myTokenAccounts,
   setToken,
 });
@@ -59,10 +68,10 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     disconnectWallet,
     token,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
     myTokenAccounts,
     setToken,
   } = useStore(storeGetter);
-
   const isMainnet = cluster === Cluster.Mainnet;
   const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
   const hideAirdrop =
@@ -72,11 +81,13 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
 
   const updateBalance = async (connection: Connection, wallet: WalletAdapter, address: string) => {
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
-
-    setMyTokenAccounts({
+    const updatedTokenAccounts = {
       ...myTokenAccounts,
       [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
-    });
+    };
+
+    setMyTokenAccounts(updatedTokenAccounts);
+    setMyTokenAccountsSorted(sortTokenAccounts(updatedTokenAccounts));
 
     if (address === token?.info?.address) setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
@@ -87,9 +98,11 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     cluster: ClusterExtended
   ) => {
     const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+    const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
 
-    setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
     setMyTokenAccounts(myTokenAccounts);
+    setMyTokenAccountsSorted(myTokenAccountsSorted);
+    setToken(myTokenAccountsSorted[0]);
   };
 
   async function requestAirdrop() {
@@ -165,6 +178,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         url={getExplorerLink("address", walletPubKey)}
         title="Address"
         Icon={ExternalLinkIcon}
+        classes="text-blue"
       />
     );
     myAddress = <Address address={walletPubKey} classes="block truncate" />;
@@ -178,10 +192,10 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         {myWalletLink}
         {myAddress}
       </div>
-      <div className="pb-4 border-b border-gray-500 text-white grid gap-x-3 sm:gap-x-4 grid-cols-2">
+      <div className="pb-4 border-b border-gray text-white grid gap-x-3 sm:gap-x-4 grid-cols-2">
         {token && (
           <>
-            <p className="text-gray-200 col-span-1">
+            <p className="text-gray-light col-span-1 sm:text-lg">
               Balance
               {tokenSymbol && <span className="font-light text-sm">{` (${tokenSymbol})`}</span>}
             </p>
@@ -190,12 +204,12 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
         <div className={cx("col-span-1", hasTokens ? "" : "col-start-2")}>
           <Button
             onClick={disconnectWallet}
-            classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs font-medium rounded bg-gray-500 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            classes="float-right items-center px-2.5 py-1.5 shadow-sm text-xs font-medium rounded bg-gray"
           >
             Disconnect
           </Button>
           <Button
-            primary
+            background="blue"
             onClick={requestAirdrop}
             classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
               hidden: isMainnet,
@@ -206,12 +220,12 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
           </Button>
         </div>
         {token && (
-          <span className="text-base text-primary">{token?.uiTokenAmount?.uiAmountString}</span>
+          <span className="text-base text-blue">{token?.uiTokenAmount?.uiAmountString}</span>
         )}
         {isConnected && (
           <div className="clearfix text-white col-span-1 col-start-2 mt-2">
             <Button
-              primary
+              background="blue"
               onClick={() => initializeOrCancelAirdrop(cancel)}
               classes={cx("float-right px-4 py-1.5 text-xs my-0 rounded active:bg-white", {
                 hidden: hideAirdrop,
@@ -221,7 +235,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
               Cancel
             </Button>
             <Button
-              primary
+              background="blue"
               onClick={() => initializeOrCancelAirdrop(initialize)}
               classes={cx("float-right mr-2 px-3.5 py-1.5 text-xs my-0 rounded active:bg-white", {
                 hidden: hideAirdrop,

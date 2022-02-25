@@ -1,20 +1,18 @@
-import { FC } from "react";
-
-import cx from "classnames";
+import { FC, ElementType } from "react";
 
 interface LinkProps {
   url: string;
   title?: string;
   classes?: string;
-  Icon?: React.ElementType;
+  Icon?: ElementType;
 }
 
 const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (
-  <span className={cx("text-gray-200", classes)}>
+  <span className={classes}>
     {Icon ? (
       <>
         <a href={url} target="_blank" rel="noopener noreferrer">
-         {title || url}
+          {title || url}
           <sup>
             <Icon className="w-3 h-3 inline hover:opacity-60" />
           </sup>

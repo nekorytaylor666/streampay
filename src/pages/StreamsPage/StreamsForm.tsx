@@ -5,11 +5,11 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, WalletPickerCTA, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -36,6 +36,8 @@ const storeGetter = (state: StoreType) => ({
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   addStream: state.addStream,
   setToken: state.setToken,
 });
@@ -49,6 +51,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    myTokenAccountsSorted,
+    setMyTokenAccountsSorted,
     addStream,
     setToken,
     cluster,
@@ -59,11 +63,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   const [advanced, setAdvanced] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
-  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors } = useStreamsForm(
-    {
+  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors, trigger } =
+    useStreamsForm({
       tokenBalance: tokenBalance || 0,
-    }
-  );
+    });
 
   const [
     depositedAmount,
@@ -73,6 +76,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     startTime,
     releaseFrequencyCounter,
     releaseFrequencyPeriod,
+    automaticWithdrawal,
+    withdrawalFrequencyCounter,
+    withdrawalFrequencyPeriod,
   ] = watch([
     "depositedAmount",
     "releaseAmount",
@@ -81,6 +87,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     "startTime",
     "releaseFrequencyCounter",
     "releaseFrequencyPeriod",
+    "automaticWithdrawal",
+    "withdrawalFrequencyCounter",
+    "withdrawalFrequencyPeriod",
   ]);
 
   const updateStartDate = () => {
@@ -95,14 +104,12 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   };
 
   useEffect(() => {
-    if (myTokenAccounts) {
-      const newTokenOptions = Object.values(myTokenAccounts)
-        .sort((token1, token2) => (token1.info.name < token2.info.name ? 1 : -1))
-        .map(({ info }) => ({
-          value: info.symbol,
-          label: info.symbol,
-          icon: info.logoURI,
-        }));
+    if (myTokenAccountsSorted) {
+      const newTokenOptions = myTokenAccountsSorted.map(({ info }) => ({
+        value: info.symbol,
+        label: info.symbol,
+        icon: info.logoURI,
+      }));
 
       if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
@@ -110,7 +117,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myTokenAccounts, setValue]);
+  }, [myTokenAccountsSorted, setValue]);
 
   useEffect(() => {
     if (!wallet) setTokenOptions([]);
@@ -172,7 +179,10 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       cancelableByRecipient: recipientCanCancel,
       transferableBySender: senderCanTransfer,
       transferableByRecipient: recipientCanTransfer,
-      automaticWithdrawal: false,
+      automaticWithdrawal,
+      withdrawalFrequency: automaticWithdrawal
+        ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+        : 0,
       canTopup: true,
     };
 
@@ -189,10 +199,15 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
-      setMyTokenAccounts({
+      const updatedTokenAccounts = {
         ...myTokenAccounts,
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
-      });
+      };
+      setMyTokenAccounts(updatedTokenAccounts);
+
+      const myTokenAccountsSorted = sortTokenAccounts(updatedTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
       const streamflowFeeTotal = getNumberFromBN(
         response.stream.streamflowFeeTotal,
@@ -238,10 +253,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             />
           ) : (
             <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-200 text-base cursor-pointer mb-1 block">Token</label>
-              <p className="text-base font-medium text-primary">
-                {wallet ? "No tokens. :(" : "Please connect."}
-              </p>
+              <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+              <p className="text-base font-medium text-blue">No tokens available.</p>
             </div>
           )}
           <Input
@@ -253,7 +266,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             {...register("releaseAmount")}
           />
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
-            <label className="block text-base text-gray-100 text-gray-200 capitalize col-span-full">
+            <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
               Release Frequency
             </label>
             <Input
@@ -278,7 +291,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <Input
             type="text"
             label="Subject / Title"
-            placeholder="e.g. StreamFlow VC - seed round"
+            placeholder="e.g. Streamflow VC - seed round"
             classes="col-span-full"
             error={errors?.subject?.message}
             {...register("subject")}
@@ -311,47 +324,80 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             {...register("startTime")}
           />
           <Toggle
-            enabled={advanced}
-            setEnabled={setAdvanced}
+            checked={automaticWithdrawal}
+            labelRight="Automatic Withdrawal"
+            classes="col-span-full mt-4"
+            customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+            {...register("automaticWithdrawal")}
+          />
+          {automaticWithdrawal && (
+            <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-4 sm:col-span-1">
+              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
+                Withdrawal Frequency
+              </label>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                classes="col-span-2 sm:col-span-1"
+                customChange={() => trigger("withdrawalFrequencyPeriod")}
+                error={
+                  errors?.withdrawalFrequencyCounter?.message ||
+                  errors?.withdrawalFrequencyPeriod?.message
+                }
+                {...register("withdrawalFrequencyCounter")}
+              />
+              <Select
+                options={timePeriodOptions.slice(1)}
+                plural={withdrawalFrequencyCounter > 1}
+                {...register("withdrawalFrequencyPeriod")}
+                classes="col-span-3 sm:col-span-1"
+                error={errors?.withdrawalFrequencyPeriod?.message}
+              />
+            </div>
+          )}
+          <Toggle
+            checked={advanced}
+            customChange={setAdvanced}
             labelRight="Advanced"
             classes="col-span-full"
           />
           {advanced && (
             <>
-              <div className="col-span-3 sm:col-span-1">
-                <label className="text-gray-200 text-base cursor-pointer mb-1 block">
+              <div className="col-span-4 sm:col-span-1">
+                <label className="text-gray-light text-base cursor-pointer mb-1 block">
                   Who can transfer the stream?
                 </label>
                 <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                   <Input
                     type="checkbox"
                     label="sender"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("senderCanTransfer")}
                   />
                   <Input
                     type="checkbox"
                     label="recipient"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("recipientCanTransfer")}
                   />
                 </div>
               </div>
-              <div className="col-span-3 sm:col-span-1">
-                <label className="text-gray-200 text-base cursor-pointer col-span-1 mb-1 block">
+              <div className="col-span-4 sm:col-span-1">
+                <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
                   Who can cancel?
                 </label>
                 <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
                   <Input
                     type="checkbox"
                     label="sender"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("senderCanCancel")}
                   />
                   <Input
                     type="checkbox"
                     label="recipient"
-                    classes="col-span-2 sm:col-span-1"
+                    classes="col-span-1"
                     {...register("recipientCanCancel")}
                   />
                 </div>
@@ -370,11 +416,14 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                 startTime,
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
+                automaticWithdrawal,
+                withdrawalFrequencyCounter,
+                withdrawalFrequencyPeriod,
               }}
             />
             <Button
               type="submit"
-              primary
+              background="blue"
               classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
               disabled={loading}
             >
@@ -383,12 +432,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           </>
         )}
       </form>
-      {!wallet?.connected && (
-        <WalletPickerCTA
-          classes="px-8 mx-auto py-4 font-bold text-xl my-8 sm:my-10"
-          title="Connect wallet"
-        />
-      )}
       <Modal
         ref={modalRef}
         title="Seems like the recipient address has empty balance."

@@ -5,11 +5,13 @@ import StreamsForm from "./StreamsPage/StreamsForm";
 import VestingForm from "./VestingPage/VestingForm";
 import StreamsList from "../components/StreamsList";
 import useStore, { StoreType } from "../stores";
-import { getTokenAccounts } from "../utils/helpers";
+import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
 
 const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   setMyTokenAccounts: state.setMyTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   wallet: state.wallet,
   cluster: state.cluster,
   token: state.token,
@@ -18,8 +20,15 @@ const storeGetter = (state: StoreType) => ({
 });
 
 const Main = ({ page }: { page: "vesting" | "streams" }) => {
-  const { wallet, connection, setMyTokenAccounts, cluster, setToken, myTokenAccounts } =
-    useStore(storeGetter);
+  const {
+    wallet,
+    connection,
+    setMyTokenAccounts,
+    cluster,
+    setToken,
+    myTokenAccounts,
+    setMyTokenAccountsSorted,
+  } = useStore(storeGetter);
   const [loading, setLoading] = useState(false);
   const isVesting = page === "vesting";
 
@@ -27,11 +36,14 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     if (connection && wallet) {
       (async () => {
         const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+        const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
 
-        setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
         setMyTokenAccounts(myTokenAccounts);
+        setMyTokenAccountsSorted(myTokenAccountsSorted);
+        setToken(myTokenAccountsSorted[0]);
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
   const waitForStreamsText = isVesting
@@ -43,7 +55,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     : "There are still no streams associated with this wallet.";
 
   return (
-    <div className="mx-auto grid grid-cols-1 gap-x-28 max-w-lg xl:grid-cols-2 xl:max-w-6xl">
+    <div className="mx-auto grid grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl px-4 pt-4">
       <div className="xl:mr-12">
         <Curtain visible={loading} />
         {wallet?.connected && <Account setLoading={setLoading} />}
@@ -58,12 +70,12 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
           Object.keys(myTokenAccounts).length ? (
             <StreamsList connection={connection} wallet={wallet} type={page} />
           ) : (
-            <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
+            <p className="text-sm sm:text-base text-gray-light text-center mt-4">
               {emptyStreamsText}
             </p>
           )
         ) : (
-          <p className="text-sm sm:text-base text-gray-200 text-center mt-4">
+          <p className="text-sm sm:text-base text-gray-light text-center mt-4">
             {waitForStreamsText}
           </p>
         )}

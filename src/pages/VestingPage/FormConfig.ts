@@ -27,6 +27,9 @@ export interface VestingFormData {
   cliffDate: string;
   cliffTime: string;
   cliffAmount: number;
+  automaticWithdrawal: boolean;
+  withdrawalFrequencyCounter: number;
+  withdrawalFrequencyPeriod: number;
 }
 
 const getDefaultValues = () => ({
@@ -47,6 +50,9 @@ const getDefaultValues = () => ({
   cliffDate: format(new Date(), DATE_FORMAT),
   cliffTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   cliffAmount: 0,
+  automaticWithdrawal: false,
+  withdrawalFrequencyCounter: 1,
+  withdrawalFrequencyPeriod: timePeriodOptions[1].value,
 });
 
 const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
@@ -197,7 +203,29 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .required(ERRORS.required)
           .min(0)
           .max(100),
+        automaticWithdrawal: yup.bool().required(),
+        withdrawalFrequencyCounter: yup.number().when("automaticWithdrawal", {
+          is: true,
+          then: yup.number().required(),
+        }),
+        withdrawalFrequencyPeriod: yup
+          .number()
+          .when("automaticWithdrawal", {
+            is: true,
+            then: yup.number().min(60).required(),
+          })
+          .test(
+            "withdrawalFrequency is >= period",
+            ERRORS.withdrawal_frequency_too_high,
+            (period, ctx) => {
+              return period && ctx.parent.automaticWithdrawal
+                ? period * ctx.parent.withdrawalFrequencyCounter >=
+                    ctx.parent.releaseFrequencyCounter * ctx.parent.releaseFrequencyPeriod
+                : true;
+            }
+          ),
       }),
+
     [connection, tokenBalance]
   );
 

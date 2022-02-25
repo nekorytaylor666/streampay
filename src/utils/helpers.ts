@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/stream";
 
 import useStore from "../stores";
-import { StringOption } from "../types";
+import { StringOption, Token } from "../types";
 import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES, PERIOD } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
@@ -229,3 +229,21 @@ export const getProgramAccounts = (
       },
     ],
   });
+
+export const calculateWithdrawalFees = (
+  start: number,
+  cliff: number,
+  end: number,
+  withdrawalFrequency: number
+): number => {
+  if (withdrawalFrequency == 0) return 0;
+
+  const startTime = cliff > 0 ? cliff : start;
+  const withdrawalsCounter = Math.floor((end - startTime) / withdrawalFrequency) || 1;
+  return 0.000005 * withdrawalsCounter;
+};
+
+export const sortTokenAccounts = (myTokenAccounts: { [mint: string]: Token }): Token[] =>
+  Object.values(myTokenAccounts).sort((token1, token2) =>
+    token1.info.name < token2.info.name ? 1 : -1
+  );

@@ -23,6 +23,9 @@ export interface StreamsFormData {
   senderCanTransfer: boolean;
   recipientCanTransfer: boolean;
   releaseFrequencyPeriod: number;
+  automaticWithdrawal: boolean;
+  withdrawalFrequencyCounter: number;
+  withdrawalFrequencyPeriod: number;
 }
 
 const getDefaultValues = () => ({
@@ -39,6 +42,9 @@ const getDefaultValues = () => ({
   recipientCanCancel: false,
   senderCanTransfer: false,
   recipientCanTransfer: true,
+  automaticWithdrawal: false,
+  withdrawalFrequencyCounter: 1,
+  withdrawalFrequencyPeriod: timePeriodOptions[1].value,
 });
 
 const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
@@ -128,6 +134,27 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
         recipientCanCancel: yup.bool().required(),
         senderCanTransfer: yup.bool().required(),
         recipientCanTransfer: yup.bool().required(),
+        automaticWithdrawal: yup.bool().required(),
+        withdrawalFrequencyCounter: yup.number().when("automaticWithdrawal", {
+          is: true,
+          then: yup.number().required(),
+        }),
+        withdrawalFrequencyPeriod: yup
+          .number()
+          .when("automaticWithdrawal", {
+            is: true,
+            then: yup.number().min(60).required(),
+          })
+          .test(
+            "withdrawalFrequency is >= period",
+            ERRORS.withdrawal_frequency_too_high,
+            (period, ctx) => {
+              return period && ctx.parent.automaticWithdrawal
+                ? period * ctx.parent.withdrawalFrequencyCounter >=
+                    ctx.parent.releaseFrequencyCounter * ctx.parent.releaseFrequencyPeriod
+                : true;
+            }
+          ),
       }),
     [connection, tokenBalance]
   );
@@ -139,6 +166,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     formState: { errors },
     setValue,
     setError,
+    trigger,
     clearErrors,
   } = useForm<StreamsFormData>({
     defaultValues,
@@ -149,6 +177,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     register,
     watch,
     errors,
+    trigger,
     setValue,
     handleSubmit,
     setError,

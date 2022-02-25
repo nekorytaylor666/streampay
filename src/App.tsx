@@ -1,15 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, FC } from "react";
 
-import { Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { Switch, Route, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Cluster } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
-import { Footer, Header, Nav, Banner } from "./components";
+import { Footer, Header, Banner, Nav, Link } from "./components";
 import { Page404 } from "./pages";
-import routes from "./RoutesConfig";
+import routes from "./router/RoutesConfig";
+import PrivateRoute from "./router/PrivateRoute";
 import { getProgramAccounts } from "./utils/helpers";
 import {
   COMMUNITY_PROGRAM_ID,
@@ -26,7 +27,7 @@ const storeGetter = ({ connection, wallet, cluster, oldStreams, setOldStreams }:
   setOldStreams,
 });
 
-const App = () => {
+const App: FC = () => {
   const history = useHistory();
   const { wallet, connection, isMainnet, oldStreams, setOldStreams } = useStore(storeGetter);
 
@@ -71,7 +72,12 @@ const App = () => {
             >
               Community app
             </a>{" "}
-            to see them.
+            to see them.{" "}
+            <Link
+              url={"https://docs.streamflow.finance/help/faq"}
+              title={"Learn more"}
+              classes={"font-bold underline"}
+            />
           </p>
         </Banner>
       )}
@@ -81,22 +87,33 @@ const App = () => {
           classes="top-0 left-0 w-full"
         ></Banner>
       )}
-      <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
+      <div className="flex-grow flex flex-col bg-dark">
         <Header />
-        <Nav classes="block lg:hidden mb-2" />
+        {wallet?.connected && <Nav classes="block lg:hidden mb-2 mt-4" />}
         <Switch>
-          {routes.map(({ path, exact, redirect, Component }) => (
-            <Route
-              key={path}
-              path={path}
-              exact={exact}
-              render={() => (redirect ? <Redirect to={redirect} /> : <Component />)}
-            />
-          ))}
+          {routes.map(({ path, exact, Component, isPrivate }) =>
+            isPrivate ? (
+              <PrivateRoute
+                key={path}
+                exact={exact}
+                path={path}
+                isAuthenticated={wallet?.connected || false}
+                Component={Component}
+              />
+            ) : (
+              <Route key={path} path={path} exact={exact} component={Component} />
+            )
+          )}
           <Route component={Page404} />
         </Switch>
       </div>
-      <ToastContainer hideProgressBar position="bottom-left" limit={5} />
+      <ToastContainer
+        hideProgressBar
+        position="top-right"
+        limit={2}
+        className="sm:w-96 sm:mt-2 sm:r-6"
+        toastClassName="bg-gray-dark rounded-lg drop-shadow-lg"
+      />
       <Footer />
     </div>
   );

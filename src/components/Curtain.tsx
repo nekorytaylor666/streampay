@@ -9,7 +9,7 @@ interface CurtainProps {
 const Curtain: FC<CurtainProps> = ({ visible }) => (
   <div
     className={cx(
-      "fixed top-0 bottom-0 left-0 right-0 bg-gray-900 opacity-90 z-10",
+      "fixed top-0 bottom-0 left-0 right-0 bg-dark opacity-90 z-10",
       visible ? "block" : "hidden"
     )}
   >
