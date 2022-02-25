@@ -38,7 +38,7 @@ const WalletPicker: FC = () => {
     {}
   );
 
-  const [isWalletInstalled, setIsWalletInstalled] = useState(defaultIsInstalled);
+  const [, setIsWalletInstalled] = useState(defaultIsInstalled);
 
   const onConfirm = (wallet: Wallet) => {
     setWalletType(wallet, history);
@@ -70,7 +70,7 @@ const WalletPicker: FC = () => {
           <img className="h-6 inline-block mr-4" src={wallet.icon}></img>
           <p className="text-white font-bold flex-grow text-left">{wallet.name}</p>
 
-          {isWalletInstalled[wallet.name] && <p className="text-gray text-p2">Installed</p>}
+          {/* {isWalletInstalled[wallet.name] && <p className="text-gray text-p2">Installed</p>} */}
         </button>
       ))}
     </div>
