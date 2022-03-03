@@ -183,6 +183,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliffDate,
       cliffTime,
       cliffAmount,
+      referral,
     } = values;
 
     if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
@@ -221,6 +222,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
         : 0,
       canTopup: false,
+      partner: referral,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -360,6 +362,27 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             required
             {...register("endTime")}
           />
+          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
+            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
+              Release Frequency
+            </label>
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              error={
+                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
+              }
+              customChange={updateReleaseFrequencyCounter}
+              {...register("releaseFrequencyCounter")}
+            />
+            <Select
+              options={timePeriodOptions}
+              plural={releaseFrequencyCounter > 1}
+              {...register("releaseFrequencyPeriod")}
+              error={errors?.releaseFrequencyPeriod?.message}
+            />
+          </div>
           <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
             <Input
               type="date"
@@ -394,27 +417,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 %
               </span>
             </div>
-          </div>
-          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
-              Release Frequency
-            </label>
-            <Input
-              type="number"
-              min={1}
-              step={1}
-              error={
-                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
-              }
-              customChange={updateReleaseFrequencyCounter}
-              {...register("releaseFrequencyCounter")}
-            />
-            <Select
-              options={timePeriodOptions}
-              plural={releaseFrequencyCounter > 1}
-              {...register("releaseFrequencyPeriod")}
-              error={errors?.releaseFrequencyPeriod?.message}
-            />
           </div>
           <Toggle
             checked={automaticWithdrawal}
@@ -497,6 +499,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                   </div>
                 </div>
               </div>
+              <Input
+                type="text"
+                label="Referral Address"
+                placeholder="Please double check the address"
+                classes="col-span-full"
+                error={errors?.referral?.message}
+                {...register("referral")}
+              />
             </div>
           )}
         </div>
