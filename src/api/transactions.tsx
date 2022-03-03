@@ -34,7 +34,6 @@ export const createStream = async (
       sender: wallet,
       connection,
       cluster,
-      partner: wallet.publicKey.toBase58(),
     });
 
     const stream = await Stream.getOne({ connection, id: response.id });
