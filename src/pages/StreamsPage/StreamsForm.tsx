@@ -157,6 +157,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       recipientCanCancel,
       senderCanTransfer,
       recipientCanTransfer,
+      referral,
     } = values;
 
     if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
@@ -184,6 +185,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
         : 0,
       canTopup: true,
+      partner: referral,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -402,6 +404,14 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                   />
                 </div>
               </div>
+              <Input
+                type="text"
+                label="Referral Address"
+                placeholder="Please double check the address"
+                classes="col-span-full"
+                error={errors?.referral?.message}
+                {...register("referral")}
+              />
             </>
           )}
         </div>
