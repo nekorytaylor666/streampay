@@ -22,6 +22,7 @@ import useStore, { StoreType } from "./stores";
 const storeGetter = ({ connection, wallet, cluster, oldStreams, setOldStreams }: StoreType) => ({
   connection: connection(),
   wallet,
+  cluster,
   isMainnet: cluster === Cluster.Mainnet,
   oldStreams,
   setOldStreams,
@@ -29,12 +30,14 @@ const storeGetter = ({ connection, wallet, cluster, oldStreams, setOldStreams }:
 
 const App: FC = () => {
   const history = useHistory();
-  const { wallet, connection, isMainnet, oldStreams, setOldStreams } = useStore(storeGetter);
+  const { wallet, connection, isMainnet, oldStreams, setOldStreams, cluster } =
+    useStore(storeGetter);
 
   useEffect(() => {
-    trackPageView();
+    trackPageView(cluster);
+    // @ts-ignore
     history.listen(trackPageView);
-  }, [history]);
+  }, [history, cluster]);
 
   useEffect(() => {
     if (!isMainnet || !connection || !wallet || !wallet.publicKey) return setOldStreams(false);
