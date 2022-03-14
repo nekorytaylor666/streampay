@@ -22,7 +22,7 @@ import { StringOption } from "../../types";
 import Overview from "./Overview";
 import { trackTransaction } from "../../utils/marketing_helpers";
 
-interface StreamsFormProps {
+interface NewStreamFormProps {
   loading: boolean;
   setLoading: (value: boolean) => void;
 }
@@ -42,7 +42,7 @@ const storeGetter = (state: StoreType) => ({
   setToken: state.setToken,
 });
 
-const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
+const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
   const {
     connection,
     wallet,
@@ -453,4 +453,4 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   );
 };
 
-export default StreamsForm;
+export default NewStreamForm;

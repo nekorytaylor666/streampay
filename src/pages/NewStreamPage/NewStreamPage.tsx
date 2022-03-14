@@ -1,7 +1,7 @@
 import Main from "../Main";
 
-const StreamsPage = () => {
+const NewStreamPage = () => {
   return <Main page="streams" />;
 };
 
-export default StreamsPage;
+export default NewStreamPage;

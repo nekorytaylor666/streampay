@@ -1,40 +1,42 @@
-import { useEffect, useState, FC, useRef } from "react";
+import { useEffect, useState, FC } from "react";
 
-import { format, fromUnixTime } from "date-fns";
-import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
-import cx from "classnames";
-import { toast } from "react-toastify";
-import { ExternalLinkIcon } from "@heroicons/react/outline";
+// import { format, fromUnixTime } from "date-fns";
+import Stream, { Stream as StreamData } from "@streamflow/stream";
+// import cx from "classnames";
+// import { toast } from "react-toastify";
+// import { ExternalLinkIcon } from "@heroicons/react/outline";
 
 import {
-  EXPLORER_TYPE_ADDR,
+  // EXPLORER_TYPE_ADDR,
   STREAM_STATUS_COLOR,
-  DEFAULT_DECIMAL_PLACES,
-  TRANSACTION_VARIANT,
-  DATA_LAYER_VARIABLE,
+  // DEFAULT_DECIMAL_PLACES,
+  // TRANSACTION_VARIANT,
+  // DATA_LAYER_VARIABLE,
 } from "../../constants";
-import { StreamStatus } from "../../types";
-import {
-  getExplorerLink,
-  formatAmount,
-  formatPeriodOfTime,
-  roundAmount,
-} from "../../utils/helpers";
+import { StreamStatus, StreamType } from "../../types";
+// import {
+//   getExplorerLink,
+//   formatAmount,
+//   formatPeriodOfTime,
+//   roundAmount,
+// } from "../../utils/helpers";
 import {
   getStreamStatus,
   getStreamed,
   updateStatus,
-  getNextUnlockTime,
+  // getNextUnlockTime,
   formatStreamData,
 } from "./helpers";
-import { Address, Link, Button, Modal, ModalRef } from "../index";
+// import { ModalRef } from "../index";
 import Badge from "./components/Badge";
-import Duration from "./components/Duration";
-import Progress from "./components/Progress";
+// import Duration from "./components/Duration";
+// import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
-import { withdrawStream, topupStream, transferStream } from "../../api/transactions";
-import { trackEvent, trackTransaction } from "../../utils/marketing_helpers";
-import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+// import { withdrawStream } from "../../api/transactions";
+// import { trackEvent } from "../../utils/marketing_helpers";
+// import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+import { ReactComponent as IcnArrowDown } from "../../assets/icons/icn-arrow-down.svg";
+import { ReactComponent as IcnArrowRight } from "../../assets/icons/icn-arrow-right.svg";
 
 interface StreamProps {
   data: StreamData;
@@ -67,22 +69,23 @@ const storeGetter = ({
   cluster,
 });
 
-const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
-  const timeBetweenCliffAndEnd = endTime - cliffTime;
-  return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
-};
+// const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
+//   const timeBetweenCliffAndEnd = endTime - cliffTime;
+//   return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
+// };
 
-const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
+const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw }) => {
+  const [isFullCardVisible, setIsFullCardVisible] = useState(false);
   const {
     myTokenAccounts,
     connection,
     updateStream,
-    deleteStream,
-    token,
-    tokenPriceUsd,
-    cluster,
-    wallet,
-    walletType,
+    // deleteStream,
+    // token,
+    // tokenPriceUsd,
+    // cluster,
+    // wallet,
+    // walletType,
   } = useStore(storeGetter);
   const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals;
 
@@ -95,102 +98,102 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     withdrawnAmount,
     depositedAmount,
     canceledAt,
-    recipient,
+    // recipient,
     name,
-    sender,
+    // sender,
     mint,
-    cancelableBySender,
-    cancelableByRecipient,
-    transferableBySender,
-    transferableByRecipient,
+    // cancelableBySender,
+    // cancelableByRecipient,
+    // transferableBySender,
+    // transferableByRecipient,
     amountPerPeriod,
     canTopup,
     automaticWithdrawal,
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
   const symbol = myTokenAccounts[mint].info.symbol;
-  const isCliffDateAfterStart = cliff > start;
-  const isCliffAmount = cliffAmount > 0;
-  const isSender = myAddress === sender;
-  const isRecipient = myAddress === recipient;
+  // const isCliffDateAfterStart = cliff > start;
+  // const isCliffAmount = cliffAmount > 0;
+  // const isSender = myAddress === sender;
+  // const isRecipient = myAddress === recipient;
 
-  const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
+  // const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
-  const withdrawModalRef = useRef<ModalRef>(null);
-  const topupModalRef = useRef<ModalRef>(null);
-  const transferModalRef = useRef<ModalRef>(null);
+  // const withdrawModalRef = useRef<ModalRef>(null);
+  // const topupModalRef = useRef<ModalRef>(null);
+  // const transferModalRef = useRef<ModalRef>(null);
 
   const statusAtStart = getStreamStatus(canceledAt, start, end, +new Date() / 1000);
   const color = STREAM_STATUS_COLOR[statusAtStart];
 
   const [status, setStatus] = useState(statusAtStart);
-  const isCanceled = status === StreamStatus.canceled;
+  // const isCanceled = status === StreamStatus.canceled;
   const [streamed, setStreamed] = useState(
     getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod)
   );
 
-  const [available, setAvailable] = useState(streamed - withdrawnAmount);
-  const showWithdraw =
-    (status === StreamStatus.streaming ||
-      (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
-    isRecipient;
+  const [, setAvailable] = useState(streamed - withdrawnAmount);
+  // const showWithdraw =
+  //   (status === StreamStatus.streaming ||
+  //     (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
+  //   isRecipient;
 
-  const showCancelOnSender =
-    cancelableBySender &&
-    isSender &&
-    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
+  // const showCancelOnSender =
+  //   cancelableBySender &&
+  //   isSender &&
+  //   (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
-  const showCancelOnRecipient =
-    cancelableByRecipient &&
-    isRecipient &&
-    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
+  // const showCancelOnRecipient =
+  //   cancelableByRecipient &&
+  //   isRecipient &&
+  //   (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
-  const showCancel = showCancelOnSender || showCancelOnRecipient;
+  // const showCancel = showCancelOnSender || showCancelOnRecipient;
 
-  const showTransferOnSender = transferableBySender && isSender && status !== StreamStatus.canceled;
+  // const showTransferOnSender = transferableBySender && isSender && status !== StreamStatus.canceled;
 
-  const showTransferOnRecipient =
-    transferableByRecipient && isRecipient && status !== StreamStatus.canceled;
+  // const showTransferOnRecipient =
+  //   transferableByRecipient && isRecipient && status !== StreamStatus.canceled;
 
-  const showTransfer = showTransferOnSender || showTransferOnRecipient;
+  // const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
-  const showTopup =
-    canTopup &&
-    isSender &&
-    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
+  // const showTopup =
+  //   canTopup &&
+  //   isSender &&
+  //   (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
-  const handleWithdraw = async () => {
-    const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
-    if (!connection || !withdrawAmount) return;
+  // const handleWithdraw = async () => {
+  //   const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
+  //   if (!connection || !withdrawAmount) return;
 
-    const isWithdrawn = await withdrawStream(
-      { id, amount: getBN(withdrawAmount, decimals) },
-      connection,
-      wallet,
-      cluster
-    );
+  //   const isWithdrawn = await withdrawStream(
+  //     { id, amount: getBN(withdrawAmount, decimals) },
+  //     connection,
+  //     wallet,
+  //     cluster
+  //   );
 
-    if (isWithdrawn) {
-      const stream = await Stream.getOne({ connection, id });
-      if (stream) {
-        onWithdraw();
-        updateStream([id, stream]);
-      }
+  //   if (isWithdrawn) {
+  //     const stream = await Stream.getOne({ connection, id });
+  //     if (stream) {
+  //       onWithdraw();
+  //       updateStream([id, stream]);
+  //     }
 
-      trackEvent(
-        data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
-        EVENT_ACTION.WITHDRAW,
-        EVENT_LABEL.NONE,
-        withdrawAmount * tokenPriceUsd,
-        {
-          [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: symbol,
-          [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
-          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawnAmount * tokenPriceUsd,
-          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
-        }
-      );
-    }
-  };
+  //     trackEvent(
+  //       data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
+  //       EVENT_ACTION.WITHDRAW,
+  //       EVENT_LABEL.NONE,
+  //       withdrawAmount * tokenPriceUsd,
+  //       {
+  //         [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: symbol,
+  //         [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
+  //         [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawnAmount * tokenPriceUsd,
+  //         [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+  //       }
+  //     );
+  //   }
+  // };
 
   const fetchStream = async () => {
     if (!connection) return;
@@ -202,74 +205,74 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
   };
 
-  const handleTopup = async () => {
-    let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
-    if (!connection || !topupAmount) return;
-    if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
-      // todo max
-      topupAmount = 0;
-    }
+  // const handleTopup = async () => {
+  //   let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
+  //   if (!connection || !topupAmount) return;
+  //   if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
+  //     // todo max
+  //     topupAmount = 0;
+  //   }
 
-    const isTopupped = await topupStream(
-      { id, amount: getBN(topupAmount, decimals) },
-      connection,
-      wallet,
-      cluster
-    );
+  //   const isTopupped = await topupStream(
+  //     { id, amount: getBN(topupAmount, decimals) },
+  //     connection,
+  //     wallet,
+  //     cluster
+  //   );
 
-    if (isTopupped) {
-      const stream = await Stream.getOne({ connection, id });
-      if (stream) {
-        onTopup();
-        updateStream([id, stream]);
-      }
-      trackTransaction(
-        id,
-        token.info.symbol,
-        token.info.name,
-        tokenPriceUsd,
-        TRANSACTION_VARIANT.TOP_UP_STREAM,
-        topupAmount * 0.0025 * tokenPriceUsd,
-        topupAmount * 0.0025,
-        topupAmount,
-        topupAmount * tokenPriceUsd,
-        walletType?.name
-      );
-    }
-  };
+  //   if (isTopupped) {
+  //     const stream = await Stream.getOne({ connection, id });
+  //     if (stream) {
+  //       onTopup();
+  //       updateStream([id, stream]);
+  //     }
+  //     trackTransaction(
+  //       id,
+  //       token.info.symbol,
+  //       token.info.name,
+  //       tokenPriceUsd,
+  //       TRANSACTION_VARIANT.TOP_UP_STREAM,
+  //       topupAmount * 0.0025 * tokenPriceUsd,
+  //       topupAmount * 0.0025,
+  //       topupAmount,
+  //       topupAmount * tokenPriceUsd,
+  //       walletType?.name
+  //     );
+  //   }
+  // };
 
-  async function handleTransfer() {
-    if (!connection || !wallet || !wallet?.publicKey) return;
-    const newRecipient = await transferModalRef?.current?.show();
+  // async function handleTransfer() {
+  //   if (!connection || !wallet || !wallet?.publicKey) return;
+  //   const newRecipient = await transferModalRef?.current?.show();
 
-    if (newRecipient !== undefined) {
-      if (!newRecipient) {
-        toast.error("You didn't provide the address.");
-        return;
-      }
+  //   if (newRecipient !== undefined) {
+  //     if (!newRecipient) {
+  //       toast.error("You didn't provide the address.");
+  //       return;
+  //     }
 
-      if ((isSender && newRecipient === sender) || (isRecipient && newRecipient === recipient)) {
-        toast.error("You can't transfer stream to yourself.");
-        return;
-      }
+  //     if ((isSender && newRecipient === sender) || (isRecipient && newRecipient === recipient)) {
+  //       toast.error("You can't transfer stream to yourself.");
+  //       return;
+  //     }
 
-      const response = await transferStream(
-        { id, recipientId: newRecipient },
-        connection,
-        wallet,
-        cluster
-      );
+  //     const response = await transferStream(
+  //       { id, recipientId: newRecipient },
+  //       connection,
+  //       wallet,
+  //       cluster
+  //     );
 
-      if (response) {
-        toast.success("Stream transferred to " + newRecipient);
+  //     if (response) {
+  //       toast.success("Stream transferred to " + newRecipient);
 
-        if (isSender) {
-          const stream = await Stream.getOne({ connection, id });
-          updateStream([id, stream]);
-        } else deleteStream(id);
-      }
-    }
-  }
+  //       if (isSender) {
+  //         const stream = await Stream.getOne({ connection, id });
+  //         updateStream([id, stream]);
+  //       } else deleteStream(id);
+  //     }
+  //   }
+  // }
 
   useEffect(() => {
     if (
@@ -311,9 +314,38 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, streamed, withdrawnAmount, canceledAt]);
 
+  const toggleCardVisibility = () => setIsFullCardVisible(!isFullCardVisible);
+
   return (
-    <>
-      <dl
+    <div className="grid grid-cols-7 rounded-2xl px-6 py-4">
+      <div className="flex items-center">
+        {isFullCardVisible ? (
+          <IcnArrowRight onClick={toggleCardVisibility} />
+        ) : (
+          <IcnArrowDown onClick={toggleCardVisibility} />
+        )}
+        <Badge type={status} color={color} classes="ml-6 mb-1" />
+      </div>
+      <div>
+        <p className="text-white text-p2"> {canTopup ? StreamType.Stream : StreamType.Vesting}</p>
+      </div>
+      <div>
+        <p className="text-white text-p2">{name}</p>
+      </div>
+      <div>
+        <p className="text-p2 text-gray">
+          <span className="bold text-white">{withdrawnAmount}</span> /{streamed}
+        </p>
+      </div>
+      <div>
+        <p className="text-p2 text-gray">
+          <span className="bold text-white">10.00</span> {`/10.00 ${symbol}`}
+        </p>
+      </div>
+      <div className="text-white text-p2">{`${data.amountPerPeriod} ${symbol}`}</div>
+    </div>
+    // <>
+    /* <dl
         className={`text-gray-light text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-gray-dark bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
       >
         <Badge classes="col-span-full" type={status} color={color} />
@@ -498,8 +530,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         }
         placeholder="Recipient address"
         confirm={{ color: "blue", text: "Transfer" }}
-      />
-    </>
+      /> */
+    /* </> */
   );
 };
 
