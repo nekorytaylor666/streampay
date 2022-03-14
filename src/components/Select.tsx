@@ -66,7 +66,12 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
             ref={ref}
           >
             {options.map(({ value, label, icon }) => (
-              <option key={label} value={value} data-thumbnail={icon}>
+              <option
+                key={label}
+                value={value}
+                data-thumbnail={icon}
+                className="text-white text-base font-light leading-6 bg-gray-dark"
+              >
                 {`${label}${plural ? "s" : ""}`}
               </option>
             ))}
