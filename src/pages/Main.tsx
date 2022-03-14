@@ -55,7 +55,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
     : "There are still no streams associated with this wallet.";
 
   return (
-    <div className="mx-auto grid grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl px-4 pt-4">
+    <div className="grid grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl pt-4">
       <div className="xl:mr-12">
         <Curtain visible={loading} />
         {wallet?.connected && <Account setLoading={setLoading} />}

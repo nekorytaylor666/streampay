@@ -7,7 +7,7 @@ import { Cluster } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
-import { Footer, Header, Banner, Nav, Link } from "./components";
+import { Footer, Header, Banner, Nav, Link, VerticalNav } from "./components";
 import { Page404 } from "./pages";
 import routes from "./router/RoutesConfig";
 import PrivateRoute from "./router/PrivateRoute";
@@ -93,22 +93,25 @@ const App: FC = () => {
       <div className="flex-grow flex flex-col bg-dark">
         <Header />
         {wallet?.connected && <Nav classes="block lg:hidden mb-2 mt-4" />}
-        <Switch>
-          {routes.map(({ path, exact, Component, isPrivate }) =>
-            isPrivate ? (
-              <PrivateRoute
-                key={path}
-                exact={exact}
-                path={path}
-                isAuthenticated={wallet?.connected || false}
-                Component={Component}
-              />
-            ) : (
-              <Route key={path} path={path} exact={exact} component={Component} />
-            )
-          )}
-          <Route component={Page404} />
-        </Switch>
+        <div className={`flex ${!wallet?.connected && "justify-center"}`}>
+          {wallet?.connected && <VerticalNav routes={routes.slice(3)} />}
+          <Switch>
+            {routes.map(({ path, exact, Component, isPrivate }) =>
+              isPrivate ? (
+                <PrivateRoute
+                  key={path}
+                  exact={exact}
+                  path={path}
+                  isAuthenticated={wallet?.connected || false}
+                  Component={Component}
+                />
+              ) : (
+                <Route key={path} path={path} exact={exact} component={Component} />
+              )
+            )}
+            <Route component={Page404} />
+          </Switch>
+        </div>
       </div>
       <ToastContainer
         hideProgressBar

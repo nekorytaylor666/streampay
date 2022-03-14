@@ -18,5 +18,6 @@ export { default as StreamCard } from "./StreamCard/StreamCard";
 export { default as Toggle } from "./Toggle";
 export { default as Tooltip } from "./Tooltip";
 export { default as WalletPicker } from "./WalletPicker";
+export { default as VerticalNav } from "./VerticalNav";
 
 export * from "./Modal";

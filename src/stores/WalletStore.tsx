@@ -52,7 +52,7 @@ const walletStore: WalletStore = (set, get) => ({
       walletAdapter.on("connect", async () => {
         set({ walletType, wallet: walletAdapter });
         // state.persistStoreToLocalStorage();
-        history.push("/vesting");
+        history.push("/new-vesting");
         toast.success(
           <MsgToast
             title="Wallet Connected."
