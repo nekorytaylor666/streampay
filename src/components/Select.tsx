@@ -44,7 +44,7 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
       <div className={classes}>
         <label
           htmlFor={name}
-          className="block text-gray-light text-base font-bold cursor-pointer mb-1"
+          className="block text-white font-bold text-base font-bold cursor-pointer mb-1"
         >
           {label}
         </label>

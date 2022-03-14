@@ -237,7 +237,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
           <Input
             type="number"
-            label="Amount to stream"
+            label="Amount"
             customChange={updateReleaseAmountError}
             placeholder="0.00"
             classes="col-span-3 sm:col-span-1"
@@ -255,7 +255,9 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             />
           ) : (
             <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+              <label className="text-white font-bold text-base cursor-pointer mb-1 block">
+                Token
+              </label>
               <p className="text-base font-medium text-blue">No tokens available.</p>
             </div>
           )}
@@ -268,7 +270,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             {...register("releaseAmount")}
           />
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
-            <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
+            <label className="block text-base text-white font-bold capitalize col-span-full">
               Release Frequency
             </label>
             <Input
@@ -292,17 +294,18 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           </div>
           <Input
             type="text"
-            label="Subject / Title"
-            placeholder="e.g. Streamflow VC - seed round"
+            label="Contract Title"
+            placeholder="e.g. VC Seed Round"
             classes="col-span-full"
             error={errors?.subject?.message}
             {...register("subject")}
           />
           <Input
             type="text"
-            label="Recipient Account"
+            label="Recipient Wallet Address"
             placeholder="Please double check the address"
             classes="col-span-full"
+            description="Make sure this is not a centralized exchange address."
             error={errors?.recipient?.message}
             {...register("recipient")}
           />
@@ -334,7 +337,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           />
           {automaticWithdrawal && (
             <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-4 sm:col-span-1">
-              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
+              <label className="block text-base text-white font-bold capitalize col-span-full">
                 Withdrawal Frequency
               </label>
               <Input
