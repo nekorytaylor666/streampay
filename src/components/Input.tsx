@@ -9,6 +9,7 @@ interface InputProps {
   name: string;
   placeholder?: string;
   classes?: string;
+  description?: string;
   inputClasses?: string;
   min?: string | number;
   max?: string | number;
@@ -28,6 +29,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
       name,
       error = "",
       classes = "",
+      description = "",
       onChange,
       onClick,
       customChange,
@@ -43,7 +45,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
 
     return type === "checkbox" ? (
       <div className={cx(classes, "flex pb-0.5")}>
-        <label htmlFor={name} className="text-gray-light text-base cursor-pointer block">
+        <label htmlFor={name} className="text-gray-light text-base font-bold cursor-pointer block">
           <input
             type={type}
             id={name}
@@ -58,7 +60,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
       </div>
     ) : (
       <div className={cx(classes, "relative")} onClick={onClick}>
-        <label htmlFor={name} className="block text-base text-gray-light mb-1">
+        <label htmlFor={name} className="block text-base text-white font-bold mb-1">
           {label}
         </label>
         <input
@@ -77,6 +79,9 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
           {...rest}
           ref={ref}
         />
+        {description && (
+          <p className="my-3 text-xs text-gray-light font-weight-400">{description}</p>
+        )}
         <p
           className={cx("text-red absolute text-xs py-1", {
             ["whitespace-nowrap"]:

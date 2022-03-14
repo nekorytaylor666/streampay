@@ -308,19 +308,20 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           )}
           <Input
             type="text"
-            label="Subject / Title"
-            placeholder="e.g. Streamflow VC - seed round"
-            classes="col-span-full"
-            error={errors?.subject?.message}
-            {...register("subject")}
-          />
-          <Input
-            type="text"
             label="Recipient Account"
             placeholder="Please double check the address"
             classes="col-span-full"
+            description="Make sure this is not a centralized exchange address."
             error={errors?.recipient?.message}
             {...register("recipient")}
+          />
+          <Input
+            type="text"
+            label="Contract Title"
+            placeholder="e.g. VC Seed Round"
+            classes="col-span-full"
+            error={errors?.subject?.message}
+            {...register("subject")}
           />
           <Input
             type="date"
@@ -363,7 +364,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             {...register("endTime")}
           />
           <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
+            <label className="block text-base text-white font-bold capitalize col-span-2">
               Release Frequency
             </label>
             <Input
