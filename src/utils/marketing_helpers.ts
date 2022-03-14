@@ -1,3 +1,5 @@
+import { ClusterExtended } from "@streamflow/stream";
+
 import {
   EVENT_TYPE,
   DEFAULT_GA_PURCHASE_CURRENCY,
@@ -18,7 +20,7 @@ declare global {
   }
 }
 
-export function trackPageView() {
+export function trackPageView(cluster: ClusterExtended) {
   window.dataLayer = window.dataLayer || [];
   window.dataLayer.push({
     event: EVENT_TYPE.PAGEVIEW,
@@ -26,6 +28,7 @@ export function trackPageView() {
       url: document.location.pathname,
       title: document.title,
     },
+    cluster,
   });
 }
 
@@ -51,6 +54,7 @@ export function trackTransaction(
   streamAddress: string,
   tokenSymbol: string,
   tokenName: string,
+  tokenPriceUsd: number,
   variant: string,
   streamflowFeeUsd: number,
   streamflowFeeToken: number,
@@ -65,7 +69,7 @@ export function trackTransaction(
       {
         id: tokenSymbol,
         title: tokenName,
-        price: streamflowFeeUsd,
+        price: tokenPriceUsd,
         quantity: Math.round(totalAmountToken),
         variant,
       },

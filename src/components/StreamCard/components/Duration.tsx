@@ -7,15 +7,15 @@ interface DurationProps {
   start: number;
   end: number;
   cliff: number;
-  isAdvanced: boolean;
+  hasCliff: boolean;
   isCanceled: boolean;
   canceledAt: number | undefined;
 }
 
-const Duration: FC<DurationProps> = ({ start, end, cliff, isAdvanced, isCanceled, canceledAt }) => (
+const Duration: FC<DurationProps> = ({ start, end, cliff, hasCliff, isCanceled, canceledAt }) => (
   <div className="col-span-full grid grid-cols-3 gap-x-3 text-center pb-2">
     <dd className="text-green text-base sm:text-lg">Start</dd>
-    <dd className="text-green text-base sm:text-lg">{isAdvanced ? "Cliff" : ""}</dd>
+    <dd className="text-green text-base sm:text-lg">{hasCliff ? "Cliff" : ""}</dd>
     <dd className={cx("text-base sm:text-lg", isCanceled ? "text-red" : "text-green")}>
       {isCanceled ? "Canceled" : "End"}
     </dd>
@@ -25,9 +25,9 @@ const Duration: FC<DurationProps> = ({ start, end, cliff, isAdvanced, isCanceled
       <span className="font-bold">{format(fromUnixTime(start), "HH:mm")}</span>
     </dt>
     <dt className="text-sm sm:text-base">
-      {isAdvanced ? format(fromUnixTime(cliff), "ccc do MMM, yy") : ""}
+      {hasCliff ? format(fromUnixTime(cliff), "ccc do MMM, yy") : ""}
       <br />
-      <span className="font-bold">{isAdvanced ? format(fromUnixTime(cliff), "HH:mm") : ""}</span>
+      <span className="font-bold">{hasCliff ? format(fromUnixTime(cliff), "HH:mm") : ""}</span>
     </dt>
     <dt className={cx("text-sm sm:text-base", { "text-red": isCanceled })}>
       {format(fromUnixTime(isCanceled ? canceledAt || 0 : end), "ccc do MMM, yy")}

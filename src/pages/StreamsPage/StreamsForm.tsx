@@ -9,7 +9,7 @@ import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -36,6 +36,8 @@ const storeGetter = (state: StoreType) => ({
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   addStream: state.addStream,
   setToken: state.setToken,
 });
@@ -49,6 +51,8 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    myTokenAccountsSorted,
+    setMyTokenAccountsSorted,
     addStream,
     setToken,
     cluster,
@@ -100,14 +104,12 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
   };
 
   useEffect(() => {
-    if (myTokenAccounts) {
-      const newTokenOptions = Object.values(myTokenAccounts)
-        .sort((token1, token2) => (token1.info.name < token2.info.name ? 1 : -1))
-        .map(({ info }) => ({
-          value: info.symbol,
-          label: info.symbol,
-          icon: info.logoURI,
-        }));
+    if (myTokenAccountsSorted) {
+      const newTokenOptions = myTokenAccountsSorted.map(({ info }) => ({
+        value: info.symbol,
+        label: info.symbol,
+        icon: info.logoURI,
+      }));
 
       if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
@@ -115,7 +117,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myTokenAccounts, setValue]);
+  }, [myTokenAccountsSorted, setValue]);
 
   useEffect(() => {
     if (!wallet) setTokenOptions([]);
@@ -155,6 +157,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       recipientCanCancel,
       senderCanTransfer,
       recipientCanTransfer,
+      referral,
     } = values;
 
     if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
@@ -182,6 +185,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
         : 0,
       canTopup: true,
+      partner: referral,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -197,10 +201,15 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
-      setMyTokenAccounts({
+      const updatedTokenAccounts = {
         ...myTokenAccounts,
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
-      });
+      };
+      setMyTokenAccounts(updatedTokenAccounts);
+
+      const myTokenAccountsSorted = sortTokenAccounts(updatedTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
       const streamflowFeeTotal = getNumberFromBN(
         response.stream.streamflowFeeTotal,
@@ -211,6 +220,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         response.id,
         token.info.symbol,
         token.info.name,
+        tokenPriceUsd,
         TRANSACTION_VARIANT.CREATE_STREAM,
         streamflowFeeTotal * tokenPriceUsd,
         streamflowFeeTotal,
@@ -283,7 +293,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
           <Input
             type="text"
             label="Subject / Title"
-            placeholder="e.g. StreamFlow VC - seed round"
+            placeholder="e.g. Streamflow VC - seed round"
             classes="col-span-full"
             error={errors?.subject?.message}
             {...register("subject")}
@@ -394,6 +404,14 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                   />
                 </div>
               </div>
+              <Input
+                type="text"
+                label="Referral Address"
+                placeholder="Please double check the address"
+                classes="col-span-full"
+                error={errors?.referral?.message}
+                {...register("referral")}
+              />
             </>
           )}
         </div>

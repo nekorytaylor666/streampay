@@ -1,14 +1,14 @@
 import { Dispatch, SetStateAction, useState, FC } from "react";
 
 import { Cluster, ClusterExtended } from "@streamflow/stream";
-import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import * as Sentry from "@sentry/react";
 
 import {
-  AIRDROP_AMOUNT,
+  // AIRDROP_AMOUNT,
   AIRDROP_TEST_TOKEN,
   AIRDROP_WHITELIST,
   ERR_NOT_CONNECTED,
@@ -16,7 +16,12 @@ import {
 } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { WalletAdapter } from "../types";
-import { getExplorerLink, getTokenAccounts, getTokenAmount } from "../utils/helpers";
+import {
+  getExplorerLink,
+  getTokenAccounts,
+  getTokenAmount,
+  sortTokenAccounts,
+} from "../utils/helpers";
 import { Address, Button, Link } from ".";
 import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
@@ -28,6 +33,8 @@ const storeGetter = ({
   token,
   setMyTokenAccounts,
   myTokenAccounts,
+  myTokenAccountsSorted,
+  setMyTokenAccountsSorted,
   setToken,
 }: StoreType) => ({
   cluster,
@@ -36,6 +43,8 @@ const storeGetter = ({
   disconnectWallet,
   token,
   setMyTokenAccounts,
+  setMyTokenAccountsSorted,
+  myTokenAccountsSorted,
   myTokenAccounts,
   setToken,
 });
@@ -59,10 +68,10 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     disconnectWallet,
     token,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
     myTokenAccounts,
     setToken,
   } = useStore(storeGetter);
-
   const isMainnet = cluster === Cluster.Mainnet;
   const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
   const hideAirdrop =
@@ -72,11 +81,13 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
 
   const updateBalance = async (connection: Connection, wallet: WalletAdapter, address: string) => {
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
-
-    setMyTokenAccounts({
+    const updatedTokenAccounts = {
       ...myTokenAccounts,
       [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
-    });
+    };
+
+    setMyTokenAccounts(updatedTokenAccounts);
+    setMyTokenAccountsSorted(sortTokenAccounts(updatedTokenAccounts));
 
     if (address === token?.info?.address) setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
@@ -87,9 +98,11 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     cluster: ClusterExtended
   ) => {
     const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+    const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
 
-    setToken(myTokenAccounts[Object.keys(myTokenAccounts)[0]]);
     setMyTokenAccounts(myTokenAccounts);
+    setMyTokenAccountsSorted(myTokenAccountsSorted);
+    setToken(myTokenAccountsSorted[0]);
   };
 
   async function requestAirdrop() {
@@ -103,22 +116,21 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     toast.success("Airdrop requested!");
 
     try {
-      const signature = await connection.requestAirdrop(
-        wallet.publicKey,
-        AIRDROP_AMOUNT * LAMPORTS_PER_SOL
-      );
+      // const signature = await connection.requestAirdrop(
+      //   wallet.publicKey,
+      //   AIRDROP_AMOUNT * LAMPORTS_PER_SOL
+      // );
 
       const tx = await getAirdrop(connection, wallet);
 
-      Promise.all([
-        connection.confirmTransaction(signature, TX_FINALITY_CONFIRMED),
-        connection.confirmTransaction(tx, TX_FINALITY_CONFIRMED),
-      ]).then(
-        ([res1, res2]) => {
-          if (res2.value.err) {
-            toast.error("Airdrop failed!");
-            Sentry.captureException(res2.value.err);
-          } else if (res1.value.err) {
+      // Promise.all([
+      // connection.confirmTransaction(signature, TX_FINALITY_CONFIRMED),
+      connection.confirmTransaction(tx, TX_FINALITY_CONFIRMED).then(
+        (res1) => {
+          // if (res2.value.err) {
+          //   toast.error("Airdrop failed!");
+          //   Sentry.captureException(res2.value.err);
+          if (res1.value.err) {
             toast.success(successfulAirdropMsg);
             toast.error("Error getting SOL!");
             Sentry.captureException(res1.value.err);

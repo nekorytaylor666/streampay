@@ -1,9 +1,9 @@
-name: Deploy (beta)
+name: Deploy (staging)
 
 on:
   push:
     branches:
-      - beta
+      - staging
 
 env:
   NODE_VERSION: "16.x"
@@ -32,7 +32,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
-          publish_branch: beta-deploy
+          publish_branch: staging-deploy
 
       - name: Hook
         run: |

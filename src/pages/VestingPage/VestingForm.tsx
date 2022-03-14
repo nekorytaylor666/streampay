@@ -9,7 +9,7 @@ import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount } from "../../utils/helpers";
+import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
@@ -34,7 +34,9 @@ const storeGetter = (state: StoreType) => ({
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   addStream: state.addStream,
   setToken: state.setToken,
   cluster: state.cluster,
@@ -49,6 +51,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
+    myTokenAccountsSorted,
     addStream,
     setToken,
     cluster,
@@ -135,14 +139,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   };
 
   useEffect(() => {
-    if (myTokenAccounts) {
-      const newTokenOptions = Object.values(myTokenAccounts)
-        .sort((token1, token2) => (token1.info.name < token2.info.name ? 1 : -1))
-        .map(({ info }) => ({
-          value: info.symbol,
-          label: info.symbol,
-          icon: info.logoURI,
-        }));
+    if (myTokenAccountsSorted) {
+      const newTokenOptions = myTokenAccountsSorted.map(({ info }) => ({
+        value: info.symbol,
+        label: info.symbol,
+        icon: info.logoURI,
+      }));
 
       if (newTokenOptions.length && !didTokenOptionsChange(tokenOptions, newTokenOptions)) {
         setTokenOptions(newTokenOptions);
@@ -150,7 +152,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myTokenAccounts, setValue]);
+  }, [myTokenAccountsSorted, setValue]);
 
   useEffect(() => {
     if (!wallet) setTokenOptions([]);
@@ -181,6 +183,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliffDate,
       cliffTime,
       cliffAmount,
+      referral,
     } = values;
 
     if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
@@ -219,6 +222,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
         : 0,
       canTopup: false,
+      partner: referral,
     };
 
     const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
@@ -236,10 +240,15 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
-      setMyTokenAccounts({
+      const updatedTokenAccounts = {
         ...myTokenAccounts,
         [mint]: { ...myTokenAccounts[mint], uiTokenAmount: updatedTokenAmount },
-      });
+      };
+      setMyTokenAccounts(updatedTokenAccounts);
+
+      const myTokenAccountsSorted = sortTokenAccounts(updatedTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
 
       const streamflowFeeTotal = getNumberFromBN(
@@ -255,6 +264,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         response.id,
         token.info.symbol,
         token.info.name,
+        tokenPriceUsd,
         TRANSACTION_VARIANT.CREATE_VESTING,
         streamflowFeeTotal * tokenPriceUsd,
         streamflowFeeTotal,
@@ -299,7 +309,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           <Input
             type="text"
             label="Subject / Title"
-            placeholder="e.g. StreamFlow VC - seed round"
+            placeholder="e.g. Streamflow VC - seed round"
             classes="col-span-full"
             error={errors?.subject?.message}
             {...register("subject")}
@@ -352,6 +362,27 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             required
             {...register("endTime")}
           />
+          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
+            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
+              Release Frequency
+            </label>
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              error={
+                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
+              }
+              customChange={updateReleaseFrequencyCounter}
+              {...register("releaseFrequencyCounter")}
+            />
+            <Select
+              options={timePeriodOptions}
+              plural={releaseFrequencyCounter > 1}
+              {...register("releaseFrequencyPeriod")}
+              error={errors?.releaseFrequencyPeriod?.message}
+            />
+          </div>
           <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
             <Input
               type="date"
@@ -386,27 +417,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 %
               </span>
             </div>
-          </div>
-          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
-              Release Frequency
-            </label>
-            <Input
-              type="number"
-              min={1}
-              step={1}
-              error={
-                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
-              }
-              customChange={updateReleaseFrequencyCounter}
-              {...register("releaseFrequencyCounter")}
-            />
-            <Select
-              options={timePeriodOptions}
-              plural={releaseFrequencyCounter > 1}
-              {...register("releaseFrequencyPeriod")}
-              error={errors?.releaseFrequencyPeriod?.message}
-            />
           </div>
           <Toggle
             checked={automaticWithdrawal}
@@ -489,6 +499,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                   </div>
                 </div>
               </div>
+              <Input
+                type="text"
+                label="Referral Address"
+                placeholder="Please double check the address"
+                classes="col-span-full"
+                error={errors?.referral?.message}
+                {...register("referral")}
+              />
             </div>
           )}
         </div>

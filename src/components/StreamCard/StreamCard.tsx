@@ -84,7 +84,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     wallet,
     walletType,
   } = useStore(storeGetter);
-  const decimals = myTokenAccounts[data.mint].uiTokenAmount.decimals;
+  const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals;
 
   const {
     start,
@@ -227,6 +227,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         id,
         token.info.symbol,
         token.info.name,
+        tokenPriceUsd,
         TRANSACTION_VARIANT.TOP_UP_STREAM,
         topupAmount * 0.0025 * tokenPriceUsd,
         topupAmount * 0.0025,
@@ -322,7 +323,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
           canceledAt={canceledAt}
           isCanceled={isCanceled}
           cliff={cliff}
-          isAdvanced={isCliffDateAfterStart}
+          hasCliff={isCliffDateAfterStart || cliffAmount > 0}
         />
         <p className="col-span-4 sm:col-span-3">Subject</p>
         <p className="col-span-8 sm:col-span-9 text-gray-light pt-0.5 capitalize">{name}</p>

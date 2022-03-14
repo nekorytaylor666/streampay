@@ -30,6 +30,7 @@ export interface VestingFormData {
   automaticWithdrawal: boolean;
   withdrawalFrequencyCounter: number;
   withdrawalFrequencyPeriod: number;
+  referral: string;
 }
 
 const getDefaultValues = () => ({
@@ -53,21 +54,23 @@ const getDefaultValues = () => ({
   automaticWithdrawal: false,
   withdrawalFrequencyCounter: 1,
   withdrawalFrequencyPeriod: timePeriodOptions[1].value,
+  referral: "",
 });
 
-const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
+const isAddressValid = async (address: string, connection: Connection | null) => {
+  if (!address) return true;
   let pubKey = null;
 
   try {
-    pubKey = new PublicKey(address || "");
+    pubKey = new PublicKey(address);
   } catch {
     return false;
   }
 
-  const recipientAddress = await connection?.getAccountInfo(pubKey);
-  if (recipientAddress == null) return true;
-  if (!recipientAddress.owner.equals(SystemProgram.programId)) return false;
-  if (recipientAddress.executable) return false;
+  const account = await connection?.getAccountInfo(pubKey);
+  if (account == null) return true;
+  if (!account.owner.equals(SystemProgram.programId)) return false;
+  if (account.executable) return false;
   return true;
 };
 
@@ -102,7 +105,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .string()
           .required(ERRORS.recipient_required)
           .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isRecipientAddressValid(address || "", connection)
+            isAddressValid(address || "", connection)
           ),
         startDate: yup
           .string()
@@ -218,11 +221,16 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
             "withdrawalFrequency is >= period",
             ERRORS.withdrawal_frequency_too_high,
             (period, ctx) => {
-              return period
+              return period && ctx.parent.automaticWithdrawal
                 ? period * ctx.parent.withdrawalFrequencyCounter >=
                     ctx.parent.releaseFrequencyCounter * ctx.parent.releaseFrequencyPeriod
                 : true;
             }
+          ),
+        referral: yup
+          .string()
+          .test("address_validation", ERRORS.invalid_address, async (address) =>
+            isAddressValid(address || "", connection)
           ),
       }),
 

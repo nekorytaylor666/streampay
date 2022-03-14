@@ -8,7 +8,7 @@ import {
   calculateEndTimeLikeOnBE,
   calculateWithdrawalFees,
 } from "../../utils/helpers";
-import { Link } from "../../components";
+import { Link, Tooltip } from "../../components";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
 interface OverviewProps {
@@ -112,26 +112,13 @@ const Overview: React.FC<OverviewProps> = ({
           <>
             <span className="text-gray-light text-sm">{` ${formattedReleasePeriod}. `}</span>
             {(isReleasePerMonth || isReleasePerYear) && (
-              <>
-                <QuestionMarkCircleIcon
-                  className="h-3.5 w-3.5  inline mb-2 cursor-pointer text-blue"
-                  data-tip
-                  data-for="overviewTooltip"
-                />
-                <ReactTooltip
-                  id="overviewTooltip"
-                  type="info"
-                  effect="solid"
-                  place="top"
-                  backgroundColor="#18A2D9"
-                >
-                  <span>
-                    {isReleasePerYear
-                      ? "We assume that year has 365 days."
-                      : "A month is approximated to 30.4167 days."}
-                  </span>
-                </ReactTooltip>
-              </>
+              <Tooltip
+                content={
+                  isReleasePerYear
+                    ? "We assume that year has 365 days."
+                    : "A month is approximated to 30.4167 days."
+                }
+              />
             )}
           </>
         ) : (
@@ -175,10 +162,9 @@ const Overview: React.FC<OverviewProps> = ({
         )}
       </p>
       <p className="text-gray-light text-xxs leading-4 mt-6">
-        {`Streamflow charges 0.25% service fee (${roundAmount(
-          amount * 0.0025
-        )} ${tokenSymbol}) on top of the
-        specified amount, while respecting the given schedule. `}
+        Streamflow charges 0.25% service fee (
+        <span className="font-bold">{` ${roundAmount(amount * 0.0025)} ${tokenSymbol} `}</span>) on
+        top of the specified amount, while respecting the given schedule.{" "}
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"
@@ -188,19 +174,21 @@ const Overview: React.FC<OverviewProps> = ({
       {automaticWithdrawal && (
         <>
           <p className="text-gray-light text-xxs leading-4 mt-3">
-            When automatic withdrawal is enabled there are additional fees (5000 lamports) per every
-            withdrawal.
+            When automatic withdrawal is enabled there are additional fees ( 5000 lamports ) per
+            every withdrawal.{" "}
+            {withdrawalFees > 0 && (
+              <>
+                For this contract there will be
+                <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
+                withdrawal fees.
+              </>
+            )}
           </p>
-          <p className="text-gray-light text-xxs leading-4">
+          <p className="text-gray-light text-xxs leading-4 mt-1">
             Feature might not always work as expected - some withdrawal requests might fail due to
             potential infrastructure issues in solana network.
           </p>
         </>
-      )}
-      {withdrawalFees > 0 && (
-        <p className="text-gray-light text-xxs leading-4 mt-1">
-          {`For this contract there will be ${withdrawalFees.toFixed(6)} SOL in withdrawal fees.`}
-        </p>
       )}
     </div>
   );

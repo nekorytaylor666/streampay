@@ -4,11 +4,11 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
 
-import { StreamCard } from ".";
+import { Link, StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
-import { getTokenAmount } from "../utils/helpers";
+import { getTokenAmount, sortTokenAccounts } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
 import { WalletAdapter } from "../types";
 
@@ -23,9 +23,11 @@ const storeGetter = (state: StoreType) => ({
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   setToken: state.setToken,
   cluster: state.cluster,
   walletType: state.walletType,
+  oldStreams: state.oldStreams,
 });
 
 const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
@@ -40,6 +42,7 @@ interface StreamsListProps {
   wallet: WalletAdapter;
   type: "vesting" | "streams";
 }
+
 const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   const {
     streams,
@@ -50,19 +53,25 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
+    setMyTokenAccountsSorted,
     setToken,
     cluster,
     walletType,
+    oldStreams,
   } = useStore(storeGetter);
 
   const updateToken = async () => {
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
-
-    setMyTokenAccounts({
+    const updatedTokenAccounts = {
       ...myTokenAccounts,
       [address]: { ...myTokenAccounts[address], uiTokenAmount: updatedTokenAmount },
-    });
+    };
+
+    const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
+
+    setMyTokenAccounts(updatedTokenAccounts);
+    setMyTokenAccountsSorted(myTokenAccountsSorted);
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
 
@@ -114,6 +123,15 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
   return (
     <>
+      {oldStreams && (
+        <>
+          <p className="text-white font-bold text-sm sm:text-base text-center">
+            Your old streams are SAFU. View them{" "}
+            <Link url={"https://free.streamflow.finance"} title={"here"} classes={"text-blue"} />.
+            <br />
+          </p>
+        </>
+      )}
       {filterStreams(streams, type).map(([id, data]) => (
         <StreamCard
           key={id}

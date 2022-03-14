@@ -106,10 +106,11 @@ const Overview: React.FC<OverviewProps> = ({
         unless topped up.
       </p>
       <p className="text-gray-light text-xxs leading-4 mt-6">
-        {`Streamflow charges 0.25% service fee (${roundAmount(
+        Streamflow charges 0.25% service fee (
+        <span className="font-bold">{` ${roundAmount(
           depositedAmount * 0.0025
-        )} ${tokenSymbol}) on top of the
-        specified amount, while respecting the given schedule. `}
+        )} ${tokenSymbol} `}</span>
+        ) on top of the specified amount, while respecting the given schedule.{" "}
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"
@@ -119,19 +120,21 @@ const Overview: React.FC<OverviewProps> = ({
       {automaticWithdrawal && (
         <>
           <p className="text-gray-light text-xxs leading-4 mt-3">
-            When automatic withdrawal is enabled there are additional fees (5000 lamports) per every
-            withdrawal.
+            When automatic withdrawal is enabled there are additional fees ( 5000 lamports ) per
+            every withdrawal.{" "}
+            {withdrawalFees > 0 && (
+              <>
+                For this stream there will be
+                <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
+                withdrawal fees.
+              </>
+            )}
           </p>
-          <p className="text-gray-light text-xxs leading-4">
+          <p className="text-gray-light text-xxs leading-4 mt-1">
             Feature might not always work as expected - some withdrawal requests might fail due to
             potential infrastructure issues in solana network.
           </p>
         </>
-      )}
-      {withdrawalFees > 0 && (
-        <p className="text-gray-light text-xxs leading-4 mt-1">
-          {`For this stream there will be ${withdrawalFees.toFixed(6)} SOL in withdrawal fees.`}
-        </p>
       )}
     </div>
   );
