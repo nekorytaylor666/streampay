@@ -1,4 +1,4 @@
-import { useEffect, useState, FC } from "react";
+import { useEffect, useState, FC, useRef } from "react";
 
 // import { format, fromUnixTime } from "date-fns";
 import Stream, { Stream as StreamData } from "@streamflow/stream";
@@ -6,6 +6,7 @@ import Stream, { Stream as StreamData } from "@streamflow/stream";
 // import { toast } from "react-toastify";
 // import { ExternalLinkIcon } from "@heroicons/react/outline";
 import MiddleEllipsis from "react-middle-ellipsis";
+import ReactTooltip from "react-tooltip";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -19,6 +20,7 @@ import {
   getExplorerLink,
   formatAmount,
   formatPeriodOfTime,
+  copyToClipboard,
   //   roundAmount,
 } from "../../utils/helpers";
 import {
@@ -36,11 +38,10 @@ import useStore, { StoreType } from "../../stores";
 // import { withdrawStream } from "../../api/transactions";
 // import { trackEvent } from "../../utils/marketing_helpers";
 // import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
-import { Link } from "../../components";
-import { ReactComponent as IcnArrowDown } from "../../assets/icons/icn-arrow-down.svg";
-import { ReactComponent as IcnArrowRight } from "../../assets/icons/icn-arrow-right.svg";
+import { Link, Tooltip } from "../../components";
 import { ReactComponent as IcnIncoming } from "../../assets/icons/icn-incoming.svg";
 import { ReactComponent as IcnOutgoing } from "../../assets/icons/icn-outgoing.svg";
+import { IcnCopy, IcnArrowRight, IcnArrowDown } from "../../assets/icons";
 
 interface StreamProps {
   data: StreamData;
@@ -321,13 +322,31 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
 
   const toggleCardVisibility = () => setIsFullCardVisible(!isFullCardVisible);
 
+  const tooltipRef = useRef<any>(null);
+
+  function copy() {
+    copyToClipboard(id);
+    ReactTooltip.show(tooltipRef.current!);
+    setTimeout(() => {
+      ReactTooltip.hide(tooltipRef.current!);
+    }, 1000);
+  }
+
   return (
-    <div className="grid grid-cols-7 rounded-2xl px-6 py-4">
+    <div
+      className={`grid grid-cols-7 rounded-2xl px-6 py-4 mb-1 ${
+        isFullCardVisible && "bg-gray-dark"
+      }`}
+    >
       <div className="flex items-center">
         {isFullCardVisible ? (
-          <IcnArrowRight onClick={toggleCardVisibility} />
+          <IcnArrowDown onClick={toggleCardVisibility} classes="hover:cursor-pointer" fill="gray" />
         ) : (
-          <IcnArrowDown onClick={toggleCardVisibility} />
+          <IcnArrowRight
+            onClick={toggleCardVisibility}
+            fill="gray"
+            classes="hover:cursor-pointer"
+          />
         )}
         <Badge type={status} color={color} classes="ml-6 mb-1" />
       </div>
@@ -340,13 +359,21 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
       </div>
       <div>
         <p className="text-white text-p2 font-bold">{name}</p>
-        <div className="flex items-center">
+        <div className="flex items-center relative" data-tip="tooltip">
           <Link
             url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
             title={"Stream ID"}
             classes="text-gray-light text-p3"
           />
-          <div className="w-28 ml-2 mb-1">
+          <span ref={tooltipRef} data-tip="tooltip" data-for={`addressCopied-${id}`}></span>
+          <Tooltip
+            content={<p className="p-1 text-p2">Address copied!</p>}
+            id={`addressCopied-${id}`}
+          />
+          <button onClick={copy}>
+            <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
+          </button>
+          <div className="w-28 mb-1">
             <MiddleEllipsis>
               <span className="text-p3 font-bold text-white">{id}</span>
             </MiddleEllipsis>

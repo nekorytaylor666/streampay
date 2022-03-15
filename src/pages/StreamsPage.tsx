@@ -111,7 +111,7 @@ const StreamsPage: FC = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full mx-6">
       {oldStreams && (
         <>
           <p className="text-white font-bold text-sm sm:text-base text-center mt-6 mb-12">
@@ -121,7 +121,7 @@ const StreamsPage: FC = () => {
           </p>
         </>
       )}
-      <div className="grid grid-cols-7 gap-x-2 mb-5 px-6">
+      <div className="grid grid-cols-7 gap-x-2 mb-5">
         <p className="text-p2 text-gray-light">Status</p>
         <p className="text-p2 text-gray-light">Type/Direction</p>
         <p className="text-p2 text-gray-light">Subject/Stream ID</p>

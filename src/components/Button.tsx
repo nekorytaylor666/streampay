@@ -19,7 +19,7 @@ const Button: FC<ButtonProps> = ({
   type = "button",
 }) => {
   const baseClasses =
-    "block border-transparent font-medium rounded-md shadow-sm text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue disabled:opacity-50";
+    "block border-transparent rounded-md shadow-sm text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue disabled:opacity-50";
 
   return (
     <button

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Account, Curtain } from "../components";
+import { Curtain } from "../components";
 import NewStreamForm from "./NewStreamPage/NewStreamForm";
 import VestingForm from "./VestingPage/VestingForm";
-// import StreamsList from "../components/StreamsList";
 import useStore, { StoreType } from "../stores";
 import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
 
@@ -41,16 +40,12 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
 
   return (
     <div className="grid grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl pt-4">
-      <div className="xl:mr-12">
-        <Curtain visible={loading} />
-        {wallet?.connected && <Account setLoading={setLoading} />}
-        {isVesting ? (
-          <VestingForm loading={loading} setLoading={setLoading} />
-        ) : (
-          <NewStreamForm loading={loading} setLoading={setLoading} />
-        )}
-      </div>
-      <div></div>
+      <Curtain visible={loading} />
+      {isVesting ? (
+        <VestingForm loading={loading} setLoading={setLoading} />
+      ) : (
+        <NewStreamForm loading={loading} setLoading={setLoading} />
+      )}
     </div>
   );
 };

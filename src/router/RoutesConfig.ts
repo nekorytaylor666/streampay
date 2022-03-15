@@ -1,4 +1,11 @@
-import { HomePage, VestingPage, StreamsPage, MultisigPage, DashboardPage } from "../pages";
+import {
+  HomePage,
+  VestingPage,
+  StreamsPage,
+  MultisigPage,
+  DashboardPage,
+  NewStreamPage,
+} from "../pages";
 import {
   IcnDashboard,
   IcnAllStreams,
@@ -36,7 +43,7 @@ const routes: Route[] = [
   },
   {
     path: "/new-stream",
-    Component: StreamsPage,
+    Component: NewStreamPage,
     label: "New Stream",
     isPrivate: true,
     exact: true,
