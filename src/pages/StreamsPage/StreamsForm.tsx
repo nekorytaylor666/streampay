@@ -385,48 +385,62 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                             {...register("recipientCanCancel")}
                           />
                         </div>
-                        <Input
-                          type="text"
-                          label="Referral Address"
-                          placeholder="Please double check the address"
-                          classes="col-span-full"
-                          error={errors?.referral?.message}
-                          {...register("referral")}
-                        />
-                      </div>
-                      <Toggle
-                        checked={automaticWithdrawal}
-                        labelRight="Automatic Withdrawal"
-                        classes="col-span-full"
-                        customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
-                        {...register("automaticWithdrawal")}
-                      />
-                      {automaticWithdrawal && (
-                        <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4 mt-3">
-                          <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
-                            Withdrawal Frequency
-                          </label>
-                          <Input
-                            type="number"
-                            min={1}
-                            step={1}
-                            classes="col-span-2 sm:col-span-1"
-                            customChange={() => trigger("withdrawalFrequencyPeriod")}
-                            error={
-                              errors?.withdrawalFrequencyCounter?.message ||
-                              errors?.withdrawalFrequencyPeriod?.message
+                        <div className="border-t-2 border-[#2A3441] pt-3 pb-7">
+                          <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
+                            {" "}
+                            WITHDRAW SETTINGS
+                          </h5>
+                          <Toggle
+                            checked={automaticWithdrawal}
+                            labelRight="Automatic Withdraw"
+                            classes="col-span-full"
+                            customChange={() =>
+                              setValue("automaticWithdrawal", !automaticWithdrawal)
                             }
-                            {...register("withdrawalFrequencyCounter")}
+                            {...register("automaticWithdrawal")}
                           />
-                          <Select
-                            options={timePeriodOptions.slice(1)}
-                            plural={withdrawalFrequencyCounter > 1}
-                            {...register("withdrawalFrequencyPeriod")}
-                            classes="col-span-2 sm:col-span-1"
-                            error={errors?.withdrawalFrequencyPeriod?.message}
+                          {automaticWithdrawal && (
+                            <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4 mt-3">
+                              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
+                                Withdrawal Frequency
+                              </label>
+                              <Input
+                                type="number"
+                                min={1}
+                                step={1}
+                                classes="col-span-2 sm:col-span-1"
+                                customChange={() => trigger("withdrawalFrequencyPeriod")}
+                                error={
+                                  errors?.withdrawalFrequencyCounter?.message ||
+                                  errors?.withdrawalFrequencyPeriod?.message
+                                }
+                                {...register("withdrawalFrequencyCounter")}
+                              />
+                              <Select
+                                options={timePeriodOptions.slice(1)}
+                                plural={withdrawalFrequencyCounter > 1}
+                                {...register("withdrawalFrequencyPeriod")}
+                                classes="col-span-2 sm:col-span-1"
+                                error={errors?.withdrawalFrequencyPeriod?.message}
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <div className="border-t-2 border-[#2A3441] pt-3">
+                          <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
+                            {" "}
+                            REFERAL PROGRAM
+                          </h5>
+                          <Input
+                            type="text"
+                            label="Referral Address"
+                            placeholder="Please double check the address"
+                            classes="col-span-full"
+                            error={errors?.referral?.message}
+                            {...register("referral")}
                           />
                         </div>
-                      )}
+                      </div>
                     </Disclosure.Panel>
                   </>
                 )}
