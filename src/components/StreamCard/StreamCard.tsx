@@ -5,21 +5,22 @@ import Stream, { Stream as StreamData } from "@streamflow/stream";
 // import cx from "classnames";
 // import { toast } from "react-toastify";
 // import { ExternalLinkIcon } from "@heroicons/react/outline";
+import MiddleEllipsis from "react-middle-ellipsis";
 
 import {
-  // EXPLORER_TYPE_ADDR,
+  EXPLORER_TYPE_ADDR,
   STREAM_STATUS_COLOR,
-  // DEFAULT_DECIMAL_PLACES,
+  DEFAULT_DECIMAL_PLACES,
   // TRANSACTION_VARIANT,
   // DATA_LAYER_VARIABLE,
 } from "../../constants";
 import { StreamStatus, StreamType } from "../../types";
-// import {
-//   getExplorerLink,
-//   formatAmount,
-//   formatPeriodOfTime,
-//   roundAmount,
-// } from "../../utils/helpers";
+import {
+  getExplorerLink,
+  formatAmount,
+  formatPeriodOfTime,
+  //   roundAmount,
+} from "../../utils/helpers";
 import {
   getStreamStatus,
   getStreamed,
@@ -35,8 +36,11 @@ import useStore, { StoreType } from "../../stores";
 // import { withdrawStream } from "../../api/transactions";
 // import { trackEvent } from "../../utils/marketing_helpers";
 // import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+import { Link } from "../../components";
 import { ReactComponent as IcnArrowDown } from "../../assets/icons/icn-arrow-down.svg";
 import { ReactComponent as IcnArrowRight } from "../../assets/icons/icn-arrow-right.svg";
+import { ReactComponent as IcnIncoming } from "../../assets/icons/icn-incoming.svg";
+import { ReactComponent as IcnOutgoing } from "../../assets/icons/icn-outgoing.svg";
 
 interface StreamProps {
   data: StreamData;
@@ -69,12 +73,12 @@ const storeGetter = ({
   cluster,
 });
 
-// const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
-//   const timeBetweenCliffAndEnd = endTime - cliffTime;
-//   return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
-// };
+const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: number) => {
+  const timeBetweenCliffAndEnd = endTime - cliffTime;
+  return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
+};
 
-const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw }) => {
+const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
   const [isFullCardVisible, setIsFullCardVisible] = useState(false);
   const {
     myTokenAccounts,
@@ -98,7 +102,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw }) => {
     withdrawnAmount,
     depositedAmount,
     canceledAt,
-    // recipient,
+    recipient,
     name,
     // sender,
     mint,
@@ -112,12 +116,13 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw }) => {
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
   const symbol = myTokenAccounts[mint].info.symbol;
+  const icon = myTokenAccounts[mint].info.logoURI || "";
   // const isCliffDateAfterStart = cliff > start;
   // const isCliffAmount = cliffAmount > 0;
   // const isSender = myAddress === sender;
-  // const isRecipient = myAddress === recipient;
+  const isRecipient = myAddress === recipient;
 
-  // const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
+  const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   // const withdrawModalRef = useRef<ModalRef>(null);
   // const topupModalRef = useRef<ModalRef>(null);
@@ -328,21 +333,52 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw }) => {
       </div>
       <div>
         <p className="text-white text-p2"> {canTopup ? StreamType.Stream : StreamType.Vesting}</p>
+        <div className="flex items-center">
+          {isRecipient ? <IcnIncoming className="w-3 h-3" /> : <IcnOutgoing className="w-3 h-3" />}
+          <p className="text-gray-light text-p3 ml-1">{isRecipient ? "Incoming" : "Outgoing"}</p>
+        </div>
       </div>
       <div>
-        <p className="text-white text-p2">{name}</p>
+        <p className="text-white text-p2 font-bold">{name}</p>
+        <div className="flex items-center">
+          <Link
+            url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
+            title={"Stream ID"}
+            classes="text-gray-light text-p3"
+          />
+          <div className="w-28 ml-2 mb-1">
+            <MiddleEllipsis>
+              <span className="text-p3 font-bold text-white">{id}</span>
+            </MiddleEllipsis>
+          </div>
+          <p></p>
+        </div>
       </div>
       <div>
-        <p className="text-p2 text-gray">
-          <span className="bold text-white">{withdrawnAmount}</span> /{streamed}
+        <p className="text-p2 text-gray-light flex items-center">
+          <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
+          <span className="font-bold text-white">{withdrawnAmount}</span> /{streamed}
         </p>
       </div>
       <div>
-        <p className="text-p2 text-gray">
-          <span className="bold text-white">10.00</span> {`/10.00 ${symbol}`}
+        <p className="text-p2 text-gray-light flex items-center">
+          <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
+          <span className="font-bold text-white">10.00</span> {`/10.00 ${symbol}`}
         </p>
       </div>
-      <div className="text-white text-p2">{`${data.amountPerPeriod} ${symbol}`}</div>
+      <div>
+        <div className="flex items-center">
+          <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
+          <p className="text-p2 font-bold text-white">{`${formatAmount(
+            amountPerPeriod,
+            decimals,
+            DEFAULT_DECIMAL_PLACES
+          )} ${symbol}`}</p>
+        </div>
+        <p className="text-p3 text-gray-light mt-1">{`Per ${formatPeriodOfTime(
+          releaseFrequency
+        )}`}</p>
+      </div>
     </div>
     // <>
     /* <dl
