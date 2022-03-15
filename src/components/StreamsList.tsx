@@ -4,7 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection } from "@solana/web3.js";
 import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
 
-import { Link, StreamCard } from ".";
+import { StreamCard } from ".";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
@@ -27,7 +27,6 @@ const storeGetter = (state: StoreType) => ({
   setToken: state.setToken,
   cluster: state.cluster,
   walletType: state.walletType,
-  oldStreams: state.oldStreams,
 });
 
 const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
@@ -57,7 +56,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     setToken,
     cluster,
     walletType,
-    oldStreams,
   } = useStore(storeGetter);
 
   const updateToken = async () => {
@@ -123,15 +121,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
 
   return (
     <>
-      {oldStreams && (
-        <>
-          <p className="text-white font-bold text-sm sm:text-base text-center">
-            Your old streams are SAFU. View them{" "}
-            <Link url={"https://free.streamflow.finance"} title={"here"} classes={"text-blue"} />.
-            <br />
-          </p>
-        </>
-      )}
       {filterStreams(streams, type).map(([id, data]) => (
         <StreamCard
           key={id}

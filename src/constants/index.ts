@@ -158,8 +158,3 @@ export const DATA_LAYER_VARIABLE = {
   TOTAL_AMOUNT_TOKEN: "totalAmountToken",
   TOTAL_AMOUNT_USD: "totalAmountUsd",
 };
-
-export const COMMUNITY_PROGRAM_ID = "8e72pYCDaxu3GqMfeQ5r8wFgoZSYk6oua1Qo9XpsZjX";
-
-export const STREAMS_COMMUNITY_OFFSET_SENDER = 48;
-export const STREAMS_COMMUNITY_OFFSET_RECIPIENT = 112;

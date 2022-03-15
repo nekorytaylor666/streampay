@@ -2,14 +2,12 @@ import { Stream as StreamData } from "@streamflow/stream";
 
 interface StreamStore {
   streams: [string, StreamData][];
-  oldStreams: boolean;
   populateStreams: (streams: [string, StreamData][]) => void;
   addStream: (stream: [string, StreamData]) => void;
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;
   deleteStream: (id: string) => void;
   clearStreams: () => void;
-  setOldStreams: (value: boolean) => void;
 }
 
 const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
@@ -17,7 +15,6 @@ const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
 
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
   streams: [],
-  oldStreams: false,
   populateStreams: (streams) => set({ streams: sortStreams(streams) }),
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),
   addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
@@ -40,7 +37,6 @@ const useStreamStore = (set: Function, get: Function): StreamStore => ({
     set({ streams: filteredStreams });
   },
   clearStreams: () => set({ streams: [] }),
-  setOldStreams: (value) => set({ oldStreams: value }),
 });
 
 export default useStreamStore;
