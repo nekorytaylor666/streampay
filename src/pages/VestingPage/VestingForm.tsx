@@ -387,12 +387,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
-            <div className="col-span-full grid grid-cols-1">
+            <div className="col-span-full grid grid-cols-1 border-t-2 border-b-2 border-[#2A3441]">
               <Disclosure>
                 {({ open }) => (
                   <>
                     <Disclosure.Button className={` gap-y-15 ${open && "rounded-b-none"}`}>
-                      <div className="flex items-center mb-7 mt-3 border-t-2 border-[#2A3441] pt-6">
+                      <div className="flex items-center mb-7 mt-3 pt-3">
                         <ChevronDownIcon
                           className={`h-6 text-primary-light fill-[#718298] transition-all w-6 ${
                             open ? "transform rotate-180" : "transform rotate-360"
@@ -403,7 +403,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                         </h2>
                       </div>
                     </Disclosure.Button>
-                    <Disclosure.Panel className={`border-b-2 border-[#2A3441] pb-6 `}>
+                    <Disclosure.Panel className={`pb-6 `}>
                       <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
                         <Input
                           type="date"

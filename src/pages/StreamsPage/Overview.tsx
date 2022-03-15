@@ -48,64 +48,73 @@ const Overview: React.FC<OverviewProps> = ({
 
   return (
     <div className="col-span-full mt-4 leading-6">
-      <h3 className="font-bold text-lg text-white mb-3">Overview:</h3>
-      <p className="text-gray-light text-sm leading-6">
-        Stream starts on
-        {start ? (
-          <span className="text-gray-light text-sm">{` ${startDate} `}</span>
-        ) : (
-          <span> ____ </span>
-        )}
-        at
-        <span className="text-gray-light text-sm">{` ${startTime}`}</span>.
-      </p>
-      <p className="text-gray-light text-sm leading-6 sm:inline-block">
-        <span className="text-gray-light text-sm">{` ${releaseAmount || 0} ${tokenSymbol} `}</span>
-        released every
-        {releaseFrequencyCounter ? (
-          <>
-            <span className="text-gray-light text-sm">{` ${formattedReleasePeriod}. `}</span>
-            {(isReleasePerMonth || isReleasePerYear) && (
-              <>
-                <QuestionMarkCircleIcon
-                  className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-blue"
-                  data-tip
-                  data-for="overviewTooltip"
-                />
-                <ReactTooltip
-                  id="overviewTooltip"
-                  type="info"
-                  effect="solid"
-                  place="top"
-                  backgroundColor="#18A2D9"
-                >
-                  <span>
-                    {isReleasePerYear
-                      ? "We assume that year has 365 days."
-                      : "A month is approximated to 30.4167 days."}
-                  </span>
-                </ReactTooltip>
-              </>
-            )}
-          </>
-        ) : (
-          <span> _____. </span>
-        )}
-      </p>
-      <p className="text-gray-light text-sm leading-6">
-        Ends on
-        {depositedAmount && releaseAmount > 0 && start && releaseFrequencyCounter ? (
-          <span className="text-gray-light text-sm">{` ${format(
-            new Date(end * 1000),
-            "ccc do MMM, yyyy - HH:mm"
-          )}`}</span>
-        ) : (
-          <span> _____ </span>
-        )}
-        , <br className="sm:hidden" />
-        unless topped up.
-      </p>
-      <p className="text-gray-light text-xxs leading-4 mt-6">
+      <div className="bg-gray-dark p-5 rounded-md">
+        <label className="text-gray-light text-base font-bold cursor-pointer block mb-3">
+          Overview
+        </label>
+        <p className="text-gray-light text-sm leading-6">
+          Stream starts on
+          {start ? (
+            <span className="text-gray-light text-sm font-bold">{` ${startDate} `}</span>
+          ) : (
+            <span> ____ </span>
+          )}
+          at
+          <span className="text-gray-light text-sm font-bold">{` ${startTime}`}</span>.
+        </p>
+        <p className="text-gray-light text-sm leading-6 sm:inline-block">
+          <span className="text-gray-light text-sm font-bold">{` ${
+            releaseAmount || 0
+          } ${tokenSymbol} `}</span>
+          released every
+          {releaseFrequencyCounter ? (
+            <>
+              <span className="text-gray-light text-sm font-bold">{` ${formattedReleasePeriod}. `}</span>
+              {(isReleasePerMonth || isReleasePerYear) && (
+                <>
+                  <QuestionMarkCircleIcon
+                    className="h-3.5 w-3.5 inline mb-2 cursor-pointer text-blue"
+                    data-tip
+                    data-for="overviewTooltip"
+                  />
+                  <ReactTooltip
+                    id="overviewTooltip"
+                    type="info"
+                    effect="solid"
+                    place="top"
+                    backgroundColor="#18A2D9"
+                  >
+                    <span>
+                      {isReleasePerYear
+                        ? "We assume that year has 365 days."
+                        : "A month is approximated to 30.4167 days."}
+                    </span>
+                  </ReactTooltip>
+                </>
+              )}
+            </>
+          ) : (
+            <span> _____. </span>
+          )}
+        </p>
+        <p className="text-gray-light text-sm leading-6">
+          Ends on
+          {depositedAmount && releaseAmount > 0 && start && releaseFrequencyCounter ? (
+            <span className="text-gray-light text-sm font-bold">{` ${format(
+              new Date(end * 1000),
+              "ccc do MMM, yyyy - HH:mm"
+            )}`}</span>
+          ) : (
+            <span> _____ </span>
+          )}
+          , <br className="sm:hidden" />
+          unless topped up.
+        </p>
+      </div>
+      <label className="text-gray-light text-base font-bold cursor-pointer block mt-6">
+        Streamflow fees
+      </label>
+      <p className="text-gray-light text-xxs leading-4 mt-3">
         Streamflow charges 0.25% service fee (
         <span className="font-bold">{` ${roundAmount(
           depositedAmount * 0.0025
