@@ -86,9 +86,7 @@ const Overview: React.FC<OverviewProps> = ({
   return (
     <div className="col-span-full mt-4 leading-6">
       <div className="bg-gray-dark p-5 rounded-md">
-        <label className="text-gray-light text-base font-bold cursor-pointer block mb-3">
-          Overview
-        </label>
+        <label className="text-gray-light text-base font-bold block mb-3">Overview</label>
         <p className="text-gray-light text-sm leading-6">
           First
           <span className="text-gray-light text-sm font-bold">
@@ -165,9 +163,7 @@ const Overview: React.FC<OverviewProps> = ({
           )}
         </p>
       </div>
-      <label className="text-gray-light text-base font-bold cursor-pointer block mt-6">
-        Streamflow fees
-      </label>
+      <label className="text-gray-light text-base font-bold block mt-6">Streamflow fees</label>
       <p className="text-gray-light text-xxs leading-4 mt-3">
         Streamflow charges 0.25% service fee (
         <span className="font-bold">{` ${roundAmount(amount * 0.0025)} ${tokenSymbol} `}</span>) on

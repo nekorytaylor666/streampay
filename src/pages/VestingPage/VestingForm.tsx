@@ -440,7 +440,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                         </div>
                       </div>
                       <div className="col-span-4 sm:col-span-1 mt-3">
-                        <label className="text-gray-light text-base cursor-pointer mb-1 block">
+                        <label className="text-gray-light text-base mb-1 block">
                           Who can transfer the stream?
                         </label>
                         <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
@@ -459,7 +459,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                         </div>
                       </div>
                       <div className="col-span-4 sm:col-span-1">
-                        <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
+                        <label className="text-gray-light text-base col-span-1 mb-1 block">
                           Who can cancel?
                         </label>
                         <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2 mb-3">
@@ -562,9 +562,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         <div />
       </div>
       <div className="my-4">
-        <label className="text-gray-light text-base font-bold cursor-pointer block">
-          New Vesting
-        </label>
+        <label className="text-gray-light text-base font-bold block">New Vesting</label>
         <p className="my-3 text-xs text-gray-light font-weight-400">
           Ideal for token vesting! Set up the amount you want to vest, start-end date, release
           frequency and you’re good to go.
