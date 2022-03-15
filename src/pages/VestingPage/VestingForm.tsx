@@ -387,39 +387,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
-            <Toggle
-              checked={automaticWithdrawal}
-              labelRight="Automatic Withdrawal"
-              classes="col-span-full"
-              customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
-              {...register("automaticWithdrawal")}
-            />
-            {automaticWithdrawal && (
-              <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4">
-                <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
-                  Withdrawal Frequency
-                </label>
-                <Input
-                  type="number"
-                  min={1}
-                  step={1}
-                  classes="col-span-2 sm:col-span-1"
-                  customChange={() => trigger("withdrawalFrequencyPeriod")}
-                  error={
-                    errors?.withdrawalFrequencyCounter?.message ||
-                    errors?.withdrawalFrequencyPeriod?.message
-                  }
-                  {...register("withdrawalFrequencyCounter")}
-                />
-                <Select
-                  options={timePeriodOptions.slice(1)}
-                  plural={withdrawalFrequencyCounter > 1}
-                  {...register("withdrawalFrequencyPeriod")}
-                  classes="col-span-2 sm:col-span-1"
-                  error={errors?.withdrawalFrequencyPeriod?.message}
-                />
-              </div>
-            )}
             <div className="col-span-full grid grid-cols-1">
               <Disclosure>
                 {({ open }) => (
@@ -436,7 +403,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                         </h2>
                       </div>
                     </Disclosure.Button>
-                    <Disclosure.Panel className={` `}>
+                    <Disclosure.Panel className={`border-b-2 border-[#2A3441] pb-6 `}>
                       <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
                         <Input
                           type="date"
@@ -472,7 +439,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                           </span>
                         </div>
                       </div>
-                      <div className="col-span-4 sm:col-span-1">
+                      <div className="col-span-4 sm:col-span-1 mt-3">
                         <label className="text-gray-light text-base cursor-pointer mb-1 block">
                           Who can transfer the stream?
                         </label>
@@ -491,11 +458,11 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                           />
                         </div>
                       </div>
-                      <div className="col-span-4 sm:col-span-1">
+                      <div className="col-span-4 sm:col-span-1 mb-5">
                         <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
                           Who can cancel?
                         </label>
-                        <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
+                        <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2 mb-3">
                           <Input
                             type="checkbox"
                             label="sender"
@@ -518,6 +485,39 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                           {...register("referral")}
                         />
                       </div>
+                      <Toggle
+                        checked={automaticWithdrawal}
+                        labelRight="Automatic Withdrawal"
+                        classes="col-span-full"
+                        customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+                        {...register("automaticWithdrawal")}
+                      />
+                      {automaticWithdrawal && (
+                        <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4 mt-3">
+                          <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
+                            Withdrawal Frequency
+                          </label>
+                          <Input
+                            type="number"
+                            min={1}
+                            step={1}
+                            classes="col-span-2 sm:col-span-1"
+                            customChange={() => trigger("withdrawalFrequencyPeriod")}
+                            error={
+                              errors?.withdrawalFrequencyCounter?.message ||
+                              errors?.withdrawalFrequencyPeriod?.message
+                            }
+                            {...register("withdrawalFrequencyCounter")}
+                          />
+                          <Select
+                            options={timePeriodOptions.slice(1)}
+                            plural={withdrawalFrequencyCounter > 1}
+                            {...register("withdrawalFrequencyPeriod")}
+                            classes="col-span-2 sm:col-span-1"
+                            error={errors?.withdrawalFrequencyPeriod?.message}
+                          />
+                        </div>
+                      )}
                     </Disclosure.Panel>
                   </>
                 )}
@@ -530,10 +530,10 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               <Button
                 type="submit"
                 background="blue"
-                classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
+                classes="py-2 px-4 font-bold my-5 text-sm"
                 disabled={loading}
               >
-                Create
+                Create Vesting Contract
               </Button>
             </>
           )}
