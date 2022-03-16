@@ -347,7 +347,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                         </h2>
                       </div>
                     </Disclosure.Button>
-                    <Disclosure.Panel className={`pb-6 `}>
+                    <Disclosure.Panel>
                       <div className="col-span-4 sm:col-span-1 mt-3">
                         <label className="text-gray-light text-base mb-1 block">
                           Who can transfer the stream?
@@ -385,7 +385,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                             {...register("recipientCanCancel")}
                           />
                         </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3 pb-7">
+                        <div className="border-t-2 border-[#2A3441] pt-3">
                           <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
                             {" "}
                             WITHDRAW SETTINGS

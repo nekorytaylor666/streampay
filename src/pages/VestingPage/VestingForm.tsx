@@ -476,7 +476,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                             {...register("recipientCanCancel")}
                           />
                         </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3 pb-7">
+                        <div className="border-t-2 border-[#2A3441] pt-3">
                           <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
                             {" "}
                             WITHDRAW SETTINGS
