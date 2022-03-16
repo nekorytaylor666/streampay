@@ -114,6 +114,7 @@ const Overview: React.FC<OverviewProps> = ({
               <span className="text-gray-light text-sm font-bold">{` ${formattedReleasePeriod}. `}</span>
               {(isReleasePerMonth || isReleasePerYear) && (
                 <Tooltip
+                  id="overviewInfo"
                   content={
                     isReleasePerYear
                       ? "We assume that year has 365 days."

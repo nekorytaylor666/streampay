@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { Curtain } from "../components";
-import StreamsForm from "./StreamsPage/StreamsForm";
+import NewStreamForm from "./NewStreamPage/NewStreamForm";
 import VestingForm from "./VestingPage/VestingForm";
 import useStore, { StoreType } from "../stores";
 import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
@@ -44,7 +44,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
       {isVesting ? (
         <VestingForm loading={loading} setLoading={setLoading} />
       ) : (
-        <StreamsForm loading={loading} setLoading={setLoading} />
+        <NewStreamForm loading={loading} setLoading={setLoading} />
       )}
     </div>
   );
