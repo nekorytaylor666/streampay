@@ -1,9 +1,9 @@
-import { useEffect, useState, FC, useRef } from "react";
+import React, { useEffect, useState, FC, useRef } from "react";
 
-// import { format, fromUnixTime } from "date-fns";
-import Stream, { Stream as StreamData } from "@streamflow/stream";
+import { format, fromUnixTime } from "date-fns";
+import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
 // import cx from "classnames";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 // import { ExternalLinkIcon } from "@heroicons/react/outline";
 import MiddleEllipsis from "react-middle-ellipsis";
 import ReactTooltip from "react-tooltip";
@@ -12,8 +12,8 @@ import {
   EXPLORER_TYPE_ADDR,
   STREAM_STATUS_COLOR,
   DEFAULT_DECIMAL_PLACES,
-  // TRANSACTION_VARIANT,
-  // DATA_LAYER_VARIABLE,
+  TRANSACTION_VARIANT,
+  DATA_LAYER_VARIABLE,
 } from "../../constants";
 import { StreamStatus, StreamType } from "../../types";
 import {
@@ -21,24 +21,23 @@ import {
   formatAmount,
   formatPeriodOfTime,
   copyToClipboard,
-  //   roundAmount,
+  roundAmount,
 } from "../../utils/helpers";
 import {
   getStreamStatus,
   getStreamed,
   updateStatus,
-  // getNextUnlockTime,
+  getNextUnlockTime,
   formatStreamData,
 } from "./helpers";
-// import { ModalRef } from "../index";
+import { ModalRef } from "../index";
 import Badge from "./components/Badge";
-// import Duration from "./components/Duration";
-// import Progress from "./components/Progress";
+import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
-// import { withdrawStream } from "../../api/transactions";
-// import { trackEvent } from "../../utils/marketing_helpers";
-// import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
-import { Link, Tooltip } from "../../components";
+import { withdrawStream, topupStream, transferStream } from "../../api/transactions";
+import { trackEvent, trackTransaction } from "../../utils/marketing_helpers";
+import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+import { Link, Tooltip, Modal } from "../../components";
 import { ReactComponent as IcnIncoming } from "../../assets/icons/icn-incoming.svg";
 import { ReactComponent as IcnOutgoing } from "../../assets/icons/icn-outgoing.svg";
 import { IcnCopy, IcnArrowRight, IcnArrowDown } from "../../assets/icons";
@@ -79,18 +78,25 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
   return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
 };
 
-const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
+// const ctaOptions = [
+//   { value: "topup", label: "Top Up", color: "green" },
+//   { value: "transfer", label: "Transfer", color: "blue" },
+//   { value: "withdraw", label: "Withdraw", color: "green" },
+//   { value: "cancel", label: "Cancel", color: "red" },
+// ];
+
+const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup, onCancel }) => {
   const [isFullCardVisible, setIsFullCardVisible] = useState(false);
   const {
     myTokenAccounts,
     connection,
     updateStream,
-    // deleteStream,
-    // token,
-    // tokenPriceUsd,
-    // cluster,
-    // wallet,
-    // walletType,
+    deleteStream,
+    token,
+    tokenPriceUsd,
+    cluster,
+    wallet,
+    walletType,
   } = useStore(storeGetter);
   const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals;
 
@@ -105,12 +111,12 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
     canceledAt,
     recipient,
     name,
-    // sender,
+    sender,
     mint,
-    // cancelableBySender,
-    // cancelableByRecipient,
-    // transferableBySender,
-    // transferableByRecipient,
+    cancelableBySender,
+    cancelableByRecipient,
+    transferableBySender,
+    transferableByRecipient,
     amountPerPeriod,
     canTopup,
     automaticWithdrawal,
@@ -120,86 +126,86 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
   const icon = myTokenAccounts[mint].info.logoURI || "";
   // const isCliffDateAfterStart = cliff > start;
   // const isCliffAmount = cliffAmount > 0;
-  // const isSender = myAddress === sender;
+  const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
 
   const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
-  // const withdrawModalRef = useRef<ModalRef>(null);
-  // const topupModalRef = useRef<ModalRef>(null);
-  // const transferModalRef = useRef<ModalRef>(null);
+  const withdrawModalRef = useRef<ModalRef>(null);
+  const topupModalRef = useRef<ModalRef>(null);
+  const transferModalRef = useRef<ModalRef>(null);
 
   const statusAtStart = getStreamStatus(canceledAt, start, end, +new Date() / 1000);
   const color = STREAM_STATUS_COLOR[statusAtStart];
 
   const [status, setStatus] = useState(statusAtStart);
-  // const isCanceled = status === StreamStatus.canceled;
+  const isCanceled = status === StreamStatus.canceled;
   const [streamed, setStreamed] = useState(
     getStreamed(end, cliff, cliffAmount, depositedAmount, period, amountPerPeriod)
   );
 
-  const [, setAvailable] = useState(streamed - withdrawnAmount);
-  // const showWithdraw =
-  //   (status === StreamStatus.streaming ||
-  //     (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
-  //   isRecipient;
+  const [available, setAvailable] = useState(streamed - withdrawnAmount);
+  const showWithdraw =
+    (status === StreamStatus.streaming ||
+      (status === StreamStatus.complete && withdrawnAmount < depositedAmount)) &&
+    isRecipient;
 
-  // const showCancelOnSender =
-  //   cancelableBySender &&
-  //   isSender &&
-  //   (status === StreamStatus.streaming || status === StreamStatus.scheduled);
+  const showCancelOnSender =
+    cancelableBySender &&
+    isSender &&
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
-  // const showCancelOnRecipient =
-  //   cancelableByRecipient &&
-  //   isRecipient &&
-  //   (status === StreamStatus.streaming || status === StreamStatus.scheduled);
+  const showCancelOnRecipient =
+    cancelableByRecipient &&
+    isRecipient &&
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
-  // const showCancel = showCancelOnSender || showCancelOnRecipient;
+  const showCancel = showCancelOnSender || showCancelOnRecipient;
 
-  // const showTransferOnSender = transferableBySender && isSender && status !== StreamStatus.canceled;
+  const showTransferOnSender = transferableBySender && isSender && status !== StreamStatus.canceled;
 
-  // const showTransferOnRecipient =
-  //   transferableByRecipient && isRecipient && status !== StreamStatus.canceled;
+  const showTransferOnRecipient =
+    transferableByRecipient && isRecipient && status !== StreamStatus.canceled;
 
-  // const showTransfer = showTransferOnSender || showTransferOnRecipient;
+  const showTransfer = showTransferOnSender || showTransferOnRecipient;
 
-  // const showTopup =
-  //   canTopup &&
-  //   isSender &&
-  //   (status === StreamStatus.streaming || status === StreamStatus.scheduled);
+  const showTopup =
+    canTopup &&
+    isSender &&
+    (status === StreamStatus.streaming || status === StreamStatus.scheduled);
 
-  // const handleWithdraw = async () => {
-  //   const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
-  //   if (!connection || !withdrawAmount) return;
+  const handleWithdraw = async () => {
+    const withdrawAmount = (await withdrawModalRef?.current?.show()) as unknown as number;
+    if (!connection || !withdrawAmount) return;
 
-  //   const isWithdrawn = await withdrawStream(
-  //     { id, amount: getBN(withdrawAmount, decimals) },
-  //     connection,
-  //     wallet,
-  //     cluster
-  //   );
+    const isWithdrawn = await withdrawStream(
+      { id, amount: getBN(withdrawAmount, decimals) },
+      connection,
+      wallet,
+      cluster
+    );
 
-  //   if (isWithdrawn) {
-  //     const stream = await Stream.getOne({ connection, id });
-  //     if (stream) {
-  //       onWithdraw();
-  //       updateStream([id, stream]);
-  //     }
+    if (isWithdrawn) {
+      const stream = await Stream.getOne({ connection, id });
+      if (stream) {
+        onWithdraw();
+        updateStream([id, stream]);
+      }
 
-  //     trackEvent(
-  //       data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
-  //       EVENT_ACTION.WITHDRAW,
-  //       EVENT_LABEL.NONE,
-  //       withdrawAmount * tokenPriceUsd,
-  //       {
-  //         [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: symbol,
-  //         [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
-  //         [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawnAmount * tokenPriceUsd,
-  //         [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
-  //       }
-  //     );
-  //   }
-  // };
+      trackEvent(
+        data.canTopup ? EVENT_CATEGORY.STREAM : EVENT_CATEGORY.VESTING,
+        EVENT_ACTION.WITHDRAW,
+        EVENT_LABEL.NONE,
+        withdrawAmount * tokenPriceUsd,
+        {
+          [DATA_LAYER_VARIABLE.TOKEN_SYMBOL]: symbol,
+          [DATA_LAYER_VARIABLE.STREAM_ADDRESS]: id,
+          [DATA_LAYER_VARIABLE.TOKEN_WITHDRAW_USD]: withdrawnAmount * tokenPriceUsd,
+          [DATA_LAYER_VARIABLE.WALLET_TYPE]: walletType?.name,
+        }
+      );
+    }
+  };
 
   const fetchStream = async () => {
     if (!connection) return;
@@ -211,81 +217,77 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
     }
   };
 
-  // const handleTopup = async () => {
-  //   let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
-  //   if (!connection || !topupAmount) return;
-  //   if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
-  //     // todo max
-  //     topupAmount = 0;
-  //   }
+  const handleTopup = async () => {
+    let topupAmount = (await topupModalRef?.current?.show()) as unknown as number;
+    if (!connection || !topupAmount) return;
+    if (topupAmount === roundAmount(parseInt(token?.uiTokenAmount.amount) || 0, decimals)) {
+      // todo max
+      topupAmount = 0;
+    }
 
-  //   const isTopupped = await topupStream(
-  //     { id, amount: getBN(topupAmount, decimals) },
-  //     connection,
-  //     wallet,
-  //     cluster
-  //   );
+    const isTopupped = await topupStream(
+      { id, amount: getBN(topupAmount, decimals) },
+      connection,
+      wallet,
+      cluster
+    );
 
-  //   if (isTopupped) {
-  //     const stream = await Stream.getOne({ connection, id });
-  //     if (stream) {
-  //       onTopup();
-  //       updateStream([id, stream]);
-  //     }
-  //     trackTransaction(
-  //       id,
-  //       token.info.symbol,
-  //       token.info.name,
-  //       tokenPriceUsd,
-  //       TRANSACTION_VARIANT.TOP_UP_STREAM,
-  //       topupAmount * 0.0025 * tokenPriceUsd,
-  //       topupAmount * 0.0025,
-  //       topupAmount,
-  //       topupAmount * tokenPriceUsd,
-  //       walletType?.name
-  //     );
-  //   }
-  // };
+    if (isTopupped) {
+      const stream = await Stream.getOne({ connection, id });
+      if (stream) {
+        onTopup();
+        updateStream([id, stream]);
+      }
+      trackTransaction(
+        id,
+        token.info.symbol,
+        token.info.name,
+        tokenPriceUsd,
+        TRANSACTION_VARIANT.TOP_UP_STREAM,
+        topupAmount * 0.0025 * tokenPriceUsd,
+        topupAmount * 0.0025,
+        topupAmount,
+        topupAmount * tokenPriceUsd,
+        walletType?.name
+      );
+    }
+  };
 
-  // async function handleTransfer() {
-  //   if (!connection || !wallet || !wallet?.publicKey) return;
-  //   const newRecipient = await transferModalRef?.current?.show();
+  async function handleTransfer() {
+    if (!connection || !wallet || !wallet?.publicKey) return;
+    const newRecipient = await transferModalRef?.current?.show();
 
-  //   if (newRecipient !== undefined) {
-  //     if (!newRecipient) {
-  //       toast.error("You didn't provide the address.");
-  //       return;
-  //     }
+    if (newRecipient !== undefined) {
+      if (!newRecipient) {
+        toast.error("You didn't provide the address.");
+        return;
+      }
 
-  //     if ((isSender && newRecipient === sender) || (isRecipient && newRecipient === recipient)) {
-  //       toast.error("You can't transfer stream to yourself.");
-  //       return;
-  //     }
+      if ((isSender && newRecipient === sender) || (isRecipient && newRecipient === recipient)) {
+        toast.error("You can't transfer stream to yourself.");
+        return;
+      }
 
-  //     const response = await transferStream(
-  //       { id, recipientId: newRecipient },
-  //       connection,
-  //       wallet,
-  //       cluster
-  //     );
+      const response = await transferStream(
+        { id, recipientId: newRecipient },
+        connection,
+        wallet,
+        cluster
+      );
 
-  //     if (response) {
-  //       toast.success("Stream transferred to " + newRecipient);
+      if (response) {
+        toast.success("Stream transferred to " + newRecipient);
 
-  //       if (isSender) {
-  //         const stream = await Stream.getOne({ connection, id });
-  //         updateStream([id, stream]);
-  //       } else deleteStream(id);
-  //     }
-  //   }
-  // }
+        if (isSender) {
+          const stream = await Stream.getOne({ connection, id });
+          updateStream([id, stream]);
+        } else deleteStream(id);
+      }
+    }
+  }
 
   useEffect(() => {
-    if (
-      automaticWithdrawal &&
-      status === StreamStatus.streaming
-      // (status === StreamStatus.complete && available > 0)
-    ) {
+    if (automaticWithdrawal && status === StreamStatus.streaming) {
       const withdrawalInterval = setInterval(() => {
         fetchStream();
       }, (withdrawalFrequency + 2) * 1000);
@@ -322,19 +324,21 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
 
   const toggleCardVisibility = () => setIsFullCardVisible(!isFullCardVisible);
 
-  const tooltipRef = useRef<any>(null);
+  const tooltipAddressRef = useRef<any>(null);
+  const tooltipSenderRef = useRef<any>(null);
+  const tooltipRecipientRef = useRef<any>(null);
 
-  function copy() {
-    copyToClipboard(id);
-    ReactTooltip.show(tooltipRef.current!);
+  function copy(address: string, tooltip: React.MutableRefObject<any>) {
+    copyToClipboard(address);
+    ReactTooltip.show(tooltip.current!);
     setTimeout(() => {
-      ReactTooltip.hide(tooltipRef.current!);
+      ReactTooltip.hide(tooltip.current!);
     }, 1000);
   }
 
   return (
     <div
-      className={`grid grid-cols-7 rounded-2xl px-6 py-4 mb-1 ${
+      className={`grid grid-cols-7 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
         isFullCardVisible && "bg-gray-dark"
       }`}
     >
@@ -359,18 +363,18 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
       </div>
       <div>
         <p className="text-white text-p2 font-bold">{name}</p>
-        <div className="flex items-center relative" data-tip="tooltip">
+        <div className="flex items-center relative leading-5">
           <Link
             url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
             title={"Stream ID"}
             classes="text-gray-light text-p3"
           />
-          <span ref={tooltipRef} data-tip="tooltip" data-for={`addressCopied-${id}`}></span>
+          <span ref={tooltipAddressRef} data-tip="tooltip" data-for={`addressCopied-${id}`}></span>
           <Tooltip
             content={<p className="p-1 text-p2">Address copied!</p>}
             id={`addressCopied-${id}`}
           />
-          <button onClick={copy}>
+          <button onClick={() => copy(id, tooltipAddressRef)}>
             <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
           </button>
           <div className="w-28 mb-1">
@@ -378,20 +382,109 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
               <span className="text-p3 font-bold text-white">{id}</span>
             </MiddleEllipsis>
           </div>
-          <p></p>
         </div>
+        {isFullCardVisible && (
+          <>
+            <div className="flex items-center relative leading-5 mt-2.5">
+              <Link
+                url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
+                title={"From"}
+                classes="text-gray-light text-p3"
+              />
+              <span
+                ref={tooltipSenderRef}
+                data-tip="tooltip"
+                data-for={`addressCopied-${sender}`}
+              ></span>
+              <Tooltip
+                content={<p className="p-1 text-p2">Address copied!</p>}
+                id={`addressCopied-${sender}`}
+              />
+              <button onClick={() => copy(sender, tooltipSenderRef)}>
+                <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
+              </button>
+              <div className="w-28 mb-1">
+                <MiddleEllipsis>
+                  <span className="text-p3 font-bold text-white">{sender}</span>
+                </MiddleEllipsis>
+              </div>
+            </div>
+            <div className="flex items-center relative leading-5">
+              <Link
+                url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
+                title={"To"}
+                classes="text-gray-light text-p3"
+              />
+              <span
+                ref={tooltipRecipientRef}
+                data-tip="tooltip"
+                data-for={`addressCopied-${recipient}`}
+              ></span>
+              <Tooltip
+                content={<p className="p-1 text-p2">Address copied!</p>}
+                id={`addressCopied-${recipient}`}
+              />
+              <button onClick={() => copy(recipient, tooltipRecipientRef)}>
+                <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
+              </button>
+              <div className="w-28 mb-1">
+                <MiddleEllipsis>
+                  <span className="text-p3 font-bold text-white">{recipient}</span>
+                </MiddleEllipsis>
+              </div>
+            </div>
+          </>
+        )}
       </div>
       <div>
         <p className="text-p2 text-gray-light flex items-center">
           <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
-          <span className="font-bold text-white">{withdrawnAmount}</span> /{streamed}
+          <span className="font-bold text-white">
+            {`${formatAmount(withdrawnAmount, decimals, DEFAULT_DECIMAL_PLACES)}`}
+          </span>
+          /{`${formatAmount(depositedAmount, decimals, DEFAULT_DECIMAL_PLACES)}`}
         </p>
+        <Progress value={withdrawnAmount} max={depositedAmount} color={color} />
+        {isFullCardVisible && (
+          <>
+            <p className="text-p3 text-gray-light mt-5 mb-1">Start Date</p>
+            <p className="font-bold text-white text-p3">
+              {format(fromUnixTime(start), "ccc do MMM, yy")}
+              <span className="font-normal text-gray-light"> at </span>
+              {format(fromUnixTime(start), "HH:mm")}
+            </p>
+          </>
+        )}
       </div>
       <div>
         <p className="text-p2 text-gray-light flex items-center">
           <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
-          <span className="font-bold text-white">10.00</span> {`/10.00 ${symbol}`}
+          <span className="font-bold text-white">
+            {status === StreamStatus.canceled
+              ? formatAmount(depositedAmount - withdrawnAmount, decimals, DEFAULT_DECIMAL_PLACES)
+              : formatAmount(streamed, decimals, DEFAULT_DECIMAL_PLACES)}
+          </span>
+
+          {`/${formatAmount(depositedAmount, decimals, DEFAULT_DECIMAL_PLACES)} ${symbol}`}
         </p>
+        {status !== StreamStatus.canceled && (
+          <Progress value={streamed} max={depositedAmount} color={color} />
+        )}
+        {status === StreamStatus.canceled && (
+          <Progress value={depositedAmount - withdrawnAmount} max={depositedAmount} color={color} />
+        )}
+        {isFullCardVisible && (
+          <>
+            <p className="text-p3 text-gray-light mt-5 mb-1">
+              {isCanceled ? "Canceled At" : "End Date"}
+            </p>
+            <p className="font-bold text-white text-p3">
+              {format(fromUnixTime(isCanceled ? canceledAt || 0 : end), "ccc do MMM, yy")}
+              <span className="font-normal text-gray-light"> at </span>
+              {format(fromUnixTime(isCanceled ? canceledAt || 0 : end), "HH:mm")}
+            </p>
+          </>
+        )}
       </div>
       <div>
         <div className="flex items-center">
@@ -405,7 +498,89 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress }) => {
         <p className="text-p3 text-gray-light mt-1">{`Per ${formatPeriodOfTime(
           releaseFrequency
         )}`}</p>
+        {isFullCardVisible &&
+          (status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
+            <>
+              <p className="text-p3 text-gray-light mt-4 mb-1">Next Unlock</p>
+              <p className="font-bold text-p3 text-white">
+                {format(
+                  fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)),
+                  "ccc do MMM, yy"
+                )}
+                <span className="font-normal text-gray-light"> at </span>
+                {format(fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)), "HH:mm")}
+              </p>
+            </>
+          )}
       </div>
+      <div>
+        <div className="bg-gray-dark rounded-lg w-28">
+          {showTopup && (
+            <button
+              className="text-p2 font-bold text-green py-0.5 hover:cursor-pointer flex justify-center items-center w-28"
+              onClick={handleTopup}
+            >
+              Topup
+            </button>
+          )}
+          {showTransfer && (
+            <button
+              className="text-p2 font-bold text-blue py-0.5 hover:cursor-pointer w-28"
+              onClick={handleTransfer}
+            >
+              Transfer
+            </button>
+          )}
+          {showCancel && (
+            <button
+              className="text-p2 font-bold text-red py-0.5 hover:cursor-pointer flex justify-center items-center w-28"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          )}
+          {showWithdraw && (
+            <button
+              className="text-p2 font-bold text-green py-0.5 hover:cursor-pointer flex justify-center items-center w-28"
+              onClick={handleWithdraw}
+            >
+              Withdraw
+            </button>
+          )}
+        </div>
+      </div>
+      <Modal
+        ref={withdrawModalRef}
+        title={`You can withdraw between 0 and ${roundAmount(available, decimals)} ${symbol}.`}
+        type="range"
+        min={0}
+        max={roundAmount(available, decimals)}
+        confirm={{ color: "green", text: "Withdraw" }}
+      />
+      <Modal
+        ref={topupModalRef}
+        title={`You can top up between 0 and ${roundAmount(
+          parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0
+        )} ${symbol}.`}
+        symbol={symbol}
+        type="range"
+        min={0}
+        max={roundAmount(parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0)}
+        confirm={{ color: "blue", text: "Top Up" }}
+        automaticWithdrawal={automaticWithdrawal}
+      />
+      <Modal
+        ref={transferModalRef}
+        title="Transfer recipient:"
+        type="text"
+        disclaimer={
+          isSender
+            ? ""
+            : "All unlocked tokens that are not withdrawn will be transferred. Please check if you want to withdraw before transferring."
+        }
+        placeholder="Recipient address"
+        confirm={{ color: "blue", text: "Transfer" }}
+      />
     </div>
     // <>
     /* <dl

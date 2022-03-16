@@ -114,19 +114,19 @@ const StreamsPage: FC = () => {
     <div className="w-full mx-6">
       {oldStreams && (
         <>
-          <p className="text-white font-bold text-sm sm:text-base text-center mt-6 mb-12">
+          <p className="text-white font-bold text-sm sm:text-base text-center mt-6">
             Your old streams are SAFU. View them{" "}
             <Link url={"https://free.streamflow.finance"} title={"here"} classes={"text-blue"} />.
             <br />
           </p>
         </>
       )}
-      <div className="grid grid-cols-7 gap-x-2 mb-5">
+      <div className="grid grid-cols-7 gap-x-3 sm:gap-x-5 mb-5 mt-12">
         <p className="text-p2 text-gray-light">Status</p>
         <p className="text-p2 text-gray-light">Type/Direction</p>
         <p className="text-p2 text-gray-light">Subject/Stream ID</p>
-        <p className="text-p2 text-gray-light">Withdrawn/Deposited</p>
-        <p className="text-p2 text-gray-light">Unlocked/Returned</p>
+        <p className="text-p2 text-gray-light">Withdrawn</p>
+        <p className="text-p2 text-gray-light">Unlocked (Returned)</p>
         <p className="text-p2 text-gray-light">Release Rate</p>
         <p className="text-p2 text-gray-light">Actions</p>
       </div>
