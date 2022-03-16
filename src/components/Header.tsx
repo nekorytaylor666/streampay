@@ -4,8 +4,9 @@ import { Cluster } from "@streamflow/stream";
 
 import Logo from "./Logo";
 import logo from "../assets/icons/logo.png";
-import { Nav, Toggle } from ".";
+import { Nav } from ".";
 import useStore from "../stores";
+import WalletMenu from "./WalletMenu";
 
 const Header: FC = () => {
   const cluster = useStore((state) => state.cluster);
@@ -29,22 +30,9 @@ const Header: FC = () => {
     <div className="flex sticky top-0 w-screen bg-dark items-center p-4 sm:p-6 border-b border-gray-dark z-10">
       <Logo src={logo} classes={`w-60 ${!wallet?.connected && "flex-grow"}`} />
       {wallet?.connected && <Nav classes="hidden lg:block flex-grow" />}
-      <div className="flex justify-end items-center w-44">
-        <Toggle
-          checked={!isMainnet}
-          customChange={toggleCluster}
-          labelLeft="mainnet"
-          labelRight="devnet"
-          classes="hidden sm:flex mr-2"
-        />
+      <div className="flex justify-end w-50">
+        {wallet?.connected && <WalletMenu clusterChange={toggleCluster} />}
       </div>
-      <Toggle
-        checked={!isMainnet}
-        customChange={toggleCluster}
-        labelLeft="mainnet"
-        labelRight="devnet"
-        classes="flex sm:hidden justify-end mt-1"
-      />
     </div>
   );
 };
