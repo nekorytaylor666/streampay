@@ -121,14 +121,14 @@ const StreamsPage: FC = () => {
           </p>
         </>
       )}
-      <div className="grid grid-cols-7 gap-x-3 sm:gap-x-5 mb-5 mt-12">
-        <p className="text-p2 text-gray-light">Status</p>
-        <p className="text-p2 text-gray-light">Type/Direction</p>
-        <p className="text-p2 text-gray-light">Subject/Stream ID</p>
-        <p className="text-p2 text-gray-light">Withdrawn</p>
-        <p className="text-p2 text-gray-light">Unlocked (Returned)</p>
-        <p className="text-p2 text-gray-light">Release Rate</p>
-        <p className="text-p2 text-gray-light">Actions</p>
+      <div className="grid grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12">
+        <p className="text-p2 text-gray-light col-span-1">Status</p>
+        <p className="text-p2 text-gray-light col-span-1">Type/Direction</p>
+        <p className="text-p2 text-gray-light col-span-1">Subject/Stream ID</p>
+        <p className="text-p2 text-gray-light col-span-2">Withdrawn</p>
+        <p className="text-p2 text-gray-light col-span-2">Unlocked (Returned)</p>
+        <p className="text-p2 text-gray-light col-span-1">Release Rate</p>
+        <p className="text-p2 text-gray-light col-span-1">Actions</p>
       </div>
       {streams.map(([id, data]) => (
         <StreamCard

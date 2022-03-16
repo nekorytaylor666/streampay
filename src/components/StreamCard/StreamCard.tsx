@@ -338,7 +338,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
 
   return (
     <div
-      className={`grid grid-cols-7 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
+      className={`grid grid-cols-10 rounded-2xl px-3 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
         isFullCardVisible && "bg-gray-dark"
       }`}
     >
@@ -436,7 +436,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           </>
         )}
       </div>
-      <div>
+      <div className="col-span-2">
         <p className="text-p2 text-gray-light flex items-center">
           <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
           <span className="font-bold text-white">
@@ -456,7 +456,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           </>
         )}
       </div>
-      <div>
+      <div className="col-span-2">
         <p className="text-p2 text-gray-light flex items-center">
           <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
           <span className="font-bold text-white">
