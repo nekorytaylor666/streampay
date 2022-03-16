@@ -1,7 +1,9 @@
 import {
   HomePage,
   VestingPage,
-  StreamsPage,
+  AllStreamsPage,
+  IncomingStreamsPage,
+  OutgoingStreamsPage,
   MultisigPage,
   DashboardPage,
   NewStreamPage,
@@ -58,7 +60,7 @@ const routes: Route[] = [
   },
   {
     path: "/all-streams",
-    Component: StreamsPage,
+    Component: AllStreamsPage,
     label: "All Streams",
     isPrivate: true,
     exact: true,
@@ -66,7 +68,7 @@ const routes: Route[] = [
   },
   {
     path: "/incoming",
-    Component: DashboardPage,
+    Component: IncomingStreamsPage,
     label: "Incoming",
     isPrivate: true,
     exact: true,
@@ -74,7 +76,7 @@ const routes: Route[] = [
   },
   {
     path: "/outgoing",
-    Component: DashboardPage,
+    Component: OutgoingStreamsPage,
     label: "Outgoing",
     isPrivate: true,
     exact: true,

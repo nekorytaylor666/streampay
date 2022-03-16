@@ -1,7 +1,8 @@
-import React, { useEffect, useState, FC, useRef } from "react";
+import React, { useEffect, useState, FC, useRef, Fragment } from "react";
 
 import { format, fromUnixTime } from "date-fns";
 import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
+import { Menu, Transition } from "@headlessui/react";
 // import cx from "classnames";
 import { toast } from "react-toastify";
 // import { ExternalLinkIcon } from "@heroicons/react/outline";
@@ -77,13 +78,6 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
   const timeBetweenCliffAndEnd = endTime - cliffTime;
   return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
 };
-
-// const ctaOptions = [
-//   { value: "topup", label: "Top Up", color: "green" },
-//   { value: "transfer", label: "Transfer", color: "blue" },
-//   { value: "withdraw", label: "Withdraw", color: "green" },
-//   { value: "cancel", label: "Cancel", color: "red" },
-// ];
 
 const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup, onCancel }) => {
   const [isFullCardVisible, setIsFullCardVisible] = useState(false);
@@ -286,6 +280,26 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     }
   }
 
+  const ctaOptions = [];
+  if (showTopup)
+    ctaOptions.push({ value: "topup", label: "Top Up", color: "green", handler: handleTopup });
+  if (showTransfer)
+    ctaOptions.push({
+      value: "transfer",
+      label: "Transfer",
+      color: "blue",
+      handler: handleTransfer,
+    });
+  if (showWithdraw)
+    ctaOptions.push({
+      value: "withdraw",
+      label: "Withdraw",
+      color: "green",
+      handler: handleWithdraw,
+    });
+  if (showCancel)
+    ctaOptions.push({ value: "cancel", label: "Cancel", color: "red", handler: onCancel });
+
   useEffect(() => {
     if (automaticWithdrawal && status === StreamStatus.streaming) {
       const withdrawalInterval = setInterval(() => {
@@ -338,7 +352,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
 
   return (
     <div
-      className={`grid grid-cols-7 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
+      className={`grid grid-cols-10 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
         isFullCardVisible && "bg-gray-dark"
       }`}
     >
@@ -361,7 +375,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           <p className="text-gray-light text-p3 ml-1">{isRecipient ? "Incoming" : "Outgoing"}</p>
         </div>
       </div>
-      <div>
+      <div className="col-span-2">
         <p className="text-white text-p2 font-bold">{name}</p>
         <div className="flex items-center relative leading-5">
           <Link
@@ -436,13 +450,13 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           </>
         )}
       </div>
-      <div>
+      <div className="col-span-2">
         <p className="text-p2 text-gray-light flex items-center">
           <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
           <span className="font-bold text-white">
             {`${formatAmount(withdrawnAmount, decimals, DEFAULT_DECIMAL_PLACES)}`}
           </span>
-          /{`${formatAmount(depositedAmount, decimals, DEFAULT_DECIMAL_PLACES)}`}
+          /{`${formatAmount(depositedAmount, decimals, DEFAULT_DECIMAL_PLACES)} ${symbol}`}
         </p>
         <Progress value={withdrawnAmount} max={depositedAmount} color={color} />
         {isFullCardVisible && (
@@ -456,7 +470,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           </>
         )}
       </div>
-      <div>
+      <div className="col-span-2">
         <p className="text-p2 text-gray-light flex items-center">
           <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
           <span className="font-bold text-white">
@@ -513,42 +527,39 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             </>
           )}
       </div>
-      <div>
-        <div className="bg-gray-dark rounded-lg w-28">
-          {showTopup && (
-            <button
-              className="text-p2 font-bold text-green py-0.5 hover:cursor-pointer flex justify-center items-center w-28"
-              onClick={handleTopup}
-            >
-              Topup
-            </button>
-          )}
-          {showTransfer && (
-            <button
-              className="text-p2 font-bold text-blue py-0.5 hover:cursor-pointer w-28"
-              onClick={handleTransfer}
-            >
-              Transfer
-            </button>
-          )}
-          {showCancel && (
-            <button
-              className="text-p2 font-bold text-red py-0.5 hover:cursor-pointer flex justify-center items-center w-28"
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-          )}
-          {showWithdraw && (
-            <button
-              className="text-p2 font-bold text-green py-0.5 hover:cursor-pointer flex justify-center items-center w-28"
-              onClick={handleWithdraw}
-            >
-              Withdraw
-            </button>
-          )}
-        </div>
-      </div>
+      {!!ctaOptions.length && (
+        <Menu as="div" className="relative inline-block text-center">
+          <div>
+            <Menu.Button className="flex justify-center items-center w-10 h-8 font-bold text-gray hover:text-gray-light bg-gray-dark rounded-md hover:bg-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+              ...
+            </Menu.Button>
+          </div>
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
+          >
+            <Menu.Items className="absolute z-50 left-0 w-36 mt-1 origin-top-right bg-gray-dark divide-y rounded-md shadow-lg focus:outline-none">
+              <div className="px-1 py-1">
+                {ctaOptions.map(({ label, color, handler }) => (
+                  <Menu.Item as="div">
+                    <button
+                      onClick={handler}
+                      className={`text-p2 flex pl-6 font-bold text-${color} py-0.5 hover:cursor-pointer hover:bg-opacity-20`}
+                    >
+                      {label}
+                    </button>
+                  </Menu.Item>
+                ))}
+              </div>
+            </Menu.Items>
+          </Transition>
+        </Menu>
+      )}
       <Modal
         ref={withdrawModalRef}
         title={`You can withdraw between 0 and ${roundAmount(available, decimals)} ${symbol}.`}
@@ -582,194 +593,6 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
         confirm={{ color: "blue", text: "Transfer" }}
       />
     </div>
-    // <>
-    /* <dl
-        className={`text-gray-light text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-gray-dark bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
-      >
-        <Badge classes="col-span-full" type={status} color={color} />
-        <Duration
-          start={start}
-          end={end}
-          canceledAt={canceledAt}
-          isCanceled={isCanceled}
-          cliff={cliff}
-          hasCliff={isCliffDateAfterStart || cliffAmount > 0}
-        />
-        <p className="col-span-4 sm:col-span-3">Subject</p>
-        <p className="col-span-8 sm:col-span-9 text-gray-light pt-0.5 capitalize">{name}</p>
-        <Link
-          url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
-          title={"Stream ID"}
-          Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3 text-blue"
-        />
-        <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5" />
-        <Link
-          url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
-          title={"Recipient"}
-          Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3 text-blue"
-        />
-        <Address
-          address={recipient}
-          classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5"
-        />
-        {isCliffAmount && (
-          <>
-            <dd className="col-span-4 sm:col-span-3">
-              Unlocked
-              <small className="text-xs block text-gray-light align-top">{`at ${
-                isCliffDateAfterStart ? "cliff" : "start"
-              } date`}</small>
-            </dd>
-            <dt className="col-span-8 sm:col-span-9 text-gray-light pt-2">{`${formatAmount(
-              cliffAmount,
-              decimals,
-              DEFAULT_DECIMAL_PLACES
-            )} ${symbol}`}</dt>
-          </>
-        )}
-        <dd className="col-span-4 sm:col-span-3">
-          Release rate
-          {isCliffDateAfterStart && (
-            <small className="text-xs block text-gray-light align-top">after cliff date</small>
-          )}
-        </dd>
-        <dt
-          className={cx("col-span-8 sm:col-span-9 text-gray-light", {
-            "pt-2": isCliffDateAfterStart,
-          })}
-        >
-          {`${formatAmount(
-            amountPerPeriod,
-            decimals,
-            DEFAULT_DECIMAL_PLACES
-          )} ${symbol} per ${formatPeriodOfTime(releaseFrequency)}`}
-        </dt>
-        <Progress
-          title="Withdrawn"
-          value={withdrawnAmount}
-          max={depositedAmount}
-          decimals={decimals}
-          symbol={symbol}
-          subtitle={automaticWithdrawal ? "Automatic withdrawal enabled." : ""}
-        />
-        {status === StreamStatus.canceled && (
-          <Progress
-            title="Returned"
-            value={depositedAmount - withdrawnAmount}
-            max={depositedAmount}
-            rtl={true}
-            decimals={decimals}
-            symbol={symbol}
-          />
-        )}
-        {status !== StreamStatus.canceled && (
-          <>
-            {(status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
-              <>
-                <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
-                <dt className="col-span-8 text-gray-light text-sm">
-                  {format(
-                    fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)),
-                    "ccc do MMM, yy HH:mm:ss"
-                  )}
-                </dt>
-              </>
-            )}
-            <Progress
-              title="Unlocked"
-              value={streamed}
-              max={depositedAmount}
-              decimals={decimals}
-              symbol={symbol}
-            />
-            {showWithdraw && (
-              <>
-                <dd className="col-span-4">
-                  Available
-                  <br />
-                  <sup className="text-xs text-gray-light align-top">for withdrawal</sup>
-                </dd>
-                <dt className="col-span-8 pt-1.5">
-                  ~ {formatAmount(available, decimals, DEFAULT_DECIMAL_PLACES)} {symbol}
-                </dt>
-              </>
-            )}
-            {showTopup && (
-              <Button
-                onClick={handleTopup}
-                background="blue"
-                classes="col-span-3 text-sm py-1 w-full"
-              >
-                Top Up
-              </Button>
-            )}
-            {showTransfer && (
-              <Button
-                onClick={handleTransfer}
-                background={STREAM_STATUS_COLOR[StreamStatus.complete]}
-                classes="col-span-3 text-sm py-1 w-full"
-              >
-                Transfer
-              </Button>
-            )}
-            {showCancel && (
-              <Button
-                onClick={onCancel}
-                background={STREAM_STATUS_COLOR[StreamStatus.canceled]}
-                classes="col-span-3 text-sm py-1 w-full"
-              >
-                Cancel
-              </Button>
-            )}
-            {showWithdraw && (
-              <>
-                <Button
-                  onClick={handleWithdraw}
-                  background={STREAM_STATUS_COLOR[StreamStatus.streaming]}
-                  classes="col-span-3 text-sm py-1 w-full"
-                >
-                  Withdraw
-                </Button>
-              </>
-            )}
-          </>
-        )}
-      </dl>
-      <Modal
-        ref={withdrawModalRef}
-        title={`You can withdraw between 0 and ${roundAmount(available, decimals)} ${symbol}.`}
-        type="range"
-        min={0}
-        max={roundAmount(available, decimals)}
-        confirm={{ color: "green", text: "Withdraw" }}
-      />
-      <Modal
-        ref={topupModalRef}
-        title={`You can top up between 0 and ${roundAmount(
-          parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0
-        )} ${symbol}.`}
-        symbol={symbol}
-        type="range"
-        min={0}
-        max={roundAmount(parseFloat(token?.uiTokenAmount?.amount) / 10 ** decimals || 0)}
-        confirm={{ color: "blue", text: "Top Up" }}
-        automaticWithdrawal={automaticWithdrawal}
-      />
-      <Modal
-        ref={transferModalRef}
-        title="Transfer recipient:"
-        type="text"
-        disclaimer={
-          isSender
-            ? ""
-            : "All unlocked tokens that are not withdrawn will be transferred. Please check if you want to withdraw before transferring."
-        }
-        placeholder="Recipient address"
-        confirm={{ color: "blue", text: "Transfer" }}
-      /> */
-    /* </> */
   );
 };
 
