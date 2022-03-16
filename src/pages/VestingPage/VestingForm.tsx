@@ -7,7 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
@@ -562,6 +562,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         <div />
       </div>
       <div className="my-4">
+        <Balance></Balance>
         <label className="text-gray-light text-base font-bold block">New Vesting</label>
         <p className="my-3 text-xs text-gray-light font-weight-400">
           Ideal for token vesting! Set up the amount you want to vest, start-end date, release

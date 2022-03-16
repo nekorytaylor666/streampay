@@ -7,7 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
@@ -469,6 +469,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         />
       </div>
       <div className="my-4">
+        <Balance></Balance>
         <label className="text-gray-light text-base font-bold block">New Stream</label>
         <p className="my-3 text-xs text-gray-light font-weight-400">
           Set up the amount you want to deposit, release amount, release frequency, start date and
