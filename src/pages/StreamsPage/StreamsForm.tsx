@@ -7,7 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, Balance, Link } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
@@ -347,7 +347,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                         </h2>
                       </div>
                     </Disclosure.Button>
-                    <Disclosure.Panel className={`pb-6 `}>
+                    <Disclosure.Panel>
                       <div className="col-span-4 sm:col-span-1 mt-3">
                         <label className="text-gray-light text-base mb-1 block">
                           Who can transfer the stream?
@@ -385,7 +385,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                             {...register("recipientCanCancel")}
                           />
                         </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3 pb-7">
+                        <div className="border-t-2 border-[#2A3441] pt-3">
                           <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
                             {" "}
                             WITHDRAW SETTINGS
@@ -426,20 +426,6 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
                             </div>
                           )}
                         </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3">
-                          <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
-                            {" "}
-                            REFERAL PROGRAM
-                          </h5>
-                          <Input
-                            type="text"
-                            label="Referral Address"
-                            placeholder="Please double check the address"
-                            classes="col-span-full"
-                            error={errors?.referral?.message}
-                            {...register("referral")}
-                          />
-                        </div>
                       </div>
                     </Disclosure.Panel>
                   </>
@@ -469,6 +455,7 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
         />
       </div>
       <div className="my-4">
+        <Balance></Balance>
         <label className="text-gray-light text-base font-bold block">New Stream</label>
         <p className="my-3 text-xs text-gray-light font-weight-400">
           Set up the amount you want to deposit, release amount, release frequency, start date and
@@ -487,6 +474,23 @@ const StreamsForm: FC<StreamsFormProps> = ({ loading, setLoading }) => {
             withdrawalFrequencyCounter,
             withdrawalFrequencyPeriod,
           }}
+        />
+        <div className="border-t-1 border-[#2A3441] pt-3">
+          <label className="text-gray-light text-base font-bold block mb-4">Referal address</label>
+          <Input
+            type="text"
+            placeholder="Paste referral address here..."
+            classes="col-span-full"
+            description="Refer someone to use Streamflow with your referral key and you'll earn a percentage of the fees paid."
+            error={errors?.referral?.message}
+            {...register("referral")}
+          />
+        </div>
+        <label className="text-gray-light text-base font-bold block">Need a custom deal?</label>
+        <Link
+          title="Contact us"
+          url="https://discordapp.com/channels/851921970169511976/888391406576627732"
+          classes="inline-block text-p3 text-blue"
         />
       </div>
     </>
