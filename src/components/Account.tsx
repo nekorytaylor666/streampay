@@ -1,14 +1,14 @@
 import { Dispatch, SetStateAction, useState, FC } from "react";
 
 import { Cluster, ClusterExtended } from "@streamflow/stream";
-import { Connection } from "@solana/web3.js";
+import { Connection, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import cx from "classnames";
 import { toast } from "react-toastify";
 import { ExternalLinkIcon } from "@heroicons/react/outline";
 import * as Sentry from "@sentry/react";
 
 import {
-  // AIRDROP_AMOUNT,
+  AIRDROP_AMOUNT,
   AIRDROP_TEST_TOKEN,
   AIRDROP_WHITELIST,
   ERR_NOT_CONNECTED,
@@ -53,13 +53,6 @@ interface AccountProps {
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-const successfulAirdropMsg = (
-  <>
-    <p>Airdrop successful!</p>
-    <p> Check STRM balance!</p>
-  </>
-);
-
 const Account: FC<AccountProps> = ({ setLoading }) => {
   const {
     connection,
@@ -73,7 +66,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     setToken,
   } = useStore(storeGetter);
   const isMainnet = cluster === Cluster.Mainnet;
-  const [isGimmeSolDisabled, setIsGimmeSolDisabled] = useState(false);
+  const [airdropDisabled, setAirdropDisabled] = useState(false);
   const hideAirdrop =
     isMainnet || AIRDROP_WHITELIST.indexOf(wallet?.publicKey?.toBase58() as string) === -1;
   const isConnected = wallet?.connected && connection;
@@ -112,35 +105,36 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
     }
 
     setLoading(true);
-    setIsGimmeSolDisabled(true);
-    toast.success("Airdrop requested!");
+    setAirdropDisabled(true);
 
     try {
-      // const signature = await connection.requestAirdrop(
-      //   wallet.publicKey,
-      //   AIRDROP_AMOUNT * LAMPORTS_PER_SOL
-      // );
+      const txSolAirdrop = await connection.requestAirdrop(
+        wallet.publicKey,
+        AIRDROP_AMOUNT * LAMPORTS_PER_SOL
+      );
 
-      const tx = await getAirdrop(connection, wallet);
+      const txTestTokenAirdrop = await getAirdrop(connection, wallet);
 
-      // Promise.all([
-      // connection.confirmTransaction(signature, TX_FINALITY_CONFIRMED),
-      connection.confirmTransaction(tx, TX_FINALITY_CONFIRMED).then(
-        (res1) => {
-          // if (res2.value.err) {
-          //   toast.error("Airdrop failed!");
-          //   Sentry.captureException(res2.value.err);
-          if (res1.value.err) {
-            toast.success(successfulAirdropMsg);
-            toast.error("Error getting SOL!");
-            Sentry.captureException(res1.value.err);
-          } else toast.success(successfulAirdropMsg);
+      Promise.all([
+        connection.confirmTransaction(txSolAirdrop, TX_FINALITY_CONFIRMED),
+        connection.confirmTransaction(txTestTokenAirdrop, TX_FINALITY_CONFIRMED),
+      ]).then(
+        ([solResponse, testTokenResponse]) => {
+          if (solResponse.value.err) {
+            toast.error("SOL Airdrop failed!");
+            Sentry.captureException(solResponse.value.err);
+          } else toast.success("SOL Airdrop successful!");
+
+          if (testTokenResponse.value.err) {
+            toast.error("Token Airdrop failed!");
+            Sentry.captureException(testTokenResponse.value.err);
+          } else toast.success("Token Airdrop successful!");
 
           if (!token || !Object.keys(token).length)
             updateTokenAccounts(connection, wallet, cluster);
           else updateBalance(connection, wallet, AIRDROP_TEST_TOKEN);
 
-          setTimeout(() => setIsGimmeSolDisabled(false), 7000);
+          setTimeout(() => setAirdropDisabled(false), 7000);
         },
         () => toast.warning("Airdrop was not confirmed!")
       );
@@ -148,7 +142,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      setIsGimmeSolDisabled(false);
+      setAirdropDisabled(false);
       Sentry.captureException(err);
 
       if ((err as Error).message.includes("429")) toast.error("Airdrop failed! Too many requests");
@@ -213,7 +207,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
             classes={cx("float-right mr-2 px-2.5 py-1.5 text-xs my-0 rounded active:bg-white", {
               hidden: isMainnet,
             })}
-            disabled={isGimmeSolDisabled}
+            disabled={airdropDisabled}
           >
             Airdrop
           </Button>
@@ -229,7 +223,7 @@ const Account: FC<AccountProps> = ({ setLoading }) => {
               classes={cx("float-right px-4 py-1.5 text-xs my-0 rounded active:bg-white", {
                 hidden: hideAirdrop,
               })}
-              disabled={isGimmeSolDisabled}
+              disabled={airdropDisabled}
             >
               Cancel
             </Button>
