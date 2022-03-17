@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Stream from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
-import { StreamsList, DesktopMode } from "../components";
+import { StreamsList } from "../components";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
@@ -33,12 +33,7 @@ const AllStreamsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  return (
-    <>
-      <DesktopMode />
-      <StreamsList streams={streams} />
-    </>
-  );
+  return <StreamsList streams={streams} />;
 };
 
 export default AllStreamsPage;

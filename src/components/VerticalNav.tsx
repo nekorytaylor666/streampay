@@ -4,14 +4,15 @@ import { Route } from "../router/RoutesConfig";
 
 interface NavProps {
   routes: Route[];
+  classes?: string;
 }
 
-const VerticalNav: React.FC<NavProps> = ({ routes }) => {
+const VerticalNav: React.FC<NavProps> = ({ routes, classes }) => {
   const location = useLocation();
   const path = location.pathname;
 
   return (
-    <nav className="hidden sm:flex flex-col w-72 pl-6 pt-6">
+    <nav className={`${classes} flex-col w-72 pl-6 pt-6`}>
       <ul className="text-gray-light">
         {routes.map((route) => (
           <li key={route.path} className="relative flex items-center mb-8">

@@ -1,11 +1,5 @@
-import { DesktopMode } from "../../components";
 import Main from "../Main";
 
-const NewStreamPage = () => (
-  <>
-    <DesktopMode />
-    <Main page="streams" />
-  </>
-);
+const NewStreamPage = () => <Main page="streams" />;
 
 export default NewStreamPage;

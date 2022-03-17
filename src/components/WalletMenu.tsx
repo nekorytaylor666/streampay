@@ -59,7 +59,7 @@ const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
   }, [wallet, connection, cluster]);
 
   return (
-    <div className="flex bg-gray-dark rounded-lg">
+    <div className="flex bg-gray-dark rounded-lg items-center">
       <div className="flex font-bold items-center text-white text-left text-sm relative">
         <div className="w-12 pr-2"></div>
         <DuplicateIcon
@@ -76,7 +76,7 @@ const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
           {({ open }) => (
             <>
               <Menu.Button
-                className={`cursor-pointer default-transition h-12 w-12 py-2 px-2 focus:outline-none`}
+                className={`cursor-pointer default-transition h-12 w-12 px-2 focus:outline-none`}
               >
                 <ChevronDownIcon
                   className={`${
