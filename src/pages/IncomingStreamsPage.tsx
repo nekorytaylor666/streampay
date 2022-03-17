@@ -4,6 +4,7 @@ import Stream, { StreamType, StreamDirection } from "@streamflow/stream";
 
 import useStore from "../stores";
 import { StreamsList, DesktopMode } from "../components";
+import { sortStreams } from "../utils/helpers";
 
 const IncomingStreamsPage: React.FC = () => {
   const connection = useStore((state) => state.connection()!);
@@ -20,7 +21,7 @@ const IncomingStreamsPage: React.FC = () => {
         direction: StreamDirection.Incoming,
         cluster,
       });
-      setStreams(incomingStreams);
+      setStreams(sortStreams(incomingStreams));
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

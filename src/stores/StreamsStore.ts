@@ -1,5 +1,7 @@
 import { Stream as StreamData } from "@streamflow/stream";
 
+import { sortStreams } from "../utils/helpers";
+
 interface StreamStore {
   streams: [string, StreamData][];
   populateStreams: (streams: [string, StreamData][]) => void;
@@ -9,9 +11,6 @@ interface StreamStore {
   deleteStream: (id: string) => void;
   clearStreams: () => void;
 }
-
-const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
-  streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
 
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
   streams: [],

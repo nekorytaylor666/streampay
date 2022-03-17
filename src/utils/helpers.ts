@@ -5,7 +5,7 @@ import type { TokenInfo } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import { format } from "date-fns";
-import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/stream";
+import { Cluster, LocalCluster, ClusterExtended, Stream as StreamData } from "@streamflow/stream";
 
 import useStore from "../stores";
 import { StringOption, Token } from "../types";
@@ -255,3 +255,6 @@ export const sortTokenAccounts = (myTokenAccounts: { [mint: string]: Token }): T
   Object.values(myTokenAccounts).sort((token1, token2) =>
     token1.info.name < token2.info.name ? 1 : -1
   );
+
+export const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
+  streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
