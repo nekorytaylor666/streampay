@@ -7,7 +7,7 @@ import { Cluster } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
-import { Footer, Header, Banner, Nav, Link, VerticalNav } from "./components";
+import { Footer, Header, Banner, Nav, VerticalNav } from "./components";
 import { Page404 } from "./pages";
 import routes from "./router/RoutesConfig";
 import PrivateRoute from "./router/PrivateRoute";

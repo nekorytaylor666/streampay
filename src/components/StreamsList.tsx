@@ -2,8 +2,7 @@ import { FC } from "react";
 
 import Stream, { getNumberFromBN, Stream as StreamData } from "@streamflow/stream";
 
-
-import { Link, StreamCard } from "../components";
+import { StreamCard } from "../components";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
@@ -24,7 +23,6 @@ const storeGetter = (state: StoreType) => ({
   setToken: state.setToken,
   cluster: state.cluster,
   walletType: state.walletType,
-  oldStreams: state.oldStreams,
   wallet: state.wallet!,
   connection: state.connection()!,
 });
@@ -44,7 +42,6 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
     setToken,
     cluster,
     walletType,
-    oldStreams,
     connection,
     wallet,
   } = useStore(storeGetter);
@@ -96,15 +93,6 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
 
   return (
     <div className="hidden sm:block w-full mx-6">
-      {oldStreams && (
-        <>
-          <p className="text-white font-bold text-sm sm:text-base text-center mt-6">
-            Your old streams are SAFU. View them{" "}
-            <Link url={"https://free.streamflow.finance"} title={"here"} classes={"text-blue"} />.
-            <br />
-          </p>
-        </>
-      )}
       <div className="grid grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12 px-6">
         <p className="text-p2 text-gray-light">Status</p>
         <p className="text-p2 text-gray-light">Type/Direction</p>
