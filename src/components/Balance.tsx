@@ -28,7 +28,9 @@ const Balance: FC = () => {
           {token && (
             <p className="text-base text-blue font-bold">{token?.uiTokenAmount?.uiAmountString} </p>
           )}
-          {tokenSymbol && <p className="ml-3 text-base font-bold text-sm">{` ${tokenSymbol}`}</p>}
+          {tokenSymbol && (
+            <p className="ml-3 text-base font-bold text-sm text-blue">{` ${tokenSymbol}`}</p>
+          )}
         </div>
       </div>
     </div>

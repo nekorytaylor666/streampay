@@ -1,13 +1,15 @@
 import {
   HomePage,
   VestingPage,
-  StreamsPage,
+  AllStreamsPage,
+  IncomingStreamsPage,
+  OutgoingStreamsPage,
   MultisigPage,
-  DashboardPage,
+  // DashboardPage,
   NewStreamPage,
 } from "../pages";
 import {
-  IcnDashboard,
+  // IcnDashboard,
   IcnAllStreams,
   IcnIncoming,
   IcnOutgoing,
@@ -48,17 +50,17 @@ const routes: Route[] = [
     isPrivate: true,
     exact: true,
   },
-  {
-    path: "/dashboard",
-    Component: DashboardPage,
-    label: "Dashboard",
-    isPrivate: true,
-    exact: true,
-    Icon: IcnDashboard,
-  },
+  // {
+  //   path: "/dashboard",
+  //   Component: DashboardPage,
+  //   label: "Dashboard",
+  //   isPrivate: true,
+  //   exact: true,
+  //   Icon: IcnDashboard,
+  // },
   {
     path: "/all-streams",
-    Component: StreamsPage,
+    Component: AllStreamsPage,
     label: "All Streams",
     isPrivate: true,
     exact: true,
@@ -66,7 +68,7 @@ const routes: Route[] = [
   },
   {
     path: "/incoming",
-    Component: DashboardPage,
+    Component: IncomingStreamsPage,
     label: "Incoming",
     isPrivate: true,
     exact: true,
@@ -74,7 +76,7 @@ const routes: Route[] = [
   },
   {
     path: "/outgoing",
-    Component: DashboardPage,
+    Component: OutgoingStreamsPage,
     label: "Outgoing",
     isPrivate: true,
     exact: true,

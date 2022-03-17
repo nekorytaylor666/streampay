@@ -148,7 +148,10 @@ export const formatPeriodOfTime = (period: number): string => {
   if (Math.floor(years)) return `${years > 1 ? years : ""} year${isMoreThanOne(years)}`;
 
   const months = period / PERIOD.MONTH;
-  if (Math.floor(months)) return `${months > 1 ? months : ""} month${isMoreThanOne(months)}`;
+  if (Math.floor(months))
+    return `${
+      months > 1 ? formatAmount(months, 0, DEFAULT_DECIMAL_PLACES) : ""
+    } month${isMoreThanOne(months)}`;
 
   const weeks = period / PERIOD.WEEK;
   if (Math.floor(weeks)) return `${weeks > 1 ? weeks : ""} week${isMoreThanOne(weeks)}`;

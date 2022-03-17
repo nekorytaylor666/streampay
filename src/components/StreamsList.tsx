@@ -1,19 +1,15 @@
-import { useEffect, FC } from "react";
+import { FC } from "react";
 
-import { PublicKey } from "@solana/web3.js";
-import type { Connection } from "@solana/web3.js";
-import Stream, { Stream as StreamData, getNumberFromBN } from "@streamflow/stream";
+import Stream, { getNumberFromBN, Stream as StreamData } from "@streamflow/stream";
 
-import { Link, StreamCard } from ".";
+import { Link, StreamCard } from "../components";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
 import { getTokenAmount, sortTokenAccounts } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
-import { WalletAdapter } from "../types";
 
 const storeGetter = (state: StoreType) => ({
-  streams: state.streams,
   addStream: state.addStream,
   populateStreams: state.populateStreams,
   updateStream: state.updateStream,
@@ -28,27 +24,17 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   walletType: state.walletType,
   oldStreams: state.oldStreams,
+  wallet: state.wallet!,
+  connection: state.connection()!,
 });
 
-const filterStreams = (streams: [string, StreamData][], type: "vesting" | "streams") => {
-  const isVesting = type === "vesting";
-
-  if (isVesting) return streams.filter((stream) => !stream[1].canTopup);
-  return streams.filter((stream) => stream[1].canTopup);
-};
-
 interface StreamsListProps {
-  connection: Connection;
-  wallet: WalletAdapter;
-  type: "vesting" | "streams";
+  streams: [string, StreamData][];
 }
 
-const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
+const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   const {
-    streams,
     updateStream,
-    populateStreams,
-    clearStreams,
     token,
     tokenPriceUsd,
     myTokenAccounts,
@@ -58,6 +44,8 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     cluster,
     walletType,
     oldStreams,
+    connection,
+    wallet,
   } = useStore(storeGetter);
 
   const updateToken = async () => {
@@ -74,22 +62,6 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
     setMyTokenAccountsSorted(myTokenAccountsSorted);
     setToken({ ...token, uiTokenAmount: updatedTokenAmount });
   };
-
-  useEffect(() => {
-    clearStreams();
-    if (!connection || !wallet?.publicKey) return;
-
-    (async () => {
-      const allStreams = await Stream.get({
-        connection,
-        wallet: wallet.publicKey as PublicKey,
-        cluster,
-      });
-      populateStreams(allStreams);
-    })();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cluster]);
 
   async function handleCancel(id: string) {
     const isCancelled = await cancelStream({ id }, connection, wallet, cluster);
@@ -122,17 +94,26 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
   }
 
   return (
-    <>
+    <div className="hidden sm:block w-full mx-6">
       {oldStreams && (
         <>
-          <p className="text-white font-bold text-sm sm:text-base text-center">
+          <p className="text-white font-bold text-sm sm:text-base text-center mt-6">
             Your old streams are SAFU. View them{" "}
             <Link url={"https://free.streamflow.finance"} title={"here"} classes={"text-blue"} />.
             <br />
           </p>
         </>
       )}
-      {filterStreams(streams, type).map(([id, data]) => (
+      <div className="grid grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12 px-6">
+        <p className="text-p2 text-gray-light">Status</p>
+        <p className="text-p2 text-gray-light">Type/Direction</p>
+        <p className="text-p2 text-gray-light col-span-2">Subject/Stream ID</p>
+        <p className="text-p2 text-gray-light col-span-2">Withdrawn</p>
+        <p className="text-p2 text-gray-light col-span-2">Unlocked (Returned)</p>
+        <p className="text-p2 text-gray-light">Release Rate</p>
+        <p className="text-p2 text-gray-light">Actions</p>
+      </div>
+      {streams.map(([id, data]) => (
         <StreamCard
           key={id}
           onCancel={() => handleCancel(id)}
@@ -143,7 +124,7 @@ const StreamsList: FC<StreamsListProps> = ({ connection, wallet, type }) => {
           myAddress={wallet?.publicKey?.toBase58() as string}
         />
       ))}
-    </>
+    </div>
   );
 };
 

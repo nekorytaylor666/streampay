@@ -1,4 +1,4 @@
-import { FC, Dispatch, SetStateAction } from "react";
+import { FC, Dispatch, SetStateAction, useEffect } from "react";
 
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { Cluster } from "@streamflow/stream";
@@ -6,6 +6,7 @@ import { Menu } from "@headlessui/react";
 import { DuplicateIcon } from "@heroicons/react/outline";
 
 import { abbreviateAddress, copyToClipboard } from "../utils/helpers";
+import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
 import Toggle from "./Toggle";
 import useStore, { StoreType } from "../stores";
 import Link from "../components/Link";
@@ -14,15 +15,26 @@ interface WalletMenuProps {
   clusterChange?: Dispatch<SetStateAction<any>>;
 }
 
-const storeGetter = ({ cluster, connection, wallet, disconnectWallet }: StoreType) => ({
-  cluster,
-  connection: connection(),
-  wallet,
-  disconnectWallet,
+const storeGetter = (state: StoreType) => ({
+  cluster: state.cluster,
+  connection: state.connection(),
+  wallet: state.wallet,
+  disconnectWallet: state.disconnectWallet,
+  setMyTokenAccounts: state.setMyTokenAccounts,
+  setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
+  setToken: state.setToken,
 });
 
 const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
-  const { wallet, cluster, disconnectWallet } = useStore(storeGetter);
+  const {
+    wallet,
+    cluster,
+    disconnectWallet,
+    connection,
+    setMyTokenAccounts,
+    setMyTokenAccountsSorted,
+    setToken,
+  } = useStore(storeGetter);
   const isDevnet = cluster === Cluster.Devnet;
 
   const walletAddressFormatted = wallet?.publicKey ? abbreviateAddress(wallet?.publicKey) : "";
@@ -32,6 +44,19 @@ const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
   function copy() {
     copyToClipboard(walletPubKey);
   }
+
+  useEffect(() => {
+    (async () => {
+      const myTokenAccounts = await getTokenAccounts(connection!, wallet!, cluster);
+      const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
+
+      setMyTokenAccounts(myTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+      setToken(myTokenAccountsSorted[0]);
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, connection, cluster]);
 
   return (
     <div className="flex bg-gray-dark rounded-lg">

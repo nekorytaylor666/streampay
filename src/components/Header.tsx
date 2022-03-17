@@ -27,9 +27,9 @@ const Header: FC = () => {
   };
 
   return (
-    <div className="flex sticky top-0 w-screen bg-dark items-center p-4 sm:p-6 border-b border-gray-dark z-10">
-      <Logo src={logo} classes={`w-60 ${!wallet?.connected && "flex-grow"}`} />
-      {wallet?.connected && <Nav classes="hidden lg:block flex-grow" />}
+    <div className="flex sticky top-0 w-screen bg-dark items-center p-4 sm:p-6 border-b border-gray-dark z-10 justify-between">
+      <Logo src={logo} classes={`sm:w-60 ${!wallet?.connected && "flex-grow"}`} />
+      {wallet?.connected && <Nav classes="hidden sm:flex-grow lg:block" />}
       <div className="flex justify-end w-50">
         {wallet?.connected && <WalletMenu clusterChange={toggleCluster} />}
       </div>

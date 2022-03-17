@@ -39,7 +39,7 @@ const Nav: React.FC<NavProps> = ({ classes }) => (
             className={cx("text-sm sm:text-base capitalize mx-3 sm:mx-5 font-semibold", {
               "pointer-events-none": route.disabled,
             })}
-            activeClassName="text-white"
+            activeClassName="text-blue"
           >
             {route.label}
           </NavLink>
