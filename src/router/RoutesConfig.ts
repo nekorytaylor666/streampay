@@ -1,4 +1,20 @@
-import { HomePage, VestingPage, StreamsPage, MultisigPage, MultipayPage } from "../pages";
+import {
+  HomePage,
+  VestingPage,
+  AllStreamsPage,
+  IncomingStreamsPage,
+  OutgoingStreamsPage,
+  MultisigPage,
+  // DashboardPage,
+  NewStreamPage,
+} from "../pages";
+import {
+  // IcnDashboard,
+  IcnAllStreams,
+  IcnIncoming,
+  IcnOutgoing,
+  IcnMultisig,
+} from "../assets/icons";
 
 export interface Route {
   path: string;
@@ -8,6 +24,10 @@ export interface Route {
   isPrivate?: boolean;
   exact?: boolean;
   disabled?: boolean;
+  Icon?: React.FC<{
+    fill?: string;
+    classes?: string;
+  }>;
 }
 
 const routes: Route[] = [
@@ -17,35 +37,59 @@ const routes: Route[] = [
     exact: true,
   },
   {
-    path: "/vesting",
+    path: "/new-vesting",
     Component: VestingPage,
-    label: "Vesting",
+    label: "New Vesting",
     isPrivate: true,
     exact: true,
   },
   {
-    path: "/streams",
-    Component: StreamsPage,
-    label: "Streams",
+    path: "/new-stream",
+    Component: NewStreamPage,
+    label: "New Stream",
     isPrivate: true,
     exact: true,
-    disabled: false,
+  },
+  // {
+  //   path: "/dashboard",
+  //   Component: DashboardPage,
+  //   label: "Dashboard",
+  //   isPrivate: true,
+  //   exact: true,
+  //   Icon: IcnDashboard,
+  // },
+  {
+    path: "/all-streams",
+    Component: AllStreamsPage,
+    label: "All Streams",
+    isPrivate: true,
+    exact: true,
+    Icon: IcnAllStreams,
   },
   {
-    path: "/multisig",
+    path: "/incoming",
+    Component: IncomingStreamsPage,
+    label: "Incoming",
+    isPrivate: true,
+    exact: true,
+    Icon: IcnIncoming,
+  },
+  {
+    path: "/outgoing",
+    Component: OutgoingStreamsPage,
+    label: "Outgoing",
+    isPrivate: true,
+    exact: true,
+    Icon: IcnOutgoing,
+  },
+  {
+    path: "/multisig-wallet",
     Component: MultisigPage,
-    label: "Multisig",
+    label: "Multisig Wallet",
     isPrivate: true,
     exact: true,
     disabled: true,
-  },
-  {
-    path: "/multipay",
-    Component: MultipayPage,
-    label: "Multipay",
-    isPrivate: true,
-    exact: true,
-    disabled: true,
+    Icon: IcnMultisig,
   },
 ];
 

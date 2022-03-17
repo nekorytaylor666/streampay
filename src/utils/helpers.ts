@@ -148,7 +148,10 @@ export const formatPeriodOfTime = (period: number): string => {
   if (Math.floor(years)) return `${years > 1 ? years : ""} year${isMoreThanOne(years)}`;
 
   const months = period / PERIOD.MONTH;
-  if (Math.floor(months)) return `${months > 1 ? months : ""} month${isMoreThanOne(months)}`;
+  if (Math.floor(months))
+    return `${
+      months > 1 ? formatAmount(months, 0, DEFAULT_DECIMAL_PLACES) : ""
+    } month${isMoreThanOne(months)}`;
 
   const weeks = period / PERIOD.WEEK;
   if (Math.floor(weeks)) return `${weeks > 1 ? weeks : ""} week${isMoreThanOne(weeks)}`;
@@ -242,6 +245,11 @@ export const calculateWithdrawalFees = (
   const withdrawalsCounter = Math.floor((end - startTime) / withdrawalFrequency) || 1;
   return 0.000005 * withdrawalsCounter;
 };
+
+export function abbreviateAddress(address: PublicKey, size = 5) {
+  const base58 = address.toBase58();
+  return base58.slice(0, size) + "…" + base58.slice(-size);
+}
 
 export const sortTokenAccounts = (myTokenAccounts: { [mint: string]: Token }): Token[] =>
   Object.values(myTokenAccounts).sort((token1, token2) =>

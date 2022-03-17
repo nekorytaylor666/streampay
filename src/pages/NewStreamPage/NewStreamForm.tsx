@@ -5,26 +5,26 @@ import { ChevronDownIcon } from "@heroicons/react/solid";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { getBN, getNumberFromBN } from "@streamflow/stream";
+import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, Balance, Link } from "../../components";
 import useStore, { StoreType } from "../../stores";
-import { VestingFormData, useVestingForm } from "./FormConfig";
-import Overview from "./Overview";
+import { StreamsFormData, useStreamsForm } from "./FormConfig";
+import { createStream } from "../../api/transactions";
 import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
 import {
   DATE_FORMAT,
+  TIME_FORMAT,
   ERR_NOT_CONNECTED,
   timePeriodOptions,
-  TIME_FORMAT,
+  ERRORS,
   TRANSACTION_VARIANT,
 } from "../../constants";
-import { createStream } from "../../api/transactions";
 import { StringOption } from "../../types";
-import { calculateReleaseRate } from "../../components/StreamCard/helpers";
+import Overview from "./Overview";
 import { trackTransaction } from "../../utils/marketing_helpers";
 
-interface VestingFormProps {
+interface NewStreamFormProps {
   loading: boolean;
   setLoading: (value: boolean) => void;
 }
@@ -33,18 +33,18 @@ const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
   walletType: state.walletType,
+  cluster: state.cluster,
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
-  myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccounts: state.setMyTokenAccounts,
+  myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
   addStream: state.addStream,
   setToken: state.setToken,
-  cluster: state.cluster,
 });
 
-const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
+const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
   const {
     connection,
     wallet,
@@ -53,8 +53,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
-    setMyTokenAccountsSorted,
     myTokenAccountsSorted,
+    setMyTokenAccountsSorted,
     addStream,
     setToken,
     cluster,
@@ -64,35 +64,28 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
   const modalRef = useRef<ModalRef>(null);
 
-  const { register, handleSubmit, watch, errors, setValue, trigger } = useVestingForm({
-    tokenBalance: tokenBalance || 0,
-  });
+  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors, trigger } =
+    useStreamsForm({
+      tokenBalance: tokenBalance || 0,
+    });
 
   const [
-    amount,
+    depositedAmount,
+    releaseAmount,
     tokenSymbol,
     startDate,
     startTime,
-    endDate,
-    endTime,
-    cliffDate,
-    cliffTime,
-    cliffAmount,
     releaseFrequencyCounter,
     releaseFrequencyPeriod,
     automaticWithdrawal,
     withdrawalFrequencyCounter,
     withdrawalFrequencyPeriod,
   ] = watch([
-    "amount",
+    "depositedAmount",
+    "releaseAmount",
     "tokenSymbol",
     "startDate",
     "startTime",
-    "endDate",
-    "endTime",
-    "cliffDate",
-    "cliffTime",
-    "cliffAmount",
     "releaseFrequencyCounter",
     "releaseFrequencyPeriod",
     "automaticWithdrawal",
@@ -102,41 +95,13 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
   const updateStartDate = () => {
     const currentDate = format(new Date(), DATE_FORMAT);
-    if (startDate < currentDate) setValue("startDate", currentDate, { shouldValidate: true });
-    if (endDate < currentDate) setValue("endDate", currentDate);
-    if (cliffDate < currentDate) setValue("cliffDate", currentDate);
+    if (startDate < currentDate) setValue("startDate", currentDate);
   };
 
   const updateStartTime = () => {
     const start = new Date(startDate + "T" + startTime);
-    const cliff = new Date(cliffDate + "T" + cliffTime);
-    const end = new Date(endDate + "T" + endTime);
-
     const in2Minutes = add(new Date(), { minutes: 2 });
-    const in7Minutes = add(new Date(), { minutes: 7 });
-
     if (start < in2Minutes) setValue("startTime", format(in2Minutes, TIME_FORMAT));
-    if (cliff < in2Minutes) setValue("cliffTime", format(in2Minutes, TIME_FORMAT));
-    if (end < in7Minutes) setValue("endTime", format(in7Minutes, TIME_FORMAT));
-  };
-
-  const onStartDateChange = (value: string) => {
-    if (cliffDate < value) setValue("cliffDate", value);
-    if (endDate < value) setValue("endDate", value);
-  };
-
-  const onStartTimeChange = (value: string) => {
-    const start = getUnixTime(new Date(startDate + "T" + value));
-    const end = getUnixTime(new Date(endDate + "T" + endTime));
-    const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
-
-    if (end < start)
-      setValue(
-        "endTime",
-        format(add(new Date(startDate + "T" + value), { minutes: 5 }), TIME_FORMAT)
-      );
-    if (cliff < start)
-      setValue("cliffTime", format(new Date(startDate + "T" + value), TIME_FORMAT));
   };
 
   useEffect(() => {
@@ -164,26 +129,35 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     if (token) setToken(token);
   };
 
-  const decimals = token?.uiTokenAmount?.decimals || 0;
+  const updateReleaseFrequencyCounter = (value: string) => {
+    setValue("releaseFrequencyCounter", parseInt(value));
+  };
 
-  const onSubmit = async (values: VestingFormData) => {
+  const updateReleaseAmountError = (value: string) => {
+    if (value && releaseAmount) {
+      return +value < +releaseAmount
+        ? setError("releaseAmount", {
+            type: "error message",
+            message: ERRORS.release_amount_greater_than_deposited,
+          })
+        : clearErrors("releaseAmount");
+    }
+  };
+
+  const onSubmit = async (values: StreamsFormData) => {
     const {
-      amount,
+      releaseAmount,
       subject,
       recipient,
       startDate,
       startTime,
-      endDate,
-      endTime,
+      depositedAmount,
       releaseFrequencyCounter,
       releaseFrequencyPeriod,
       senderCanCancel,
       recipientCanCancel,
       senderCanTransfer,
       recipientCanTransfer,
-      cliffDate,
-      cliffTime,
-      cliffAmount,
       referral,
     } = values;
 
@@ -192,28 +166,17 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setLoading(true);
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
-    const end = getUnixTime(new Date(endDate + "T" + endTime));
-    const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
-    const cliffAmountCalculated = (cliffAmount / 100) * amount;
-    const amountPerPeriod = calculateReleaseRate(
-      end,
-      cliff,
-      amount,
-      cliffAmountCalculated,
-      releaseFrequencyCounter * releaseFrequencyPeriod,
-      decimals
-    );
 
     const data = {
-      depositedAmount: getBN(amount, decimals),
+      depositedAmount: getBN(depositedAmount, token.uiTokenAmount.decimals),
       recipient: recipient,
       mint: token.info.address,
       start,
+      period: releaseFrequencyCounter * releaseFrequencyPeriod,
+      cliff: start,
+      cliffAmount: new BN(0),
+      amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
       name: subject,
-      period: Math.floor(releaseFrequencyPeriod * releaseFrequencyCounter),
-      cliff: cliff,
-      cliffAmount: getBN(cliffAmountCalculated, decimals),
-      amountPerPeriod: getBN(amountPerPeriod, decimals),
       cancelableBySender: senderCanCancel,
       cancelableByRecipient: recipientCanCancel,
       transferableBySender: senderCanTransfer,
@@ -222,7 +185,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       withdrawalFrequency: automaticWithdrawal
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
         : 0,
-      canTopup: false,
+      canTopup: true,
       partner: referral,
     };
 
@@ -234,10 +197,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
     const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
-
     if (response) {
       addStream([response.id, response.stream]);
-
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -251,22 +212,17 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       setMyTokenAccountsSorted(myTokenAccountsSorted);
 
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-
       const streamflowFeeTotal = getNumberFromBN(
         response.stream.streamflowFeeTotal,
         token.uiTokenAmount.decimals
       );
 
-      const depositedAmount = getNumberFromBN(
-        response.stream.streamflowFeeTotal,
-        token.uiTokenAmount.decimals
-      );
       trackTransaction(
         response.id,
         token.info.symbol,
         token.info.name,
         tokenPriceUsd,
-        TRANSACTION_VARIANT.CREATE_VESTING,
+        TRANSACTION_VARIANT.CREATE_STREAM,
         streamflowFeeTotal * tokenPriceUsd,
         streamflowFeeTotal,
         depositedAmount,
@@ -276,10 +232,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     }
   };
 
-  const updateReleaseFrequencyCounter = (value: string) => {
-    setValue("releaseFrequencyCounter", parseInt(value));
-    trigger("releaseFrequencyPeriod");
-  };
   return (
     <>
       <div className="xl:mr-12">
@@ -288,10 +240,11 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             <Input
               type="number"
               label="Amount"
+              customChange={updateReleaseAmountError}
               placeholder="0.00"
-              error={errors?.amount?.message}
               classes="col-span-3 sm:col-span-1"
-              {...register("amount")}
+              error={errors?.depositedAmount?.message}
+              {...register("depositedAmount")}
             />
             {wallet && tokenOptions.length ? (
               <Select
@@ -304,75 +257,29 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               />
             ) : (
               <div className="col-span-3 sm:col-span-1">
-                <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+                <label className="text-white font-bold text-base cursor-pointer mb-1 block">
+                  Token
+                </label>
                 <p className="text-base font-medium text-blue">No tokens available.</p>
               </div>
             )}
             <Input
-              type="text"
-              label="Recipient Account"
-              placeholder="Please double check the address"
-              classes="col-span-full"
-              description="Make sure this is not a centralized exchange address."
-              error={errors?.recipient?.message}
-              {...register("recipient")}
-            />
-            <Input
-              type="text"
-              label="Contract Title"
-              placeholder="e.g. VC Seed Round"
-              classes="col-span-full"
-              error={errors?.subject?.message}
-              {...register("subject")}
-            />
-            <Input
-              type="date"
-              label="Start Date"
-              min={format(new Date(), DATE_FORMAT)}
-              customChange={onStartDateChange}
-              onClick={updateStartDate}
+              type="number"
+              label="Release Amount"
+              placeholder="0.00"
+              error={errors?.releaseAmount?.message}
               classes="col-span-3 sm:col-span-1"
-              error={errors?.startDate?.message}
-              required
-              {...register("startDate")}
+              {...register("releaseAmount")}
             />
-            <Input
-              type="time"
-              label="Start Time"
-              onClick={updateStartTime}
-              customChange={onStartTimeChange}
-              classes="col-span-3 sm:col-span-1"
-              error={errors?.startDate?.message ? "" : errors?.startTime?.message}
-              required
-              {...register("startTime")}
-            />
-            <Input
-              type="date"
-              label="End Date"
-              min={format(new Date(), DATE_FORMAT)}
-              customChange={() => trigger("releaseFrequencyPeriod")}
-              classes="col-span-3 sm:col-span-1"
-              error={errors?.endDate?.message}
-              required
-              {...register("endDate")}
-            />
-            <Input
-              type="time"
-              label="End Time"
-              classes="col-span-3 sm:col-span-1"
-              customChange={() => trigger("releaseFrequencyPeriod")}
-              error={errors?.endDate?.message ? "" : errors?.endTime?.message}
-              required
-              {...register("endTime")}
-            />
-            <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-              <label className="block text-base text-white font-bold capitalize col-span-2">
+            <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
+              <label className="block text-base text-white font-bold capitalize col-span-full">
                 Release Frequency
               </label>
               <Input
                 type="number"
                 min={1}
                 step={1}
+                classes="col-span-2 sm:col-span-1"
                 error={
                   errors?.releaseFrequencyCounter?.message ||
                   errors?.releaseFrequencyPeriod?.message
@@ -384,9 +291,46 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 options={timePeriodOptions}
                 plural={releaseFrequencyCounter > 1}
                 {...register("releaseFrequencyPeriod")}
+                classes="col-span-3 sm:col-span-1"
                 error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
+            <Input
+              type="text"
+              label="Contract Title"
+              placeholder="e.g. VC Seed Round"
+              classes="col-span-full"
+              error={errors?.subject?.message}
+              {...register("subject")}
+            />
+            <Input
+              type="text"
+              label="Recipient Wallet Address"
+              placeholder="Please double check the address"
+              classes="col-span-full"
+              description="Make sure this is not a centralized exchange address."
+              error={errors?.recipient?.message}
+              {...register("recipient")}
+            />
+            <Input
+              type="date"
+              label="Start Date"
+              min={format(new Date(), DATE_FORMAT)}
+              onClick={updateStartDate}
+              classes="col-span-3 sm:col-span-1"
+              error={errors?.startDate?.message || ""}
+              required
+              {...register("startDate")}
+            />
+            <Input
+              type="time"
+              label="Start Time"
+              classes="col-span-3 sm:col-span-1"
+              error={errors?.startDate?.message ? "" : errors?.startTime?.message}
+              onClick={updateStartTime}
+              required
+              {...register("startTime")}
+            />
             <div className="col-span-full grid grid-cols-1 border-t-2 border-b-2 border-[#2A3441]">
               <Disclosure>
                 {({ open }) => (
@@ -403,42 +347,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                         </h2>
                       </div>
                     </Disclosure.Button>
-                    <Disclosure.Panel className={`pb-6 `}>
-                      <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
-                        <Input
-                          type="date"
-                          label="Cliff Date"
-                          min={format(new Date(), DATE_FORMAT)}
-                          customChange={() => trigger("releaseFrequencyPeriod")}
-                          classes="col-span-2"
-                          error={errors?.cliffDate?.message}
-                          required
-                          {...register("cliffDate")}
-                        />
-                        <Input
-                          type="time"
-                          label="Cliff Time"
-                          classes="col-span-2"
-                          customChange={() => trigger("releaseFrequencyPeriod")}
-                          error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
-                          required
-                          {...register("cliffTime")}
-                        />
-                        <div className="relative col-span-1 sm:col-span-1">
-                          <Input
-                            type="number"
-                            label="Release"
-                            min={0}
-                            max={100}
-                            inputClasses="pr-9"
-                            error={errors?.cliffAmount?.message}
-                            {...register("cliffAmount")}
-                          />
-                          <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
-                            %
-                          </span>
-                        </div>
-                      </div>
+                    <Disclosure.Panel>
                       <div className="col-span-4 sm:col-span-1 mt-3">
                         <label className="text-gray-light text-base mb-1 block">
                           Who can transfer the stream?
@@ -458,7 +367,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                           />
                         </div>
                       </div>
-                      <div className="col-span-4 sm:col-span-1">
+                      <div className="col-span-4 sm:col-span-1 mb-5">
                         <label className="text-gray-light text-base col-span-1 mb-1 block">
                           Who can cancel?
                         </label>
@@ -524,7 +433,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               </Disclosure>
             </div>
           </div>
-
           {wallet?.connected && (
             <>
               <Button
@@ -533,7 +441,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 classes="py-2 px-4 font-bold my-5 text-sm"
                 disabled={loading}
               >
-                Create Vesting Contract
+                Create Streaming Contract
               </Button>
             </>
           )}
@@ -545,34 +453,24 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           type="info"
           confirm={{ color: "red", text: "Continue" }}
         />
-        <div />
       </div>
       <div className="my-4">
         <Balance></Balance>
-        <label className="text-gray-light text-base font-bold block">New Vesting</label>
+        <label className="text-gray-light text-base font-bold block">New Stream</label>
         <p className="my-3 text-xs text-gray-light font-weight-400">
-          Ideal for token vesting! Set up the amount you want to vest, start-end date, release
-          frequency and you’re good to go.
-        </p>
-        <p className="my-3 text-xs text-gray-light font-weight-400">
-          Additionally, you can specify the cliff date and amount when the initial tokens will be
-          released to the recipient or set up Transfer and Cancel preferences.
+          Set up the amount you want to deposit, release amount, release frequency, start date and
+          you’re good to go. Additionally, choose Transfer and Cancel preferences.
         </p>
         <Overview
           {...{
-            amount,
+            depositedAmount,
+            releaseAmount,
             tokenSymbol,
-            endDate,
-            endTime,
-            cliffDate,
-            cliffTime,
-            cliffAmount,
+            startDate,
+            startTime,
             releaseFrequencyCounter,
             releaseFrequencyPeriod,
-            decimals,
             automaticWithdrawal,
-            startTime,
-            startDate,
             withdrawalFrequencyCounter,
             withdrawalFrequencyPeriod,
           }}
@@ -599,4 +497,4 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   );
 };
 
-export default VestingForm;
+export default NewStreamForm;

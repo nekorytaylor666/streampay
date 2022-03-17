@@ -66,6 +66,7 @@ const WalletPicker: FC = () => {
         <button
           className="flex cursor-pointer w-full mb-4 p-6 text-white rounded-2xl bg-gray-dark hover:bg-blue transition duration-300 ease-in-out"
           onClick={() => onConfirm(wallet)}
+          key={wallet.name}
         >
           <img className="h-6 inline-block mr-4" src={wallet.icon}></img>
           <p className="text-white font-bold flex-grow text-left">{wallet.name}</p>

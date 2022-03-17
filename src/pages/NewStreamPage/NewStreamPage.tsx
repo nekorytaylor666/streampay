@@ -1,11 +1,11 @@
 import { DesktopMode } from "../../components";
 import Main from "../Main";
 
-const VestingPage = () => (
+const NewStreamPage = () => (
   <>
-    <Main page="vesting" />
     <DesktopMode />
+    <Main page="streams" />
   </>
 );
 
-export default VestingPage;
+export default NewStreamPage;

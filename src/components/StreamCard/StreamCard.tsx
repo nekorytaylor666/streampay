@@ -1,10 +1,11 @@
-import { useEffect, useState, FC, useRef } from "react";
+import React, { useEffect, useState, FC, useRef, Fragment } from "react";
 
 import { format, fromUnixTime } from "date-fns";
 import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
-import cx from "classnames";
+import { Menu, Transition } from "@headlessui/react";
 import { toast } from "react-toastify";
-import { ExternalLinkIcon } from "@heroicons/react/outline";
+import MiddleEllipsis from "react-middle-ellipsis";
+import ReactTooltip from "react-tooltip";
 
 import {
   EXPLORER_TYPE_ADDR,
@@ -13,11 +14,12 @@ import {
   TRANSACTION_VARIANT,
   DATA_LAYER_VARIABLE,
 } from "../../constants";
-import { StreamStatus } from "../../types";
+import { StreamStatus, StreamType } from "../../types";
 import {
   getExplorerLink,
   formatAmount,
   formatPeriodOfTime,
+  copyToClipboard,
   roundAmount,
 } from "../../utils/helpers";
 import {
@@ -27,14 +29,17 @@ import {
   getNextUnlockTime,
   formatStreamData,
 } from "./helpers";
-import { Address, Link, Button, Modal, ModalRef } from "../index";
+import { ModalRef } from "../index";
 import Badge from "./components/Badge";
-import Duration from "./components/Duration";
 import Progress from "./components/Progress";
 import useStore, { StoreType } from "../../stores";
 import { withdrawStream, topupStream, transferStream } from "../../api/transactions";
 import { trackEvent, trackTransaction } from "../../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, EVENT_LABEL } from "../../constants";
+import { Link, Tooltip, Modal } from "../../components";
+import { ReactComponent as IcnIncoming } from "../../assets/icons/icn-incoming.svg";
+import { ReactComponent as IcnOutgoing } from "../../assets/icons/icn-outgoing.svg";
+import { IcnCopy, IcnArrowRight, IcnArrowDown } from "../../assets/icons";
 
 interface StreamProps {
   data: StreamData;
@@ -72,7 +77,8 @@ const calculateReleaseFrequency = (period: number, cliffTime: number, endTime: n
   return timeBetweenCliffAndEnd < period ? timeBetweenCliffAndEnd : period;
 };
 
-const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw, onTopup }) => {
+const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup, onCancel }) => {
+  const [isFullCardVisible, setIsFullCardVisible] = useState(false);
   const {
     myTokenAccounts,
     connection,
@@ -84,7 +90,8 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     wallet,
     walletType,
   } = useStore(storeGetter);
-  const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals;
+
+  const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals || 0;
 
   const {
     start,
@@ -108,12 +115,13 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     automaticWithdrawal,
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
-  const symbol = myTokenAccounts[mint].info.symbol;
-  const isCliffDateAfterStart = cliff > start;
-  const isCliffAmount = cliffAmount > 0;
+
+  const symbol = myTokenAccounts[mint]?.info.symbol;
+  const icon = myTokenAccounts[mint]?.info.logoURI || "";
+  // const isCliffDateAfterStart = cliff > start;
+  // const isCliffAmount = cliffAmount > 0;
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
-
   const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   const withdrawModalRef = useRef<ModalRef>(null);
@@ -271,12 +279,28 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     }
   }
 
+  const ctaOptions = [];
+  if (showTopup)
+    ctaOptions.push({ value: "topup", label: "Top Up", color: "green", handler: handleTopup });
+  if (showTransfer)
+    ctaOptions.push({
+      value: "transfer",
+      label: "Transfer",
+      color: "blue",
+      handler: handleTransfer,
+    });
+  if (showWithdraw)
+    ctaOptions.push({
+      value: "withdraw",
+      label: "Withdraw",
+      color: "green",
+      handler: handleWithdraw,
+    });
+  if (showCancel)
+    ctaOptions.push({ value: "cancel", label: "Cancel", color: "red", handler: onCancel });
+
   useEffect(() => {
-    if (
-      automaticWithdrawal &&
-      status === StreamStatus.streaming
-      // (status === StreamStatus.complete && available > 0)
-    ) {
+    if (automaticWithdrawal && status === StreamStatus.streaming) {
       const withdrawalInterval = setInterval(() => {
         fetchStream();
       }, (withdrawalFrequency + 2) * 1000);
@@ -311,162 +335,234 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, streamed, withdrawnAmount, canceledAt]);
 
+  const toggleCardVisibility = () => setIsFullCardVisible(!isFullCardVisible);
+
+  const tooltipAddressRef = useRef<any>(null);
+  const tooltipSenderRef = useRef<any>(null);
+  const tooltipRecipientRef = useRef<any>(null);
+
+  function copy(address: string, tooltip: React.MutableRefObject<any>) {
+    copyToClipboard(address);
+    ReactTooltip.show(tooltip.current!);
+    setTimeout(() => {
+      ReactTooltip.hide(tooltip.current!);
+    }, 1000);
+  }
+
   return (
-    <>
-      <dl
-        className={`text-gray-light text-base my-4 grid gap-y-4 gap-x-2 grid-cols-12 p-4 bg-gray-dark bg-opacity-10 hover:bg-opacity-20 shadow rounded-lg`}
-      >
-        <Badge classes="col-span-full" type={status} color={color} />
-        <Duration
-          start={start}
-          end={end}
-          canceledAt={canceledAt}
-          isCanceled={isCanceled}
-          cliff={cliff}
-          hasCliff={isCliffDateAfterStart || cliffAmount > 0}
-        />
-        <p className="col-span-4 sm:col-span-3">Subject</p>
-        <p className="col-span-8 sm:col-span-9 text-gray-light pt-0.5 capitalize">{name}</p>
-        <Link
-          url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
-          title={"Stream ID"}
-          Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3 text-blue"
-        />
-        <Address address={id} classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5" />
-        <Link
-          url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
-          title={"Recipient"}
-          Icon={ExternalLinkIcon}
-          classes="col-span-4 sm:col-span-3 text-blue"
-        />
-        <Address
-          address={recipient}
-          classes="col-span-8 sm:col-span-9 text-sm text-gray-light pt-0.5"
-        />
-        {isCliffAmount && (
+    <div
+      className={`grid grid-cols-10 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
+        isFullCardVisible && "bg-gray-dark"
+      }`}
+    >
+      <div className="flex items-center">
+        {isFullCardVisible ? (
+          <IcnArrowDown
+            onClick={toggleCardVisibility}
+            classes="hover:cursor-pointer"
+            fill="rgb(113, 130, 152)"
+          />
+        ) : (
+          <IcnArrowRight
+            onClick={toggleCardVisibility}
+            fill="rgb(113, 130, 152)"
+            classes="hover:cursor-pointer"
+          />
+        )}
+        <Badge type={status} color={color} classes="ml-6 mb-1" />
+      </div>
+      <div>
+        <p className="text-white text-p2"> {canTopup ? StreamType.Stream : StreamType.Vesting}</p>
+        <div className="flex items-center">
+          {isRecipient ? <IcnIncoming className="w-3 h-3" /> : <IcnOutgoing className="w-3 h-3" />}
+          <p className="text-gray-light text-p3 ml-1">{isRecipient ? "Incoming" : "Outgoing"}</p>
+        </div>
+      </div>
+      <div className="col-span-2">
+        <p className="text-white text-p2 font-bold">{name}</p>
+        <div className="flex items-center relative leading-5">
+          <Link
+            url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
+            title={"Stream ID"}
+            classes="text-gray-light text-p3"
+          />
+          <span ref={tooltipAddressRef} data-tip="tooltip" data-for={`addressCopied-${id}`}></span>
+          <Tooltip
+            content={<p className="p-1 text-p2">Address copied!</p>}
+            id={`addressCopied-${id}`}
+          />
+          <button onClick={() => copy(id, tooltipAddressRef)}>
+            <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
+          </button>
+          <div className="w-40 mb-1">
+            <MiddleEllipsis>
+              <span className="text-p3 font-bold text-white">{id}</span>
+            </MiddleEllipsis>
+          </div>
+        </div>
+        {isFullCardVisible && (
           <>
-            <dd className="col-span-4 sm:col-span-3">
-              Unlocked
-              <small className="text-xs block text-gray-light align-top">{`at ${
-                isCliffDateAfterStart ? "cliff" : "start"
-              } date`}</small>
-            </dd>
-            <dt className="col-span-8 sm:col-span-9 text-gray-light pt-2">{`${formatAmount(
-              cliffAmount,
-              decimals,
-              DEFAULT_DECIMAL_PLACES
-            )} ${symbol}`}</dt>
+            <div className="flex items-center relative leading-5 mt-2.5">
+              <Link
+                url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
+                title={"From"}
+                classes="text-gray-light text-p3"
+              />
+              <span
+                ref={tooltipSenderRef}
+                data-tip="tooltip"
+                data-for={`addressCopied-${sender}`}
+              ></span>
+              <Tooltip
+                content={<p className="p-1 text-p2">Address copied!</p>}
+                id={`addressCopied-${sender}`}
+              />
+              <button onClick={() => copy(sender, tooltipSenderRef)}>
+                <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
+              </button>
+              <div className="w-40 mb-1">
+                <MiddleEllipsis>
+                  <span className="text-p3 font-bold text-white">{sender}</span>
+                </MiddleEllipsis>
+              </div>
+            </div>
+            <div className="flex items-center relative leading-5">
+              <Link
+                url={getExplorerLink(EXPLORER_TYPE_ADDR, recipient)}
+                title={"To"}
+                classes="text-gray-light text-p3"
+              />
+              <span
+                ref={tooltipRecipientRef}
+                data-tip="tooltip"
+                data-for={`addressCopied-${recipient}`}
+              ></span>
+              <Tooltip
+                content={<p className="p-1 text-p2">Address copied!</p>}
+                id={`addressCopied-${recipient}`}
+              />
+              <button onClick={() => copy(recipient, tooltipRecipientRef)}>
+                <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
+              </button>
+              <div className="w-40 mb-1">
+                <MiddleEllipsis>
+                  <span className="text-p3 font-bold text-white">{recipient}</span>
+                </MiddleEllipsis>
+              </div>
+            </div>
           </>
         )}
-        <dd className="col-span-4 sm:col-span-3">
-          Release rate
-          {isCliffDateAfterStart && (
-            <small className="text-xs block text-gray-light align-top">after cliff date</small>
-          )}
-        </dd>
-        <dt
-          className={cx("col-span-8 sm:col-span-9 text-gray-light", {
-            "pt-2": isCliffDateAfterStart,
-          })}
-        >
-          {`${formatAmount(
+      </div>
+      <div className="col-span-2">
+        <p className="text-p2 text-gray-light flex items-center">
+          <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
+          <span className="font-bold text-white">
+            {`${formatAmount(withdrawnAmount, decimals, DEFAULT_DECIMAL_PLACES)}`}
+          </span>
+          /{`${formatAmount(depositedAmount, decimals, DEFAULT_DECIMAL_PLACES)} ${symbol}`}
+        </p>
+        <Progress value={withdrawnAmount} max={depositedAmount} color={color} />
+        {isFullCardVisible && (
+          <>
+            <p className="text-p3 text-gray-light mt-5 mb-1">Start Date</p>
+            <p className="font-bold text-white text-p3">
+              {format(fromUnixTime(start), "ccc do MMM, yy")}
+              <span className="font-normal text-gray-light"> at </span>
+              {format(fromUnixTime(start), "HH:mm")}
+            </p>
+          </>
+        )}
+      </div>
+      <div className="col-span-2">
+        <p className="text-p2 text-gray-light flex items-center">
+          <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
+          <span className="font-bold text-white">
+            {status === StreamStatus.canceled
+              ? formatAmount(depositedAmount - withdrawnAmount, decimals, DEFAULT_DECIMAL_PLACES)
+              : formatAmount(streamed, decimals, DEFAULT_DECIMAL_PLACES)}
+          </span>
+
+          {`/${formatAmount(depositedAmount, decimals, DEFAULT_DECIMAL_PLACES)} ${symbol}`}
+        </p>
+        {status !== StreamStatus.canceled && (
+          <Progress value={streamed} max={depositedAmount} color={color} />
+        )}
+        {status === StreamStatus.canceled && (
+          <Progress value={depositedAmount - withdrawnAmount} max={depositedAmount} color={color} />
+        )}
+        {isFullCardVisible && (
+          <>
+            <p className="text-p3 text-gray-light mt-5 mb-1">
+              {isCanceled ? "Canceled At" : "End Date"}
+            </p>
+            <p className="font-bold text-white text-p3">
+              {format(fromUnixTime(isCanceled ? canceledAt || 0 : end), "ccc do MMM, yy")}
+              <span className="font-normal text-gray-light"> at </span>
+              {format(fromUnixTime(isCanceled ? canceledAt || 0 : end), "HH:mm")}
+            </p>
+          </>
+        )}
+      </div>
+      <div>
+        <div className="flex items-center">
+          <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
+          <p className="text-p2 font-bold text-white">{`${formatAmount(
             amountPerPeriod,
             decimals,
             DEFAULT_DECIMAL_PLACES
-          )} ${symbol} per ${formatPeriodOfTime(releaseFrequency)}`}
-        </dt>
-        <Progress
-          title="Withdrawn"
-          value={withdrawnAmount}
-          max={depositedAmount}
-          decimals={decimals}
-          symbol={symbol}
-          subtitle={automaticWithdrawal ? "Automatic withdrawal enabled." : ""}
-        />
-        {status === StreamStatus.canceled && (
-          <Progress
-            title="Returned"
-            value={depositedAmount - withdrawnAmount}
-            max={depositedAmount}
-            rtl={true}
-            decimals={decimals}
-            symbol={symbol}
-          />
-        )}
-        {status !== StreamStatus.canceled && (
-          <>
-            {(status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
-              <>
-                <dd className="col-span-4 sm:col-span-3 text-sm">Next unlock</dd>
-                <dt className="col-span-8 text-gray-light text-sm">
-                  {format(
-                    fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)),
-                    "ccc do MMM, yy HH:mm:ss"
-                  )}
-                </dt>
-              </>
-            )}
-            <Progress
-              title="Unlocked"
-              value={streamed}
-              max={depositedAmount}
-              decimals={decimals}
-              symbol={symbol}
-            />
-            {showWithdraw && (
-              <>
-                <dd className="col-span-4">
-                  Available
-                  <br />
-                  <sup className="text-xs text-gray-light align-top">for withdrawal</sup>
-                </dd>
-                <dt className="col-span-8 pt-1.5">
-                  ~ {formatAmount(available, decimals, DEFAULT_DECIMAL_PLACES)} {symbol}
-                </dt>
-              </>
-            )}
-            {showTopup && (
-              <Button
-                onClick={handleTopup}
-                background="blue"
-                classes="col-span-3 text-sm py-1 w-full"
-              >
-                Top Up
-              </Button>
-            )}
-            {showTransfer && (
-              <Button
-                onClick={handleTransfer}
-                background={STREAM_STATUS_COLOR[StreamStatus.complete]}
-                classes="col-span-3 text-sm py-1 w-full"
-              >
-                Transfer
-              </Button>
-            )}
-            {showCancel && (
-              <Button
-                onClick={onCancel}
-                background={STREAM_STATUS_COLOR[StreamStatus.canceled]}
-                classes="col-span-3 text-sm py-1 w-full"
-              >
-                Cancel
-              </Button>
-            )}
-            {showWithdraw && (
-              <>
-                <Button
-                  onClick={handleWithdraw}
-                  background={STREAM_STATUS_COLOR[StreamStatus.streaming]}
-                  classes="col-span-3 text-sm py-1 w-full"
-                >
-                  Withdraw
-                </Button>
-              </>
-            )}
-          </>
-        )}
-      </dl>
+          )} ${symbol}`}</p>
+        </div>
+        <p className="text-p3 text-gray-light mt-1">{`Per ${formatPeriodOfTime(
+          releaseFrequency
+        )}`}</p>
+        {isFullCardVisible &&
+          (status === StreamStatus.streaming || status === StreamStatus.scheduled) && (
+            <>
+              <p className="text-p3 text-gray-light mt-4 mb-1">Next Unlock</p>
+              <p className="font-bold text-p3 text-white">
+                {format(
+                  fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)),
+                  "ccc do MMM, yy"
+                )}
+                <span className="font-normal text-gray-light"> at </span>
+                {format(fromUnixTime(getNextUnlockTime(cliff, period, end, cliffAmount)), "HH:mm")}
+              </p>
+            </>
+          )}
+      </div>
+      {!!ctaOptions.length && (
+        <Menu as="div" className="relative inline-block text-center">
+          <div>
+            <Menu.Button className="flex justify-center items-center w-10 h-8 font-bold text-gray hover:text-gray-light bg-gray-dark rounded-md hover:bg-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+              ...
+            </Menu.Button>
+          </div>
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
+          >
+            <Menu.Items className="absolute z-50 left-0 w-36 mt-1 origin-top-right bg-gray-dark divide-y rounded-md shadow-lg focus:outline-none">
+              <div className="px-1 py-1">
+                {ctaOptions.map(({ label, color, handler }) => (
+                  <Menu.Item as="div" key={label}>
+                    <button
+                      onClick={handler}
+                      className={`text-p2 flex pl-6 font-bold text-${color} py-0.5 hover:cursor-pointer hover:bg-opacity-20`}
+                    >
+                      {label}
+                    </button>
+                  </Menu.Item>
+                ))}
+              </div>
+            </Menu.Items>
+          </Transition>
+        </Menu>
+      )}
       <Modal
         ref={withdrawModalRef}
         title={`You can withdraw between 0 and ${roundAmount(available, decimals)} ${symbol}.`}
@@ -499,7 +595,7 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
         placeholder="Recipient address"
         confirm={{ color: "blue", text: "Transfer" }}
       />
-    </>
+    </div>
   );
 };
 
