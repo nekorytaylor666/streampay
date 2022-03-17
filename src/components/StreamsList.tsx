@@ -2,6 +2,7 @@ import { FC } from "react";
 
 import Stream, { getNumberFromBN, Stream as StreamData } from "@streamflow/stream";
 
+
 import { Link, StreamCard } from "../components";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
