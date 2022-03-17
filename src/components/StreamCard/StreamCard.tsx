@@ -108,7 +108,10 @@ const StreamCard: FC<StreamProps> = ({ data, myAddress, id, onCancel, onWithdraw
     automaticWithdrawal,
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
-  const symbol = myTokenAccounts[mint].info.symbol;
+  let symbol = "";
+  try {
+    symbol = myTokenAccounts[mint].info.symbol;
+  } catch (error) {}
   const isCliffDateAfterStart = cliff > start;
   const isCliffAmount = cliffAmount > 0;
   const isSender = myAddress === sender;
