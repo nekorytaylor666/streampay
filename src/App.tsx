@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 
-import { Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { Cluster } from "@streamflow/stream";
@@ -47,26 +47,29 @@ const App: FC = () => {
         <div className={`flex ${!wallet?.connected && "justify-center"}`}>
           {wallet?.connected && isVerticalNavOpened && (
             <VerticalNav
-              routes={routes.slice(3)}
+              routes={routes.slice(5)}
               classes="flex sm:hidden fixed top-18 left-0 z-50 w-screen h-screen"
               onClick={toggleVerticalNav}
             />
           )}
           {wallet?.connected && (
-            <VerticalNav routes={routes.slice(3)} classes="hidden sm:flex w-72" />
+            <VerticalNav routes={routes.slice(5)} classes="hidden sm:flex w-72" />
           )}
           <Switch>
-            {routes.map(({ path, exact, Component, isPrivate }) =>
+            {routes.map(({ path, exact, Component, isPrivate, redirect }) =>
               isPrivate ? (
                 <PrivateRoute
                   key={path}
                   exact={exact}
                   path={path}
                   isAuthenticated={wallet?.connected || false}
-                  Component={Component}
-                />
+                >
+                  {redirect ? <Redirect to={redirect} /> : <Component />}
+                </PrivateRoute>
               ) : (
-                <Route key={path} path={path} exact={exact} component={Component} />
+                <Route key={path} path={path} exact={exact}>
+                  {redirect ? <Redirect to={redirect} /> : <Component />}
+                </Route>
               )
             )}
             <Route component={Page404} />
