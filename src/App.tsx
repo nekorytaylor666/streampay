@@ -92,7 +92,7 @@ const App: FC = () => {
       )}
       <div className="flex-grow flex flex-col bg-dark">
         <Header />
-        {wallet?.connected && <Nav classes="block lg:hidden mb-2 mt-4" />}
+        {wallet?.connected && <Nav classes="hidden sm:block lg:hidden mb-2 mt-4" />}
         <div className={`flex ${!wallet?.connected && "justify-center"}`}>
           {wallet?.connected && <VerticalNav routes={routes.slice(3)} />}
           <Switch>

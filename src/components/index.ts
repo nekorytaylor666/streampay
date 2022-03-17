@@ -1,6 +1,7 @@
 export { default as Account } from "./Account";
 export { default as Address } from "./Address";
 export { default as Banner } from "./Banner";
+export { default as Balance } from "./Balance";
 export { default as Button } from "./Button";
 export { default as Curtain } from "./Curtain";
 export { default as FallbackComponent } from "./Fallback";
@@ -20,5 +21,6 @@ export { default as Tooltip } from "./Tooltip";
 export { default as WalletPicker } from "./WalletPicker";
 export { default as VerticalNav } from "./VerticalNav";
 export { default as StreamsList } from "./StreamsList";
+export { default as DesktopMode } from "./DesktopMode";
 
 export * from "./Modal";

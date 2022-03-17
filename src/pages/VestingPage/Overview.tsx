@@ -169,12 +169,12 @@ const Overview: React.FC<OverviewProps> = ({
         Streamflow charges 0.25% service fee (
         <span className="font-bold">{` ${roundAmount(amount * 0.0025)} ${tokenSymbol} `}</span>) on
         top of the specified amount, while respecting the given schedule.{" "}
-        <Link
-          title="Learn more."
-          url="https://docs.streamflow.finance/help/fees"
-          classes="inline-block text-p3 text-blue"
-        />
       </p>
+      <Link
+        title="Learn more."
+        url="https://docs.streamflow.finance/help/fees"
+        classes="inline-block text-p3 text-blue"
+      />
       {automaticWithdrawal && (
         <>
           <p className="text-gray-light text-xxs leading-4 mt-3">

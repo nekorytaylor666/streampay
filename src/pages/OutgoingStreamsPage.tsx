@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Stream, { StreamType, StreamDirection } from "@streamflow/stream";
 
 import useStore from "../stores";
-import { StreamsList } from "../components";
+import { StreamsList, DesktopMode } from "../components";
 
 const OutgoingStreamsPage: React.FC = () => {
   const connection = useStore((state) => state.connection()!);
@@ -13,21 +13,26 @@ const OutgoingStreamsPage: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const incomingStreams = await Stream.get({
+      const outgoingStreams = await Stream.get({
         connection,
         wallet: wallet.publicKey,
         type: StreamType.All,
         direction: StreamDirection.Outgoing,
         cluster,
       });
-      setStreams(incomingStreams);
+      setStreams(outgoingStreams);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  // @ts-ignore
-  return <StreamsList streams={streams} />;
+  return (
+    <>
+      <DesktopMode />
+      {/* @ts-ignore */}
+      <StreamsList streams={streams} />
+    </>
+  );
 };
 
 export default OutgoingStreamsPage;

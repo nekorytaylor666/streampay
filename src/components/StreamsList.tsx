@@ -94,7 +94,7 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   }
 
   return (
-    <div className="w-full mx-6">
+    <div className="hidden sm:block w-full mx-6">
       {oldStreams && (
         <>
           <p className="text-white font-bold text-sm sm:text-base text-center mt-6">

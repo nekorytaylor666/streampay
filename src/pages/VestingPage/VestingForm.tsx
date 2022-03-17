@@ -7,7 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, Balance, Link } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
@@ -476,7 +476,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                             {...register("recipientCanCancel")}
                           />
                         </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3 pb-7">
+                        <div className="border-t-2 border-[#2A3441] pt-3">
                           <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
                             {" "}
                             WITHDRAW SETTINGS
@@ -517,20 +517,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                             </div>
                           )}
                         </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3">
-                          <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
-                            {" "}
-                            REFERAL PROGRAM
-                          </h5>
-                          <Input
-                            type="text"
-                            label="Referral Address"
-                            placeholder="Please double check the address"
-                            classes="col-span-full"
-                            error={errors?.referral?.message}
-                            {...register("referral")}
-                          />
-                        </div>
                       </div>
                     </Disclosure.Panel>
                   </>
@@ -562,6 +548,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         <div />
       </div>
       <div className="my-4">
+        <Balance></Balance>
         <label className="text-gray-light text-base font-bold block">New Vesting</label>
         <p className="my-3 text-xs text-gray-light font-weight-400">
           Ideal for token vesting! Set up the amount you want to vest, start-end date, release
@@ -589,6 +576,23 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             withdrawalFrequencyCounter,
             withdrawalFrequencyPeriod,
           }}
+        />
+        <div className="border-t-1 border-[#2A3441] pt-3">
+          <label className="text-gray-light text-base font-bold block mb-4">Referal address</label>
+          <Input
+            type="text"
+            placeholder="Paste referral address here..."
+            classes="col-span-full"
+            description="Refer someone to use Streamflow with your referral key and you'll earn a percentage of the fees paid."
+            error={errors?.referral?.message}
+            {...register("referral")}
+          />
+        </div>
+        <label className="text-gray-light text-base font-bold block">Need a custom deal?</label>
+        <Link
+          title="Contact us"
+          url="https://discordapp.com/channels/851921970169511976/888391406576627732"
+          classes="inline-block text-p3 text-blue"
         />
       </div>
     </>

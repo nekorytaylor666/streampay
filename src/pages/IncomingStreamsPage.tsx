@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Stream, { StreamType, StreamDirection } from "@streamflow/stream";
 
 import useStore from "../stores";
-import { StreamsList } from "../components";
+import { StreamsList, DesktopMode } from "../components";
 
 const IncomingStreamsPage: React.FC = () => {
   const connection = useStore((state) => state.connection()!);
@@ -26,8 +26,13 @@ const IncomingStreamsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  // @ts-ignore
-  return <StreamsList streams={streams} />;
+  return (
+    <>
+      <DesktopMode />
+      {/* @ts-ignore */}
+      <StreamsList streams={streams} />
+    </>
+  );
 };
 
 export default IncomingStreamsPage;

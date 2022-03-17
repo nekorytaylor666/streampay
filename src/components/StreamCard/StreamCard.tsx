@@ -3,9 +3,7 @@ import React, { useEffect, useState, FC, useRef, Fragment } from "react";
 import { format, fromUnixTime } from "date-fns";
 import Stream, { Stream as StreamData, getBN } from "@streamflow/stream";
 import { Menu, Transition } from "@headlessui/react";
-// import cx from "classnames";
 import { toast } from "react-toastify";
-// import { ExternalLinkIcon } from "@heroicons/react/outline";
 import MiddleEllipsis from "react-middle-ellipsis";
 import ReactTooltip from "react-tooltip";
 
@@ -92,7 +90,8 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     wallet,
     walletType,
   } = useStore(storeGetter);
-  const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals;
+
+  const decimals = myTokenAccounts[data.mint]?.uiTokenAmount.decimals || 0;
 
   const {
     start,
@@ -116,13 +115,14 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     automaticWithdrawal,
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
-  const symbol = myTokenAccounts[mint].info.symbol;
-  const icon = myTokenAccounts[mint].info.logoURI || "";
+
+  const symbol = myTokenAccounts[mint]?.info.symbol;
+  const icon = myTokenAccounts[mint]?.info.logoURI || "";
   // const isCliffDateAfterStart = cliff > start;
   // const isCliffAmount = cliffAmount > 0;
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
-
+  console.log("1");
   const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   const withdrawModalRef = useRef<ModalRef>(null);
@@ -358,11 +358,15 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     >
       <div className="flex items-center">
         {isFullCardVisible ? (
-          <IcnArrowDown onClick={toggleCardVisibility} classes="hover:cursor-pointer" fill="gray" />
+          <IcnArrowDown
+            onClick={toggleCardVisibility}
+            classes="hover:cursor-pointer"
+            fill="rgb(113, 130, 152)"
+          />
         ) : (
           <IcnArrowRight
             onClick={toggleCardVisibility}
-            fill="gray"
+            fill="rgb(113, 130, 152)"
             classes="hover:cursor-pointer"
           />
         )}
@@ -391,7 +395,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           <button onClick={() => copy(id, tooltipAddressRef)}>
             <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
           </button>
-          <div className="w-28 mb-1">
+          <div className="w-40 mb-1">
             <MiddleEllipsis>
               <span className="text-p3 font-bold text-white">{id}</span>
             </MiddleEllipsis>
@@ -417,7 +421,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
               <button onClick={() => copy(sender, tooltipSenderRef)}>
                 <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
               </button>
-              <div className="w-28 mb-1">
+              <div className="w-40 mb-1">
                 <MiddleEllipsis>
                   <span className="text-p3 font-bold text-white">{sender}</span>
                 </MiddleEllipsis>
@@ -441,7 +445,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
               <button onClick={() => copy(recipient, tooltipRecipientRef)}>
                 <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
               </button>
-              <div className="w-28 mb-1">
+              <div className="w-40 mb-1">
                 <MiddleEllipsis>
                   <span className="text-p3 font-bold text-white">{recipient}</span>
                 </MiddleEllipsis>
@@ -546,7 +550,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             <Menu.Items className="absolute z-50 left-0 w-36 mt-1 origin-top-right bg-gray-dark divide-y rounded-md shadow-lg focus:outline-none">
               <div className="px-1 py-1">
                 {ctaOptions.map(({ label, color, handler }) => (
-                  <Menu.Item as="div">
+                  <Menu.Item as="div" key={label}>
                     <button
                       onClick={handler}
                       className={`text-p2 flex pl-6 font-bold text-${color} py-0.5 hover:cursor-pointer hover:bg-opacity-20`}

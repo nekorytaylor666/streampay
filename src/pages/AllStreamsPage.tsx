@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Stream from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
-import { StreamsList } from "../components";
+import { StreamsList, DesktopMode } from "../components";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
@@ -17,7 +17,7 @@ const storeGetter = (state: StoreType) => ({
 const AllStreamsPage = () => {
   const { populateStreams, clearStreams, cluster, connection, wallet, streams } =
     useStore(storeGetter);
-  console.log("ALL", streams);
+
   useEffect(() => {
     clearStreams();
 
@@ -27,13 +27,19 @@ const AllStreamsPage = () => {
         wallet: wallet.publicKey,
         cluster,
       });
+      console.log("all streams", allStreams);
       populateStreams(allStreams);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  return <StreamsList streams={streams} />;
+  return (
+    <>
+      <DesktopMode />
+      <StreamsList streams={streams} />
+    </>
+  );
 };
 
 export default AllStreamsPage;
