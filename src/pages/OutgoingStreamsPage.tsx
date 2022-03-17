@@ -27,8 +27,13 @@ const OutgoingStreamsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  // @ts-ignore
-  return <StreamsList streams={streams} />;
+  return (
+    <div className="p-6 flex-grow">
+      <h3 className="sm:hidden font-bold text-white mb-9 text-center">Outgoing Streams</h3>
+      {/* @ts-ignore */}
+      <StreamsList streams={streams} />
+    </div>
+  );
 };
 
 export default OutgoingStreamsPage;

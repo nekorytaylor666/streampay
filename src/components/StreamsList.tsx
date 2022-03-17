@@ -92,8 +92,8 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   }
 
   return (
-    <div className="hidden sm:block w-full mx-6">
-      <div className="grid grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12 px-6">
+    <div className="block w-full">
+      <div className="hidden sm:grid grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12 px-6">
         <p className="text-p2 text-gray-light">Status</p>
         <p className="text-p2 text-gray-light">Type/Direction</p>
         <p className="text-p2 text-gray-light col-span-2">Subject/Stream ID</p>

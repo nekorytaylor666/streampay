@@ -46,9 +46,15 @@ const App: FC = () => {
         {wallet?.connected && <Nav classes="hidden sm:block lg:hidden mb-2 mt-4" />}
         <div className={`flex ${!wallet?.connected && "justify-center"}`}>
           {wallet?.connected && isVerticalNavOpened && (
-            <VerticalNav routes={routes.slice(3)} classes="flex sm:hidden" />
+            <VerticalNav
+              routes={routes.slice(3)}
+              classes="flex sm:hidden fixed top-18 left-0 z-50 w-screen h-screen"
+              onClick={toggleVerticalNav}
+            />
           )}
-          {wallet?.connected && <VerticalNav routes={routes.slice(3)} classes="hidden sm:flex" />}
+          {wallet?.connected && (
+            <VerticalNav routes={routes.slice(3)} classes="hidden sm:flex w-72" />
+          )}
           <Switch>
             {routes.map(({ path, exact, Component, isPrivate }) =>
               isPrivate ? (

@@ -11,7 +11,7 @@ interface LogoProps {
 }
 
 const Logo: FC<LogoProps> = ({ src, classes, wallet }) => (
-  <div className={cx(classes, "text-white flex-grow")}>
+  <div className={cx(classes, "text-white")}>
     <h1 className="flex text-xl sm:text-2xl">
       <img src={src} alt="Streamflow Finance logo" className="inline-block mr-3 w-10 h-10" />
       {wallet?.connected && (

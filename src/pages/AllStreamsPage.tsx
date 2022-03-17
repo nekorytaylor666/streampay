@@ -33,7 +33,12 @@ const AllStreamsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 
-  return <StreamsList streams={streams} />;
+  return (
+    <div className="p-6 flex-grow">
+      <h3 className="sm:hidden font-bold text-white mb-9 text-center">All Streams</h3>
+      <StreamsList streams={streams} />
+    </div>
+  );
 };
 
 export default AllStreamsPage;
