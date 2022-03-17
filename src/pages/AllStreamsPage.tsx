@@ -27,7 +27,6 @@ const AllStreamsPage = () => {
         wallet: wallet.publicKey,
         cluster,
       });
-      console.log("all streams", allStreams);
       populateStreams(allStreams);
     })();
 

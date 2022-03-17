@@ -122,7 +122,6 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
   // const isCliffAmount = cliffAmount > 0;
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
-  console.log("1");
   const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   const withdrawModalRef = useRef<ModalRef>(null);
