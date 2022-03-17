@@ -18,7 +18,7 @@ const VerticalNav: React.FC<NavProps> = ({ routes }) => {
             <NavLink
               to={route.path}
               className={(isActive) =>
-                `text-sm sm:text-base capitalize mx-2 sm:mx-3 font-semibold flex items-center ${
+                `text-sm sm:text-base capitalize mr-2 sm:mr-3 font-semibold flex items-center relative ${
                   isActive ? "text-blue" : "text-gray-light"
                 } ${route.disabled ? "pointer-events-none text-gray" : ""}`
               }
@@ -31,6 +31,7 @@ const VerticalNav: React.FC<NavProps> = ({ routes }) => {
                 />
               )}
               {route.label}
+              {route.disabled && <p className="text-xxs ml-1 mb-1 text-orange-700">Soon</p>}
             </NavLink>
           </li>
         ))}

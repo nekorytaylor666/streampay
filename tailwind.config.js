@@ -38,6 +38,7 @@ module.exports = {
         green: "rgb(var(--green))",
         yellow: "var(--yellow)",
         gray: "rgb(var(--gray))",
+        orange: "rgb(var(--orange))",
         "gray-light": "var(--gray-light)",
         "gray-dark": "var(--gray-dark)",
         dark: "rgb(var(--dark))",
@@ -47,6 +48,7 @@ module.exports = {
         "green-200": "rgba(var(--green), 0.2)",
         "yellow-200": "rgba(var(--yellow), 0.2)",
         "dev-dark-700": "rgba(var(--dev-dark), 0.7)",
+        "orange-700": "rgba(var(--orange), 0.7)",
       },
       borderColor: () => ({
         black: "#2A3441",
