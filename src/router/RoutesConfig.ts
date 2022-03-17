@@ -50,6 +50,20 @@ const routes: Route[] = [
     isPrivate: true,
     exact: true,
   },
+  {
+    path: "/vesting",
+    redirect: "/new-vesting",
+    Component: VestingPage,
+    isPrivate: true,
+    exact: true,
+  },
+  {
+    path: "/streams",
+    redirect: "/all-streams",
+    Component: AllStreamsPage,
+    isPrivate: true,
+    exact: true,
+  },
   // {
   //   path: "/dashboard",
   //   Component: DashboardPage,
