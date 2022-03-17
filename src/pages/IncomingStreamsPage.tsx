@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Stream, { StreamType, StreamDirection } from "@streamflow/stream";
 
 import useStore from "../stores";
-import { StreamsList, DesktopMode } from "../components";
+import { StreamsList } from "../components";
 import { sortStreams } from "../utils/helpers";
 
 const IncomingStreamsPage: React.FC = () => {
@@ -28,11 +28,11 @@ const IncomingStreamsPage: React.FC = () => {
   }, [cluster]);
 
   return (
-    <>
-      <DesktopMode />
+    <div className="p-6 flex-grow">
+      <h3 className="sm:hidden font-bold text-white mb-9 text-center">Incoming Streams</h3>
       {/* @ts-ignore */}
       <StreamsList streams={streams} />
-    </>
+    </div>
   );
 };
 

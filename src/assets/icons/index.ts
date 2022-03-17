@@ -7,3 +7,5 @@ export { default as IcnCopy } from "./IcnCopy";
 export { default as IcnArrowRight } from "./IcnArrowRight";
 export { default as IcnArrowDown } from "./IcnArrowDown";
 export { default as IcnLogo } from "./IcnLogo";
+export { default as IcnMenu } from "./IcnMenu";
+export { default as IcnClose } from "./IcnClose";

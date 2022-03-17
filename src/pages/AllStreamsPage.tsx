@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import Stream from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
-import { StreamsList, DesktopMode } from "../components";
+import { StreamsList } from "../components";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
@@ -34,10 +34,10 @@ const AllStreamsPage = () => {
   }, [cluster]);
 
   return (
-    <>
-      <DesktopMode />
+    <div className="p-6 flex-grow">
+      <h3 className="sm:hidden font-bold text-white mb-9 text-center">All Streams</h3>
       <StreamsList streams={streams} />
-    </>
+    </div>
   );
 };
 

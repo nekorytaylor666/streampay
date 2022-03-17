@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 
 import { Route, Switch, useHistory } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,6 +23,9 @@ const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
 const App: FC = () => {
   const history = useHistory();
   const { wallet, isMainnet, cluster } = useStore(storeGetter);
+  const [isVerticalNavOpened, setIsVerticalNavOpened] = useState(false);
+
+  const toggleVerticalNav = () => setIsVerticalNavOpened(!isVerticalNavOpened);
 
   useEffect(() => {
     trackPageView(cluster);
@@ -39,10 +42,19 @@ const App: FC = () => {
         ></Banner>
       )}
       <div className="flex-grow flex flex-col bg-dark">
-        <Header />
+        <Header toggleVerticalNav={toggleVerticalNav} isVerticalNavOpened={isVerticalNavOpened} />
         {wallet?.connected && <Nav classes="hidden sm:block lg:hidden mb-2 mt-4" />}
         <div className={`flex ${!wallet?.connected && "justify-center"}`}>
-          {wallet?.connected && <VerticalNav routes={routes.slice(3)} />}
+          {wallet?.connected && isVerticalNavOpened && (
+            <VerticalNav
+              routes={routes.slice(3)}
+              classes="flex sm:hidden fixed top-18 left-0 z-50 w-screen h-screen"
+              onClick={toggleVerticalNav}
+            />
+          )}
+          {wallet?.connected && (
+            <VerticalNav routes={routes.slice(3)} classes="hidden sm:flex w-72" />
+          )}
           <Switch>
             {routes.map(({ path, exact, Component, isPrivate }) =>
               isPrivate ? (
