@@ -15,6 +15,7 @@ const MultipayPage = () => (
           Upload CSV <UploadIcon className="inline w-6" />
         </span>
       }
+      dataTestId="create-multipay"
     />
     <div className="col-span-3">
       {/* <Recipient onChange={() => null} value="1337...c0de" /> */}

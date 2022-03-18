@@ -355,6 +355,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
         className={`hidden sm:grid grid-cols-10 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
           isFullCardVisible && "bg-gray-dark"
         }`}
+        data-test-id={id}
       >
         <div className="flex items-center">
           {isFullCardVisible ? (

@@ -8,6 +8,7 @@ interface ButtonProps {
   primary?: boolean;
   classes?: string;
   type?: "button" | "submit";
+  dataTestId?: string;
 }
 
 const Button: FC<ButtonProps> = ({
@@ -17,6 +18,7 @@ const Button: FC<ButtonProps> = ({
   disabled = false,
   classes,
   type = "button",
+  dataTestId = "",
 }) => {
   const baseClasses =
     "block border-transparent rounded-md shadow-sm text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue disabled:opacity-50";
@@ -27,6 +29,7 @@ const Button: FC<ButtonProps> = ({
       className={`${baseClasses} bg-${background} ${classes}`}
       onClick={onClick}
       disabled={disabled}
+      data-test-id={dataTestId}
     >
       {children}
     </button>

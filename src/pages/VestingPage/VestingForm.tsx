@@ -291,6 +291,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               placeholder="0.00"
               error={errors?.amount?.message}
               classes="col-span-3 sm:col-span-1"
+              dataTestId="vesting-amount"
               {...register("amount")}
             />
             {wallet && tokenOptions.length ? (
@@ -315,6 +316,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               classes="col-span-full"
               description="Make sure this is not a centralized exchange address."
               error={errors?.recipient?.message}
+              dataTestId="vesting-recipient"
               {...register("recipient")}
             />
             <Input
@@ -323,6 +325,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               placeholder="e.g. VC Seed Round"
               classes="col-span-full"
               error={errors?.subject?.message}
+              dataTestId="vesting-title"
               {...register("subject")}
             />
             <Input
@@ -333,6 +336,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               onClick={updateStartDate}
               classes="col-span-3 sm:col-span-1"
               error={errors?.startDate?.message}
+              dataTestId="vesting-start-date"
               required
               {...register("startDate")}
             />
@@ -343,6 +347,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               customChange={onStartTimeChange}
               classes="col-span-3 sm:col-span-1"
               error={errors?.startDate?.message ? "" : errors?.startTime?.message}
+              dataTestId="vesting-start-time"
               required
               {...register("startTime")}
             />
@@ -353,6 +358,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               customChange={() => trigger("releaseFrequencyPeriod")}
               classes="col-span-3 sm:col-span-1"
               error={errors?.endDate?.message}
+              dataTestId="vesting-end-date"
               required
               {...register("endDate")}
             />
@@ -362,6 +368,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               classes="col-span-3 sm:col-span-1"
               customChange={() => trigger("releaseFrequencyPeriod")}
               error={errors?.endDate?.message ? "" : errors?.endTime?.message}
+              dataTestId="vesting-end-time"
               required
               {...register("endTime")}
             />
@@ -377,6 +384,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                   errors?.releaseFrequencyCounter?.message ||
                   errors?.releaseFrequencyPeriod?.message
                 }
+                dataTestId="vesting-release-frequency"
                 customChange={updateReleaseFrequencyCounter}
                 {...register("releaseFrequencyCounter")}
               />
@@ -412,6 +420,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                           customChange={() => trigger("releaseFrequencyPeriod")}
                           classes="col-span-2"
                           error={errors?.cliffDate?.message}
+                          dataTestId="vesting-cliff-date"
                           required
                           {...register("cliffDate")}
                         />
@@ -421,6 +430,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                           classes="col-span-2"
                           customChange={() => trigger("releaseFrequencyPeriod")}
                           error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
+                          dataTestId="vesting-cliff-time"
                           required
                           {...register("cliffTime")}
                         />
@@ -432,6 +442,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                             max={100}
                             inputClasses="pr-9"
                             error={errors?.cliffAmount?.message}
+                            dataTestId="vesting-cliff-amount"
                             {...register("cliffAmount")}
                           />
                           <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
@@ -448,12 +459,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                             type="checkbox"
                             label="sender"
                             classes="col-span-1"
+                            dataTestId="vesting-sender-transfer"
                             {...register("senderCanTransfer")}
                           />
                           <Input
                             type="checkbox"
                             label="recipient"
                             classes="col-span-1"
+                            dataTestId="vesting-recipient-transfer"
                             {...register("recipientCanTransfer")}
                           />
                         </div>
@@ -467,12 +480,14 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                             type="checkbox"
                             label="sender"
                             classes="col-span-1"
+                            dataTestId="vesting-sender-cancel"
                             {...register("senderCanCancel")}
                           />
                           <Input
                             type="checkbox"
                             label="recipient"
                             classes="col-span-1"
+                            dataTestId="vesting-recipient-transfer"
                             {...register("recipientCanCancel")}
                           />
                         </div>
@@ -505,6 +520,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                                   errors?.withdrawalFrequencyCounter?.message ||
                                   errors?.withdrawalFrequencyPeriod?.message
                                 }
+                                dataTestId="vesting-withdrawal-frequency"
                                 {...register("withdrawalFrequencyCounter")}
                               />
                               <Select
@@ -532,6 +548,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 background="blue"
                 classes="py-2 px-4 font-bold my-5 text-sm"
                 disabled={loading}
+                dataTestId="create-vesting"
               >
                 Create Vesting Contract
               </Button>
@@ -585,6 +602,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             classes="col-span-full"
             description="Refer someone to use Streamflow with your referral key and you'll earn a percentage of the fees paid."
             error={errors?.referral?.message}
+            dataTestId="vesting-referral-address"
             {...register("referral")}
           />
         </div>

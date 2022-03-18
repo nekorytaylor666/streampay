@@ -29,7 +29,9 @@ const MultisigPage = () => (
           Execution — WAITING <ClockIcon className="text-red-200 w-6 inline" />
         </li>
         <br />
-        <Button classes="px-8 py-4">Sign</Button>
+        <Button classes="px-8 py-4" dataTestId="create-multisig">
+          Sign
+        </Button>
       </ul>
     </div>
   </div>

@@ -244,6 +244,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               placeholder="0.00"
               classes="col-span-3 sm:col-span-1"
               error={errors?.depositedAmount?.message}
+              dataTestId="stream-amount"
               {...register("depositedAmount")}
             />
             {wallet && tokenOptions.length ? (
@@ -269,6 +270,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               placeholder="0.00"
               error={errors?.releaseAmount?.message}
               classes="col-span-3 sm:col-span-1"
+              dataTestId="stream-release-amount"
               {...register("releaseAmount")}
             />
             <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
@@ -285,6 +287,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                   errors?.releaseFrequencyPeriod?.message
                 }
                 customChange={updateReleaseFrequencyCounter}
+                dataTestId="stream-release-frequency"
                 {...register("releaseFrequencyCounter")}
               />
               <Select
@@ -301,6 +304,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               placeholder="e.g. VC Seed Round"
               classes="col-span-full"
               error={errors?.subject?.message}
+              dataTestId="stream-title"
               {...register("subject")}
             />
             <Input
@@ -310,6 +314,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               classes="col-span-full"
               description="Make sure this is not a centralized exchange address."
               error={errors?.recipient?.message}
+              dataTestId="stream-recipient"
               {...register("recipient")}
             />
             <Input
@@ -319,6 +324,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               onClick={updateStartDate}
               classes="col-span-3 sm:col-span-1"
               error={errors?.startDate?.message || ""}
+              dataTestId="stream-start-date"
               required
               {...register("startDate")}
             />
@@ -327,6 +333,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               label="Start Time"
               classes="col-span-3 sm:col-span-1"
               error={errors?.startDate?.message ? "" : errors?.startTime?.message}
+              dataTestId="stream-start-time"
               onClick={updateStartTime}
               required
               {...register("startTime")}
@@ -357,12 +364,14 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                             type="checkbox"
                             label="sender"
                             classes="col-span-1"
+                            dataTestId="stream-sender-transfer"
                             {...register("senderCanTransfer")}
                           />
                           <Input
                             type="checkbox"
                             label="recipient"
                             classes="col-span-1"
+                            dataTestId="stream-recipient-transfer"
                             {...register("recipientCanTransfer")}
                           />
                         </div>
@@ -376,12 +385,14 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                             type="checkbox"
                             label="sender"
                             classes="col-span-1"
+                            dataTestId="stream-sender-cancel"
                             {...register("senderCanCancel")}
                           />
                           <Input
                             type="checkbox"
                             label="recipient"
                             classes="col-span-1"
+                            dataTestId="stream-recipient-cancel"
                             {...register("recipientCanCancel")}
                           />
                         </div>
@@ -414,6 +425,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                                   errors?.withdrawalFrequencyCounter?.message ||
                                   errors?.withdrawalFrequencyPeriod?.message
                                 }
+                                dataTestId="stream-withdrawal-frequency"
                                 {...register("withdrawalFrequencyCounter")}
                               />
                               <Select
@@ -440,6 +452,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                 background="blue"
                 classes="py-2 px-4 font-bold my-5 text-sm"
                 disabled={loading}
+                dataTestId="create-streaming"
               >
                 Create Streaming Contract
               </Button>
@@ -483,6 +496,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
             classes="col-span-full"
             description="Refer someone to use Streamflow with your referral key and you'll earn a percentage of the fees paid."
             error={errors?.referral?.message}
+            dataTestId="stream-referral-address"
             {...register("referral")}
           />
         </div>
