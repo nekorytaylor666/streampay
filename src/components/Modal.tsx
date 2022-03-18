@@ -93,10 +93,20 @@ const Modal = forwardRef<ModalRef, ModalProps>(
             />
           )}
           <div className="grid gap-2 sm:gap-3 grid-cols-3 mt-4">
-            <Button onClick={onCancel} classes="text-sm col-start-2 py-1 w-full" background="gray">
+            <Button
+              onClick={onCancel}
+              classes="text-sm col-start-2 py-1 w-full"
+              background="gray"
+              data-testid="cancel"
+            >
               Cancel
             </Button>
-            <Button onClick={onConfirm} classes="text-sm py-1 w-full" background={confirm.color}>
+            <Button
+              onClick={onConfirm}
+              classes="text-sm py-1 w-full"
+              background={confirm.color}
+              data-testid="confirm"
+            >
               {confirm.text}
             </Button>
           </div>

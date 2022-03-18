@@ -9,6 +9,7 @@ const FallbackComponent: FC = () => (
       background="blue"
       onClick={() => window.location.reload()}
       classes="px-8 py-3 mt-4 mx-auto"
+      data-testid="refresh"
     >
       Refresh the page
     </Button>
