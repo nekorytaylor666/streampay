@@ -39,7 +39,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
   // }, [wallet, connection, cluster, setMyTokenAccounts, setToken]);
 
   return (
-    <div className="grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl pt-4 hidden sm:grid">
+    <div className="grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl pt-4 grid">
       <Curtain visible={loading} />
       {isVesting ? (
         <VestingForm loading={loading} setLoading={setLoading} />

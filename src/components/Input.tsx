@@ -80,7 +80,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
         />
         {description && (
-          <p className="my-3 text-xs text-gray-light font-weight-400">{description}</p>
+          <p className="mt-2 text-xs text-gray-light font-weight-400">{description}</p>
         )}
         <p
           className={cx("text-red absolute text-xs py-1", {

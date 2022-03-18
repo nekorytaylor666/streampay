@@ -1,7 +1,5 @@
 import { FC, useEffect, useState, useRef } from "react";
 
-import { Disclosure } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/solid";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
@@ -11,18 +9,25 @@ import { Input, Button, Select, Modal, ModalRef, Toggle, Balance, Link } from ".
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
+import {
+  calculateWithdrawalFees,
+  didTokenOptionsChange,
+  getTokenAmount,
+  sortTokenAccounts,
+} from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
   timePeriodOptions,
   TIME_FORMAT,
   TRANSACTION_VARIANT,
+  transferCancelOptions,
 } from "../../constants";
 import { createStream } from "../../api/transactions";
-import { StringOption } from "../../types";
+import { StringOption, TransferCancelOptions } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 import { trackTransaction } from "../../utils/marketing_helpers";
+import Description from "./Description";
 
 interface VestingFormProps {
   loading: boolean;
@@ -177,10 +182,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       endTime,
       releaseFrequencyCounter,
       releaseFrequencyPeriod,
-      senderCanCancel,
-      recipientCanCancel,
-      senderCanTransfer,
-      recipientCanTransfer,
+      whoCanTransfer,
+      whoCanCancel,
       cliffDate,
       cliffTime,
       cliffAmount,
@@ -214,10 +217,18 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliff: cliff,
       cliffAmount: getBN(cliffAmountCalculated, decimals),
       amountPerPeriod: getBN(amountPerPeriod, decimals),
-      cancelableBySender: senderCanCancel,
-      cancelableByRecipient: recipientCanCancel,
-      transferableBySender: senderCanTransfer,
-      transferableByRecipient: recipientCanTransfer,
+      cancelableBySender:
+        whoCanCancel === TransferCancelOptions.Sender ||
+        whoCanCancel === TransferCancelOptions.Both,
+      cancelableByRecipient:
+        whoCanCancel === TransferCancelOptions.Recipient ||
+        whoCanCancel === TransferCancelOptions.Both,
+      transferableBySender:
+        whoCanTransfer === TransferCancelOptions.Sender ||
+        whoCanTransfer === TransferCancelOptions.Both,
+      transferableByRecipient:
+        whoCanTransfer === TransferCancelOptions.Recipient ||
+        whoCanTransfer === TransferCancelOptions.Both,
       automaticWithdrawal,
       withdrawalFrequency: automaticWithdrawal
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
@@ -280,17 +291,32 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setValue("releaseFrequencyCounter", parseInt(value));
     trigger("releaseFrequencyPeriod");
   };
+
+  const start = getUnixTime(new Date(startDate + "T" + startTime));
+  const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
+  const end = getUnixTime(new Date(endDate + "T" + endTime));
+
+  const withdrawalFees = automaticWithdrawal
+    ? calculateWithdrawalFees(
+        start,
+        cliff,
+        end,
+        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+      )
+    : 0;
+
   return (
     <>
-      <div className="xl:mr-12">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
+      <div className="xl:mr-12 px-4 sm:px-0">
+        <Description classes="sm:hidden" />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-8">
           <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
             <Input
               type="number"
               label="Amount"
               placeholder="0.00"
               error={errors?.amount?.message}
-              classes="col-span-3 sm:col-span-1"
+              classes="col-span-full sm:col-span-3 sm:col-span-1"
               {...register("amount")}
             />
             {wallet && tokenOptions.length ? (
@@ -300,7 +326,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.tokenSymbol?.message}
                 customChange={updateToken}
                 {...register("tokenSymbol")}
-                classes="col-span-3 sm:col-span-1"
+                classes="col-span-full sm:col-span-3 sm:col-span-1"
               />
             ) : (
               <div className="col-span-3 sm:col-span-1">
@@ -310,7 +336,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             )}
             <Input
               type="text"
-              label="Recipient Account"
+              label="Recipient Wallet Address"
               placeholder="Please double check the address"
               classes="col-span-full"
               description="Make sure this is not a centralized exchange address."
@@ -365,7 +391,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               required
               {...register("endTime")}
             />
-            <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
+            <div className="grid gap-x-3 grid-cols-2 col-span-full sm:col-span-1 pb-2">
               <label className="block text-base text-white font-bold capitalize col-span-2">
                 Release Frequency
               </label>
@@ -387,141 +413,104 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
-            <div className="col-span-full grid grid-cols-1 border-t-2 border-b-2 border-[#2A3441]">
-              <Disclosure>
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={` gap-y-15 ${open && "rounded-b-none"}`}>
-                      <div className="flex items-center mb-7 mt-3 pt-3">
-                        <ChevronDownIcon
-                          className={`h-6 text-primary-light fill-[#718298] transition-all w-6 ${
-                            open ? "transform rotate-180" : "transform rotate-360"
-                          }`}
-                        />
-                        <h2 className="mb-0 block text-base text-gray-light capitalize col-span-2">
-                          Advanced settings
-                        </h2>
-                      </div>
-                    </Disclosure.Button>
-                    <Disclosure.Panel className={`pb-6 `}>
-                      <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
-                        <Input
-                          type="date"
-                          label="Cliff Date"
-                          min={format(new Date(), DATE_FORMAT)}
-                          customChange={() => trigger("releaseFrequencyPeriod")}
-                          classes="col-span-2"
-                          error={errors?.cliffDate?.message}
-                          required
-                          {...register("cliffDate")}
-                        />
-                        <Input
-                          type="time"
-                          label="Cliff Time"
-                          classes="col-span-2"
-                          customChange={() => trigger("releaseFrequencyPeriod")}
-                          error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
-                          required
-                          {...register("cliffTime")}
-                        />
-                        <div className="relative col-span-1 sm:col-span-1">
-                          <Input
-                            type="number"
-                            label="Release"
-                            min={0}
-                            max={100}
-                            inputClasses="pr-9"
-                            error={errors?.cliffAmount?.message}
-                            {...register("cliffAmount")}
-                          />
-                          <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
-                            %
-                          </span>
-                        </div>
-                      </div>
-                      <div className="col-span-4 sm:col-span-1 mt-3">
-                        <label className="text-gray-light text-base mb-1 block">
-                          Who can transfer the stream?
-                        </label>
-                        <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
-                          <Input
-                            type="checkbox"
-                            label="sender"
-                            classes="col-span-1"
-                            {...register("senderCanTransfer")}
-                          />
-                          <Input
-                            type="checkbox"
-                            label="recipient"
-                            classes="col-span-1"
-                            {...register("recipientCanTransfer")}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-span-4 sm:col-span-1">
-                        <label className="text-gray-light text-base col-span-1 mb-1 block">
-                          Who can cancel?
-                        </label>
-                        <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2 mb-3">
-                          <Input
-                            type="checkbox"
-                            label="sender"
-                            classes="col-span-1"
-                            {...register("senderCanCancel")}
-                          />
-                          <Input
-                            type="checkbox"
-                            label="recipient"
-                            classes="col-span-1"
-                            {...register("recipientCanCancel")}
-                          />
-                        </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3">
-                          <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
-                            {" "}
-                            WITHDRAW SETTINGS
-                          </h5>
-                          <Toggle
-                            checked={automaticWithdrawal}
-                            labelRight="Automatic Withdraw"
-                            classes="col-span-full"
-                            customChange={() =>
-                              setValue("automaticWithdrawal", !automaticWithdrawal)
-                            }
-                            {...register("automaticWithdrawal")}
-                          />
-                          {automaticWithdrawal && (
-                            <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4 mt-3">
-                              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
-                                Withdrawal Frequency
-                              </label>
-                              <Input
-                                type="number"
-                                min={1}
-                                step={1}
-                                classes="col-span-2 sm:col-span-1"
-                                customChange={() => trigger("withdrawalFrequencyPeriod")}
-                                error={
-                                  errors?.withdrawalFrequencyCounter?.message ||
-                                  errors?.withdrawalFrequencyPeriod?.message
-                                }
-                                {...register("withdrawalFrequencyCounter")}
-                              />
-                              <Select
-                                options={timePeriodOptions.slice(1)}
-                                plural={withdrawalFrequencyCounter > 1}
-                                {...register("withdrawalFrequencyPeriod")}
-                                classes="col-span-2 sm:col-span-1"
-                                error={errors?.withdrawalFrequencyPeriod?.message}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
+            <div className="col-span-full border-t border-gray-dark pt-6 pb-1 grid grid-cols-2 gap-y-5 gap-x-4">
+              <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
+                <Input
+                  type="date"
+                  label="Cliff Date"
+                  min={format(new Date(), DATE_FORMAT)}
+                  customChange={() => trigger("releaseFrequencyPeriod")}
+                  classes="col-span-full sm:col-span-2"
+                  error={errors?.cliffDate?.message}
+                  required
+                  {...register("cliffDate")}
+                />
+                <Input
+                  type="time"
+                  label="Cliff Time"
+                  classes="col-span-full sm:col-span-2"
+                  customChange={() => trigger("releaseFrequencyPeriod")}
+                  error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
+                  required
+                  {...register("cliffTime")}
+                />
+                <div className="relative col-span-full sm:col-span-1">
+                  <Input
+                    type="number"
+                    label="Release"
+                    min={0}
+                    max={100}
+                    inputClasses="pr-9"
+                    classes="col-span-full sm:col-span-1"
+                    error={errors?.cliffAmount?.message}
+                    {...register("cliffAmount")}
+                  />
+                  <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
+                    %
+                  </span>
+                </div>
+              </div>
+              <Select
+                label="Who Can Transfer Contract?"
+                options={transferCancelOptions}
+                {...register("whoCanTransfer")}
+                classes="col-span-full sm:col-span-1 "
+              />
+              <Select
+                label="Who Can Cancel Contract?"
+                options={transferCancelOptions}
+                {...register("whoCanCancel")}
+                classes="col-span-full sm:col-span-1 "
+              />
+            </div>
+            <div className="border-t border-b border-gray-dark py-6 col-span-full">
+              <h5 className="text-gray font-bold text-xs tracking-widest mb-5">
+                WITHDRAW SETTINGS
+              </h5>
+              <Toggle
+                checked={automaticWithdrawal}
+                labelRight="Automatic Withdraw"
+                classes="col-span-full"
+                customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+                {...register("automaticWithdrawal")}
+              />
+              {automaticWithdrawal && (
+                <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-3 sm:gap-x-4 mt-5">
+                  <label className="block text-base text-white font-bold capitalize col-span-full">
+                    Withdraw Frequency
+                  </label>
+                  <Input
+                    type="number"
+                    min={1}
+                    step={1}
+                    classes="col-span-3"
+                    customChange={() => trigger("withdrawalFrequencyPeriod")}
+                    error={
+                      errors?.withdrawalFrequencyCounter?.message ||
+                      errors?.withdrawalFrequencyPeriod?.message
+                    }
+                    {...register("withdrawalFrequencyCounter")}
+                  />
+                  <Select
+                    options={timePeriodOptions.slice(1)}
+                    plural={withdrawalFrequencyCounter > 1}
+                    {...register("withdrawalFrequencyPeriod")}
+                    classes="col-span-3"
+                    error={errors?.withdrawalFrequencyPeriod?.message}
+                  />
+                  <p className="text-gray-light text-xxs leading-4 mt-3 col-span-full">
+                    When automatic withdrawal is enabled there are additional fees ( 5000 lamports )
+                    per every withdrawal.{" "}
+                    {withdrawalFees > 0 && (
+                      <>
+                        For this stream there will be
+                        <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
+                        withdrawal fees.
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -549,15 +538,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       </div>
       <div className="my-4">
         <Balance></Balance>
-        <label className="text-gray-light text-base font-bold block">New Vesting</label>
-        <p className="my-3 text-xs text-gray-light font-weight-400">
-          Ideal for token vesting! Set up the amount you want to vest, start-end date, release
-          frequency and you’re good to go.
-        </p>
-        <p className="my-3 text-xs text-gray-light font-weight-400">
-          Additionally, you can specify the cliff date and amount when the initial tokens will be
-          released to the recipient or set up Transfer and Cancel preferences.
-        </p>
+        <Description classes="hidden sm:block" />
         <Overview
           {...{
             amount,

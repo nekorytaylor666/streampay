@@ -8,6 +8,7 @@ import * as yup from "yup";
 
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
+import { TransferCancelOptions } from "../../types";
 
 export interface VestingFormData {
   amount: number;
@@ -20,10 +21,8 @@ export interface VestingFormData {
   endTime: string;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
-  senderCanCancel: boolean;
-  recipientCanCancel: boolean;
-  senderCanTransfer: boolean;
-  recipientCanTransfer: boolean;
+  whoCanTransfer: TransferCancelOptions;
+  whoCanCancel: TransferCancelOptions;
   cliffDate: string;
   cliffTime: string;
   cliffAmount: number;
@@ -44,10 +43,8 @@ const getDefaultValues = () => ({
   endTime: format(add(new Date(), { minutes: 7 }), TIME_FORMAT),
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: timePeriodOptions[0].value,
-  senderCanCancel: true,
-  recipientCanCancel: false,
-  senderCanTransfer: false,
-  recipientCanTransfer: true,
+  whoCanCancel: TransferCancelOptions.Sender,
+  whoCanTransfer: TransferCancelOptions.Recipient,
   cliffDate: format(new Date(), DATE_FORMAT),
   cliffTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   cliffAmount: 0,
@@ -168,10 +165,8 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
               return true;
             }
           ),
-        senderCanCancel: yup.bool().required(),
-        recipientCanCancel: yup.bool().required(),
-        senderCanTransfer: yup.bool().required(),
-        recipientCanTransfer: yup.bool().required(),
+        whoCanTransfer: yup.string().required(),
+        whoCanCancel: yup.string().required(),
         cliffDate: yup
           .string()
           .required(ERRORS.max_year)
