@@ -84,7 +84,7 @@ const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
                   } default-transition h-5 m-auto ml-1 text-primary-light fill-[#718298] w-5`}
                 />
               </Menu.Button>
-              <Menu.Items className="absolute bg-gray-dark border border-[#445264] p-2 right-0 top-14 shadow-md outline-none rounded-md w-48 z-20">
+              <Menu.Items className="absolute bg-gray-dark border border-[#445264] p-2 right-0 top-14 shadow-md outline-none rounded-md w-48 z-50">
                 <>
                   <Menu.Item key={"documentation"}>
                     <div className="flex h-9 items-center p-2 w-full">

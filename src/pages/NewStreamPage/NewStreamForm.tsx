@@ -1,7 +1,5 @@
 import { FC, useEffect, useState, useRef } from "react";
 
-import { Disclosure } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/solid";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
@@ -11,7 +9,12 @@ import { Input, Button, Select, Modal, ModalRef, Toggle, Balance, Link } from ".
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
-import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
+import {
+  calculateWithdrawalFees,
+  didTokenOptionsChange,
+  getTokenAmount,
+  sortTokenAccounts,
+} from "../../utils/helpers";
 import {
   DATE_FORMAT,
   TIME_FORMAT,
@@ -19,10 +22,12 @@ import {
   timePeriodOptions,
   ERRORS,
   TRANSACTION_VARIANT,
+  transferCancelOptions,
 } from "../../constants";
-import { StringOption } from "../../types";
+import { StringOption, TransferCancelOptions } from "../../types";
 import Overview from "./Overview";
 import { trackTransaction } from "../../utils/marketing_helpers";
+import Description from "./Description";
 
 interface NewStreamFormProps {
   loading: boolean;
@@ -154,10 +159,8 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       depositedAmount,
       releaseFrequencyCounter,
       releaseFrequencyPeriod,
-      senderCanCancel,
-      recipientCanCancel,
-      senderCanTransfer,
-      recipientCanTransfer,
+      whoCanTransfer,
+      whoCanCancel,
       referral,
     } = values;
 
@@ -177,10 +180,18 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       cliffAmount: new BN(0),
       amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
       name: subject,
-      cancelableBySender: senderCanCancel,
-      cancelableByRecipient: recipientCanCancel,
-      transferableBySender: senderCanTransfer,
-      transferableByRecipient: recipientCanTransfer,
+      cancelableBySender:
+        whoCanCancel === TransferCancelOptions.Sender ||
+        whoCanCancel === TransferCancelOptions.Both,
+      cancelableByRecipient:
+        whoCanCancel === TransferCancelOptions.Recipient ||
+        whoCanCancel === TransferCancelOptions.Both,
+      transferableBySender:
+        whoCanTransfer === TransferCancelOptions.Sender ||
+        whoCanTransfer === TransferCancelOptions.Both,
+      transferableByRecipient:
+        whoCanTransfer === TransferCancelOptions.Recipient ||
+        whoCanTransfer === TransferCancelOptions.Both,
       automaticWithdrawal,
       withdrawalFrequency: automaticWithdrawal
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
@@ -232,17 +243,32 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     }
   };
 
+  const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
+  const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
+  const end = start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod;
+
+  const withdrawalFees = automaticWithdrawal
+    ? calculateWithdrawalFees(
+        start,
+        start,
+        end,
+        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+      )
+    : 0;
+
   return (
     <>
-      <div className="xl:mr-12">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
+      <div className="xl:mr-12 px-4 sm:px-0 pt-4">
+        <Description classes="sm:hidden" />
+        <Balance classes="sm:hidden" />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
           <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
             <Input
               type="number"
               label="Amount"
               customChange={updateReleaseAmountError}
               placeholder="0.00"
-              classes="col-span-3 sm:col-span-1"
+              classes="col-span-full sm:col-span-1"
               error={errors?.depositedAmount?.message}
               {...register("depositedAmount")}
             />
@@ -253,7 +279,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                 error={errors?.tokenSymbol?.message}
                 customChange={updateToken}
                 {...register("tokenSymbol")}
-                classes="col-span-3 sm:col-span-1"
+                classes="col-span-full sm:col-span-1"
               />
             ) : (
               <div className="col-span-3 sm:col-span-1">
@@ -268,10 +294,10 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               label="Release Amount"
               placeholder="0.00"
               error={errors?.releaseAmount?.message}
-              classes="col-span-3 sm:col-span-1"
+              classes="col-span-full sm:col-span-1"
               {...register("releaseAmount")}
             />
-            <div className="grid gap-x-1 sm:gap-x-2 grid-cols-5 sm:grid-cols-2 col-span-3 sm:col-span-1">
+            <div className="grid gap-x-2 grid-cols-2 sm:grid-cols-2 col-span-full sm:col-span-1">
               <label className="block text-base text-white font-bold capitalize col-span-full">
                 Release Frequency
               </label>
@@ -279,7 +305,6 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                 type="number"
                 min={1}
                 step={1}
-                classes="col-span-2 sm:col-span-1"
                 error={
                   errors?.releaseFrequencyCounter?.message ||
                   errors?.releaseFrequencyPeriod?.message
@@ -291,7 +316,6 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                 options={timePeriodOptions}
                 plural={releaseFrequencyCounter > 1}
                 {...register("releaseFrequencyPeriod")}
-                classes="col-span-3 sm:col-span-1"
                 error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
@@ -325,114 +349,88 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
             <Input
               type="time"
               label="Start Time"
-              classes="col-span-3 sm:col-span-1"
+              classes="col-span-3 sm:col-span-1 mb-2"
               error={errors?.startDate?.message ? "" : errors?.startTime?.message}
               onClick={updateStartTime}
               required
               {...register("startTime")}
             />
-            <div className="col-span-full grid grid-cols-1 border-t-2 border-b-2 border-[#2A3441]">
-              <Disclosure>
-                {({ open }) => (
-                  <>
-                    <Disclosure.Button className={` gap-y-15 ${open && "rounded-b-none"}`}>
-                      <div className="flex items-center mb-7 mt-3 pt-3">
-                        <ChevronDownIcon
-                          className={`h-6 text-primary-light fill-[#718298] transition-all w-6 ${
-                            open ? "transform rotate-180" : "transform rotate-360"
-                          }`}
-                        />
-                        <h2 className="mb-0 block text-base text-gray-light capitalize col-span-2">
-                          Advanced settings
-                        </h2>
-                      </div>
-                    </Disclosure.Button>
-                    <Disclosure.Panel>
-                      <div className="col-span-4 sm:col-span-1 mt-3">
-                        <label className="text-gray-light text-base mb-1 block">
-                          Who can transfer the stream?
-                        </label>
-                        <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
-                          <Input
-                            type="checkbox"
-                            label="sender"
-                            classes="col-span-1"
-                            {...register("senderCanTransfer")}
-                          />
-                          <Input
-                            type="checkbox"
-                            label="recipient"
-                            classes="col-span-1"
-                            {...register("recipientCanTransfer")}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-span-4 sm:col-span-1 mb-5">
-                        <label className="text-gray-light text-base col-span-1 mb-1 block">
-                          Who can cancel?
-                        </label>
-                        <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2 mb-3">
-                          <Input
-                            type="checkbox"
-                            label="sender"
-                            classes="col-span-1"
-                            {...register("senderCanCancel")}
-                          />
-                          <Input
-                            type="checkbox"
-                            label="recipient"
-                            classes="col-span-1"
-                            {...register("recipientCanCancel")}
-                          />
-                        </div>
-                        <div className="border-t-2 border-[#2A3441] pt-3">
-                          <h5 className="text-[#718298] font-bold text-xs tracking-widest pt-2 pb-4">
-                            {" "}
-                            WITHDRAW SETTINGS
-                          </h5>
-                          <Toggle
-                            checked={automaticWithdrawal}
-                            labelRight="Automatic Withdraw"
-                            classes="col-span-full"
-                            customChange={() =>
-                              setValue("automaticWithdrawal", !automaticWithdrawal)
-                            }
-                            {...register("automaticWithdrawal")}
-                          />
-                          {automaticWithdrawal && (
-                            <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4 mt-3">
-                              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
-                                Withdrawal Frequency
-                              </label>
-                              <Input
-                                type="number"
-                                min={1}
-                                step={1}
-                                classes="col-span-2 sm:col-span-1"
-                                customChange={() => trigger("withdrawalFrequencyPeriod")}
-                                error={
-                                  errors?.withdrawalFrequencyCounter?.message ||
-                                  errors?.withdrawalFrequencyPeriod?.message
-                                }
-                                {...register("withdrawalFrequencyCounter")}
-                              />
-                              <Select
-                                options={timePeriodOptions.slice(1)}
-                                plural={withdrawalFrequencyCounter > 1}
-                                {...register("withdrawalFrequencyPeriod")}
-                                classes="col-span-2 sm:col-span-1"
-                                error={errors?.withdrawalFrequencyPeriod?.message}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
+            <div className="col-span-full grid grid-cols-2 border-t border-gray-dark pt-6 pb-2 gap-x-4 gap-y-5">
+              <Select
+                label="Who Can Transfer Contract?"
+                options={transferCancelOptions}
+                {...register("whoCanTransfer")}
+                classes="col-span-full sm:col-span-1"
+              />
+              <Select
+                label="Who Can Cancel Contract?"
+                options={transferCancelOptions}
+                {...register("whoCanCancel")}
+                classes="col-span-full sm:col-span-1 "
+              />
+            </div>
+            <div className="border-t border-b border-gray-dark py-6 col-span-full">
+              <h5 className="text-gray font-bold text-xs tracking-widest mb-5">
+                WITHDRAW SETTINGS
+              </h5>
+              <Toggle
+                checked={automaticWithdrawal}
+                labelRight="Automatic Withdraw"
+                classes="col-span-full"
+                customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+                {...register("automaticWithdrawal")}
+              />
+              {automaticWithdrawal && (
+                <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-3 sm:gap-x-4 mt-5">
+                  <label className="block text-base text-white font-bold capitalize col-span-full">
+                    Withdrawal Frequency
+                  </label>
+                  <Input
+                    type="number"
+                    min={1}
+                    step={1}
+                    classes="col-span-3"
+                    customChange={() => trigger("withdrawalFrequencyPeriod")}
+                    error={
+                      errors?.withdrawalFrequencyCounter?.message ||
+                      errors?.withdrawalFrequencyPeriod?.message
+                    }
+                    {...register("withdrawalFrequencyCounter")}
+                  />
+                  <Select
+                    options={timePeriodOptions.slice(1)}
+                    plural={withdrawalFrequencyCounter > 1}
+                    {...register("withdrawalFrequencyPeriod")}
+                    classes="col-span-3"
+                    error={errors?.withdrawalFrequencyPeriod?.message}
+                  />
+                  <p className="text-gray-light text-xxs leading-4 mt-3 col-span-full">
+                    When automatic withdrawal is enabled there are additional fees ( 5000 lamports )
+                    per every withdrawal.{" "}
+                    {withdrawalFees > 0 && (
+                      <>
+                        For this stream there will be
+                        <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
+                        withdrawal fees.
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
+          <Overview
+            classes="sm:hidden"
+            {...{
+              depositedAmount,
+              releaseAmount,
+              tokenSymbol,
+              startDate,
+              startTime,
+              releaseFrequencyCounter,
+              releaseFrequencyPeriod,
+            }}
+          />
           {wallet?.connected && (
             <>
               <Button
@@ -454,14 +452,11 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
           confirm={{ color: "red", text: "Continue" }}
         />
       </div>
-      <div className="my-4">
-        <Balance></Balance>
-        <label className="text-gray-light text-base font-bold block">New Stream</label>
-        <p className="my-3 text-xs text-gray-light font-weight-400">
-          Set up the amount you want to deposit, release amount, release frequency, start date and
-          you’re good to go. Additionally, choose Transfer and Cancel preferences.
-        </p>
+      <div className="my-4 px-4 sm:px-0">
+        <Balance classes="hidden sm:block" />
+        <Description classes="hidden sm:block" />
         <Overview
+          classes="hidden sm:block sm:mt-6"
           {...{
             depositedAmount,
             releaseAmount,
@@ -470,28 +465,25 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
             startTime,
             releaseFrequencyCounter,
             releaseFrequencyPeriod,
-            automaticWithdrawal,
-            withdrawalFrequencyCounter,
-            withdrawalFrequencyPeriod,
           }}
         />
-        <div className="border-t-1 border-[#2A3441] pt-3">
-          <label className="text-gray-light text-base font-bold block mb-4">Referal address</label>
+        <div className="pt-6 border-t border-gray-dark">
           <Input
             type="text"
+            label="Referral Address"
             placeholder="Paste referral address here..."
             classes="col-span-full"
             description="Refer someone to use Streamflow with your referral key and you'll earn a percentage of the fees paid."
             error={errors?.referral?.message}
             {...register("referral")}
           />
+          <label className="text-white text-base font-bold block mt-6">Need a custom deal?</label>
+          <Link
+            title="Contact us"
+            url="https://discordapp.com/channels/851921970169511976/888391406576627732"
+            classes="inline-block text-p3 text-blue"
+          />
         </div>
-        <label className="text-gray-light text-base font-bold block">Need a custom deal?</label>
-        <Link
-          title="Contact us"
-          url="https://discordapp.com/channels/851921970169511976/888391406576627732"
-          classes="inline-block text-p3 text-blue"
-        />
       </div>
     </>
   );

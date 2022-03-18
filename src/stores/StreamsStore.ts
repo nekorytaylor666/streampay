@@ -3,6 +3,8 @@ import { Stream as StreamData } from "@streamflow/stream";
 import { sortStreams } from "../utils/helpers";
 
 interface StreamStore {
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
   streams: [string, StreamData][];
   populateStreams: (streams: [string, StreamData][]) => void;
   addStream: (stream: [string, StreamData]) => void;
@@ -13,6 +15,8 @@ interface StreamStore {
 }
 
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
+  loading: false,
+  setLoading: (loading) => set({ loading }),
   streams: [],
   populateStreams: (streams) => set({ streams: sortStreams(streams) }),
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),

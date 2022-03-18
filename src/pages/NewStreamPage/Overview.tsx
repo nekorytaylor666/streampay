@@ -3,7 +3,7 @@ import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import ReactTooltip from "react-tooltip";
 
 import { Link } from "../../components";
-import { formatPeriodOfTime, roundAmount, calculateWithdrawalFees } from "../../utils/helpers";
+import { formatPeriodOfTime, roundAmount } from "../../utils/helpers";
 
 interface OverviewProps {
   releaseAmount: number;
@@ -13,9 +13,7 @@ interface OverviewProps {
   depositedAmount: number;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
-  automaticWithdrawal: boolean;
-  withdrawalFrequencyCounter: number;
-  withdrawalFrequencyPeriod: number;
+  classes?: string;
 }
 
 const Overview: React.FC<OverviewProps> = ({
@@ -26,9 +24,7 @@ const Overview: React.FC<OverviewProps> = ({
   startTime,
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
-  automaticWithdrawal,
-  withdrawalFrequencyCounter,
-  withdrawalFrequencyPeriod,
+  classes,
 }) => {
   const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
@@ -37,17 +33,8 @@ const Overview: React.FC<OverviewProps> = ({
   const isReleasePerMonth = formattedReleasePeriod?.includes("month");
   const isReleasePerYear = formattedReleasePeriod?.includes("year");
 
-  const withdrawalFees = automaticWithdrawal
-    ? calculateWithdrawalFees(
-        start,
-        start,
-        end,
-        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
-      )
-    : 0;
-
   return (
-    <div className="col-span-full mt-4 leading-6">
+    <div className={`${classes} col-span-full mt-4 leading-6 mb-7`}>
       <div className="bg-gray-dark p-5 rounded-md">
         <label className="text-gray-light text-base font-bold block mb-3">Overview</label>
         <p className="text-gray-light text-sm leading-6">
@@ -109,7 +96,7 @@ const Overview: React.FC<OverviewProps> = ({
           unless topped up.
         </p>
       </div>
-      <label className="text-gray-light text-base font-bold block mt-6">Streamflow fees</label>
+      <label className="text-white text-base font-bold block mt-6">Streamflow Finance fees</label>
       <p className="text-gray-light text-xxs leading-4 mt-3">
         Streamflow charges 0.25% service fee (
         <span className="font-bold">{` ${roundAmount(
@@ -122,25 +109,6 @@ const Overview: React.FC<OverviewProps> = ({
           classes="inline-block text-p3 text-blue"
         />
       </p>
-      {automaticWithdrawal && (
-        <>
-          <p className="text-gray-light text-xxs leading-4 mt-3">
-            When automatic withdrawal is enabled there are additional fees ( 5000 lamports ) per
-            every withdrawal.{" "}
-            {withdrawalFees > 0 && (
-              <>
-                For this stream there will be
-                <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
-                withdrawal fees.
-              </>
-            )}
-          </p>
-          <p className="text-gray-light text-xxs leading-4 mt-1">
-            Feature might not always work as expected - some withdrawal requests might fail due to
-            potential infrastructure issues in solana network.
-          </p>
-        </>
-      )}
     </div>
   );
 };

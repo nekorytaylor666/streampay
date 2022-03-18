@@ -307,9 +307,10 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
 
   return (
     <>
-      <div className="xl:mr-12 px-4 sm:px-0">
+      <div className="xl:mr-12 px-4 sm:px-0 pt-4">
         <Description classes="sm:hidden" />
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-8">
+        <Balance classes="sm:hidden" />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
           <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
             <Input
               type="number"
@@ -512,8 +513,22 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 </div>
               )}
             </div>
+            <Overview
+              classes="sm:hidden"
+              {...{
+                amount,
+                tokenSymbol,
+                endDate,
+                endTime,
+                cliffDate,
+                cliffTime,
+                cliffAmount,
+                releaseFrequencyCounter,
+                releaseFrequencyPeriod,
+                decimals,
+              }}
+            />
           </div>
-
           {wallet?.connected && (
             <>
               <Button
@@ -536,10 +551,11 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         />
         <div />
       </div>
-      <div className="my-4">
-        <Balance></Balance>
+      <div className="my-4 px-4 sm:px-0">
+        <Balance classes="hidden sm:block" />
         <Description classes="hidden sm:block" />
         <Overview
+          classes="hidden sm:block sm:my-6"
           {...{
             amount,
             tokenSymbol,
@@ -558,9 +574,9 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             withdrawalFrequencyPeriod,
           }}
         />
-        <div className="border-t-1 border-[#2A3441] pt-3">
-          <label className="text-gray-light text-base font-bold block mb-4">Referal address</label>
+        <div className="border-t border-gray-dark pt-6">
           <Input
+            label="Referral Address"
             type="text"
             placeholder="Paste referral address here..."
             classes="col-span-full"
@@ -568,13 +584,13 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             error={errors?.referral?.message}
             {...register("referral")}
           />
+          <label className="text-white text-base font-bold block mt-6">Need a custom deal?</label>
+          <Link
+            title="Contact us"
+            url="https://discordapp.com/channels/851921970169511976/888391406576627732"
+            classes="inline-block text-p3 text-blue"
+          />
         </div>
-        <label className="text-gray-light text-base font-bold block">Need a custom deal?</label>
-        <Link
-          title="Contact us"
-          url="https://discordapp.com/channels/851921970169511976/888391406576627732"
-          classes="inline-block text-p3 text-blue"
-        />
       </div>
     </>
   );

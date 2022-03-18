@@ -31,7 +31,7 @@ interface NavProps {
 const Nav: React.FC<NavProps> = ({ classes }) => (
   <nav className={classes}>
     <ul className="text-gray-light flex">
-      {routes.slice(1, 3).map((route) => (
+      {routes.slice(3, 5).map((route) => (
         <li key={route.path} className="relative">
           {route.disabled && <Tooltip />}
           <NavLink

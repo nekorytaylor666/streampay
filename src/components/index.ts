@@ -22,5 +22,6 @@ export { default as WalletPicker } from "./WalletPicker";
 export { default as VerticalNav } from "./VerticalNav";
 export { default as StreamsList } from "./StreamsList";
 export { default as DesktopMode } from "./DesktopMode";
+export { default as Airdrop } from "./Airdrop";
 
 export * from "./Modal";
