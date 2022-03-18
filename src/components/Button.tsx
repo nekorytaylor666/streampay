@@ -1,14 +1,13 @@
 import { FC } from "react";
 
 interface ButtonProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   background?: string;
   primary?: boolean;
   classes?: string;
   type?: "button" | "submit";
-  dataTestId?: string;
 }
 
 const Button: FC<ButtonProps> = ({
@@ -18,7 +17,7 @@ const Button: FC<ButtonProps> = ({
   disabled = false,
   classes,
   type = "button",
-  dataTestId = "",
+  ...rest
 }) => {
   const baseClasses =
     "block border-transparent rounded-md shadow-sm text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue disabled:opacity-50";
@@ -29,7 +28,7 @@ const Button: FC<ButtonProps> = ({
       className={`${baseClasses} bg-${background} ${classes}`}
       onClick={onClick}
       disabled={disabled}
-      data-test-id={dataTestId}
+      {...rest}
     >
       {children}
     </button>

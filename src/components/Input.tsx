@@ -16,7 +16,6 @@ interface InputProps {
   step?: number;
   error?: string;
   required?: boolean;
-  dataTestId?: string;
   onClick?: () => void;
   onChange: ChangeHandler;
   customChange?: (value: string) => void;
@@ -35,7 +34,6 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
       onClick,
       customChange,
       inputClasses = "",
-      dataTestId = "",
       ...rest
     },
     ref
@@ -71,7 +69,6 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
           name={name}
           aria-describedby={`${name}-description`}
           onChange={handleChange}
-          data-test-id={dataTestId}
           className={cx(
             "text-gray-light font-light p-2 pr-1.5 sm:pl-3 sm:pr-2 bg-gray-dark block w-full rounded-md shadow-sm",
             inputClasses,
@@ -83,7 +80,7 @@ const Input: FC<InputProps> = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
         />
         {description && (
-          <p className="my-3 text-xs text-gray-light font-weight-400">{description}</p>
+          <p className="mt-2 text-xs text-gray-light font-weight-400">{description}</p>
         )}
         <p
           className={cx("text-red absolute text-xs py-1", {

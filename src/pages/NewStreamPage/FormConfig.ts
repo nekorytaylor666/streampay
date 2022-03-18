@@ -8,6 +8,7 @@ import * as yup from "yup";
 
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
+import { TransferCancelOptions } from "../../types";
 
 export interface StreamsFormData {
   releaseAmount: number;
@@ -18,10 +19,8 @@ export interface StreamsFormData {
   startTime: string;
   depositedAmount: number;
   releaseFrequencyCounter: number;
-  senderCanCancel: boolean;
-  recipientCanCancel: boolean;
-  senderCanTransfer: boolean;
-  recipientCanTransfer: boolean;
+  whoCanTransfer: TransferCancelOptions;
+  whoCanCancel: TransferCancelOptions;
   releaseFrequencyPeriod: number;
   automaticWithdrawal: boolean;
   withdrawalFrequencyCounter: number;
@@ -39,10 +38,8 @@ const getDefaultValues = () => ({
   depositedAmount: undefined,
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: timePeriodOptions[0].value,
-  senderCanCancel: true,
-  recipientCanCancel: false,
-  senderCanTransfer: false,
-  recipientCanTransfer: true,
+  whoCanTransfer: TransferCancelOptions.Recipient,
+  whoCanCancel: TransferCancelOptions.Sender,
   automaticWithdrawal: false,
   withdrawalFrequencyCounter: 1,
   withdrawalFrequencyPeriod: timePeriodOptions[1].value,
@@ -133,10 +130,8 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .positive(ERRORS.should_be_greater_than_0)
           .integer(),
         releaseFrequencyPeriod: yup.number().required(),
-        senderCanCancel: yup.bool().required(),
-        recipientCanCancel: yup.bool().required(),
-        senderCanTransfer: yup.bool().required(),
-        recipientCanTransfer: yup.bool().required(),
+        whoCanTransfer: yup.string().required(),
+        whoCanCancel: yup.string().required(),
         automaticWithdrawal: yup.bool().required(),
         withdrawalFrequencyCounter: yup.number().when("automaticWithdrawal", {
           is: true,

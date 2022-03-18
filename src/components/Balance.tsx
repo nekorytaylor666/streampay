@@ -1,26 +1,33 @@
 import { FC } from "react";
 
 import cx from "classnames";
+import { Cluster } from "@streamflow/stream";
 
 import useStore, { StoreType } from "../stores";
+import { Airdrop } from "./";
 
-const storeGetter = ({ token, myTokenAccounts }: StoreType) => ({
+const storeGetter = ({ token, myTokenAccounts, cluster }: StoreType) => ({
   token,
   myTokenAccounts,
+  isDevnet: cluster === Cluster.Devnet,
 });
 
-const Balance: FC = () => {
-  const { token, myTokenAccounts } = useStore(storeGetter);
+interface BalanceProps {
+  classes?: string;
+}
+
+const Balance: FC<BalanceProps> = ({ classes }) => {
+  const { token, myTokenAccounts, isDevnet } = useStore(storeGetter);
   const hasTokens = Object.keys(myTokenAccounts).length;
 
   const tokenSymbol = token?.info?.symbol;
 
   return (
-    <div className="mt-5">
+    <div className={`${classes} mt-5`}>
       <div className="pb-5 text-white flex-row">
         {token && (
           <>
-            <label className="text-gray-light text-base font-bold block mb-2">Balance</label>
+            <label className="text-white text-base font-bold block mb-1">Balance</label>
           </>
         )}
         <div className={cx("col-span-1", hasTokens ? "" : "col-start-2")}></div>
@@ -29,10 +36,11 @@ const Balance: FC = () => {
             <p className="text-base text-blue font-bold">{token?.uiTokenAmount?.uiAmountString} </p>
           )}
           {tokenSymbol && (
-            <p className="ml-3 text-base font-bold text-sm text-blue">{` ${tokenSymbol}`}</p>
+            <p className="ml-3 text-base font-bold text-sm text-gray-light">{` ${tokenSymbol}`}</p>
           )}
         </div>
       </div>
+      {isDevnet && <Airdrop classes="sm:hidden" />}
     </div>
   );
 };

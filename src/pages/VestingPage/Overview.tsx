@@ -2,12 +2,7 @@ import { format, getUnixTime } from "date-fns";
 import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import ReactTooltip from "react-tooltip";
 
-import {
-  formatPeriodOfTime,
-  roundAmount,
-  calculateEndTimeLikeOnBE,
-  calculateWithdrawalFees,
-} from "../../utils/helpers";
+import { formatPeriodOfTime, roundAmount, calculateEndTimeLikeOnBE } from "../../utils/helpers";
 import { Link, Tooltip } from "../../components";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 
@@ -15,8 +10,6 @@ interface OverviewProps {
   amount: number;
   tokenSymbol: string;
   endDate: string;
-  startTime: string;
-  startDate: string;
   endTime: string;
   cliffDate: string;
   cliffTime: string;
@@ -24,16 +17,12 @@ interface OverviewProps {
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
   decimals: number;
-  automaticWithdrawal: boolean;
-  withdrawalFrequencyCounter: number;
-  withdrawalFrequencyPeriod: number;
+  classes?: string;
 }
 
 const Overview: React.FC<OverviewProps> = ({
   amount,
   tokenSymbol,
-  startDate,
-  startTime,
   endDate,
   endTime,
   cliffDate,
@@ -42,12 +31,9 @@ const Overview: React.FC<OverviewProps> = ({
   releaseFrequencyCounter,
   releaseFrequencyPeriod,
   decimals,
-  automaticWithdrawal,
-  withdrawalFrequencyPeriod,
-  withdrawalFrequencyCounter,
+  classes,
 }) => {
   const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
-  const start = getUnixTime(new Date(startDate + "T" + startTime));
   const end = getUnixTime(new Date(endDate + "T" + endTime));
   const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
   const cliffAmount = (cliffAmountPercent * amount) / 100;
@@ -74,18 +60,9 @@ const Overview: React.FC<OverviewProps> = ({
 
   const showEndTimeTooltip = end && endTimeFromBE && end * 1000 !== endTimeFromBE;
 
-  const withdrawalFees = automaticWithdrawal
-    ? calculateWithdrawalFees(
-        start,
-        cliff,
-        end,
-        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
-      )
-    : 0;
-
   return (
-    <div className="col-span-full mt-4 leading-6">
-      <div className="bg-gray-dark p-5 rounded-md">
+    <div className={`${classes} col-span-full mt-1 leading-6`}>
+      <div className="bg-gray-dark p-5 rounded-lg">
         <label className="text-gray-light text-base font-bold block mb-3">Overview</label>
         <p className="text-gray-light text-sm leading-6">
           First
@@ -164,36 +141,17 @@ const Overview: React.FC<OverviewProps> = ({
           )}
         </p>
       </div>
-      <label className="text-gray-light text-base font-bold block mt-6">Streamflow fees</label>
+      <label className="text-white text-base font-bold block mt-6">Streamflow Finance Fee</label>
       <p className="text-gray-light text-xxs leading-4 mt-3">
         Streamflow charges 0.25% service fee (
         <span className="font-bold">{` ${roundAmount(amount * 0.0025)} ${tokenSymbol} `}</span>) on
         top of the specified amount, while respecting the given schedule.{" "}
       </p>
       <Link
-        title="Learn more."
+        title="Learn more"
         url="https://docs.streamflow.finance/help/fees"
         classes="inline-block text-p3 text-blue"
       />
-      {automaticWithdrawal && (
-        <>
-          <p className="text-gray-light text-xxs leading-4 mt-3">
-            When automatic withdrawal is enabled there are additional fees ( 5000 lamports ) per
-            every withdrawal.{" "}
-            {withdrawalFees > 0 && (
-              <>
-                For this contract there will be
-                <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
-                withdrawal fees.
-              </>
-            )}
-          </p>
-          <p className="text-gray-light text-xxs leading-4 mt-1">
-            Feature might not always work as expected - some withdrawal requests might fail due to
-            potential infrastructure issues in solana network.
-          </p>
-        </>
-      )}
     </div>
   );
 };

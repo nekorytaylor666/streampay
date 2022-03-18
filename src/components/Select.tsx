@@ -24,7 +24,17 @@ const createOptionsObject = (options: StringOption[] | NumberOption[]) => {
 
 const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
   (
-    { name, options, classes = "", label = "", error = "", onChange, customChange, plural = false },
+    {
+      name,
+      options,
+      classes = "",
+      label = "",
+      error = "",
+      onChange,
+      customChange,
+      plural = false,
+      ...rest
+    },
     ref
   ) => {
     const withIcons = !!options[0].icon;
@@ -64,6 +74,7 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
                 : "border-0 focus:ring-blue focus:border-blue"
             )}
             ref={ref}
+            {...rest}
           >
             {options.map(({ value, label, icon }) => (
               <option

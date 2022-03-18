@@ -56,3 +56,10 @@ export enum StreamType {
   Stream = "Stream",
   Vesting = "Vesting",
 }
+
+export enum TransferCancelOptions {
+  Recipient = "recipient",
+  Sender = "sender",
+  Both = "both",
+  Neither = "neither",
+}

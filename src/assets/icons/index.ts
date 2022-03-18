@@ -9,3 +9,4 @@ export { default as IcnArrowDown } from "./IcnArrowDown";
 export { default as IcnLogo } from "./IcnLogo";
 export { default as IcnMenu } from "./IcnMenu";
 export { default as IcnClose } from "./IcnClose";
+export { default as IcnStream } from "./IcnStream";

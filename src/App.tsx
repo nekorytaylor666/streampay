@@ -7,22 +7,23 @@ import { Cluster } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
-import { Footer, Header, Banner, Nav, VerticalNav } from "./components";
+import { Footer, Header, Banner, Nav, VerticalNav, Curtain } from "./components";
 import { Page404 } from "./pages";
 import routes from "./router/RoutesConfig";
 import PrivateRoute from "./router/PrivateRoute";
 import useStore, { StoreType } from "./stores";
 
-const storeGetter = ({ connection, wallet, cluster }: StoreType) => ({
+const storeGetter = ({ connection, wallet, cluster, loading }: StoreType) => ({
   connection: connection(),
   wallet,
   cluster,
   isMainnet: cluster === Cluster.Mainnet,
+  loading,
 });
 
 const App: FC = () => {
   const history = useHistory();
-  const { wallet, isMainnet, cluster } = useStore(storeGetter);
+  const { wallet, isMainnet, cluster, loading } = useStore(storeGetter);
   const [isVerticalNavOpened, setIsVerticalNavOpened] = useState(false);
 
   const toggleVerticalNav = () => setIsVerticalNavOpened(!isVerticalNavOpened);
@@ -35,6 +36,7 @@ const App: FC = () => {
 
   return (
     <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
+      <Curtain visible={loading} />
       {!isMainnet && (
         <Banner
           title="This is devnet (sandbox) environment!"
@@ -47,7 +49,7 @@ const App: FC = () => {
         <div className={`flex ${!wallet?.connected && "justify-center"}`}>
           {wallet?.connected && isVerticalNavOpened && (
             <VerticalNav
-              routes={routes.slice(5)}
+              routes={routes.slice(3)}
               classes="flex sm:hidden fixed top-18 left-0 z-50 w-screen h-screen"
               onClick={toggleVerticalNav}
             />

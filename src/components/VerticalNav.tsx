@@ -13,7 +13,7 @@ const VerticalNav: React.FC<NavProps> = ({ routes, classes, onClick }) => {
   const path = location.pathname;
 
   return (
-    <nav className={`${classes} flex-col pl-6 pt-6 bg-dark`}>
+    <nav className={`${classes} flex-col pl-6 pt-6 bg-dark z-40`}>
       <ul className="text-gray-light">
         {routes.map((route) => (
           <li key={route.path} className="relative flex items-center mb-8">

@@ -14,6 +14,7 @@ import {
   IcnIncoming,
   IcnOutgoing,
   IcnMultisig,
+  IcnStream,
 } from "../assets/icons";
 
 export interface Route {
@@ -37,20 +38,6 @@ const routes: Route[] = [
     exact: true,
   },
   {
-    path: "/new-vesting",
-    Component: VestingPage,
-    label: "New Vesting",
-    isPrivate: true,
-    exact: true,
-  },
-  {
-    path: "/new-stream",
-    Component: NewStreamPage,
-    label: "New Stream",
-    isPrivate: true,
-    exact: true,
-  },
-  {
     path: "/vesting",
     redirect: "/new-vesting",
     Component: VestingPage,
@@ -64,6 +51,23 @@ const routes: Route[] = [
     isPrivate: true,
     exact: true,
   },
+  {
+    path: "/new-vesting",
+    Component: VestingPage,
+    label: "New Vesting",
+    isPrivate: true,
+    Icon: IcnStream,
+    exact: true,
+  },
+  {
+    path: "/new-stream",
+    Component: NewStreamPage,
+    label: "New Stream",
+    isPrivate: true,
+    Icon: IcnStream,
+    exact: true,
+  },
+
   // {
   //   path: "/dashboard",
   //   Component: DashboardPage,

@@ -23,7 +23,7 @@ const Link: FC<LinkProps> = ({ url, title, Icon, classes }) => (
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="hover:opacity-60 underline"
+        className="hover:opacity-60 font-semibold"
       >
         {title || url}
       </a>

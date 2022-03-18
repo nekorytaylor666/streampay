@@ -97,7 +97,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(
               onClick={onCancel}
               classes="text-sm col-start-2 py-1 w-full"
               background="gray"
-              dataTestId="cancel"
+              data-testid="cancel"
             >
               Cancel
             </Button>
@@ -105,7 +105,7 @@ const Modal = forwardRef<ModalRef, ModalProps>(
               onClick={onConfirm}
               classes="text-sm py-1 w-full"
               background={confirm.color}
-              dataTestId="confirm"
+              data-testid="confirm"
             >
               {confirm.text}
             </Button>
