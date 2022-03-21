@@ -5,7 +5,7 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle, Balance, Link } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
@@ -589,24 +589,16 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             withdrawalFrequencyPeriod,
           }}
         />
-        <div className="border-t border-gray-dark pt-6">
-          <Input
-            label="Referral Address"
-            type="text"
-            placeholder="Paste referral address here..."
-            classes="col-span-full"
-            description="Refer someone to use Streamflow with your referral key and you'll earn a percentage of the fees paid."
-            error={errors?.referral?.message}
-            data-testid="vesting-referral-address"
-            {...register("referral")}
-          />
-          <label className="text-white text-base font-bold block mt-6">Need a custom deal?</label>
-          <Link
-            title="Contact us"
-            url="https://discordapp.com/channels/851921970169511976/888391406576627732"
-            classes="inline-block text-p3 text-blue"
-          />
-        </div>
+        <Input
+          label="Referral Address"
+          type="text"
+          placeholder="Paste referral address here..."
+          classes="col-span-full border-t border-gray-dark pt-6"
+          description="Enter the referral address of the person who referred you."
+          error={errors?.referral?.message}
+          data-testid="vesting-referral-address"
+          {...register("referral")}
+        />
       </div>
     </>
   );
