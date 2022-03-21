@@ -227,7 +227,6 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
 
     if (isTopupped) {
       const stream = await Stream.getOne({ connection, id });
-      debugger;
       if (stream) {
         onTopup();
         updateStream([id, stream]);
