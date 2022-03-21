@@ -26,10 +26,7 @@ const VerticalNav: React.FC<NavProps> = ({ routes, classes, onClick }) => {
               }
               activeClassName="text-blue"
             >
-              <button
-                onClick={onClick}
-                className="flex items-center font-semibold lg:text-sm text-left "
-              >
+              <button onClick={onClick} className="flex items-center font-semibold text-left ">
                 {route.Icon && (
                   <route.Icon
                     fill={path === route.path ? "#fff" : "#718298"}
