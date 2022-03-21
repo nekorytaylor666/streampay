@@ -15,6 +15,7 @@ import {
   DATA_LAYER_VARIABLE,
 } from "../../constants";
 import { StreamStatus, StreamType } from "../../types";
+import { parseStreamName } from "../../utils/helpers";
 import {
   getExplorerLink,
   formatAmount,
@@ -115,13 +116,17 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     automaticWithdrawal,
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
-
-  const symbol = myTokenAccounts[mint]?.info.symbol;
+  let symbol = "";
+  try {
+    symbol = myTokenAccounts[mint].info.symbol;
+  } catch (error) {}
   const icon = myTokenAccounts[mint]?.info.logoURI || "";
   // const isCliffDateAfterStart = cliff > start;
   // const isCliffAmount = cliffAmount > 0;
+  const streamName = parseStreamName(name);
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
+
   const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   const withdrawModalRef = useRef<ModalRef>(null);
@@ -404,7 +409,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           </div>
         </div>
         <div className="col-span-2">
-          <p className="text-white text-p2 font-bold">{name}</p>
+          <p className="text-white text-p2 font-bold">{streamName}</p>
           <div className="flex items-center relative leading-5">
             <Link
               url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}
@@ -631,7 +636,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             <p className="text-gray-light text-p3 ml-1">{isRecipient ? "Incoming" : "Outgoing"}</p>
           </div>
         </div>
-        <p className="text-white text-p2 font-bold">{name}</p>
+        <p className="text-white text-p2 font-bold">{streamName}</p>
         <div className="flex items-center relative leading-4 mb-4">
           <Link
             url={getExplorerLink(EXPLORER_TYPE_ADDR, id)}

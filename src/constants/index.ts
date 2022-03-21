@@ -10,6 +10,8 @@ export const AIRDROP_WHITELIST = [
   "4pYeM1AhyqCXy63xtwfMtytz8keWxBD2gHWHqdwacK3C",
 ];
 
+export const ALLOWED_PDA_PROGRAMS = ["GokivDYuQXPZCWRkwMhdH2h91KpDQXBEmpgBgs55bnpH"];
+
 export const TX_FINALITY_CONFIRMED = "confirmed";
 export const TX_FINALITY_FINALIZED = "finalized";
 

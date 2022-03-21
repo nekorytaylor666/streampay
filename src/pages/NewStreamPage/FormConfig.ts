@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { add, format } from "date-fns";
-import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import * as yup from "yup";
 
+import { isAddressValid } from "../../utils/helpers";
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
 import { TransferCancelOptions } from "../../types";
@@ -45,23 +45,6 @@ const getDefaultValues = () => ({
   withdrawalFrequencyPeriod: timePeriodOptions[1].value,
   referral: "",
 });
-
-const isAddressValid = async (address: string, connection: Connection | null) => {
-  if (!address) return true;
-  let pubKey = null;
-
-  try {
-    pubKey = new PublicKey(address);
-  } catch {
-    return false;
-  }
-
-  const account = await connection?.getAccountInfo(pubKey);
-  if (account == null) return true;
-  if (!account.owner.equals(SystemProgram.programId)) return false;
-  if (account.executable) return false;
-  return true;
-};
 
 const encoder = new TextEncoder();
 
@@ -104,7 +87,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .string()
           .required(ERRORS.recipient_required)
           .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isAddressValid(address || "", connection)
+            isAddressValid(address || "", connection, true)
           ),
         startDate: yup
           .string()

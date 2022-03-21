@@ -4,12 +4,13 @@ import { TokenListProvider } from "@solana/spl-token-registry";
 import type { TokenInfo } from "@solana/spl-token-registry";
 import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
+import { SystemProgram } from "@solana/web3.js";
 import { format } from "date-fns";
 import { Cluster, LocalCluster, ClusterExtended, Stream as StreamData } from "@streamflow/stream";
 
 import useStore from "../stores";
 import { StringOption, Token } from "../types";
-import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES, PERIOD } from "../constants";
+import { DATE_FORMAT, DEFAULT_DECIMAL_PLACES, PERIOD, ALLOWED_PDA_PROGRAMS } from "../constants";
 
 export function getExplorerLink(type: string, id: string): string {
   return `https://explorer.solana.com/${type}/${id}?cluster=${useStore.getState().explorerUrl()}`;
@@ -258,3 +259,39 @@ export const sortTokenAccounts = (myTokenAccounts: { [mint: string]: Token }): T
 
 export const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
   streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
+
+export function parseStreamName(name: string) {
+  const cutoff = name.indexOf(" ");
+  if (cutoff === 0) {
+    return name;
+  }
+  return name.substring(0, cutoff);
+}
+
+export const isAddressValid = async (
+  address: string,
+  connection: Connection | null,
+  allowPDA = false
+) => {
+  if (!address) return true;
+  let pubKey = null;
+
+  try {
+    pubKey = new PublicKey(address);
+  } catch {
+    return false;
+  }
+
+  const account = await connection?.getAccountInfo(pubKey);
+  if (account == null) return true;
+
+  if (!account.owner.equals(SystemProgram.programId)) {
+    if (!allowPDA) {
+      return false;
+    } else {
+      return ALLOWED_PDA_PROGRAMS.includes(account.owner.toBase58());
+    }
+  }
+  if (account.executable) return false;
+  return true;
+};

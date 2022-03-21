@@ -8,7 +8,7 @@ const Main = ({ page }: { page: "vesting" | "streams" }) => {
   const isVesting = page === "vesting";
 
   return (
-    <div className="grid-cols-1 max-w-lg gap-x-2 lg:gap-x-20 lg:grid-cols-2 lg:max-w-6xl pt-4 grid">
+    <div className="grid-cols-1 max-w-lg lg:gap-x-10 lg:grid-cols-2 lg:max-w-5xl xl:max-w-6xl pt-4 grid">
       {isVesting ? (
         <VestingForm loading={loading} setLoading={setLoading} />
       ) : (
