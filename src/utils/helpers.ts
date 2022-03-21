@@ -258,3 +258,11 @@ export const sortTokenAccounts = (myTokenAccounts: { [mint: string]: Token }): T
 
 export const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
   streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
+
+export function parseStreamName(name: string) {
+  const cutoff = name.indexOf(" ");
+  if (cutoff === 0) {
+    return name;
+  }
+  return name.substring(0, cutoff);
+}
