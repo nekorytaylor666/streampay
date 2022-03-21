@@ -357,28 +357,47 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
   return (
     <>
       <div
-        className={`hidden sm:grid grid-cols-10 rounded-2xl px-6 py-4 mb-1 gap-x-3 sm:gap-x-5 ${
+        className={`hidden sm:grid sm:grid-cols-8 xl:grid-cols-10 rounded-2xl px-4 xl:px-6 py-4 mb-1 sm:gap-x-2 xl:gap-x-5 ${
           isFullCardVisible && "bg-gray-dark"
         }`}
         data-test-id={id}
       >
-        <div className="flex items-center">
-          {isFullCardVisible ? (
-            <IcnArrowDown
-              onClick={toggleCardVisibility}
-              classes="hover:cursor-pointer"
-              fill="rgb(113, 130, 152)"
-            />
-          ) : (
-            <IcnArrowRight
-              onClick={toggleCardVisibility}
-              fill="rgb(113, 130, 152)"
-              classes="hover:cursor-pointer"
-            />
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            {isFullCardVisible ? (
+              <IcnArrowDown
+                onClick={toggleCardVisibility}
+                classes="hover:cursor-pointer"
+                fill="rgb(113, 130, 152)"
+              />
+            ) : (
+              <IcnArrowRight
+                onClick={toggleCardVisibility}
+                fill="rgb(113, 130, 152)"
+                classes="hover:cursor-pointer"
+              />
+            )}
+            <Badge type={status} color={color} classes="ml-6 sm:ml-2 xl:ml-6 mb-1" />
+          </div>
+          {isFullCardVisible && (
+            <div className="ml-6 hidden sm:block xl:hidden">
+              <p className="text-white text-p2">
+                {canTopup ? StreamType.Stream : StreamType.Vesting}
+              </p>
+              <div className="flex items-center">
+                {isRecipient ? (
+                  <IcnIncoming className="w-3 h-3" />
+                ) : (
+                  <IcnOutgoing className="w-3 h-3" />
+                )}
+                <p className="text-gray-light text-p3 ml-1">
+                  {isRecipient ? "Incoming" : "Outgoing"}
+                </p>
+              </div>
+            </div>
           )}
-          <Badge type={status} color={color} classes="ml-6 mb-1" />
         </div>
-        <div>
+        <div className="sm:hidden xl:block">
           <p className="text-white text-p2"> {canTopup ? StreamType.Stream : StreamType.Vesting}</p>
           <div className="flex items-center">
             {isRecipient ? (
@@ -409,7 +428,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             <button onClick={() => copy(id, tooltipAddressRef)}>
               <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
             </button>
-            <div className="w-40 mb-1">
+            <div className="w-40 sm:w-36 xl:w-40 mb-1">
               <MiddleEllipsis>
                 <span className="text-p3 font-bold text-white">{id}</span>
               </MiddleEllipsis>
@@ -435,7 +454,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
                 <button onClick={() => copy(sender, tooltipSenderRef)}>
                   <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
                 </button>
-                <div className="w-40 mb-1">
+                <div className="w-40 sm:w-36 xl:w-40 mb-1">
                   <MiddleEllipsis>
                     <span className="text-p3 font-bold text-white">{sender}</span>
                   </MiddleEllipsis>
@@ -459,7 +478,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
                 <button onClick={() => copy(recipient, tooltipRecipientRef)}>
                   <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
                 </button>
-                <div className="w-40 mb-1">
+                <div className="w-40 sm:w-36 xl:w-40 mb-1">
                   <MiddleEllipsis>
                     <span className="text-p3 font-bold text-white">{recipient}</span>
                   </MiddleEllipsis>
@@ -519,10 +538,26 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
                 <span className="font-normal text-gray-light"> at </span>
                 {format(fromUnixTime(isCanceled ? canceledAt || 0 : end), "HH:mm")}
               </p>
+              {status === StreamStatus.scheduled ||
+                (status === StreamStatus.streaming && (
+                  <>
+                    <p className="text-p3 text-gray-light mt-2">Release Rate</p>
+                    <p className="text-p2 font-bold text-white">
+                      {`${formatAmount(
+                        amountPerPeriod,
+                        decimals,
+                        DEFAULT_DECIMAL_PLACES
+                      )} ${symbol}`}{" "}
+                      <span className="text-p3 text-gray-light mt-1">
+                        {`Per ${formatPeriodOfTime(releaseFrequency)}`}
+                      </span>
+                    </p>
+                  </>
+                ))}
             </>
           )}
         </div>
-        <div>
+        <div className="sm:hidden xl:block">
           <div className="flex items-center">
             <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
             <p className="text-p2 font-bold text-white">{`${formatAmount(
@@ -616,7 +651,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
           <button onClick={() => copy(id, tooltipAddressRef)}>
             <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
           </button>
-          <div className="w-40 mb-1">
+          <div className="w-40 sm:w-36 xl:w-40 mb-1">
             <MiddleEllipsis>
               <span className="text-p3 font-bold text-white">{id}</span>
             </MiddleEllipsis>

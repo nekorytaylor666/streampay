@@ -258,11 +258,11 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
 
   return (
     <>
-      <div className="xl:mr-12 px-4 sm:px-0 pt-4 ml-5">
+      <div className="xl:mr-12 px-4 sm:px-0 pt-4">
         <Description classes="sm:hidden" />
         <Balance classes="sm:hidden" />
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
-          <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
+          <div className="grid gap-y-5 gap-x-3 grid-cols-6 sm:grid-cols-2">
             <Input
               type="number"
               label="Amount"
@@ -463,7 +463,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
           confirm={{ color: "red", text: "Continue" }}
         />
       </div>
-      <div className="my-4 px-4 mx-4">
+      <div className="my-4 pl-3 pr-6 grow-1">
         <Balance classes="hidden sm:block" />
         <Description classes="hidden sm:block" />
         <Overview
