@@ -97,7 +97,7 @@ const Overview: React.FC<OverviewProps> = ({
         </p>
       </div>
       <label className="text-white text-base font-bold block mt-6">Streamflow Finance fees</label>
-      <p className="text-gray-light text-xxs leading-4 mt-3">
+      <p className="text-gray-light text-xs leading-4 mt-3">
         Streamflow charges 0.25% service fee (
         <span className="font-bold">{` ${roundAmount(
           depositedAmount * 0.0025
@@ -106,6 +106,14 @@ const Overview: React.FC<OverviewProps> = ({
         <Link
           title="Learn more."
           url="https://docs.streamflow.finance/help/fees"
+          classes="inline-block text-p3 text-blue"
+        />
+      </p>
+      <p className="text-white text-xs block mt-6">
+        Need a custom deal?{" "}
+        <Link
+          title="Contact us"
+          url="https://discordapp.com/channels/851921970169511976/888391406576627732"
           classes="inline-block text-p3 text-blue"
         />
       </p>
