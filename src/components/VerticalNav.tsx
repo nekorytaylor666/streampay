@@ -20,17 +20,19 @@ const VerticalNav: React.FC<NavProps> = ({ routes, classes, onClick }) => {
             <NavLink
               to={route.path}
               className={(isActive) =>
-                `text-sm sm:text-base capitalize mr-2 sm:mr-3 relative ${
+                `text-sm sm:text-base capitalize sm:mr-3 relative ${
                   isActive ? "text-blue" : "text-gray-light"
                 } ${route.disabled ? "pointer-events-none text-gray" : ""}`
               }
               activeClassName="text-blue"
             >
-              <button onClick={onClick} className="flex items-center font-semibold">
+              <button onClick={onClick} className="flex items-center font-semibold lg:text-sm">
                 {route.Icon && (
                   <route.Icon
                     fill={path === route.path ? "#fff" : "#718298"}
-                    classes={`rounded-lg mr-3 ${path === route.path ? "bg-blue" : "bg-gray-dark"}`}
+                    classes={`rounded-lg mr-3 px-2 ${
+                      path === route.path ? "bg-blue" : "bg-gray-dark"
+                    }`}
                   />
                 )}
                 {route.label}

@@ -258,7 +258,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
 
   return (
     <>
-      <div className="xl:mr-12 px-4 sm:px-0 pt-4">
+      <div className="xl:mr-12 px-4 sm:px-0 pt-4 ml-5">
         <Description classes="sm:hidden" />
         <Balance classes="sm:hidden" />
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
@@ -463,7 +463,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
           confirm={{ color: "red", text: "Continue" }}
         />
       </div>
-      <div className="my-4 px-4 sm:px-0">
+      <div className="my-4 px-4 mx-4">
         <Balance classes="hidden sm:block" />
         <Description classes="hidden sm:block" />
         <Overview
