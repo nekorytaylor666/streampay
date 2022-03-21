@@ -26,7 +26,7 @@ const useStreamStore = (set: Function, get: Function): StreamStore => ({
     const index = streams.findIndex(
       (stream: [string, StreamData]) => stream[0] === updatedStream[0]
     );
-
+    debugger;
     if (index > -1) {
       streams[index] = updatedStream;
     }
