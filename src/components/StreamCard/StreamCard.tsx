@@ -116,14 +116,17 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     automaticWithdrawal,
     withdrawalFrequency,
   } = formatStreamData(data, decimals);
-
-  const symbol = myTokenAccounts[mint]?.info.symbol;
+  let symbol = "";
+  try {
+    symbol = myTokenAccounts[mint].info.symbol;
+  } catch (error) {}
   const icon = myTokenAccounts[mint]?.info.logoURI || "";
   // const isCliffDateAfterStart = cliff > start;
   // const isCliffAmount = cliffAmount > 0;
   const streamName = parseStreamName(name);
   const isSender = myAddress === sender;
   const isRecipient = myAddress === recipient;
+
   const releaseFrequency = calculateReleaseFrequency(period, cliff, end);
 
   const withdrawModalRef = useRef<ModalRef>(null);
