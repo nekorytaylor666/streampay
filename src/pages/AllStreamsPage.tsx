@@ -34,7 +34,7 @@ const AllStreamsPage = () => {
   }, [cluster]);
 
   return (
-    <div className="p-6 flex-grow">
+    <div className="pr-6 xl:pl-6 flex-grow">
       <h3 className="sm:hidden font-bold text-white mb-9 text-center">All Streams</h3>
       <StreamsList streams={streams} />
     </div>

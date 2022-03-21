@@ -9,7 +9,7 @@ interface BadgeProps {
 const Badge: FC<BadgeProps> = ({ type, color, classes }) => (
   <div className={classes}>
     <span
-      className={`px-2 py-1 rounded-lg text-xs font-medium bg-${color}-200 text-${color} capitalize`}
+      className={`px-2 py-1 rounded-lg text-xs sm:text-xxs lg:text-xs font-medium bg-${color}-200 text-${color} capitalize`}
     >
       {type.toUpperCase()}
     </span>

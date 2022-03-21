@@ -26,15 +26,17 @@ const VerticalNav: React.FC<NavProps> = ({ routes, classes, onClick }) => {
               }
               activeClassName="text-blue"
             >
-              <button onClick={onClick} className="flex items-center font-semibold">
+              <button onClick={onClick} className="flex items-center font-semibold text-left">
                 {route.Icon && (
                   <route.Icon
                     fill={path === route.path ? "#fff" : "#718298"}
-                    classes={`rounded-lg mr-3 ${path === route.path ? "bg-blue" : "bg-gray-dark"}`}
+                    classes={`rounded-lg mr-3 sm:mr-2 xl:mr-3 ${
+                      path === route.path ? "bg-blue" : "bg-gray-dark"
+                    }`}
                   />
                 )}
                 {route.label}
-                {route.disabled && <p className="text-xxs ml-1 mb-1 text-orange-700">Soon</p>}
+                {route.disabled && <p className="text-xxs ml-0.5 mb-1.5 text-orange-700">Soon</p>}
               </button>
             </NavLink>
           </li>

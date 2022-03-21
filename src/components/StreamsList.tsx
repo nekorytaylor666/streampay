@@ -93,13 +93,13 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
 
   return (
     <div className="block w-full">
-      <div className="hidden sm:grid grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12 px-6">
+      <div className="hidden sm:grid sm:grid-cols-8 xl:grid-cols-10 gap-x-3 sm:gap-x-5 mb-5 mt-12 px-6">
         <p className="text-p2 text-gray-light">Status</p>
-        <p className="text-p2 text-gray-light">Type/Direction</p>
+        <p className="text-p2 text-gray-light hidden xl:block">Type/Direction</p>
         <p className="text-p2 text-gray-light col-span-2">Subject/Stream ID</p>
         <p className="text-p2 text-gray-light col-span-2">Withdrawn</p>
         <p className="text-p2 text-gray-light col-span-2">Unlocked (Returned)</p>
-        <p className="text-p2 text-gray-light">Release Rate</p>
+        <p className="text-p2 text-gray-light hidden xl:block">Release Rate</p>
         <p className="text-p2 text-gray-light">Actions</p>
       </div>
       {streams.map(([id, data]) => (
