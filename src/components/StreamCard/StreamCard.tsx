@@ -343,6 +343,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
   const toggleCardVisibility = () => setIsFullCardVisible(!isFullCardVisible);
 
   const tooltipAddressRef = useRef<any>(null);
+  const tooltipAddressMobileRef = useRef<any>(null);
   const tooltipSenderRef = useRef<any>(null);
   const tooltipRecipientRef = useRef<any>(null);
 
@@ -428,7 +429,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             <button onClick={() => copy(id, tooltipAddressRef)}>
               <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
             </button>
-            <div className="w-40 sm:w-36 xl:w-40 mb-1">
+            <div className="w-40 sm:w-32 xl:w-34 mb-1">
               <MiddleEllipsis>
                 <span className="text-p3 font-bold text-white">{id}</span>
               </MiddleEllipsis>
@@ -454,7 +455,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
                 <button onClick={() => copy(sender, tooltipSenderRef)}>
                   <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
                 </button>
-                <div className="w-40 sm:w-36 xl:w-40 mb-1">
+                <div className="w-40 sm:w-32 xl:w-34 mb-1">
                   <MiddleEllipsis>
                     <span className="text-p3 font-bold text-white">{sender}</span>
                   </MiddleEllipsis>
@@ -478,7 +479,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
                 <button onClick={() => copy(recipient, tooltipRecipientRef)}>
                   <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
                 </button>
-                <div className="w-40 sm:w-36 xl:w-40 mb-1">
+                <div className="w-40 sm:w-32 xl:w-34 mb-1">
                   <MiddleEllipsis>
                     <span className="text-p3 font-bold text-white">{recipient}</span>
                   </MiddleEllipsis>
@@ -643,15 +644,19 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             title={"Stream ID"}
             classes="text-gray-light text-p3"
           />
-          <span ref={tooltipAddressRef} data-tip="tooltip" data-for={`addressCopied-${id}`}></span>
+          <span
+            ref={tooltipAddressMobileRef}
+            data-tip="tooltip"
+            data-for={`addressCopied-mobile-${id}`}
+          ></span>
           <Tooltip
             content={<p className="p-1 text-p2">Address copied!</p>}
-            id={`addressCopied-${id}`}
+            id={`addressCopied-mobile-${id}`}
           />
-          <button onClick={() => copy(id, tooltipAddressRef)}>
+          <button onClick={() => copy(id, tooltipAddressMobileRef)}>
             <IcnCopy classes="text-gray mx-2 fill-current hover:text-blue hover:cursor-pointer w-4 h-4" />
           </button>
-          <div className="w-40 sm:w-36 xl:w-40 mb-1">
+          <div className="w-40 sm:w-32 xl:w-34 mb-1">
             <MiddleEllipsis>
               <span className="text-p3 font-bold text-white">{id}</span>
             </MiddleEllipsis>

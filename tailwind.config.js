@@ -73,6 +73,7 @@ module.exports = {
       },
       width: {
         100: "26rem",
+        34: "8.5rem",
       },
       maxWidth: {
         xxs: "200px",

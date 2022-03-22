@@ -26,7 +26,7 @@ const IncomingStreamsPage: React.FC = () => {
   }, [cluster, streams]);
 
   return (
-    <div className="px-4 py-6 flex-grow">
+    <div className="px-4 sm:pl-0 flex-grow py-6">
       <h3 className="sm:hidden font-bold text-white mb-6 mt-2 text-center">Incoming Streams</h3>
       {/* @ts-ignore */}
       <StreamsList streams={incomingStreams} />
