@@ -10,16 +10,20 @@ const OutgoingStreamsPage: React.FC = () => {
   const streams = useStore((state) => state.streams);
   const wallet = useStore((state) => state.wallet);
   const cluster = useStore((state) => state.cluster);
+  const setLoading = useStore((state) => state.setLoading);
+
   const [outgoingStreams, setOutgoingStreams] = useState<[string, Stream][]>([]);
 
   useEffect(() => {
     if (!wallet?.connected || !wallet?.publicKey) return;
+    setLoading(true);
 
     (async () => {
       const outgoingStreams = streams.filter(
         (stream) => stream[1].sender === wallet.publicKey.toBase58()
       );
       setOutgoingStreams(sortStreams(outgoingStreams));
+      setLoading(false);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
