@@ -77,7 +77,7 @@ module.exports = {
       sm: "640px",
       md: "768px",
       lg: "1128px",
-      xl: "1281px",
+      xl: "1442px",
       high: { raw: "(min-height: 1234px)" },
     },
   },
