@@ -50,6 +50,9 @@ module.exports = {
         "dev-dark-700": "rgba(var(--dev-dark), 0.7)",
         "orange-700": "rgba(var(--orange), 0.7)",
       },
+      gridTemplateColumns: {
+        12: "repeat(auto-fill, minmax(160px, 1fr))",
+      },
       borderColor: () => ({
         black: "#2A3441",
       }),
@@ -70,6 +73,9 @@ module.exports = {
       },
       width: {
         100: "26rem",
+      },
+      maxWidth: {
+        xxs: "200px",
       },
     },
     screens: {
