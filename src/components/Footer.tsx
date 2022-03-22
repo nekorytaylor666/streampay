@@ -10,7 +10,8 @@ const Footer: FC = () => (
         title="audited"
         url="https://github.com/streamflow-finance/rust-sdk/blob/main/protocol_audit.pdf"
         classes="inline-block text-p3 text-blue"
-      />.
+      />
+      .
     </p>
   </footer>
 );
