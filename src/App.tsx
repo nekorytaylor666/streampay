@@ -55,7 +55,7 @@ const App: FC = () => {
             />
           )}
           {wallet?.connected && (
-            <VerticalNav routes={routes.slice(5)} classes="hidden sm:flex w-60 xl:w-72" />
+            <VerticalNav routes={routes.slice(5)} classes="hidden sm:flex w-60 xl:w-64" />
           )}
           <Switch>
             {routes.map(({ path, exact, Component, isPrivate, redirect }) =>

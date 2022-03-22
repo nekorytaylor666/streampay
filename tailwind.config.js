@@ -51,7 +51,7 @@ module.exports = {
         "orange-700": "rgba(var(--orange), 0.7)",
       },
       gridTemplateColumns: {
-        12: "repeat(auto-fill, minmax(160px, 1fr))",
+        11: "repeat(11, minmax(104px, 1fr))",
       },
       borderColor: () => ({
         black: "#2A3441",
@@ -83,7 +83,7 @@ module.exports = {
       sm: "640px",
       md: "768px",
       lg: "1128px",
-      xl: "1442px",
+      xl: "1600px",
       high: { raw: "(min-height: 1234px)" },
     },
   },

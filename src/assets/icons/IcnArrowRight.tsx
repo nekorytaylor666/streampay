@@ -6,9 +6,9 @@ interface IconProps {
 
 const IcnDashboard: React.FC<IconProps> = ({ fill, classes, onClick }) => (
   <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={classes}

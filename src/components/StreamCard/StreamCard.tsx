@@ -357,7 +357,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
   return (
     <>
       <div
-        className={`hidden sm:grid sm:grid-cols-8 xl:grid-cols-10 rounded-2xl px-4 py-4 mb-1 sm:gap-x-3 ${
+        className={`hidden sm:grid sm:grid-cols-8 xl:grid-cols-11 rounded-2xl px-4 py-4 mb-1 sm:gap-x-3 ${
           isFullCardVisible && "bg-gray-dark"
         }`}
         data-test-id={id}
@@ -377,7 +377,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
                 classes="hover:cursor-pointer"
               />
             )}
-            <Badge type={status} color={color} classes="ml-3 sm:ml-2 xl:ml-3 mb-1" />
+            <Badge type={status} color={color} classes="ml-3 sm:ml-2 mb-1" />
           </div>
           {isFullCardVisible && (
             <div className="ml-6 hidden sm:block xl:hidden">
@@ -557,7 +557,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
             </>
           )}
         </div>
-        <div className="sm:hidden xl:block">
+        <div className="sm:hidden xl:block col-span-2">
           <div className="flex items-center">
             <img src={icon} alt={symbol} className="w-6 h-6 mr-2" />
             <p className="text-p2 font-bold text-white">{`${formatAmount(
