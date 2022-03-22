@@ -24,7 +24,17 @@ const createOptionsObject = (options: StringOption[] | NumberOption[]) => {
 
 const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
   (
-    { name, options, classes = "", label = "", error = "", onChange, customChange, plural = false },
+    {
+      name,
+      options,
+      classes = "",
+      label = "",
+      error = "",
+      onChange,
+      customChange,
+      plural = false,
+      ...rest
+    },
     ref
   ) => {
     const withIcons = !!options[0].icon;
@@ -42,7 +52,10 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
 
     return (
       <div className={classes}>
-        <label htmlFor={name} className="block text-gray-light text-base cursor-pointer mb-1">
+        <label
+          htmlFor={name}
+          className="block text-white font-bold text-base font-bold cursor-pointer mb-1"
+        >
           {label}
         </label>
         <div className="relative">
@@ -61,9 +74,15 @@ const Select: FC<SelectProps> = forwardRef<any, SelectProps>(
                 : "border-0 focus:ring-blue focus:border-blue"
             )}
             ref={ref}
+            {...rest}
           >
             {options.map(({ value, label, icon }) => (
-              <option key={label} value={value} data-thumbnail={icon}>
+              <option
+                key={label}
+                value={value}
+                data-thumbnail={icon}
+                className="text-white text-base font-light leading-6 bg-gray-dark"
+              >
                 {`${label}${plural ? "s" : ""}`}
               </option>
             ))}

@@ -5,22 +5,29 @@ import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import { getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle } from "../../components";
+import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
-import { didTokenOptionsChange, getTokenAmount, sortTokenAccounts } from "../../utils/helpers";
+import {
+  calculateWithdrawalFees,
+  didTokenOptionsChange,
+  getTokenAmount,
+  sortTokenAccounts,
+} from "../../utils/helpers";
 import {
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
   timePeriodOptions,
   TIME_FORMAT,
   TRANSACTION_VARIANT,
+  transferCancelOptions,
 } from "../../constants";
 import { createStream } from "../../api/transactions";
-import { StringOption } from "../../types";
+import { StringOption, TransferCancelOptions } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 import { trackTransaction } from "../../utils/marketing_helpers";
+import Description from "./Description";
 
 interface VestingFormProps {
   loading: boolean;
@@ -60,7 +67,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
 
-  const [advanced, setAdvanced] = useState(false);
   const modalRef = useRef<ModalRef>(null);
 
   const { register, handleSubmit, watch, errors, setValue, trigger } = useVestingForm({
@@ -176,10 +182,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       endTime,
       releaseFrequencyCounter,
       releaseFrequencyPeriod,
-      senderCanCancel,
-      recipientCanCancel,
-      senderCanTransfer,
-      recipientCanTransfer,
+      whoCanTransfer,
+      whoCanCancel,
       cliffDate,
       cliffTime,
       cliffAmount,
@@ -213,10 +217,18 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliff: cliff,
       cliffAmount: getBN(cliffAmountCalculated, decimals),
       amountPerPeriod: getBN(amountPerPeriod, decimals),
-      cancelableBySender: senderCanCancel,
-      cancelableByRecipient: recipientCanCancel,
-      transferableBySender: senderCanTransfer,
-      transferableByRecipient: recipientCanTransfer,
+      cancelableBySender:
+        whoCanCancel === TransferCancelOptions.Sender ||
+        whoCanCancel === TransferCancelOptions.Both,
+      cancelableByRecipient:
+        whoCanCancel === TransferCancelOptions.Recipient ||
+        whoCanCancel === TransferCancelOptions.Both,
+      transferableBySender:
+        whoCanTransfer === TransferCancelOptions.Sender ||
+        whoCanTransfer === TransferCancelOptions.Both,
+      transferableByRecipient:
+        whoCanTransfer === TransferCancelOptions.Recipient ||
+        whoCanTransfer === TransferCancelOptions.Both,
       automaticWithdrawal,
       withdrawalFrequency: automaticWithdrawal
         ? withdrawalFrequencyCounter * withdrawalFrequencyPeriod
@@ -279,241 +291,244 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     setValue("releaseFrequencyCounter", parseInt(value));
     trigger("releaseFrequencyPeriod");
   };
+
+  const start = getUnixTime(new Date(startDate + "T" + startTime));
+  const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
+  const end = getUnixTime(new Date(endDate + "T" + endTime));
+
+  const withdrawalFees = automaticWithdrawal
+    ? calculateWithdrawalFees(
+        start,
+        cliff,
+        end,
+        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+      )
+    : 0;
+
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="block my-4">
-        <div className="grid gap-y-5 gap-x-3 sm:gap-x-4 grid-cols-6 sm:grid-cols-2">
-          <Input
-            type="number"
-            label="Amount"
-            placeholder="0.00"
-            error={errors?.amount?.message}
-            classes="col-span-3 sm:col-span-1"
-            {...register("amount")}
-          />
-          {wallet && tokenOptions.length ? (
-            <Select
-              label="Token"
-              options={tokenOptions}
-              error={errors?.tokenSymbol?.message}
-              customChange={updateToken}
-              {...register("tokenSymbol")}
-              classes="col-span-3 sm:col-span-1"
-            />
-          ) : (
-            <div className="col-span-3 sm:col-span-1">
-              <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
-              <p className="text-base font-medium text-blue">No tokens available.</p>
-            </div>
-          )}
-          <Input
-            type="text"
-            label="Subject / Title"
-            placeholder="e.g. Streamflow VC - seed round"
-            classes="col-span-full"
-            error={errors?.subject?.message}
-            {...register("subject")}
-          />
-          <Input
-            type="text"
-            label="Recipient Account"
-            placeholder="Please double check the address"
-            classes="col-span-full"
-            error={errors?.recipient?.message}
-            {...register("recipient")}
-          />
-          <Input
-            type="date"
-            label="Start Date"
-            min={format(new Date(), DATE_FORMAT)}
-            customChange={onStartDateChange}
-            onClick={updateStartDate}
-            classes="col-span-3 sm:col-span-1"
-            error={errors?.startDate?.message}
-            required
-            {...register("startDate")}
-          />
-          <Input
-            type="time"
-            label="Start Time"
-            onClick={updateStartTime}
-            customChange={onStartTimeChange}
-            classes="col-span-3 sm:col-span-1"
-            error={errors?.startDate?.message ? "" : errors?.startTime?.message}
-            required
-            {...register("startTime")}
-          />
-          <Input
-            type="date"
-            label="End Date"
-            min={format(new Date(), DATE_FORMAT)}
-            customChange={() => trigger("releaseFrequencyPeriod")}
-            classes="col-span-3 sm:col-span-1"
-            error={errors?.endDate?.message}
-            required
-            {...register("endDate")}
-          />
-          <Input
-            type="time"
-            label="End Time"
-            classes="col-span-3 sm:col-span-1"
-            customChange={() => trigger("releaseFrequencyPeriod")}
-            error={errors?.endDate?.message ? "" : errors?.endTime?.message}
-            required
-            {...register("endTime")}
-          />
-          <div className="grid gap-x-1 sm:gap-x-2 grid-cols-2 col-span-4 sm:col-span-1">
-            <label className="block text-base text-gray-light text-gray-light capitalize col-span-2">
-              Release Frequency
-            </label>
+      <div className="xl:mr-12 px-4 sm:px-0 pt-4">
+        <Description classes="sm:hidden" />
+        <Balance classes="sm:hidden" />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
+          <div className="grid gap-y-5 gap-x-3 grid-cols-6 sm:grid-cols-2">
             <Input
               type="number"
-              min={1}
-              step={1}
-              error={
-                errors?.releaseFrequencyCounter?.message || errors?.releaseFrequencyPeriod?.message
-              }
-              customChange={updateReleaseFrequencyCounter}
-              {...register("releaseFrequencyCounter")}
+              label="Amount"
+              placeholder="0.00"
+              error={errors?.amount?.message}
+              classes="col-span-full sm:col-span-3 sm:col-span-1"
+              data-testid="vesting-amount"
+              {...register("amount")}
             />
-            <Select
-              options={timePeriodOptions}
-              plural={releaseFrequencyCounter > 1}
-              {...register("releaseFrequencyPeriod")}
-              error={errors?.releaseFrequencyPeriod?.message}
+            {wallet && tokenOptions.length ? (
+              <Select
+                label="Token"
+                options={tokenOptions}
+                error={errors?.tokenSymbol?.message}
+                customChange={updateToken}
+                {...register("tokenSymbol")}
+                classes="col-span-full sm:col-span-3 sm:col-span-1"
+              />
+            ) : (
+              <div className="col-span-3 sm:col-span-1">
+                <label className="text-gray-light text-base cursor-pointer mb-1 block">Token</label>
+                <p className="text-base font-medium text-blue">No tokens available.</p>
+              </div>
+            )}
+            <Input
+              type="text"
+              label="Recipient Wallet Address"
+              placeholder="Please double check the address"
+              classes="col-span-full"
+              description="Make sure this is not a centralized exchange address."
+              error={errors?.recipient?.message}
+              data-testid="vesting-recipient"
+              {...register("recipient")}
             />
-          </div>
-          <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
+            <Input
+              type="text"
+              label="Contract Title"
+              placeholder="e.g. VC Seed Round"
+              classes="col-span-full"
+              error={errors?.subject?.message}
+              data-testid="vesting-title"
+              {...register("subject")}
+            />
             <Input
               type="date"
-              label="Cliff Date"
+              label="Start Date"
               min={format(new Date(), DATE_FORMAT)}
-              customChange={() => trigger("releaseFrequencyPeriod")}
-              classes="col-span-2"
-              error={errors?.cliffDate?.message}
+              customChange={onStartDateChange}
+              onClick={updateStartDate}
+              classes="col-span-3 sm:col-span-1"
+              error={errors?.startDate?.message}
+              data-testid="vesting-start-date"
               required
-              {...register("cliffDate")}
+              {...register("startDate")}
             />
             <Input
               type="time"
-              label="Cliff Time"
-              classes="col-span-2"
-              customChange={() => trigger("releaseFrequencyPeriod")}
-              error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
+              label="Start Time"
+              onClick={updateStartTime}
+              customChange={onStartTimeChange}
+              classes="col-span-3 sm:col-span-1"
+              error={errors?.startDate?.message ? "" : errors?.startTime?.message}
+              data-testid="vesting-start-time"
               required
-              {...register("cliffTime")}
+              {...register("startTime")}
             />
-            <div className="relative col-span-1 sm:col-span-1">
-              <Input
-                type="number"
-                label="Release"
-                min={0}
-                max={100}
-                inputClasses="pr-9"
-                error={errors?.cliffAmount?.message}
-                {...register("cliffAmount")}
-              />
-              <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
-                %
-              </span>
-            </div>
-          </div>
-          <Toggle
-            checked={automaticWithdrawal}
-            labelRight="Automatic Withdrawal"
-            classes="col-span-full"
-            customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
-            {...register("automaticWithdrawal")}
-          />
-          {automaticWithdrawal && (
-            <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-1 sm:gap-x-2 sm:grid-cols-4">
-              <label className="block text-base text-gray-light text-gray-light capitalize col-span-full">
-                Withdrawal Frequency
+            <Input
+              type="date"
+              label="End Date"
+              min={format(new Date(), DATE_FORMAT)}
+              customChange={() => trigger("releaseFrequencyPeriod")}
+              classes="col-span-3 sm:col-span-1"
+              error={errors?.endDate?.message}
+              data-testid="vesting-end-date"
+              required
+              {...register("endDate")}
+            />
+            <Input
+              type="time"
+              label="End Time"
+              classes="col-span-3 sm:col-span-1"
+              customChange={() => trigger("releaseFrequencyPeriod")}
+              error={errors?.endDate?.message ? "" : errors?.endTime?.message}
+              data-testid="vesting-end-time"
+              required
+              {...register("endTime")}
+            />
+            <div className="grid gap-x-3 grid-cols-2 col-span-full sm:col-span-1 pb-2">
+              <label className="block text-base text-white font-bold capitalize col-span-2">
+                Release Frequency
               </label>
               <Input
                 type="number"
                 min={1}
                 step={1}
-                classes="col-span-2 sm:col-span-1"
-                customChange={() => trigger("withdrawalFrequencyPeriod")}
                 error={
-                  errors?.withdrawalFrequencyCounter?.message ||
-                  errors?.withdrawalFrequencyPeriod?.message
+                  errors?.releaseFrequencyCounter?.message ||
+                  errors?.releaseFrequencyPeriod?.message
                 }
-                {...register("withdrawalFrequencyCounter")}
+                data-testid="vesting-release-frequency"
+                customChange={updateReleaseFrequencyCounter}
+                {...register("releaseFrequencyCounter")}
               />
               <Select
-                options={timePeriodOptions.slice(1)}
-                plural={withdrawalFrequencyCounter > 1}
-                {...register("withdrawalFrequencyPeriod")}
-                classes="col-span-2 sm:col-span-1"
-                error={errors?.withdrawalFrequencyPeriod?.message}
+                options={timePeriodOptions}
+                plural={releaseFrequencyCounter > 1}
+                {...register("releaseFrequencyPeriod")}
+                error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
-          )}
-          <Toggle
-            checked={advanced}
-            customChange={setAdvanced}
-            labelRight="Advanced"
-            classes="col-span-full"
-          />
-          {advanced && (
-            <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
-              <div className="col-span-full grid grid-cols-6 sm:grid-cols-2 gap-y-5 gap-x-3 sm:gap-x-4">
-                <div className="col-span-4 sm:col-span-1">
-                  <label className="text-gray-light text-base cursor-pointer mb-1 block">
-                    Who can transfer the stream?
-                  </label>
-                  <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
-                    <Input
-                      type="checkbox"
-                      label="sender"
-                      classes="col-span-1"
-                      {...register("senderCanTransfer")}
-                    />
-                    <Input
-                      type="checkbox"
-                      label="recipient"
-                      classes="col-span-1"
-                      {...register("recipientCanTransfer")}
-                    />
-                  </div>
-                </div>
-                <div className="col-span-4 sm:col-span-1">
-                  <label className="text-gray-light text-base cursor-pointer col-span-1 mb-1 block">
-                    Who can cancel?
-                  </label>
-                  <div className="bg-field rounded-md grid grid-cols-2 gap-x-2 px-2.5 sm:px-3 py-2">
-                    <Input
-                      type="checkbox"
-                      label="sender"
-                      classes="col-span-1"
-                      {...register("senderCanCancel")}
-                    />
-                    <Input
-                      type="checkbox"
-                      label="recipient"
-                      classes="col-span-1"
-                      {...register("recipientCanCancel")}
-                    />
-                  </div>
+            <div className="col-span-full border-t border-gray-dark pt-6 pb-1 grid grid-cols-2 gap-y-5 gap-x-4">
+              <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
+                <Input
+                  type="date"
+                  label="Cliff Date"
+                  min={format(new Date(), DATE_FORMAT)}
+                  customChange={() => trigger("releaseFrequencyPeriod")}
+                  classes="col-span-full sm:col-span-2"
+                  data-testid="vesting-cliff-date"
+                  error={errors?.cliffDate?.message}
+                  required
+                  {...register("cliffDate")}
+                />
+                <Input
+                  type="time"
+                  label="Cliff Time"
+                  classes="col-span-full sm:col-span-2"
+                  data-testid="vesting-cliff-time"
+                  customChange={() => trigger("releaseFrequencyPeriod")}
+                  error={errors?.cliffDate?.message ? "" : errors?.cliffTime?.message}
+                  required
+                  {...register("cliffTime")}
+                />
+                <div className="relative col-span-full sm:col-span-1">
+                  <Input
+                    type="number"
+                    label="Release"
+                    min={0}
+                    max={100}
+                    inputClasses="pr-9"
+                    classes="col-span-full sm:col-span-1"
+                    data-testid="vesting-cliff-amount"
+                    error={errors?.cliffAmount?.message}
+                    {...register("cliffAmount")}
+                  />
+                  <span className="absolute text-gray-light text-base right-2 sm:right-4 bottom-2">
+                    %
+                  </span>
                 </div>
               </div>
-              <Input
-                type="text"
-                label="Referral Address"
-                placeholder="Please double check the address"
-                classes="col-span-full"
-                error={errors?.referral?.message}
-                {...register("referral")}
+              <Select
+                label="Who Can Transfer Contract?"
+                options={transferCancelOptions}
+                {...register("whoCanTransfer")}
+                classes="col-span-full sm:col-span-1"
+                data-testid="vesting-who-can-transfer"
+              />
+              <Select
+                label="Who Can Cancel Contract?"
+                options={transferCancelOptions}
+                {...register("whoCanCancel")}
+                classes="col-span-full sm:col-span-1"
+                data-testid="vesting-who-can-cancel"
               />
             </div>
-          )}
-        </div>
-
-        {wallet?.connected && (
-          <>
+            <div className="border-t border-b border-gray-dark py-6 col-span-full">
+              <h5 className="text-gray font-bold text-xs tracking-widest mb-5">
+                WITHDRAW SETTINGS
+              </h5>
+              <Toggle
+                checked={automaticWithdrawal}
+                labelRight="Automatic Withdraw"
+                classes="col-span-full"
+                customChange={() => setValue("automaticWithdrawal", !automaticWithdrawal)}
+                {...register("automaticWithdrawal")}
+              />
+              {automaticWithdrawal && (
+                <div className="col-span-full grid grid-cols-6 gap-y-0 gap-x-3 sm:gap-x-4 mt-5">
+                  <label className="block text-base text-white font-bold capitalize col-span-full">
+                    Withdraw Frequency
+                  </label>
+                  <Input
+                    type="number"
+                    min={1}
+                    step={1}
+                    classes="col-span-3"
+                    customChange={() => trigger("withdrawalFrequencyPeriod")}
+                    data-testid="vesting-withdrawal-frequency"
+                    error={
+                      errors?.withdrawalFrequencyCounter?.message ||
+                      errors?.withdrawalFrequencyPeriod?.message
+                    }
+                    {...register("withdrawalFrequencyCounter")}
+                  />
+                  <Select
+                    options={timePeriodOptions.slice(1)}
+                    plural={withdrawalFrequencyCounter > 1}
+                    {...register("withdrawalFrequencyPeriod")}
+                    classes="col-span-3"
+                    error={errors?.withdrawalFrequencyPeriod?.message}
+                  />
+                  <p className="text-gray-light text-xxs leading-4 mt-3 col-span-full">
+                    When automatic withdrawal is enabled there are additional fees ( 5000 lamports )
+                    per every withdrawal.{" "}
+                    {withdrawalFees > 0 && (
+                      <>
+                        For this stream there will be
+                        <span className="font-bold">{` ${withdrawalFees.toFixed(6)} SOL`}</span> in
+                        withdrawal fees.
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
             <Overview
+              classes="sm:hidden"
               {...{
                 amount,
                 tokenSymbol,
@@ -525,31 +540,66 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
                 decimals,
-                automaticWithdrawal,
-                startTime,
-                startDate,
-                withdrawalFrequencyCounter,
-                withdrawalFrequencyPeriod,
               }}
             />
-            <Button
-              type="submit"
-              background="blue"
-              classes="px-20 py-4 font-bold text-2xl my-5 mx-auto"
-              disabled={loading}
-            >
-              Create
-            </Button>
-          </>
-        )}
-      </form>
-      <Modal
-        ref={modalRef}
-        title="Seems like the recipient address has empty balance."
-        text="Please check that the address is correct before proceeding."
-        type="info"
-        confirm={{ color: "red", text: "Continue" }}
-      />
+          </div>
+          {wallet?.connected && (
+            <>
+              <Button
+                type="submit"
+                background="blue"
+                classes="py-2 px-4 font-bold my-5 text-sm"
+                disabled={loading}
+                data-testid="create-vesting"
+              >
+                Create Vesting Contract
+              </Button>
+            </>
+          )}
+        </form>
+        <Modal
+          ref={modalRef}
+          title="Seems like the recipient address has empty balance."
+          text="Please check that the address is correct before proceeding."
+          type="info"
+          confirm={{ color: "red", text: "Continue" }}
+        />
+        <div />
+      </div>
+      <div className="my-4 pl-3 pr-6 flex-grow">
+        <Balance classes="hidden sm:block" />
+        <Description classes="hidden sm:block" />
+        <Overview
+          classes="hidden sm:block sm:my-6"
+          {...{
+            amount,
+            tokenSymbol,
+            endDate,
+            endTime,
+            cliffDate,
+            cliffTime,
+            cliffAmount,
+            releaseFrequencyCounter,
+            releaseFrequencyPeriod,
+            decimals,
+            automaticWithdrawal,
+            startTime,
+            startDate,
+            withdrawalFrequencyCounter,
+            withdrawalFrequencyPeriod,
+          }}
+        />
+        <Input
+          label="Referral Address"
+          type="text"
+          placeholder="Paste referral address here..."
+          classes="col-span-full border-t border-gray-dark pt-6"
+          description="Enter the referral address of the person who referred you."
+          error={errors?.referral?.message}
+          data-testid="vesting-referral-address"
+          {...register("referral")}
+        />
+      </div>
     </>
   );
 };

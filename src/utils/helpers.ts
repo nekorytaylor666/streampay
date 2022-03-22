@@ -6,7 +6,7 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import { SystemProgram } from "@solana/web3.js";
 import { format } from "date-fns";
-import { Cluster, LocalCluster, ClusterExtended } from "@streamflow/stream";
+import { Cluster, LocalCluster, ClusterExtended, Stream as StreamData } from "@streamflow/stream";
 
 import useStore from "../stores";
 import { StringOption, Token } from "../types";
@@ -149,7 +149,10 @@ export const formatPeriodOfTime = (period: number): string => {
   if (Math.floor(years)) return `${years > 1 ? years : ""} year${isMoreThanOne(years)}`;
 
   const months = period / PERIOD.MONTH;
-  if (Math.floor(months)) return `${months > 1 ? months : ""} month${isMoreThanOne(months)}`;
+  if (Math.floor(months))
+    return `${
+      months > 1 ? formatAmount(months, 0, DEFAULT_DECIMAL_PLACES) : ""
+    } month${isMoreThanOne(months)}`;
 
   const weeks = period / PERIOD.WEEK;
   if (Math.floor(weeks)) return `${weeks > 1 ? weeks : ""} week${isMoreThanOne(weeks)}`;
@@ -244,10 +247,26 @@ export const calculateWithdrawalFees = (
   return 0.000005 * withdrawalsCounter;
 };
 
+export function abbreviateAddress(address: PublicKey, size = 5) {
+  const base58 = address.toBase58();
+  return base58.slice(0, size) + "…" + base58.slice(-size);
+}
+
 export const sortTokenAccounts = (myTokenAccounts: { [mint: string]: Token }): Token[] =>
   Object.values(myTokenAccounts).sort((token1, token2) =>
     token1.info.name < token2.info.name ? 1 : -1
   );
+
+export const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
+  streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
+
+export function parseStreamName(name: string) {
+  const cutoff = name.indexOf(" ");
+  if (cutoff === 0) {
+    return name;
+  }
+  return name.substring(0, cutoff);
+}
 
 export const isAddressValid = async (
   address: string,

@@ -12,7 +12,7 @@ export interface WalletType {
 export enum StreamStatus {
   scheduled = "scheduled",
   streaming = "streaming",
-  complete = "complete",
+  complete = "completed",
   canceled = "canceled",
 }
 
@@ -51,3 +51,15 @@ export type StreamFE = Omit<
   amountPerPeriod: number;
   withdrawnAmount: number;
 };
+
+export enum StreamType {
+  Stream = "Stream",
+  Vesting = "Vesting",
+}
+
+export enum TransferCancelOptions {
+  Recipient = "recipient",
+  Sender = "sender",
+  Both = "both",
+  Neither = "neither",
+}

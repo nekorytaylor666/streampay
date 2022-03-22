@@ -160,3 +160,22 @@ export const DATA_LAYER_VARIABLE = {
   TOTAL_AMOUNT_TOKEN: "totalAmountToken",
   TOTAL_AMOUNT_USD: "totalAmountUsd",
 };
+
+export const transferCancelOptions = [
+  {
+    value: "recipient",
+    label: "Only Recipient",
+  },
+  {
+    value: "sender",
+    label: "Only Sender",
+  },
+  {
+    value: "both",
+    label: "Both",
+  },
+  {
+    value: "neither",
+    label: "Neither",
+  },
+];
