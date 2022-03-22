@@ -7,6 +7,7 @@ import { StreamsList } from "../components";
 
 const storeGetter = (state: StoreType) => ({
   streams: state.streams,
+  setLoading: state.setLoading,
   populateStreams: state.populateStreams,
   clearStreams: state.clearStreams,
   cluster: state.cluster,
@@ -15,11 +16,12 @@ const storeGetter = (state: StoreType) => ({
 });
 
 const AllStreamsPage = () => {
-  const { populateStreams, clearStreams, cluster, connection, wallet, streams } =
+  const { populateStreams, clearStreams, cluster, connection, wallet, streams, setLoading } =
     useStore(storeGetter);
 
   useEffect(() => {
     clearStreams();
+    setLoading(true);
 
     (async () => {
       const allStreams = await Stream.get({
@@ -28,6 +30,7 @@ const AllStreamsPage = () => {
         cluster,
       });
       populateStreams(allStreams);
+      setLoading(false);
     })();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

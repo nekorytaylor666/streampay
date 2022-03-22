@@ -2,7 +2,7 @@ import { FC } from "react";
 
 import Stream, { getNumberFromBN, Stream as StreamData } from "@streamflow/stream";
 
-import { StreamCard } from "../components";
+import { StreamCard, NoStreams } from "../components";
 import { cancelStream } from "../api/transactions";
 import { DATA_LAYER_VARIABLE, EVENT_ACTION, EVENT_CATEGORY } from "../constants";
 import useStore, { StoreType } from "../stores";
@@ -25,6 +25,7 @@ const storeGetter = (state: StoreType) => ({
   walletType: state.walletType,
   wallet: state.wallet!,
   connection: state.connection()!,
+  loading: state.loading,
 });
 
 interface StreamsListProps {
@@ -44,6 +45,7 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
     walletType,
     connection,
     wallet,
+    loading,
   } = useStore(storeGetter);
 
   const updateToken = async () => {
@@ -92,28 +94,35 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   }
 
   return (
-    <div className="block w-full">
-      <div className="hidden sm:grid sm:grid-cols-8 xl:grid-cols-11 rounded-2xl px-4 py-4 mb-1 sm:gap-x-3">
-        <p className="text-p2 text-gray-light">Status</p>
-        <p className="text-p2 text-gray-light hidden xl:block">Type/Direction</p>
-        <p className="text-p2 text-gray-light col-span-2">Subject/Stream ID</p>
-        <p className="text-p2 text-gray-light col-span-2">Withdrawn</p>
-        <p className="text-p2 text-gray-light col-span-2">Unlocked (Returned)</p>
-        <p className="text-p2 text-gray-light hidden xl:block col-span-2">Release Rate</p>
-        <p className="text-p2 text-gray-light">Actions</p>
-      </div>
-      {streams.map(([id, data]) => (
-        <StreamCard
-          key={id}
-          onCancel={() => handleCancel(id)}
-          onWithdraw={updateToken}
-          onTopup={updateToken}
-          id={id}
-          data={data}
-          myAddress={wallet?.publicKey?.toBase58() as string}
-        />
-      ))}
-    </div>
+    <>
+      {!loading && streams.length > 0 && (
+        <div className="block w-full">
+          <div className="hidden sm:grid sm:grid-cols-8 xl:grid-cols-11 rounded-2xl px-4 py-4 mb-1 sm:gap-x-3">
+            <p className="text-p2 text-gray-light">Status</p>
+            <p className="text-p2 text-gray-light hidden xl:block">Type/Direction</p>
+            <p className="text-p2 text-gray-light col-span-2">Subject/Stream ID</p>
+            <p className="text-p2 text-gray-light col-span-2">Withdrawn</p>
+            <p className="text-p2 text-gray-light col-span-2">Unlocked (Returned)</p>
+            <p className="text-p2 text-gray-light hidden xl:block col-span-2">Release Rate</p>
+            <p className="text-p2 text-gray-light">Actions</p>
+          </div>
+          {streams.map(([id, data]) => (
+            <StreamCard
+              key={id}
+              onCancel={() => handleCancel(id)}
+              onWithdraw={updateToken}
+              onTopup={updateToken}
+              id={id}
+              data={data}
+              myAddress={wallet?.publicKey?.toBase58() as string}
+            />
+          ))}
+        </div>
+      )}
+      {!loading && streams.length === 0 && (
+        <NoStreams title="No Streams Available" subtitle="No existing streams to show here." />
+      )}
+    </>
   );
 };
 
