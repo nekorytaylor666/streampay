@@ -603,7 +603,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
               leaveFrom="transform opacity-100 scale-100"
               leaveTo="transform opacity-0 scale-95"
             >
-              <Menu.Items className="absolute z-50 left-0 w-36 mt-1 origin-top-right bg-gray-dark divide-y rounded-md shadow-lg focus:outline-none">
+              <Menu.Items className="absolute z-50 left-0 w-32 mt-1 origin-top-right bg-gray-dark divide-y rounded-md shadow-lg focus:outline-none">
                 <div className="px-1 py-1">
                   {ctaOptions.map(({ label, color, handler }) => (
                     <Menu.Item as="div" key={label}>
