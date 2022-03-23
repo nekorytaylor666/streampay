@@ -3,7 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
+import { u64, getBN, getNumberFromBN } from "@streamflow/stream";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -35,7 +35,8 @@ interface NewStreamFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  StreamInstance: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
   cluster: state.cluster,
@@ -62,7 +63,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     setMyTokenAccountsSorted,
     addStream,
     setToken,
-    cluster,
+    StreamInstance,
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
@@ -164,7 +165,8 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       referral,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!StreamInstance || !wallet?.publicKey || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -177,7 +179,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       start,
       period: releaseFrequencyCounter * releaseFrequencyPeriod,
       cliff: start,
-      cliffAmount: new BN(0),
+      cliffAmount: new u64(0),
       amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
       name: subject,
       cancelableBySender:
@@ -206,10 +208,10 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    const response = await createStream(data, connection, wallet, cluster);
+    const response = await createStream(StreamInstance, data, wallet);
     setLoading(false);
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.stream.mint, response.stream]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -229,7 +231,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       );
 
       trackTransaction(
-        response.id,
+        response.stream.mint,
         token.info.symbol,
         token.info.name,
         tokenPriceUsd,

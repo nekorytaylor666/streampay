@@ -17,7 +17,7 @@ interface WalletMenuProps {
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
-  connection: state.connection(),
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   disconnectWallet: state.disconnectWallet,
   setMyTokenAccounts: state.setMyTokenAccounts,

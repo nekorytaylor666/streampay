@@ -53,7 +53,7 @@ interface UseStreamFormProps {
 }
 
 export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
-  const connection = useStore.getState().Stream?.getConnection();
+  const connection = useStore.getState().StreamInstance?.getConnection();
   const defaultValues = getDefaultValues();
 
   const validationSchema = useMemo(
@@ -87,7 +87,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .string()
           .required(ERRORS.recipient_required)
           .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isAddressValid(address || "", connection || null, true)
+            isAddressValid(address || "", connection, true)
           ),
         startDate: yup
           .string()

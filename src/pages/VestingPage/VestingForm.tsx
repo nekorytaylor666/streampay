@@ -35,8 +35,8 @@ interface VestingFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  Stream: state.Stream,
-  connection: state.Stream?.getConnection(),
+  Stream: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
   token: state.token,

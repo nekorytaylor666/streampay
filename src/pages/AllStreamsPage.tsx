@@ -1,34 +1,44 @@
 import { useEffect } from "react";
 
-import Stream from "@streamflow/stream";
-
 import useStore, { StoreType } from "../stores";
 import { StreamsList } from "../components";
 
 const storeGetter = (state: StoreType) => ({
+  StreamInstance: state.StreamInstance,
   streams: state.streams,
   setLoading: state.setLoading,
   populateStreams: state.populateStreams,
   clearStreams: state.clearStreams,
   cluster: state.cluster,
   wallet: state.wallet!,
-  connection: state.connection()!,
+  connection: state.StreamInstance?.getConnection(),
 });
 
 const AllStreamsPage = () => {
-  const { populateStreams, clearStreams, cluster, connection, wallet, streams, setLoading } =
-    useStore(storeGetter);
+  const {
+    populateStreams,
+    clearStreams,
+    cluster,
+    connection,
+    wallet,
+    streams,
+    setLoading,
+    StreamInstance,
+  } = useStore(storeGetter);
 
   useEffect(() => {
     clearStreams();
     setLoading(true);
 
     (async () => {
-      const allStreams = await Stream.get({
+      if (!StreamInstance || !connection) return;
+      const allStreams = await StreamInstance.get({
         connection,
         wallet: wallet.publicKey,
         cluster,
       });
+      console.log("all", allStreams);
+      console.log("cluster", cluster);
       populateStreams(allStreams);
       setLoading(false);
     })();

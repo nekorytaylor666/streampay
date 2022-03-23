@@ -222,13 +222,13 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     }
 
     const isTopupped = await topupStream(
-      Stream,
+      StreamInstance,
       { id, amount: getBN(topupAmount, decimals) },
       wallet
     );
 
     if (isTopupped) {
-      const stream = await StreamInstance.getOne({ id });
+      const stream = await StreamInstance.getOne(id);
       if (stream) {
         onTopup();
         updateStream([id, stream]);
@@ -249,7 +249,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
   };
 
   async function handleTransfer() {
-    if (!Stream || !connection || !wallet || !wallet?.publicKey) return;
+    if (!StreamInstance || !connection || !wallet || !wallet?.publicKey) return;
     const newRecipient = await transferModalRef?.current?.show();
 
     if (newRecipient !== undefined) {
@@ -263,13 +263,17 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
         return;
       }
 
-      const response = await transferStream(Stream, { id, recipientId: newRecipient }, wallet);
+      const response = await transferStream(
+        StreamInstance,
+        { id, recipientId: newRecipient },
+        wallet
+      );
 
       if (response) {
         toast.success("Stream transferred to " + newRecipient);
 
         if (isSender) {
-          const stream = await StreamInstance.getOne({ id });
+          const stream = await StreamInstance.getOne(id);
           updateStream([id, stream]);
         } else deleteStream(id);
       }

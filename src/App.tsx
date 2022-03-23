@@ -32,8 +32,7 @@ const storeGetter = ({
 
 const App: FC = () => {
   const history = useHistory();
-  const { wallet, isMainnet, setStream, cluster, clusterUrl, StreamInstance, loading } =
-    useStore(storeGetter);
+  const { wallet, isMainnet, setStream, cluster, clusterUrl, loading } = useStore(storeGetter);
   const [isVerticalNavOpened, setIsVerticalNavOpened] = useState(false);
 
   const toggleVerticalNav = () => setIsVerticalNavOpened(!isVerticalNavOpened);
@@ -45,14 +44,13 @@ const App: FC = () => {
   }, [history, cluster]);
 
   useEffect(() => {
-    if (!StreamInstance) {
-      setStream(
-        new StreamRaw(clusterUrl, cluster, {
-          commitment: "confirmed",
-          disableRetryOnRateLimit: true,
-        })
-      );
-    }
+    setStream(
+      new StreamRaw(clusterUrl, cluster, {
+        commitment: "confirmed",
+        disableRetryOnRateLimit: true,
+      })
+    );
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cluster]);
 

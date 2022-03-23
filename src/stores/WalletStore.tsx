@@ -11,12 +11,11 @@ import { MsgToast } from "../components";
 interface WalletState {
   walletType: Wallet | null;
   wallet: WalletAdapter | null;
-  setWalletType: (walletType: Wallet | null) => Promise<void>;
+  setWalletType: (walletType: Wallet | null, history: History<unknown>) => Promise<void>;
   disconnectWallet: () => void;
 }
 
 type WalletStore = (set: Function, get: Function) => WalletState;
-
 
 const walletStore: WalletStore = (set, get) => ({
   // state
