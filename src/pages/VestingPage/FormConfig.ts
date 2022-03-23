@@ -3,11 +3,12 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { add, format, getUnixTime } from "date-fns";
-import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import * as yup from "yup";
 
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
+import { TransferCancelOptions } from "../../types";
+import { isAddressValid } from "../../utils/helpers";
 
 export interface VestingFormData {
   amount: number;
@@ -20,13 +21,15 @@ export interface VestingFormData {
   endTime: string;
   releaseFrequencyCounter: number;
   releaseFrequencyPeriod: number;
-  senderCanCancel: boolean;
-  recipientCanCancel: boolean;
-  senderCanTransfer: boolean;
-  recipientCanTransfer: boolean;
+  whoCanTransfer: TransferCancelOptions;
+  whoCanCancel: TransferCancelOptions;
   cliffDate: string;
   cliffTime: string;
   cliffAmount: number;
+  automaticWithdrawal: boolean;
+  withdrawalFrequencyCounter: number;
+  withdrawalFrequencyPeriod: number;
+  referral: string;
 }
 
 const getDefaultValues = () => ({
@@ -40,30 +43,16 @@ const getDefaultValues = () => ({
   endTime: format(add(new Date(), { minutes: 7 }), TIME_FORMAT),
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: timePeriodOptions[0].value,
-  senderCanCancel: true,
-  recipientCanCancel: false,
-  senderCanTransfer: false,
-  recipientCanTransfer: true,
+  whoCanCancel: TransferCancelOptions.Sender,
+  whoCanTransfer: TransferCancelOptions.Recipient,
   cliffDate: format(new Date(), DATE_FORMAT),
   cliffTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   cliffAmount: 0,
+  automaticWithdrawal: false,
+  withdrawalFrequencyCounter: 1,
+  withdrawalFrequencyPeriod: timePeriodOptions[1].value,
+  referral: "",
 });
-
-const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
-  let pubKey = null;
-
-  try {
-    pubKey = new PublicKey(address || "");
-  } catch {
-    return false;
-  }
-
-  const recipientAddress = await connection?.getAccountInfo(pubKey);
-  if (recipientAddress == null) return true;
-  if (!recipientAddress.owner.equals(SystemProgram.programId)) return false;
-  if (recipientAddress.executable) return false;
-  return true;
-};
 
 const encoder = new TextEncoder();
 
@@ -96,7 +85,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .string()
           .required(ERRORS.recipient_required)
           .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isRecipientAddressValid(address || "", connection || null)
+            isAddressValid(address || "", connection, true)
           ),
         startDate: yup
           .string()
@@ -159,10 +148,8 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
               return true;
             }
           ),
-        senderCanCancel: yup.bool().required(),
-        recipientCanCancel: yup.bool().required(),
-        senderCanTransfer: yup.bool().required(),
-        recipientCanTransfer: yup.bool().required(),
+        whoCanTransfer: yup.string().required(),
+        whoCanCancel: yup.string().required(),
         cliffDate: yup
           .string()
           .required(ERRORS.max_year)
@@ -197,7 +184,34 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .required(ERRORS.required)
           .min(0)
           .max(100),
+        automaticWithdrawal: yup.bool().required(),
+        withdrawalFrequencyCounter: yup.number().when("automaticWithdrawal", {
+          is: true,
+          then: yup.number().required(),
+        }),
+        withdrawalFrequencyPeriod: yup
+          .number()
+          .when("automaticWithdrawal", {
+            is: true,
+            then: yup.number().min(60).required(),
+          })
+          .test(
+            "withdrawalFrequency is >= period",
+            ERRORS.withdrawal_frequency_too_high,
+            (period, ctx) => {
+              return period && ctx.parent.automaticWithdrawal
+                ? period * ctx.parent.withdrawalFrequencyCounter >=
+                    ctx.parent.releaseFrequencyCounter * ctx.parent.releaseFrequencyPeriod
+                : true;
+            }
+          ),
+        referral: yup
+          .string()
+          .test("address_validation", ERRORS.invalid_address, async (address) =>
+            isAddressValid(address || "", connection)
+          ),
       }),
+
     [connection, tokenBalance]
   );
 

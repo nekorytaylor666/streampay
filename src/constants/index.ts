@@ -10,6 +10,8 @@ export const AIRDROP_WHITELIST = [
   "4pYeM1AhyqCXy63xtwfMtytz8keWxBD2gHWHqdwacK3C",
 ];
 
+export const ALLOWED_PDA_PROGRAMS = ["GokivDYuQXPZCWRkwMhdH2h91KpDQXBEmpgBgs55bnpH"];
+
 export const TX_FINALITY_CONFIRMED = "confirmed";
 export const TX_FINALITY_FINALIZED = "finalized";
 
@@ -58,7 +60,7 @@ export const STREAM_STATUS_COLOR = {
   [StreamStatus.canceled]: "red",
 };
 
-export const DEFAULT_DECIMAL_PLACES = 3;
+export const DEFAULT_DECIMAL_PLACES = 2;
 
 export const ERRORS = {
   amount_required: "Amount is required.",
@@ -86,6 +88,7 @@ export const ERRORS = {
   should_be_greater_than_0: "Should be greater than 0.",
   max_year: "Year should be less than 9999.",
   subject_too_long: "It is either too long or there are many complex characters.",
+  withdrawal_frequency_too_high: "Withdrawal frequency should be >= release frequency.",
 };
 
 export const PERIOD = {
@@ -144,7 +147,7 @@ export const AFFILIATION = {
   APP: "app",
 };
 export const DEFAULT_GA_PURCHASE_CURRENCY = "USD";
-export const USD_PEGGED_COINS = ["USDT", "USDC", "STRM"];
+export const USD_PEGGED_COINS = ["USDT", "USDC"];
 
 export const DATA_LAYER_VARIABLE = {
   WALLET_TYPE: "walletType",
@@ -158,7 +161,21 @@ export const DATA_LAYER_VARIABLE = {
   TOTAL_AMOUNT_USD: "totalAmountUsd",
 };
 
-export const COMMUNITY_PROGRAM_ID = "8e72pYCDaxu3GqMfeQ5r8wFgoZSYk6oua1Qo9XpsZjX";
-
-export const STREAMS_COMMUNITY_OFFSET_SENDER = 48;
-export const STREAMS_COMMUNITY_OFFSET_RECIPIENT = 112;
+export const transferCancelOptions = [
+  {
+    value: "recipient",
+    label: "Only Recipient",
+  },
+  {
+    value: "sender",
+    label: "Only Sender",
+  },
+  {
+    value: "both",
+    label: "Both",
+  },
+  {
+    value: "neither",
+    label: "Neither",
+  },
+];

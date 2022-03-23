@@ -1,14 +1,13 @@
 import { Dispatch, SetStateAction } from "react";
 
-import { clusterApiUrl } from "@solana/web3.js";
 import { Cluster, ClusterExtended, LocalCluster } from "@streamflow/stream";
 
 export const CLUSTER_LOCAL = "local";
 
 const clusterUrls: { [s: string]: () => string } = {
   [CLUSTER_LOCAL]: () => "http://localhost:8899", // http://127.0.0.1:8899",
-  [Cluster.Devnet]: () => clusterApiUrl(Cluster.Devnet),
-  [Cluster.Mainnet]: () => "https://solana-api.projectserum.com",
+  [Cluster.Devnet]: () => "https://api.devnet.rpcpool.com/8527ad85d20c2f0e6c37b026cab0",
+  [Cluster.Mainnet]: () => "https://streamflow.rpcpool.com/8527ad85d20c2f0e6c37b026cab0",
 };
 
 interface NetworkStore {
@@ -24,7 +23,7 @@ interface NetworkStore {
 
 const useNetworkStore = (set: Function, get: Function): NetworkStore => ({
   // state
-  cluster: Cluster.Devnet,
+  cluster: Cluster.Mainnet,
 
   // actions
   clusterUrl: () => clusterUrls[get().cluster](),

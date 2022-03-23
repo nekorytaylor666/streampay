@@ -1,8 +1,8 @@
-# StreamFlow Finance App
+# Streamflow Finance App
 
-[![Deploy](https://github.com/StreamFlow-Finance/streamflow-app/actions/workflows/gh-pages-prod.yml/badge.svg)](https://github.com/StreamFlow-Finance/streamflow-app/actions/workflows/gh-pages-prod.yml)
+[![Deploy](https://github.com/Streamflow-Finance/streamflow-app/actions/workflows/gh-pages-prod.yml/badge.svg)](https://github.com/Streamflow-Finance/streamflow-app/actions/workflows/gh-pages-prod.yml)
 
-Web application client for the **StreamFlow streaming payments protocol**.
+Web application client for the **Streamflow streaming payments protocol**.
 
 Serverless. Realtime. **Built on Solana.**
 

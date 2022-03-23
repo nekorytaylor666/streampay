@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
-import Stream, {
+import {
+  StreamRaw,
   WithdrawStreamData,
   CreateStreamData,
   TransferStreamData,
@@ -13,9 +14,10 @@ import { Connection } from "@solana/web3.js";
 import ToastrLink from "../components/ToastrLink";
 import { ERR_NOT_CONNECTED, TX_FINALITY_FINALIZED, ERR_NO_PRIOR_CREDIT } from "../constants";
 import { getExplorerLink } from "../utils/helpers";
+import { MsgToast } from "../components";
 
 export const createStream = async (
-  Stream: Stream,
+  Stream: StreamRaw,
   data: CreateStreamData,
   wallet: Wallet | null
 ) => {
@@ -24,14 +26,16 @@ export const createStream = async (
       throw new Error(ERR_NOT_CONNECTED);
     }
 
-    toast.info("Please confirm transaction in your wallet.", { autoClose: false });
+    toast.info(<MsgToast title="Please confirm transaction in your wallet." type="info" />, {
+      autoClose: false,
+    });
     const response = await Stream.create({
       ...data,
       sender: wallet,
       partner: wallet.publicKey.toBase58(),
     });
 
-    const stream = await Stream.getOne({ id: response.metadata.publicKey.toBase58() });
+    const stream = await Stream.getOne(response.metadata.publicKey.toBase58());
 
     const url = getExplorerLink("tx", response.tx); // TODO print transaction here.
     toast.dismiss();
@@ -49,7 +53,7 @@ export const createStream = async (
 };
 
 export const withdrawStream = async (
-  Stream: Stream,
+  Stream: StreamRaw,
   data: WithdrawStreamData,
   wallet: Wallet | null
 ) => {
@@ -75,7 +79,11 @@ export const withdrawStream = async (
   }
 };
 
-export const topupStream = async (Stream: Stream, data: TopupStreamData, wallet: Wallet | null) => {
+export const topupStream = async (
+  Stream: StreamRaw,
+  data: TopupStreamData,
+  wallet: Wallet | null
+) => {
   try {
     if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
@@ -98,9 +106,15 @@ export const topupStream = async (Stream: Stream, data: TopupStreamData, wallet:
   }
 };
 
-export const transferStream = async (Stream: Stream, data: TransferStreamData, wallet: Wallet) => {
+export const transferStream = async (
+  Stream: StreamRaw,
+  data: TransferStreamData,
+  wallet: Wallet
+) => {
   try {
-    toast.info("Please confirm transaction in your wallet.", { autoClose: false });
+    toast.info(<MsgToast title="Please confirm transaction in your wallet." type="info" />, {
+      autoClose: false,
+    });
 
     const response = await Stream.transfer({
       ...data,
@@ -122,7 +136,7 @@ export const transferStream = async (Stream: Stream, data: TransferStreamData, w
 };
 
 export const cancelStream = async (
-  Stream: Stream,
+  Stream: StreamRaw,
   data: CancelStreamData,
   wallet: Wallet | null
 ) => {

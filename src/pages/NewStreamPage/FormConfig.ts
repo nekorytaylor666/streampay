@@ -3,11 +3,12 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { add, format } from "date-fns";
-import { Connection, PublicKey, SystemProgram } from "@solana/web3.js";
 import * as yup from "yup";
 
+import { isAddressValid } from "../../utils/helpers";
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
+import { TransferCancelOptions } from "../../types";
 
 export interface StreamsFormData {
   releaseAmount: number;
@@ -18,11 +19,13 @@ export interface StreamsFormData {
   startTime: string;
   depositedAmount: number;
   releaseFrequencyCounter: number;
-  senderCanCancel: boolean;
-  recipientCanCancel: boolean;
-  senderCanTransfer: boolean;
-  recipientCanTransfer: boolean;
+  whoCanTransfer: TransferCancelOptions;
+  whoCanCancel: TransferCancelOptions;
   releaseFrequencyPeriod: number;
+  automaticWithdrawal: boolean;
+  withdrawalFrequencyCounter: number;
+  withdrawalFrequencyPeriod: number;
+  referral: string;
 }
 
 const getDefaultValues = () => ({
@@ -35,27 +38,13 @@ const getDefaultValues = () => ({
   depositedAmount: undefined,
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: timePeriodOptions[0].value,
-  senderCanCancel: true,
-  recipientCanCancel: false,
-  senderCanTransfer: false,
-  recipientCanTransfer: true,
+  whoCanTransfer: TransferCancelOptions.Recipient,
+  whoCanCancel: TransferCancelOptions.Sender,
+  automaticWithdrawal: false,
+  withdrawalFrequencyCounter: 1,
+  withdrawalFrequencyPeriod: timePeriodOptions[1].value,
+  referral: "",
 });
-
-const isRecipientAddressValid = async (address: string, connection: Connection | null) => {
-  let pubKey = null;
-
-  try {
-    pubKey = new PublicKey(address || "");
-  } catch {
-    return false;
-  }
-
-  const recipientAddress = await connection?.getAccountInfo(pubKey);
-  if (recipientAddress == null) return true;
-  if (!recipientAddress.owner.equals(SystemProgram.programId)) return false;
-  if (recipientAddress.executable) return false;
-  return true;
-};
 
 const encoder = new TextEncoder();
 
@@ -98,7 +87,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .string()
           .required(ERRORS.recipient_required)
           .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isRecipientAddressValid(address || "", connection || null)
+            isAddressValid(address || "", connection || null, true)
           ),
         startDate: yup
           .string()
@@ -124,10 +113,34 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .positive(ERRORS.should_be_greater_than_0)
           .integer(),
         releaseFrequencyPeriod: yup.number().required(),
-        senderCanCancel: yup.bool().required(),
-        recipientCanCancel: yup.bool().required(),
-        senderCanTransfer: yup.bool().required(),
-        recipientCanTransfer: yup.bool().required(),
+        whoCanTransfer: yup.string().required(),
+        whoCanCancel: yup.string().required(),
+        automaticWithdrawal: yup.bool().required(),
+        withdrawalFrequencyCounter: yup.number().when("automaticWithdrawal", {
+          is: true,
+          then: yup.number().required(),
+        }),
+        withdrawalFrequencyPeriod: yup
+          .number()
+          .when("automaticWithdrawal", {
+            is: true,
+            then: yup.number().min(60).required(),
+          })
+          .test(
+            "withdrawalFrequency is >= period",
+            ERRORS.withdrawal_frequency_too_high,
+            (period, ctx) => {
+              return period && ctx.parent.automaticWithdrawal
+                ? period * ctx.parent.withdrawalFrequencyCounter >=
+                    ctx.parent.releaseFrequencyCounter * ctx.parent.releaseFrequencyPeriod
+                : true;
+            }
+          ),
+        referral: yup
+          .string()
+          .test("address_validation", ERRORS.invalid_address, async (address) =>
+            isAddressValid(address || "", connection)
+          ),
       }),
     [connection, tokenBalance]
   );
@@ -139,6 +152,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     formState: { errors },
     setValue,
     setError,
+    trigger,
     clearErrors,
   } = useForm<StreamsFormData>({
     defaultValues,
@@ -149,6 +163,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     register,
     watch,
     errors,
+    trigger,
     setValue,
     handleSubmit,
     setError,

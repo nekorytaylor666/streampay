@@ -1,10 +1,12 @@
 import type { Wallet } from "@solana/wallet-adapter-base";
 import { WalletNotReadyError } from "@solana/wallet-adapter-base";
 import { toast } from "react-toastify";
+import type { History } from "history";
 
 import { trackEvent } from "../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, DATA_LAYER_VARIABLE } from "../constants";
 import { WalletAdapter } from "../types";
+import { MsgToast } from "../components";
 
 interface WalletState {
   walletType: Wallet | null;
@@ -15,20 +17,6 @@ interface WalletState {
 
 type WalletStore = (set: Function, get: Function) => WalletState;
 
-// const getConnection = (clusterUrl: string | null) => {
-//   if (!clusterUrl) {
-//     return null;
-//   }
-
-//   const key = clusterUrl;
-//   if (!memoizedConnection[key]) {
-//     memoizedConnection = {
-//       [key]: new Connection(clusterUrl, { commitment: "confirmed", disableRetryOnRateLimit: true }),
-//     };
-//   }
-
-//   return memoizedConnection[key];
-// };
 
 const walletStore: WalletStore = (set, get) => ({
   // state
@@ -36,7 +24,7 @@ const walletStore: WalletStore = (set, get) => ({
   wallet: null,
 
   // actions
-  setWalletType: async (walletType) => {
+  setWalletType: async (walletType, history) => {
     const state = get();
     if (walletType?.name === state.walletType?.name) return;
 
@@ -45,8 +33,15 @@ const walletStore: WalletStore = (set, get) => ({
       walletAdapter.on("connect", async () => {
         set({ walletType, wallet: walletAdapter });
         // state.persistStoreToLocalStorage();
+        history.push("/new-vesting");
+        toast.success(
+          <MsgToast
+            title="Wallet Connected."
+            message="You have successfully connected your wallet."
+            type="success"
+          />
+        );
 
-        toast.success("Wallet connected!");
         trackEvent(
           EVENT_CATEGORY.WALLET,
           EVENT_ACTION.CONNECT,
@@ -59,15 +54,32 @@ const walletStore: WalletStore = (set, get) => ({
       });
       walletAdapter.on("disconnect", () => {
         set({ walletType: null, wallet: null });
+        history.push("./");
         // state.persistStoreToLocalStorage();
-        toast.info("Disconnected from wallet");
+        toast.info(
+          <MsgToast
+            title="Disconnected from wallet."
+            message="Please connect your wallet to continue."
+            type="info"
+          />
+        );
       });
       walletAdapter.connect().catch((e: Error) => {
         set({ walletType: null, wallet: null });
+
         toast.error(
-          e instanceof WalletNotReadyError
-            ? "Wallet extension not installed." //todo: add link to install
-            : "Wallet not connected, try again."
+          e instanceof WalletNotReadyError ? (
+            <MsgToast
+              title="Wallet extension not installed."
+              message="Please install wallet to continue."
+              type="error"
+            /> //todo: add link to install,
+          ) : (
+            <MsgToast title="Wallet not connected" message="Please try again." type="error" /> //not connected
+          )
+          // e instanceof WalletNotReadyError
+          //   ? "Wallet extension not installed." //todo: add link to install
+          //   : "Wallet not connected, try again."
         );
       });
     } else {

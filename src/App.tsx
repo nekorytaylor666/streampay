@@ -1,81 +1,56 @@
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
-import { Switch, Route, Redirect, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import Stream, { Cluster } from "@streamflow/stream";
+import { Cluster, StreamRaw } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
-import { Footer, Header, Nav, Banner } from "./components";
+import { Footer, Header, Banner, Nav, VerticalNav, Curtain } from "./components";
 import { Page404 } from "./pages";
-import routes from "./RoutesConfig";
-import { getProgramAccounts } from "./utils/helpers";
-import {
-  COMMUNITY_PROGRAM_ID,
-  STREAMS_COMMUNITY_OFFSET_SENDER,
-  STREAMS_COMMUNITY_OFFSET_RECIPIENT,
-} from "./constants";
+import routes from "./router/RoutesConfig";
+import PrivateRoute from "./router/PrivateRoute";
 import useStore, { StoreType } from "./stores";
 
 const storeGetter = ({
   wallet,
   cluster,
-  Stream: StreamInstance,
+  loading,
   setStream,
   clusterUrl,
-}: StoreType) => ({
-  connection: StreamInstance?.getConnection(),
   StreamInstance,
+}: StoreType) => ({
   wallet,
-  isMainnet: cluster === Cluster.Mainnet,
   cluster,
+  isMainnet: cluster === Cluster.Mainnet,
+  loading,
   setStream,
   clusterUrl: clusterUrl(),
+  StreamInstance,
 });
 
-const App = () => {
+const App: FC = () => {
   const history = useHistory();
-  const { wallet, connection, isMainnet, setStream, cluster, clusterUrl, StreamInstance } =
+  const { wallet, isMainnet, setStream, cluster, clusterUrl, StreamInstance, loading } =
     useStore(storeGetter);
-  const [showCommunityBanner, setShowCommunityBanner] = useState(false);
+  const [isVerticalNavOpened, setIsVerticalNavOpened] = useState(false);
+
+  const toggleVerticalNav = () => setIsVerticalNavOpened(!isVerticalNavOpened);
 
   useEffect(() => {
-    trackPageView();
+    trackPageView(cluster);
+    // @ts-ignore
     history.listen(trackPageView);
-  }, [history]);
+  }, [history, cluster]);
 
   useEffect(() => {
-    if (!isMainnet || !connection || !wallet || !wallet.publicKey)
-      return setShowCommunityBanner(false);
-
-    const publicKey = wallet.publicKey?.toBase58();
-
-    Promise.all([
-      getProgramAccounts(
-        connection,
-        COMMUNITY_PROGRAM_ID,
-        STREAMS_COMMUNITY_OFFSET_SENDER,
-        publicKey
-      ),
-      getProgramAccounts(
-        connection,
-        COMMUNITY_PROGRAM_ID,
-        STREAMS_COMMUNITY_OFFSET_RECIPIENT,
-        publicKey
-      ),
-    ]).then(([outgoing, incoming]) =>
-      setShowCommunityBanner(outgoing.length > 0 || incoming.length > 0)
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connection, wallet, isMainnet]);
-
-  useEffect(() => {
-    if (!Stream) return;
-
     if (!StreamInstance) {
       setStream(
-        new Stream(clusterUrl, cluster, { commitment: "confirmed", disableRetryOnRateLimit: true })
+        new StreamRaw(clusterUrl, cluster, {
+          commitment: "confirmed",
+          disableRetryOnRateLimit: true,
+        })
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,44 +58,55 @@ const App = () => {
 
   return (
     <div className={cx("min-h-screen flex flex-col", isMainnet ? "bg-main" : "bg-sandbox")}>
-      {showCommunityBanner && (
-        <Banner classes="top-0 left-0 w-full">
-          <p className="text-sm sm:text-base text-white">
-            Streamflow has upgraded to v2. Your existing streams are safu, please use the{" "}
-            <a
-              href="https://free.streamflow.finance"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold underline"
-            >
-              Community version
-            </a>{" "}
-            to interact with them.
-          </p>
-        </Banner>
-      )}
+      <Curtain visible={loading} />
       {!isMainnet && (
         <Banner
           title="This is devnet (sandbox) environment!"
           classes="top-0 left-0 w-full"
         ></Banner>
       )}
-      <div className="bg-blend-darken flex-grow px-3.5 sm:px-5 flex flex-col">
-        <Header />
-        <Nav classes="block lg:hidden mb-2" />
-        <Switch>
-          {routes.map(({ path, exact, redirect, Component }) => (
-            <Route
-              key={path}
-              path={path}
-              exact={exact}
-              render={() => (redirect ? <Redirect to={redirect} /> : <Component />)}
+      <div className="flex-grow flex flex-col bg-dark">
+        <Header toggleVerticalNav={toggleVerticalNav} isVerticalNavOpened={isVerticalNavOpened} />
+        {wallet?.connected && <Nav classes="hidden sm:block lg:hidden mb-2 mt-4" />}
+        <div className={`flex ${!wallet?.connected && "justify-center"}`}>
+          {wallet?.connected && isVerticalNavOpened && (
+            <VerticalNav
+              routes={routes.slice(3)}
+              classes="flex sm:hidden fixed top-18 left-0 z-50 w-screen h-screen"
+              onClick={toggleVerticalNav}
             />
-          ))}
-          <Route component={Page404} />
-        </Switch>
+          )}
+          {wallet?.connected && (
+            <VerticalNav routes={routes.slice(5)} classes="hidden sm:flex w-60 xl:w-64" />
+          )}
+          <Switch>
+            {routes.map(({ path, exact, Component, isPrivate, redirect }) =>
+              isPrivate ? (
+                <PrivateRoute
+                  key={path}
+                  exact={exact}
+                  path={path}
+                  isAuthenticated={wallet?.connected || false}
+                >
+                  {redirect ? <Redirect to={redirect} /> : <Component />}
+                </PrivateRoute>
+              ) : (
+                <Route key={path} path={path} exact={exact}>
+                  {redirect ? <Redirect to={redirect} /> : <Component />}
+                </Route>
+              )
+            )}
+            <Route component={Page404} />
+          </Switch>
+        </div>
       </div>
-      <ToastContainer hideProgressBar position="bottom-left" limit={5} />
+      <ToastContainer
+        hideProgressBar
+        position="top-right"
+        limit={2}
+        className="sm:w-96 sm:mt-2 sm:r-6"
+        toastClassName="bg-gray-dark rounded-lg drop-shadow-lg"
+      />
       <Footer />
     </div>
   );

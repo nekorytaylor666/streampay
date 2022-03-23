@@ -1,10 +1,14 @@
-import Stream, { Stream as StreamData } from "@streamflow/stream";
+import { StreamRaw, Stream as StreamData } from "@streamflow/stream";
+
+import { sortStreams } from "../utils/helpers";
 
 interface StreamStore {
-  Stream: Stream | null;
+  StreamInstance: StreamRaw | null;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
   streams: [string, StreamData][];
   populateStreams: (streams: [string, StreamData][]) => void;
-  setStream: (Stream: Stream) => void;
+  setStream: (Stream: StreamRaw) => void;
   addStream: (stream: [string, StreamData]) => void;
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;
@@ -12,14 +16,13 @@ interface StreamStore {
   clearStreams: () => void;
 }
 
-const sortStreams = (streams: [string, StreamData][]): [string, StreamData][] =>
-  streams.sort(([, stream1], [, stream2]) => stream2.start - stream1.start);
-
 const useStreamStore = (set: Function, get: Function): StreamStore => ({
-  Stream: null,
+  StreamInstance: null,
+  loading: false,
+  setLoading: (loading) => set({ loading }),
   streams: [],
   populateStreams: (streams) => set({ streams: sortStreams(streams) }),
-  setStream: (Stream) => set({ Stream }),
+  setStream: (StreamInstance) => set({ StreamInstance }),
   addStream: (stream) => set({ streams: sortStreams([...get().streams, stream]) }),
   addStreams: (newStreams) => set({ streams: sortStreams([...get().streams, ...newStreams]) }),
   updateStream: (updatedStream) => {
@@ -27,7 +30,6 @@ const useStreamStore = (set: Function, get: Function): StreamStore => ({
     const index = streams.findIndex(
       (stream: [string, StreamData]) => stream[0] === updatedStream[0]
     );
-
     if (index > -1) {
       streams[index] = updatedStream;
     }

@@ -1,55 +1,60 @@
-import cx from "classnames";
+import { FC } from "react";
+
 import { Cluster } from "@streamflow/stream";
 
-import { Logo, Nav, Toggle, WalletPickerCTA } from ".";
+import Logo from "./Logo";
 import logo from "../assets/icons/logo.png";
-import useStore, { StoreType } from "../stores";
+import { IcnMenu, IcnClose } from "../assets/icons";
+import { Airdrop, Nav } from ".";
+import useStore from "../stores";
+import WalletMenu from "./WalletMenu";
 
-const storeGetter = ({ cluster, wallet, setCluster }: StoreType) => ({
-  cluster,
-  wallet,
-  setCluster,
-});
+interface HeaderProps {
+  toggleVerticalNav: () => void;
+  isVerticalNavOpened: boolean;
+}
 
-const Header = () => {
-  const { wallet, cluster, setCluster } = useStore(storeGetter);
+const Header: FC<HeaderProps> = ({ toggleVerticalNav, isVerticalNavOpened }) => {
+  const cluster = useStore((state) => state.cluster);
+  const setCluster = useStore((state) => state.setCluster);
+  const wallet = useStore((state) => state.wallet);
+
   const isMainnet = cluster === Cluster.Mainnet;
-
-  const toggleCluster = () => setCluster(isMainnet ? Cluster.Devnet : Cluster.Mainnet);
+  const toggleCluster = () => {
+    if (isMainnet) {
+      setCluster(Cluster.Devnet);
+      document.documentElement.classList.remove("main");
+      document.documentElement.classList.add("dev");
+    } else {
+      setCluster(Cluster.Mainnet);
+      document.documentElement.classList.remove("dev");
+      document.documentElement.classList.add("main");
+    }
+  };
 
   return (
-    <div
-      className={cx(
-        "items-center py-3 lg:mb-16 sticky top-0 bg-opacity-90 z-10 mb-2",
-        isMainnet ? "bg-main" : "bg-sandbox"
-      )}
-    >
-      <div className="flex justify-between items-center">
-        <Logo src={logo} classes="w-44" />
-        <Nav classes="hidden lg:block" />
-        <div className="flex justify-end items-center w-44">
-          <Toggle
-            enabled={isMainnet}
-            setEnabled={toggleCluster}
-            labelLeft="devnet"
-            labelRight="mainnet"
-            classes="hidden sm:flex mr-2"
-          />
-          <WalletPickerCTA
-            title="Connect"
-            classes={cx("px-3 py-1 sm:px-6 sm:py-2", {
-              hidden: wallet?.connected,
-            })}
-          />
-        </div>
+    <div className="flex sticky top-0 w-screen bg-dark items-center p-4 sm:p-6 border-b border-gray-dark justify-between sm:justify-start z-50">
+      <Logo src={logo} wallet={wallet} classes={`sm:w-60 ${!wallet?.connected && "flex-grow"}`} />
+      {wallet?.connected && <Nav classes="hidden sm:flex-grow lg:block" />}
+      {!isMainnet && <Airdrop classes="hidden sm:block" />}
+      <div className="flex justify-end w-50 h-10">
+        {wallet?.connected && <WalletMenu clusterChange={toggleCluster} />}
       </div>
-      <Toggle
-        enabled={isMainnet}
-        setEnabled={toggleCluster}
-        labelLeft="devnet"
-        labelRight="mainnet"
-        classes="flex sm:hidden justify-end mt-1"
-      />
+      {wallet?.connected && (
+        <button onClick={toggleVerticalNav}>
+          {isVerticalNavOpened ? (
+            <IcnMenu
+              fill="rgb(113, 130, 152)"
+              classes="sm:hidden bg-gray-dark w-10 h-10 rounded-lg"
+            />
+          ) : (
+            <IcnClose
+              fill="rgb(113, 130, 152)"
+              classes="sm:hidden bg-gray-dark w-10 h-10 rounded-lg"
+            />
+          )}
+        </button>
+      )}
     </div>
   );
 };
