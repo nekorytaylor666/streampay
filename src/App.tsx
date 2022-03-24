@@ -3,7 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { Route, Switch, useHistory, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import { Cluster, StreamRaw } from "@streamflow/stream";
+import { Cluster, StreamClient } from "@streamflow/stream";
 import cx from "classnames";
 
 import { trackPageView } from "./utils/marketing_helpers";
@@ -45,7 +45,7 @@ const App: FC = () => {
 
   useEffect(() => {
     setStream(
-      new StreamRaw(clusterUrl, cluster, {
+      new StreamClient(clusterUrl, cluster, {
         commitment: "confirmed",
         disableRetryOnRateLimit: true,
       })

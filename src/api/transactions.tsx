@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import bs58 from "bs58";
 import {
-  StreamRaw,
+  StreamClient,
   WithdrawStreamData,
   CreateStreamData,
   TransferStreamData,
@@ -18,7 +18,7 @@ import { getExplorerLink } from "../utils/helpers";
 import { MsgToast } from "../components";
 
 export const createStream = async (
-  Stream: StreamRaw,
+  Stream: StreamClient,
   data: CreateStreamData,
   wallet: Wallet | null
 ) => {
@@ -60,7 +60,7 @@ export const createStream = async (
 };
 
 export const withdrawStream = async (
-  Stream: StreamRaw,
+  Stream: StreamClient,
   data: WithdrawStreamData,
   wallet: Wallet | null
 ) => {
@@ -87,7 +87,7 @@ export const withdrawStream = async (
 };
 
 export const topupStream = async (
-  Stream: StreamRaw,
+  Stream: StreamClient,
   data: TopupStreamData,
   wallet: Wallet | null
 ) => {
@@ -114,7 +114,7 @@ export const topupStream = async (
 };
 
 export const transferStream = async (
-  Stream: StreamRaw,
+  Stream: StreamClient,
   data: TransferStreamData,
   wallet: Wallet
 ) => {
@@ -143,7 +143,7 @@ export const transferStream = async (
 };
 
 export const cancelStream = async (
-  Stream: StreamRaw,
+  Stream: StreamClient,
   data: CancelStreamData,
   wallet: Wallet | null
 ) => {

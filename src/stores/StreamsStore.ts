@@ -1,14 +1,14 @@
-import { StreamRaw, Stream as StreamData } from "@streamflow/stream";
+import { StreamClient, Stream as StreamData } from "@streamflow/stream";
 
 import { sortStreams } from "../utils/helpers";
 
 interface StreamStore {
-  StreamInstance: StreamRaw | null;
+  StreamInstance: StreamClient | null;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   streams: [string, StreamData][];
   populateStreams: (streams: [string, StreamData][]) => void;
-  setStream: (Stream: StreamRaw) => void;
+  setStream: (Stream: StreamClient) => void;
   addStream: (stream: [string, StreamData]) => void;
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;

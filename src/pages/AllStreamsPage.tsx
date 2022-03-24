@@ -33,12 +33,9 @@ const AllStreamsPage = () => {
     (async () => {
       if (!StreamInstance || !connection) return;
       const allStreams = await StreamInstance.get({
-        connection,
         wallet: wallet.publicKey,
-        cluster,
       });
-      console.log("all", allStreams);
-      console.log("cluster", cluster);
+
       populateStreams(allStreams);
       setLoading(false);
     })();
