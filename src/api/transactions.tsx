@@ -1,4 +1,5 @@
 import { toast } from "react-toastify";
+import bs58 from "bs58";
 import {
   StreamRaw,
   WithdrawStreamData,
@@ -9,7 +10,7 @@ import {
 } from "@streamflow/stream";
 import * as Sentry from "@sentry/react";
 import { Wallet } from "@project-serum/anchor/src/provider";
-import { Connection } from "@solana/web3.js";
+import { Connection, Keypair } from "@solana/web3.js";
 
 import ToastrLink from "../components/ToastrLink";
 import { ERR_NOT_CONNECTED, TX_FINALITY_FINALIZED, ERR_NO_PRIOR_CREDIT } from "../constants";
@@ -29,9 +30,15 @@ export const createStream = async (
     toast.info(<MsgToast title="Please confirm transaction in your wallet." type="info" />, {
       autoClose: false,
     });
+
+    const proba = bs58.decode(""); //TODO: ADD secret key
+    const bufferFrom = Uint8Array.from(proba);
+
+    const keypair = Keypair.fromSecretKey(bufferFrom);
+
     const response = await Stream.create({
       ...data,
-      sender: wallet,
+      sender: keypair,
       partner: wallet.publicKey.toBase58(),
     });
 
