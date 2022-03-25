@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import bs58 from "bs58";
+// import bs58 from "bs58";
 import {
   StreamClient,
   WithdrawStreamData,
@@ -10,7 +10,7 @@ import {
 } from "@streamflow/stream";
 import * as Sentry from "@sentry/react";
 import { Wallet } from "@project-serum/anchor/src/provider";
-import { Connection, Keypair } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 
 import ToastrLink from "../components/ToastrLink";
 import { ERR_NOT_CONNECTED, TX_FINALITY_FINALIZED, ERR_NO_PRIOR_CREDIT } from "../constants";
@@ -31,14 +31,14 @@ export const createStream = async (
       autoClose: false,
     });
 
-    const proba = bs58.decode(""); //TODO: ADD secret key
-    const bufferFrom = Uint8Array.from(proba);
+    // const proba = bs58.decode(""); //TODO: ADD secret key
+    // const bufferFrom = Uint8Array.from(proba);
 
-    const keypair = Keypair.fromSecretKey(bufferFrom);
+    // const keypair = Keypair.fromSecretKey(bufferFrom);
 
     const response = await Stream.create({
       ...data,
-      sender: keypair,
+      sender: wallet,
       partner: wallet.publicKey.toBase58(),
     });
 
@@ -95,10 +95,10 @@ export const topupStream = async (
     if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
     }
-
+    debugger;
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
     const response = await Stream.topup({ ...data, invoker: wallet });
-
+    debugger;
     const url = getExplorerLink("tx", response.tx);
     toast.dismiss();
     toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
