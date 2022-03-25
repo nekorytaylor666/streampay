@@ -71,7 +71,7 @@ const Airdrop: FC<AirdropProps> = ({ classes }) => {
     setAirdropDisabled(true);
 
     try {
-      const airdrop_connection = new Connection("https://api.devnet.solana.com");
+      const airdrop_connection = new Connection("https://api.devnet.solana.com", "confirmed");
       const txSolAirdrop = await airdrop_connection.requestAirdrop(
         wallet.publicKey,
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
