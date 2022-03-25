@@ -71,14 +71,15 @@ const Airdrop: FC<AirdropProps> = ({ classes }) => {
     setAirdropDisabled(true);
 
     try {
-      const txSolAirdrop = await connection.requestAirdrop(
+      const airdrop_connection = new Connection("https://api.devnet.solana.com");
+      const txSolAirdrop = await airdrop_connection.requestAirdrop(
         wallet.publicKey,
         AIRDROP_AMOUNT * LAMPORTS_PER_SOL
       );
       const txTestTokenAirdrop = await getAirdrop(connection, wallet);
 
       Promise.all([
-        connection.confirmTransaction(txSolAirdrop, TX_FINALITY_CONFIRMED),
+        airdrop_connection.confirmTransaction(txSolAirdrop, TX_FINALITY_CONFIRMED),
         connection.confirmTransaction(txTestTokenAirdrop, TX_FINALITY_CONFIRMED),
       ]).then(
         ([solResponse, testTokenResponse]) => {
