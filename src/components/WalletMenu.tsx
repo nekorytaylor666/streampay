@@ -6,7 +6,6 @@ import { Menu } from "@headlessui/react";
 import { DuplicateIcon } from "@heroicons/react/outline";
 
 import { abbreviateAddress, copyToClipboard } from "../utils/helpers";
-// import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
 import Toggle from "./Toggle";
 import useStore, { StoreType } from "../stores";
 import Link from "../components/Link";

@@ -196,7 +196,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
             then: yup.number().min(60).required(),
           })
           .test(
-            "withdrawFrequency is >= period",
+            "withdrawalFrequency is >= period",
             ERRORS.withdrawal_frequency_too_high,
             (period, ctx) => {
               return period && ctx.parent.automaticWithdrawal
