@@ -3,7 +3,7 @@ import { FC, useEffect, useState, useRef } from "react";
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
 import { toast } from "react-toastify";
-import { u64, getBN, getNumberFromBN } from "@streamflow/stream";
+import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
 
 import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -179,7 +179,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       start,
       period: releaseFrequencyCounter * releaseFrequencyPeriod,
       cliff: start,
-      cliffAmount: new u64(0),
+      cliffAmount: new BN(0),
       amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
       name: subject,
       cancelableBySender:

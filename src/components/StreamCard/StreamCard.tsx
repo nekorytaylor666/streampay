@@ -113,7 +113,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     amountPerPeriod,
     canTopup,
     automaticWithdrawal,
-    withdrawFrequency,
+    withdrawalFrequency,
   } = formatStreamData(data, decimals);
   let symbol = "";
   try {
@@ -304,7 +304,7 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
     if (automaticWithdrawal && status === StreamStatus.streaming) {
       const withdrawalInterval = setInterval(() => {
         fetchStream();
-      }, (withdrawFrequency + 2) * 1000);
+      }, (withdrawalFrequency + 2) * 1000);
 
       return () => clearInterval(withdrawalInterval);
     }

@@ -95,10 +95,8 @@ export const topupStream = async (
     if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
       throw new Error(ERR_NOT_CONNECTED);
     }
-    debugger;
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
     const response = await Stream.topup({ ...data, invoker: wallet });
-    debugger;
     const url = getExplorerLink("tx", response.tx);
     toast.dismiss();
     toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
