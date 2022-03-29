@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import Stream, { getNumberFromBN, Stream as StreamData } from "@streamflow/stream";
+import { getNumberFromBN, Stream as StreamData } from "@streamflow/stream";
 
 import { StreamCard, NoStreams } from "../components";
 import { cancelStream } from "../api/transactions";
@@ -10,6 +10,9 @@ import { getTokenAmount, sortTokenAccounts } from "../utils/helpers";
 import { trackEvent } from "../utils/marketing_helpers";
 
 const storeGetter = (state: StoreType) => ({
+  StreamInstance: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
+  streams: state.streams,
   addStream: state.addStream,
   populateStreams: state.populateStreams,
   updateStream: state.updateStream,
@@ -24,7 +27,6 @@ const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
   walletType: state.walletType,
   wallet: state.wallet!,
-  connection: state.connection()!,
   loading: state.loading,
 });
 
@@ -34,6 +36,7 @@ interface StreamsListProps {
 
 const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   const {
+    StreamInstance,
     updateStream,
     token,
     tokenPriceUsd,
@@ -41,7 +44,6 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
     setMyTokenAccounts,
     setMyTokenAccountsSorted,
     setToken,
-    cluster,
     walletType,
     connection,
     wallet,
@@ -49,6 +51,7 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   } = useStore(storeGetter);
 
   const updateToken = async () => {
+    if (!connection || !wallet?.publicKey) return;
     const address = token.info.address;
     const updatedTokenAmount = await getTokenAmount(connection, wallet, address);
     const updatedTokenAccounts = {
@@ -64,10 +67,11 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
   };
 
   async function handleCancel(id: string) {
-    const isCancelled = await cancelStream({ id }, connection, wallet, cluster);
+    if (!StreamInstance) return;
+    const isCancelled = await cancelStream(StreamInstance, { id }, wallet);
 
     if (isCancelled) {
-      const stream = await Stream.getOne({ connection, id });
+      const stream = await StreamInstance.getOne(id);
       const decimals = myTokenAccounts[stream.mint].uiTokenAmount.decimals;
 
       const cancelledAmount =

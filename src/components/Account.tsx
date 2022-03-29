@@ -27,7 +27,7 @@ import { cancel, initialize, getAirdrop } from "../api/airdrop";
 
 const storeGetter = ({
   cluster,
-  connection,
+  StreamInstance,
   wallet,
   disconnectWallet,
   token,
@@ -38,7 +38,7 @@ const storeGetter = ({
   setToken,
 }: StoreType) => ({
   cluster,
-  connection: connection(),
+  connection: StreamInstance?.getConnection(),
   wallet,
   disconnectWallet,
   token,

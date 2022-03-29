@@ -270,7 +270,7 @@ export function parseStreamName(name: string) {
 
 export const isAddressValid = async (
   address: string,
-  connection: Connection | null,
+  connection: Connection | undefined,
   allowPDA = false
 ) => {
   if (!address) return true;

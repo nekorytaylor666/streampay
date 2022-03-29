@@ -61,7 +61,7 @@ interface UseVestingFormProps {
 }
 
 export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
-  const connection = useStore.getState().connection();
+  const connection = useStore.getState().StreamInstance?.getConnection();
   const defaultValues = getDefaultValues();
 
   const validationSchema = useMemo(
