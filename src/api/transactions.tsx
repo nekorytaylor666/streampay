@@ -31,8 +31,8 @@ export const createStream = async (
       autoClose: false,
     });
 
-    // const proba = bs58.decode(""); //TODO: ADD secret key
-    // const bufferFrom = Uint8Array.from(proba);
+    // const keypairTest = bs58.decode(""); //TODO: ADD secret key
+    // const bufferFrom = Uint8Array.from(keypairTest);
 
     // const keypair = Keypair.fromSecretKey(bufferFrom);
 
@@ -96,15 +96,15 @@ export const topupStream = async (
       throw new Error(ERR_NOT_CONNECTED);
     }
     toast.info("Please confirm transaction in your wallet.", { autoClose: false });
-    const response = await Stream.topup({ ...data, invoker: wallet });
-    const url = getExplorerLink("tx", response.tx);
+    const { tx } = await Stream.topup({ ...data, invoker: wallet });
+    const url = getExplorerLink("tx", tx);
     toast.dismiss();
     toast.success(<ToastSuccess url={url} connection={Stream.getConnection()} />, {
       autoClose: 10000,
       closeOnClick: true,
     });
 
-    return response;
+    return tx;
   } catch (err: any) {
     toast.dismiss();
     handleError(err);
