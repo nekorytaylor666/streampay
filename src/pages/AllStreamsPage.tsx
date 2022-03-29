@@ -31,7 +31,7 @@ const AllStreamsPage = () => {
     setLoading(true);
 
     (async () => {
-      if (!StreamInstance || !connection) return;
+      if (!StreamInstance || !connection || !wallet?.connected || !wallet?.publicKey) return;
       const allStreams = await StreamInstance.get({
         wallet: wallet.publicKey,
       });
