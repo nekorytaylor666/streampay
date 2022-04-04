@@ -24,10 +24,12 @@ import {
   transferCancelOptions,
 } from "../../constants";
 import { createStream } from "../../api/transactions";
+import SettingsClient from "../../api/contractSettings";
 import { StringOption, TransferCancelOptions } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 import { trackTransaction } from "../../utils/marketing_helpers";
 import Description from "./Description";
+// import { notify } from "api/notifications";
 
 interface VestingFormProps {
   loading: boolean;
@@ -38,6 +40,7 @@ const storeGetter = (state: StoreType) => ({
   connection: state.connection(),
   wallet: state.wallet,
   walletType: state.walletType,
+  messageSignerWallet: state.messageSignerWallet,
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
@@ -54,6 +57,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     connection,
     wallet,
     walletType,
+    messageSignerWallet,
     token,
     tokenPriceUsd,
     myTokenAccounts,
@@ -242,7 +246,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-
     const response = await createStream(data, connection, wallet, cluster);
     setLoading(false);
 
@@ -284,6 +287,15 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         depositedAmount * tokenPriceUsd,
         walletType.name
       );
+
+      const settingsClient = new SettingsClient(messageSignerWallet, cluster);
+      settingsClient.createContractSettings([
+        {
+          contractAddress: "test",
+          transaction: "tx",
+          contractSettings: { emailAddress: "test@email.com" },
+        },
+      ]);
     }
   };
 

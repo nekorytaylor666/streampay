@@ -3,6 +3,7 @@ import { WalletNotReadyError } from "@solana/wallet-adapter-base";
 import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import type { History } from "history";
+import type { MessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
 
 import { trackEvent } from "../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, DATA_LAYER_VARIABLE } from "../constants";
@@ -12,6 +13,7 @@ import { MsgToast } from "../components";
 interface WalletState {
   walletType: Wallet | null;
   wallet: WalletAdapter | null;
+  messageSignerWallet: MessageSignerWalletAdapter | null;
   connection: () => Connection | null;
   setWalletType: (walletType: Wallet | null, history: History<unknown>) => Promise<void>;
   disconnectWallet: () => void;
@@ -39,6 +41,7 @@ const getConnection = (clusterUrl: string | null) => {
 const walletStore: WalletStore = (set, get) => ({
   // state
   walletType: null,
+  messageSignerWallet: null,
   wallet: null,
   connection: () => getConnection(get().clusterUrl()),
 
@@ -50,7 +53,7 @@ const walletStore: WalletStore = (set, get) => ({
     const walletAdapter = walletType?.adapter;
     if (walletAdapter) {
       walletAdapter.on("connect", async () => {
-        set({ walletType, wallet: walletAdapter });
+        set({ walletType, wallet: walletAdapter, messageSignerWallet: walletAdapter });
         // state.persistStoreToLocalStorage();
         history.push("/new-vesting");
         toast.success(
