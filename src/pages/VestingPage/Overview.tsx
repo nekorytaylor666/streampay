@@ -157,7 +157,7 @@ const Overview: React.FC<OverviewProps> = ({
         Need a custom deal?{" "}
         <Link
           title="Contact us"
-          url="https://discordapp.com/channels/851921970169511976/888391406576627732"
+          url="discord.gg/9yyr8UBZjr"
           classes="inline-block text-p3 text-blue"
         />
       </p>
