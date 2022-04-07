@@ -67,6 +67,7 @@ export const ERRORS = {
   amount_greater_than: "Please provide amount greater than 0.",
   token_required: "Token is required.",
   recipient_required: "You must choose a recipient.",
+  not_valid_email: "Must be a valid email.",
   subject_required: "Please provide a subject (title).",
   start_date_required: "Start date is required.",
   start_date_is_in_the_past: "Cannot start stream in the past.",
