@@ -19,8 +19,8 @@ const storeGetter = ({ cluster, setWalletType }: StoreType) => ({
 });
 
 const WalletPicker: FC = () => {
-  const history = useHistory();
   const { cluster, setWalletType } = useStore(storeGetter);
+  const history = useHistory();
 
   const walletTypes = useMemo(
     () => [

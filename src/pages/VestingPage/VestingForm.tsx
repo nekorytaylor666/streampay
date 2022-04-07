@@ -46,7 +46,8 @@ interface VestingFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  Stream: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
   messageSignerWallet: state.messageSignerWallet,
@@ -63,6 +64,7 @@ const storeGetter = (state: StoreType) => ({
 
 const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const {
+    Stream,
     connection,
     wallet,
     walletType,
@@ -203,7 +205,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       referral,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !Stream || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -255,11 +258,12 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       const shouldContinue = await modalRef?.current?.show();
       if (!shouldContinue) return setLoading(false);
     }
-    const response = await createStream(data, connection, wallet, cluster);
+
+    const response = await createStream(Stream, data, wallet);
     setLoading(false);
 
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.metadata.publicKey.toBase58(), response.stream]);
 
       const mint = token.info.address;
 
@@ -285,7 +289,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         token.uiTokenAmount.decimals
       );
       trackTransaction(
-        response.id,
+        response.metadata.publicKey.toBase58(),
         token.info.symbol,
         token.info.name,
         tokenPriceUsd,
@@ -301,7 +305,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
           const settingsClient = new SettingsClient(messageSignerWallet, cluster);
           await settingsClient.createContractSettings([
             {
-              contractAddress: response.id,
+              contractAddress: response.metadata.publicKey.toBase58(),
               transaction: response.tx,
               contractSettings: { notificationEmail: email },
             },

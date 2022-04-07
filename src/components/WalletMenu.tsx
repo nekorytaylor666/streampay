@@ -1,4 +1,4 @@
-import { FC, Dispatch, SetStateAction, useEffect } from "react";
+import { FC, Dispatch, SetStateAction } from "react";
 
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import { Cluster } from "@streamflow/stream";
@@ -6,7 +6,6 @@ import { Menu } from "@headlessui/react";
 import { DuplicateIcon } from "@heroicons/react/outline";
 
 import { abbreviateAddress, copyToClipboard } from "../utils/helpers";
-import { getTokenAccounts, sortTokenAccounts } from "../utils/helpers";
 import Toggle from "./Toggle";
 import useStore, { StoreType } from "../stores";
 import Link from "../components/Link";
@@ -17,7 +16,7 @@ interface WalletMenuProps {
 
 const storeGetter = (state: StoreType) => ({
   cluster: state.cluster,
-  connection: state.connection(),
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   disconnectWallet: state.disconnectWallet,
   setMyTokenAccounts: state.setMyTokenAccounts,
@@ -26,15 +25,7 @@ const storeGetter = (state: StoreType) => ({
 });
 
 const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
-  const {
-    wallet,
-    cluster,
-    disconnectWallet,
-    connection,
-    setMyTokenAccounts,
-    setMyTokenAccountsSorted,
-    setToken,
-  } = useStore(storeGetter);
+  const { wallet, cluster, disconnectWallet } = useStore(storeGetter);
   const isDevnet = cluster === Cluster.Devnet;
 
   const walletAddressFormatted = wallet?.publicKey ? abbreviateAddress(wallet?.publicKey) : "";
@@ -44,19 +35,6 @@ const WalletMenu: FC<WalletMenuProps> = ({ clusterChange }) => {
   function copy() {
     copyToClipboard(walletPubKey);
   }
-
-  useEffect(() => {
-    (async () => {
-      const myTokenAccounts = await getTokenAccounts(connection!, wallet!, cluster);
-      const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
-
-      setMyTokenAccounts(myTokenAccounts);
-      setMyTokenAccountsSorted(myTokenAccountsSorted);
-      setToken(myTokenAccountsSorted[0]);
-    })();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, connection, cluster]);
 
   return (
     <div className="flex bg-gray-dark rounded-lg items-center">

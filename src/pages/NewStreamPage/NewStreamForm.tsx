@@ -46,7 +46,8 @@ interface NewStreamFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  StreamInstance: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
   messageSignerWallet: state.messageSignerWallet,
@@ -75,6 +76,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     setMyTokenAccountsSorted,
     addStream,
     setToken,
+    StreamInstance,
     cluster,
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
@@ -178,7 +180,8 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       referral,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!StreamInstance || !wallet?.publicKey || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -220,10 +223,10 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    const response = await createStream(data, connection, wallet, cluster);
+    const response = await createStream(StreamInstance, data, wallet);
     setLoading(false);
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.stream.mint, response.stream]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -243,7 +246,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       );
 
       trackTransaction(
-        response.id,
+        response.stream.mint,
         token.info.symbol,
         token.info.name,
         tokenPriceUsd,
@@ -260,7 +263,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
           const settingsClient = new SettingsClient(messageSignerWallet, cluster);
           await settingsClient.createContractSettings([
             {
-              contractAddress: response.id,
+              contractAddress: response.metadata.publicKey.toBase58(),
               transaction: response.tx,
               contractSettings: { notificationEmail: email },
             },

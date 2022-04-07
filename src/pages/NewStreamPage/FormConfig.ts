@@ -55,7 +55,7 @@ interface UseStreamFormProps {
 }
 
 export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
-  const connection = useStore.getState().connection();
+  const connection = useStore.getState().StreamInstance?.getConnection();
   const defaultValues = getDefaultValues();
 
   const validationSchema = useMemo(
