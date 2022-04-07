@@ -17,7 +17,7 @@ interface ContractSettingsRequest {
 }
 
 interface ContractSettings {
-  emailAddress: string;
+  notificationEmail: string;
 }
 
 export default class SettingsClient {
@@ -40,7 +40,7 @@ export default class SettingsClient {
   }
 
   private async getAuthData(): Promise<AuthData> {
-    const signMessage = "Sign this message to approve action.";
+    const signMessage = "Sign this message to approve notifying the recipient.";
     const signature = await this.signer?.signMessage(new TextEncoder().encode(signMessage));
     return {
       walletAddress: this.getWalletAddress(),
@@ -49,7 +49,10 @@ export default class SettingsClient {
     };
   }
 
-  async createContractSettings(data: ContractSettingsRequest[]) {
+  async createContractSettings(data: [ContractSettingsRequest]) {
     const authData = await this.getAuthData();
+    const requestData = { ...authData, data: data };
+    console.log(requestData);
+    return this.client.post("/v1/api/contracts/settings/batch", requestData);
   }
 }

@@ -6,7 +6,7 @@ export const COIN_MARKET_CAP_API_DETAILS = {
 };
 
 export const ContractSettingsclusterUrls: { [s: string]: string } = {
-  ["local"]: "http://localhost:8080",
-  [Cluster.Devnet]: "http://localhost:8080",
-  [Cluster.Mainnet]: "http://localhost:8080",
+  ["local"]: "http://localhost:5000",
+  [Cluster.Devnet]: "https://staging-api.internal-streamflow.com",
+  [Cluster.Mainnet]: "https://api.internal-streamflow.com",
 };
