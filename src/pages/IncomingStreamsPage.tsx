@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 
 import Stream from "@streamflow/stream";
 
+import { useStreams } from "../hooks/useStream";
 import useStore from "../stores";
 import { StreamsList } from "../components";
 import { sortStreams } from "../utils/helpers";
 
 const IncomingStreamsPage: React.FC = () => {
-  const streams = useStore((state) => state.streams);
+  const { streams } = useStreams();
   const wallet = useStore((state) => state.wallet);
   const cluster = useStore((state) => state.cluster);
   const setLoading = useStore((state) => state.setLoading);
