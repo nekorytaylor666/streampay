@@ -1,6 +1,5 @@
-import { useEffect } from "react";
-
 import Stream, { Stream as StreamData } from "@streamflow/stream";
+import { useQuery, UseQueryResult } from "react-query";
 
 import useStore, { StoreType } from "../stores";
 
@@ -18,26 +17,15 @@ export interface UseStreamOutput {
   streams: [string, StreamData][];
 }
 
-export const useStreams = (): UseStreamOutput => {
-  const { populateStreams, clearStreams, cluster, connection, wallet, streams, setLoading } =
-    useStore(storeGetter);
-
-  useEffect(() => {
-    clearStreams();
-    setLoading(true);
-
-    (async () => {
-      const allStreams = await Stream.get({
-        connection,
-        wallet: wallet.publicKey,
-        cluster,
-      });
-      populateStreams(allStreams);
-      setLoading(false);
-    })();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cluster]);
-
-  return { streams };
+export const useStreams = (): UseQueryResult<[string, StreamData][]> => {
+  const { cluster, connection, wallet } = useStore(storeGetter);
+  //it will create memoized query with refetch interval 1 sec and it also refetchin background.
+  return useQuery(
+    ["streams", cluster],
+    async () => Stream.get({ connection, wallet: wallet.publicKey, cluster }),
+    {
+      refetchInterval: 1000,
+      refetchIntervalInBackground: true,
+    }
+  );
 };
