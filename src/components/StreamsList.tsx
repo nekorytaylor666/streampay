@@ -45,7 +45,6 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
     walletType,
     connection,
     wallet,
-    loading,
   } = useStore(storeGetter);
 
   const updateToken = async () => {
@@ -93,9 +92,13 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
     }
   }
 
+  if (!streams) {
+    return <NoStreams />;
+  }
+
   return (
     <>
-      {!loading && streams.length > 0 && (
+      {streams.length > 0 && (
         <div className="block w-full">
           <div className="hidden sm:grid sm:grid-cols-8 xl:grid-cols-11 rounded-2xl px-4 py-4 mb-1 sm:gap-x-3">
             <p className="text-p2 text-gray-light">Status</p>
@@ -119,7 +122,7 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
           ))}
         </div>
       )}
-      {!loading && streams.length === 0 && (
+      {streams.length === 0 && (
         <NoStreams title="No Streams Available" subtitle="No existing streams to show here." />
       )}
     </>
