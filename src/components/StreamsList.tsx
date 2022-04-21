@@ -92,10 +92,6 @@ const StreamsList: FC<StreamsListProps> = ({ streams }) => {
     }
   }
 
-  if (!streams) {
-    return <NoStreams />;
-  }
-
   return (
     <>
       {streams.length > 0 && (
