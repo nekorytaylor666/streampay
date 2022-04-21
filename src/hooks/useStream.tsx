@@ -19,12 +19,12 @@ export interface UseStreamOutput {
 
 export const useStreams = (): UseQueryResult<[string, StreamData][]> => {
   const { cluster, connection, wallet } = useStore(storeGetter);
-  //it will create memoized query with refetch interval 1 sec and it also refetchin background.
+  //it will create memoized query with refetch interval 3 sec and it also refetchin background.
   return useQuery(
     ["streams", cluster],
     async () => Stream.get({ connection, wallet: wallet.publicKey, cluster }),
     {
-      refetchInterval: 1000,
+      refetchInterval: 3000,
       refetchIntervalInBackground: true,
     }
   );
