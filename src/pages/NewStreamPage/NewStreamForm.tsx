@@ -2,13 +2,24 @@ import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
+import * as Sentry from "@sentry/react";
 import { toast } from "react-toastify";
-import { BN, getBN, getNumberFromBN } from "@streamflow/stream";
+import { BN, getBN, getNumberFromBN, Cluster } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
+import {
+  Input,
+  Button,
+  Select,
+  Modal,
+  ModalRef,
+  Toggle,
+  Balance,
+  MsgToast,
+} from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
 import { createStream } from "../../api/transactions";
+import SettingsClient from "../../api/contractSettings";
 import {
   calculateWithdrawalFees,
   didTokenOptionsChange,
@@ -35,9 +46,11 @@ interface NewStreamFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  StreamInstance: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
+  messageSignerWallet: state.messageSignerWallet,
   cluster: state.cluster,
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
@@ -54,6 +67,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     connection,
     wallet,
     walletType,
+    messageSignerWallet,
     token,
     tokenPriceUsd,
     myTokenAccounts,
@@ -62,6 +76,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     setMyTokenAccountsSorted,
     addStream,
     setToken,
+    StreamInstance,
     cluster,
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
@@ -152,6 +167,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
   const onSubmit = async (values: StreamsFormData) => {
     const {
       releaseAmount,
+      email,
       subject,
       recipient,
       startDate,
@@ -164,7 +180,8 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       referral,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!StreamInstance || !wallet?.publicKey || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -206,10 +223,10 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    const response = await createStream(data, connection, wallet, cluster);
+    const response = await createStream(StreamInstance, data, wallet);
     setLoading(false);
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.stream.mint, response.stream]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -229,7 +246,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       );
 
       trackTransaction(
-        response.id,
+        response.stream.mint,
         token.info.symbol,
         token.info.name,
         tokenPriceUsd,
@@ -240,6 +257,28 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
         depositedAmount * tokenPriceUsd,
         walletType.name
       );
+
+      try {
+        if (email) {
+          const settingsClient = new SettingsClient(messageSignerWallet, cluster);
+          await settingsClient.createContractSettings([
+            {
+              contractAddress: response.metadata.publicKey.toBase58(),
+              transaction: response.tx,
+              contractSettings: { notificationEmail: email },
+            },
+          ]);
+          toast.dismiss();
+          toast.info(<MsgToast title="Notification sent." type="success" />, {
+            autoClose: 2000,
+          });
+        }
+      } catch (err: any) {
+        toast.dismiss();
+        console.log("err", err);
+        toast.error(<MsgToast title={"Sending notification failed."} type="error" />);
+        Sentry.captureException(err);
+      }
     }
   };
 
@@ -340,6 +379,20 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               error={errors?.recipient?.message}
               data-testid="stream-recipient"
               {...register("recipient")}
+            />
+            <Input
+              type="text"
+              label="Recipient Email"
+              placeholder="Optional email to notify"
+              classes="col-span-full"
+              description={
+                cluster === Cluster.Devnet
+                  ? "Sending emails is restricted in sandbox environment."
+                  : ""
+              }
+              error={errors?.email?.message}
+              data-testid="vesting-email"
+              {...register("email")}
             />
             <Input
               type="date"

@@ -12,6 +12,7 @@ import { TransferCancelOptions } from "../../types";
 
 export interface StreamsFormData {
   releaseAmount: number;
+  email: string;
   tokenSymbol: string;
   recipient: string;
   subject: string;
@@ -30,6 +31,7 @@ export interface StreamsFormData {
 
 const getDefaultValues = () => ({
   releaseAmount: undefined,
+  email: "",
   subject: "",
   tokenSymbol: "",
   recipient: "",
@@ -53,7 +55,7 @@ interface UseStreamFormProps {
 }
 
 export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
-  const connection = useStore.getState().connection();
+  const connection = useStore.getState().StreamInstance?.getConnection();
   const defaultValues = getDefaultValues();
 
   const validationSchema = useMemo(
@@ -89,6 +91,7 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .test("address_validation", ERRORS.invalid_address, async (address) =>
             isAddressValid(address || "", connection, true)
           ),
+        email: yup.string().email(ERRORS.not_valid_email),
         startDate: yup
           .string()
           .required(ERRORS.max_year)

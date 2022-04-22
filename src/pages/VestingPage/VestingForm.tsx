@@ -2,10 +2,20 @@ import { FC, useEffect, useState, useRef } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
 import { PublicKey } from "@solana/web3.js";
+import * as Sentry from "@sentry/react";
 import { toast } from "react-toastify";
-import { getBN, getNumberFromBN } from "@streamflow/stream";
+import { Cluster, getBN, getNumberFromBN } from "@streamflow/stream";
 
-import { Input, Button, Select, Modal, ModalRef, Toggle, Balance } from "../../components";
+import {
+  Input,
+  Button,
+  Select,
+  Modal,
+  ModalRef,
+  Toggle,
+  Balance,
+  MsgToast,
+} from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { VestingFormData, useVestingForm } from "./FormConfig";
 import Overview from "./Overview";
@@ -24,6 +34,7 @@ import {
   transferCancelOptions,
 } from "../../constants";
 import { createStream } from "../../api/transactions";
+import SettingsClient from "../../api/contractSettings";
 import { StringOption, TransferCancelOptions } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
 import { trackTransaction } from "../../utils/marketing_helpers";
@@ -35,9 +46,11 @@ interface VestingFormProps {
 }
 
 const storeGetter = (state: StoreType) => ({
-  connection: state.connection(),
+  Stream: state.StreamInstance,
+  connection: state.StreamInstance?.getConnection(),
   wallet: state.wallet,
   walletType: state.walletType,
+  messageSignerWallet: state.messageSignerWallet,
   token: state.token,
   tokenPriceUsd: state.tokenPriceUsd,
   myTokenAccounts: state.myTokenAccounts,
@@ -51,9 +64,11 @@ const storeGetter = (state: StoreType) => ({
 
 const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const {
+    Stream,
     connection,
     wallet,
     walletType,
+    messageSignerWallet,
     token,
     tokenPriceUsd,
     myTokenAccounts,
@@ -66,7 +81,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
-
   const modalRef = useRef<ModalRef>(null);
 
   const { register, handleSubmit, watch, errors, setValue, trigger } = useVestingForm({
@@ -174,6 +188,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
   const onSubmit = async (values: VestingFormData) => {
     const {
       amount,
+      email,
       subject,
       recipient,
       startDate,
@@ -190,7 +205,8 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       referral,
     } = values;
 
-    if (!wallet?.publicKey || !connection || !walletType) return toast.error(ERR_NOT_CONNECTED);
+    if (!wallet?.publicKey || !Stream || !connection || !walletType)
+      return toast.error(ERR_NOT_CONNECTED);
 
     setLoading(true);
 
@@ -243,11 +259,11 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       if (!shouldContinue) return setLoading(false);
     }
 
-    const response = await createStream(data, connection, wallet, cluster);
+    const response = await createStream(Stream, data, wallet);
     setLoading(false);
 
     if (response) {
-      addStream([response.id, response.stream]);
+      addStream([response.metadata.publicKey.toBase58(), response.stream]);
 
       const mint = token.info.address;
 
@@ -273,7 +289,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         token.uiTokenAmount.decimals
       );
       trackTransaction(
-        response.id,
+        response.metadata.publicKey.toBase58(),
         token.info.symbol,
         token.info.name,
         tokenPriceUsd,
@@ -284,6 +300,27 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         depositedAmount * tokenPriceUsd,
         walletType.name
       );
+      try {
+        if (email) {
+          const settingsClient = new SettingsClient(messageSignerWallet, cluster);
+          await settingsClient.createContractSettings([
+            {
+              contractAddress: response.metadata.publicKey.toBase58(),
+              transaction: response.tx,
+              contractSettings: { notificationEmail: email },
+            },
+          ]);
+          toast.dismiss();
+          toast.info(<MsgToast title="Notification sent." type="success" />, {
+            autoClose: 2000,
+          });
+        }
+      } catch (err: any) {
+        toast.dismiss();
+        console.log("err", err);
+        toast.error(<MsgToast title={"Sending notification failed."} type="error" />);
+        Sentry.captureException(err);
+      }
     }
   };
 
@@ -304,7 +341,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         withdrawalFrequencyCounter * withdrawalFrequencyPeriod
       )
     : 0;
-
   return (
     <>
       <div className="xl:mr-12 px-4 sm:px-0 pt-4">
@@ -345,6 +381,20 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               error={errors?.recipient?.message}
               data-testid="vesting-recipient"
               {...register("recipient")}
+            />
+            <Input
+              type="text"
+              label="Recipient Email"
+              placeholder="Optional email to notify"
+              classes="col-span-full"
+              description={
+                cluster === Cluster.Devnet
+                  ? "Sending emails is restricted in sandbox environment."
+                  : ""
+              }
+              error={errors?.email?.message}
+              data-testid="vesting-email"
+              {...register("email")}
             />
             <Input
               type="text"
