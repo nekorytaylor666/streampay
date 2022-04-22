@@ -23,11 +23,13 @@ export const useStreams = ():
   | UseQueryResult<StreamOutput[]>
   | Pick<UseQueryResult<StreamOutput[]>, "isLoading" | "data" | "isError"> => {
   const { cluster, StreamInstance, wallet, clusterUrl } = useStore(storeGetter);
-  //it will create memoized query with refetch interval 3 sec and it also refetchin background.
+  //check for rpc endpoint on StreamInstance to be same as clusterUrl in the store. If they are the same we will assume that instance is connected to right cluster
   const isInstanceConnectedToCluster = useMemo(
     () => (StreamInstance?.getConnection() as any)?._rpcEndpoint === clusterUrl(),
     [StreamInstance, clusterUrl]
   );
+
+  //it will create memoized query with refetch interval 3 sec and it also refetchin background.
   const query = useQuery(
     ["streams", cluster],
     async () => {
@@ -42,6 +44,7 @@ export const useStreams = ():
       enabled: isInstanceConnectedToCluster,
     }
   );
+  //if instance is not connectet yet return placeholder object that will immitate react query response on loading stage
   const tempQueryResult = { isLoading: true, data: [], isError: false };
   if (!isInstanceConnectedToCluster) {
     return tempQueryResult;
