@@ -3,10 +3,11 @@ import { FC, useEffect, useState } from "react";
 import { Route, Switch, useHistory, Redirect } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
-import { Cluster } from "@streamflow/stream";
+import { Cluster, StreamClient } from "@streamflow/stream";
 import cx from "classnames";
 import { QueryClient, QueryClientProvider } from "react-query";
 
+import { getTokenAccounts, sortTokenAccounts } from "./utils/helpers";
 import useStore, { StoreType } from "./stores";
 import { trackPageView } from "./utils/marketing_helpers";
 import { Footer, Header, Banner, Nav, VerticalNav, Curtain } from "./components";
@@ -14,18 +15,46 @@ import { Page404 } from "./pages";
 import routes from "./router/RoutesConfig";
 import PrivateRoute from "./router/PrivateRoute";
 
-const storeGetter = ({ connection, wallet, cluster, loading }: StoreType) => ({
-  connection: connection(),
+const storeGetter = ({
+  wallet,
+  cluster,
+  loading,
+  setStream,
+  clusterUrl,
+  StreamInstance,
+  setMyTokenAccounts,
+  setMyTokenAccountsSorted,
+  setToken,
+}: StoreType) => ({
   wallet,
   cluster,
   isMainnet: cluster === Cluster.Mainnet,
   loading,
+  setStream,
+  clusterUrl: clusterUrl(),
+  connection: StreamInstance?.getConnection(),
+  setMyTokenAccounts,
+  setMyTokenAccountsSorted,
+  setToken,
+  StreamInstance,
 });
 const queryClient = new QueryClient();
 
 const App: FC = () => {
   const history = useHistory();
-  const { wallet, isMainnet, cluster, loading } = useStore(storeGetter);
+  const {
+    wallet,
+    isMainnet,
+    setStream,
+    cluster,
+    clusterUrl,
+    loading,
+    StreamInstance,
+    setMyTokenAccounts,
+    setMyTokenAccountsSorted,
+    setToken,
+    connection,
+  } = useStore(storeGetter);
   const [isVerticalNavOpened, setIsVerticalNavOpened] = useState(false);
 
   const toggleVerticalNav = () => setIsVerticalNavOpened(!isVerticalNavOpened);
@@ -35,6 +64,31 @@ const App: FC = () => {
     // @ts-ignore
     history.listen(trackPageView);
   }, [history, cluster]);
+
+  useEffect(() => {
+    setStream(
+      new StreamClient(clusterUrl, cluster, {
+        commitment: "confirmed",
+        disableRetryOnRateLimit: true,
+      })
+    );
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cluster]);
+
+  useEffect(() => {
+    if (!connection || !wallet) return;
+    (async () => {
+      const myTokenAccounts = await getTokenAccounts(connection, wallet, cluster);
+      const myTokenAccountsSorted = sortTokenAccounts(myTokenAccounts);
+
+      setMyTokenAccounts(myTokenAccounts);
+      setMyTokenAccountsSorted(myTokenAccountsSorted);
+      setToken(myTokenAccountsSorted[0]);
+    })();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [StreamInstance, wallet]);
 
   return (
     <QueryClientProvider client={queryClient}>

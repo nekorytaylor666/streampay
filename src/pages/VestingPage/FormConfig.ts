@@ -12,6 +12,7 @@ import { isAddressValid } from "../../utils/helpers";
 
 export interface VestingFormData {
   amount: number;
+  email: string;
   tokenSymbol: string;
   recipient: string;
   subject: string;
@@ -35,6 +36,7 @@ export interface VestingFormData {
 const getDefaultValues = () => ({
   amount: undefined,
   tokenSymbol: "",
+  email: "",
   recipient: "",
   subject: "",
   startDate: format(new Date(), DATE_FORMAT),
@@ -61,7 +63,7 @@ interface UseVestingFormProps {
 }
 
 export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
-  const connection = useStore.getState().connection();
+  const connection = useStore.getState().StreamInstance?.getConnection();
   const defaultValues = getDefaultValues();
 
   const validationSchema = useMemo(
@@ -87,6 +89,7 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .test("address_validation", ERRORS.invalid_address, async (address) =>
             isAddressValid(address || "", connection, true)
           ),
+        email: yup.string().email(ERRORS.not_valid_email),
         startDate: yup
           .string()
           .required(ERRORS.max_year)

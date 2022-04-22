@@ -1,8 +1,8 @@
 import type { Wallet } from "@solana/wallet-adapter-base";
 import { WalletNotReadyError } from "@solana/wallet-adapter-base";
-import { Connection } from "@solana/web3.js";
 import { toast } from "react-toastify";
 import type { History } from "history";
+import type { MessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
 
 import { trackEvent } from "../utils/marketing_helpers";
 import { EVENT_CATEGORY, EVENT_ACTION, DATA_LAYER_VARIABLE } from "../constants";
@@ -12,35 +12,18 @@ import { MsgToast } from "../components";
 interface WalletState {
   walletType: Wallet | null;
   wallet: WalletAdapter | null;
-  connection: () => Connection | null;
+  messageSignerWallet: MessageSignerWalletAdapter | null;
   setWalletType: (walletType: Wallet | null, history: History<unknown>) => Promise<void>;
   disconnectWallet: () => void;
 }
 
 type WalletStore = (set: Function, get: Function) => WalletState;
 
-let memoizedConnection: { [s: string]: Connection } = {};
-
-const getConnection = (clusterUrl: string | null) => {
-  if (!clusterUrl) {
-    return null;
-  }
-
-  const key = clusterUrl;
-  if (!memoizedConnection[key]) {
-    memoizedConnection = {
-      [key]: new Connection(clusterUrl, { commitment: "confirmed", disableRetryOnRateLimit: true }),
-    };
-  }
-
-  return memoizedConnection[key];
-};
-
 const walletStore: WalletStore = (set, get) => ({
   // state
   walletType: null,
+  messageSignerWallet: null,
   wallet: null,
-  connection: () => getConnection(get().clusterUrl()),
 
   // actions
   setWalletType: async (walletType, history) => {
@@ -50,7 +33,7 @@ const walletStore: WalletStore = (set, get) => ({
     const walletAdapter = walletType?.adapter;
     if (walletAdapter) {
       walletAdapter.on("connect", async () => {
-        set({ walletType, wallet: walletAdapter });
+        set({ walletType, wallet: walletAdapter, messageSignerWallet: walletAdapter });
         // state.persistStoreToLocalStorage();
         history.push("/new-vesting");
         toast.success(
