@@ -1,16 +1,17 @@
-import Stream, { Stream as StreamData } from "@streamflow/stream";
+import { Stream as StreamData } from "@streamflow/stream";
 import { useQuery, UseQueryResult } from "react-query";
 
 import useStore, { StoreType } from "../stores";
 
 const storeGetter = (state: StoreType) => ({
+  StreamInstance: state.StreamInstance,
   streams: state.streams,
   setLoading: state.setLoading,
   populateStreams: state.populateStreams,
   clearStreams: state.clearStreams,
   cluster: state.cluster,
   wallet: state.wallet!,
-  connection: state.connection()!,
+  connection: state.StreamInstance?.getConnection(),
 });
 
 export interface UseStreamOutput {
@@ -18,11 +19,16 @@ export interface UseStreamOutput {
 }
 
 export const useStreams = (): UseQueryResult<[string, StreamData][]> => {
-  const { cluster, connection, wallet } = useStore(storeGetter);
+  const { cluster, StreamInstance, wallet } = useStore(storeGetter);
   //it will create memoized query with refetch interval 3 sec and it also refetchin background.
   return useQuery(
     ["streams", cluster],
-    async () => Stream.get({ connection, wallet: wallet.publicKey, cluster }),
+    async () => {
+      if (!StreamInstance || !wallet?.publicKey) return [];
+      return StreamInstance?.get({
+        wallet: wallet.publicKey,
+      });
+    },
     {
       refetchInterval: 3000,
       refetchIntervalInBackground: true,
