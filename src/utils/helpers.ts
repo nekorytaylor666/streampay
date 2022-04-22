@@ -35,7 +35,7 @@ export const ourTokens = [
     symbol: "STRM",
     name: "STREAMFLOW",
     decimals: 9, //default is 9
-    logoURI: "https://streamflow.finance/public/img/icon.png",
+    logoURI: "https://app.streamflow.finance/static/media/logo.c4294b7c.png",
     tags: [],
   },
   {
