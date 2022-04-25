@@ -18,15 +18,22 @@ const Header: FC<HeaderProps> = ({ toggleVerticalNav, isVerticalNavOpened }) => 
   const cluster = useStore((state) => state.cluster);
   const setCluster = useStore((state) => state.setCluster);
   const wallet = useStore((state) => state.wallet);
+  const setStream = useStore((state) => state.setStream);
 
   const isMainnet = cluster === Cluster.Mainnet;
   const toggleCluster = () => {
     if (isMainnet) {
       setCluster(Cluster.Devnet);
+      //reset stream instance to give it chance to switch cluster
+      setStream(null);
+
       document.documentElement.classList.remove("main");
       document.documentElement.classList.add("dev");
     } else {
       setCluster(Cluster.Mainnet);
+      //reset stream instance to give it chance to switch cluster
+      setStream(null);
+
       document.documentElement.classList.remove("dev");
       document.documentElement.classList.add("main");
     }
