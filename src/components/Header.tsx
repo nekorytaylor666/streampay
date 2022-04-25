@@ -40,7 +40,7 @@ const Header: FC<HeaderProps> = ({ toggleVerticalNav, isVerticalNavOpened }) => 
   };
 
   return (
-    <div className="flex sticky top-0 w-screen bg-dark items-center p-4 sm:p-6 border-b border-gray-dark justify-between sm:justify-start z-50">
+    <div className="flex sticky top-0 w-full bg-dark items-center p-4 sm:p-6 border-b border-gray-dark justify-between sm:justify-start z-50">
       <Logo src={logo} wallet={wallet} classes={`sm:w-60 ${!wallet?.connected && "flex-grow"}`} />
       {wallet?.connected && <Nav classes="hidden sm:flex-grow lg:block" />}
       {!isMainnet && <Airdrop classes="hidden sm:block" />}
