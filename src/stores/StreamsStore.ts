@@ -8,7 +8,7 @@ interface StreamStore {
   setLoading: (loading: boolean) => void;
   streams: [string, StreamData][];
   populateStreams: (streams: [string, StreamData][]) => void;
-  setStream: (Stream: StreamClient) => void;
+  setStream: (Stream: StreamClient | null) => void;
   addStream: (stream: [string, StreamData]) => void;
   addStreams: (newStreams: [string, StreamData][]) => void;
   updateStream: (updatedStream: [string, StreamData]) => void;
