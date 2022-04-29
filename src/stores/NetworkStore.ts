@@ -6,8 +6,8 @@ export const CLUSTER_LOCAL = "local";
 
 const clusterUrls: { [s: string]: () => string } = {
   [CLUSTER_LOCAL]: () => "http://localhost:8899", // http://127.0.0.1:8899",
-  [Cluster.Devnet]: () => "https://api.devnet.rpcpool.com/e432dc90-1789-44bd-b31c-02c9e9d8f644",
-  [Cluster.Mainnet]: () => "https://streamflow.rpcpool.com/427d74ed-fe17-4bc8-a4cc-20bd80d2aed8",
+  [Cluster.Devnet]: () => "https://api.devnet.rpcpool.com",
+  [Cluster.Mainnet]: () => "https://streamflow.rpcpool.com",
 };
 
 interface NetworkStore {
