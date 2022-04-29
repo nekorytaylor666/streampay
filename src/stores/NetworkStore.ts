@@ -6,7 +6,7 @@ export const CLUSTER_LOCAL = "local";
 
 const clusterUrls: { [s: string]: () => string } = {
   [CLUSTER_LOCAL]: () => "http://localhost:8899", // http://127.0.0.1:8899",
-  [Cluster.Devnet]: () => "https://api.devnet.rpcpool.com",
+  [Cluster.Devnet]: () => "https://api.devnet.solana.com",
   [Cluster.Mainnet]: () => "https://streamflow.rpcpool.com",
 };
 
