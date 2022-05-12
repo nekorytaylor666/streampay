@@ -113,7 +113,7 @@ const Overview: React.FC<OverviewProps> = ({
         Need a custom deal?{" "}
         <Link
           title="Contact us"
-          url="discord.gg/9yyr8UBZjr"
+          url="https://discord.gg/9yyr8UBZjr"
           classes="inline-block text-p3 text-blue"
         />
       </p>
