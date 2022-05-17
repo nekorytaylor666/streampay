@@ -302,9 +302,15 @@ const StreamCard: FC<StreamProps> = ({ data, id, onWithdraw, myAddress, onTopup,
 
   useEffect(() => {
     if (automaticWithdrawal && status === StreamStatus.streaming) {
+      let fetchFrequency;
+      if (withdrawalFrequency < 10 * 60) {
+        fetchFrequency = (withdrawalFrequency + 2) * 1000;
+      } else {
+        fetchFrequency = 10 * 60 * 1000;
+      }
       const withdrawalInterval = setInterval(() => {
         fetchStream();
-      }, (withdrawalFrequency + 2) * 1000);
+      }, fetchFrequency);
 
       return () => clearInterval(withdrawalInterval);
     }
