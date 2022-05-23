@@ -90,6 +90,7 @@ export const ERRORS = {
   max_year: "Year should be less than 9999.",
   subject_too_long: "It is either too long or there are many complex characters.",
   withdrawal_frequency_too_high: "Withdrawal frequency should be >= release frequency.",
+  total_bigger_than_balance: "Total is greater than balance.",
 };
 
 export const PERIOD = {
@@ -180,3 +181,5 @@ export const transferCancelOptions = [
     label: "Neither",
   },
 ];
+
+export const BATCH_MAINNET_RECIPIENT_LIMIT = 5;

@@ -20,7 +20,7 @@ export default class Banner extends Component<BannerProps, BannerState> {
 
   render() {
     return (
-      <div className={`relative bg-blue w-screen t-0 ${this.state.hidden && "hidden"}`}>
+      <div className={`relative bg-blue w-full t-0 ${this.state.hidden && "hidden"}`}>
         <div className="max-w-7xl mx-auto py-2 px-3 sm:px-6 lg:px-8">
           <div className="pr-6 sm:text-center sm:px-16">
             {this.props.title && (

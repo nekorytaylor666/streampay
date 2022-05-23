@@ -10,7 +10,7 @@ interface AuthData {
   authMessage: string;
 }
 
-interface ContractSettingsRequest {
+export interface ContractSettingsRequest {
   contractAddress: string;
   transaction: string;
   contractSettings: ContractSettings;
@@ -49,7 +49,7 @@ export default class SettingsClient {
     };
   }
 
-  async createContractSettings(data: [ContractSettingsRequest]) {
+  async createContractSettings(data: ContractSettingsRequest[]) {
     const authData = await this.getAuthData();
     const requestData = { ...authData, data: data };
     console.log(requestData);

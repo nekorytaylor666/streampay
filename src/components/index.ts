@@ -24,5 +24,7 @@ export { default as StreamsList } from "./StreamsList";
 export { default as DesktopMode } from "./DesktopMode";
 export { default as Airdrop } from "./Airdrop";
 export { default as NoStreams } from "./NoStreams";
+export { default as FinanceFee } from "./FinanceFee";
 
+export * from "./Recipient";
 export * from "./Modal";

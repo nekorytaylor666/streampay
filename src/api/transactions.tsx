@@ -1,5 +1,4 @@
 import { toast } from "react-toastify";
-// import bs58 from "bs58";
 import {
   StreamClient,
   WithdrawStreamData,
@@ -7,6 +6,8 @@ import {
   TransferStreamData,
   TopupStreamData,
   CancelStreamData,
+  CreateMultiData,
+  CreateMultiResponse,
 } from "@streamflow/stream";
 import * as Sentry from "@sentry/react";
 import { Wallet } from "@project-serum/anchor/src/provider";
@@ -52,6 +53,40 @@ export const createStream = async (
     });
 
     return { ...response, stream };
+  } catch (err: any) {
+    toast.dismiss();
+    console.log("err", err);
+    handleError(err);
+  }
+};
+
+export const createMultiple = async (
+  Stream: StreamClient,
+  data: CreateMultiData,
+  wallet: Wallet | null
+): Promise<CreateMultiResponse | undefined> => {
+  try {
+    if (!wallet || wallet?.publicKey === null || !Stream.getConnection()) {
+      throw new Error(ERR_NOT_CONNECTED);
+    }
+
+    toast.info(<MsgToast title="Please confirm transaction in your wallet." type="info" />, {
+      autoClose: false,
+    });
+
+    const response = await Stream.createMultiple({
+      ...data,
+      sender: wallet,
+      partner: wallet.publicKey.toBase58(),
+    });
+
+    toast.dismiss();
+    toast.success(<ToastSuccess connection={Stream.getConnection()} />, {
+      autoClose: 10000,
+      closeOnClick: true,
+    });
+
+    return response;
   } catch (err: any) {
     toast.dismiss();
     console.log("err", err);
@@ -167,7 +202,7 @@ export const cancelStream = async (
   }
 };
 
-const ToastSuccess = ({ url, connection }: { url: string; connection: Connection }) => (
+const ToastSuccess = ({ url, connection }: { url?: string; connection: Connection }) => (
   <ToastrLink
     url={url}
     urlText="View on explorer"

@@ -6,7 +6,13 @@ import { PublicKey } from "@solana/web3.js";
 import type { Connection, TokenAmount } from "@solana/web3.js";
 import { SystemProgram } from "@solana/web3.js";
 import { format } from "date-fns";
-import { Cluster, LocalCluster, ClusterExtended, Stream as StreamData } from "@streamflow/stream";
+import {
+  Cluster,
+  LocalCluster,
+  ClusterExtended,
+  Stream as StreamData,
+  Recipient,
+} from "@streamflow/stream";
 
 import useStore from "../stores";
 import { StringOption, Token } from "../types";
@@ -294,4 +300,29 @@ export const isAddressValid = async (
   }
   if (account.executable) return false;
   return true;
+};
+
+const cachedWallets: string[] = [];
+
+export const createWalletValidityTest =
+  (connection: Connection | undefined) =>
+  async (input: string | undefined): Promise<boolean> => {
+    if (!input) return false;
+    const address = input ?? "";
+    const isValidAddress =
+      cachedWallets.includes(address) || (await isAddressValid(address || "", connection, true));
+    if (!isValidAddress) return false;
+    cachedWallets.push(address);
+    return true;
+  };
+
+export const checkRecipientTotal = (recipients: Recipient[], tokenBalance: number): boolean => {
+  const parseDepositedAmount = (depositedAmount: number | undefined): number =>
+    depositedAmount && !Number.isNaN(depositedAmount) ? depositedAmount : 0;
+  const totalAmount =
+    recipients?.reduce(
+      (sum, recipient) => sum + parseDepositedAmount(recipient?.depositedAmount),
+      0
+    ) ?? 0;
+  return totalAmount <= tokenBalance;
 };

@@ -42,6 +42,7 @@ module.exports = {
         "gray-light": "var(--gray-light)",
         "gray-dark": "var(--gray-dark)",
         dark: "rgb(var(--dark))",
+        "main-dark": "rgb(var(--main-dark))",
         "gray-200": "rgba(var(--gray), 0.2)",
         "blue-200": "rgba(var(--blue), 0.2)",
         "red-200": "rgba(var(--red), 0.2)",

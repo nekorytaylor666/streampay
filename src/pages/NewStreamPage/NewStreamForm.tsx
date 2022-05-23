@@ -1,10 +1,10 @@
-import { FC, useEffect, useState, useRef } from "react";
+import { FC, useEffect, useState, useRef, useCallback } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
-import { PublicKey } from "@solana/web3.js";
+// import { PublicKey } from "@solana/web3.js";
 import * as Sentry from "@sentry/react";
 import { toast } from "react-toastify";
-import { BN, getBN, getNumberFromBN, Cluster } from "@streamflow/stream";
+import { BN, Cluster, CreateMultiError, getBN } from "@streamflow/stream";
 
 import {
   Input,
@@ -14,14 +14,17 @@ import {
   ModalRef,
   Toggle,
   Balance,
+  RecipientStreamsForm as Recipient,
+  FinanceFee,
   MsgToast,
 } from "../../components";
 import useStore, { StoreType } from "../../stores";
 import { StreamsFormData, useStreamsForm } from "./FormConfig";
-import { createStream } from "../../api/transactions";
 import SettingsClient from "../../api/contractSettings";
+import { ContractSettingsRequest } from "../../api/contractSettings";
+import { createMultiple } from "../../api/transactions";
 import {
-  calculateWithdrawalFees,
+  // calculateWithdrawalFees,
   didTokenOptionsChange,
   getTokenAmount,
   sortTokenAccounts,
@@ -31,14 +34,16 @@ import {
   TIME_FORMAT,
   ERR_NOT_CONNECTED,
   timePeriodOptions,
-  ERRORS,
-  TRANSACTION_VARIANT,
+  // ERRORS,
+  // TRANSACTION_VARIANT,
   transferCancelOptions,
+  BATCH_MAINNET_RECIPIENT_LIMIT,
 } from "../../constants";
 import { StringOption, TransferCancelOptions } from "../../types";
 import Overview from "./Overview";
-import { trackTransaction } from "../../utils/marketing_helpers";
+// import { trackTransaction } from "../../utils/marketing_helpers";
 import Description from "./Description";
+import { useStreams } from "../../hooks/useStream";
 
 interface NewStreamFormProps {
   loading: boolean;
@@ -48,6 +53,8 @@ interface NewStreamFormProps {
 const storeGetter = (state: StoreType) => ({
   StreamInstance: state.StreamInstance,
   connection: state.StreamInstance?.getConnection(),
+  isMainnet: state.cluster === Cluster.Mainnet,
+
   wallet: state.wallet,
   walletType: state.walletType,
   messageSignerWallet: state.messageSignerWallet,
@@ -58,7 +65,7 @@ const storeGetter = (state: StoreType) => ({
   setMyTokenAccounts: state.setMyTokenAccounts,
   myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
-  addStream: state.addStream,
+  addStreams: state.addStreams,
   setToken: state.setToken,
 });
 
@@ -69,28 +76,42 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     walletType,
     messageSignerWallet,
     token,
-    tokenPriceUsd,
+    // tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     myTokenAccountsSorted,
     setMyTokenAccountsSorted,
-    addStream,
     setToken,
     StreamInstance,
+    isMainnet,
     cluster,
   } = useStore(storeGetter);
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
+  const [totalDepositedAmount, setTotalDepositedAmount] = useState(0);
+  const [streamErrors, setStreamErrors] = useState<CreateMultiError[]>([]);
 
   const modalRef = useRef<ModalRef>(null);
+  const { refetch } = useStreams();
 
-  const { register, handleSubmit, watch, errors, setValue, setError, clearErrors, trigger } =
-    useStreamsForm({
-      tokenBalance: tokenBalance || 0,
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    errors,
+    setValue,
+    append,
+    remove,
+    // setError,
+    // clearErrors,
+    trigger,
+    fields,
+  } = useStreamsForm({
+    tokenBalance: tokenBalance || 0,
+  });
 
   const [
-    depositedAmount,
+    recipients,
     releaseAmount,
     tokenSymbol,
     startDate,
@@ -101,7 +122,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     withdrawalFrequencyCounter,
     withdrawalFrequencyPeriod,
   ] = watch([
-    "depositedAmount",
+    "recipients",
     "releaseAmount",
     "tokenSymbol",
     "startDate",
@@ -148,31 +169,34 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     const token = Object.values(myTokenAccounts).find(({ info }) => info.symbol === tokenSymbol);
     if (token) setToken(token);
   };
+  const getStreamErrorByRecipient = useCallback(
+    (recipient: string) => {
+      return streamErrors.find((el) => el.recipient === recipient);
+    },
+    [streamErrors]
+  );
 
   const updateReleaseFrequencyCounter = (value: string) => {
     setValue("releaseFrequencyCounter", parseInt(value));
   };
 
-  const updateReleaseAmountError = (value: string) => {
-    if (value && releaseAmount) {
-      return +value < +releaseAmount
-        ? setError("releaseAmount", {
-            type: "error message",
-            message: ERRORS.release_amount_greater_than_deposited,
-          })
-        : clearErrors("releaseAmount");
-    }
-  };
+  // const updateReleaseAmountError = (value: string) => {
+  //   if (value && releaseAmount) {
+  //     return +value < +releaseAmount
+  //       ? setError("releaseAmount", {
+  //           type: "error message",
+  //           message: ERRORS.release_amount_greater_than_deposited,
+  //         })
+  //       : clearErrors("releaseAmount");
+  //   }
+  // };
 
   const onSubmit = async (values: StreamsFormData) => {
     const {
+      recipients,
       releaseAmount,
-      email,
-      subject,
-      recipient,
       startDate,
       startTime,
-      depositedAmount,
       releaseFrequencyCounter,
       releaseFrequencyPeriod,
       whoCanTransfer,
@@ -186,17 +210,22 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     setLoading(true);
 
     const start = getUnixTime(new Date(startDate + "T" + startTime));
+    const recipEmails = Object.fromEntries(recipients.map((e) => [e.recipient, e.recipientEmail]));
+    const isAnyEmails = Object.values(recipients).some(({ recipientEmail }) => recipientEmail);
+    const recipientsFormatted = recipients.map(({ depositedAmount, recipient, name }) => ({
+      recipient,
+      name,
+      depositedAmount: getBN(depositedAmount, token.uiTokenAmount.decimals),
+      amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
+      cliffAmount: new BN(0),
+    }));
 
     const data = {
-      depositedAmount: getBN(depositedAmount, token.uiTokenAmount.decimals),
-      recipient: recipient,
+      recipientsData: recipientsFormatted,
       mint: token.info.address,
       start,
       period: releaseFrequencyCounter * releaseFrequencyPeriod,
       cliff: start,
-      cliffAmount: new BN(0),
-      amountPerPeriod: getBN(releaseAmount, token.uiTokenAmount.decimals),
-      name: subject,
       cancelableBySender:
         whoCanCancel === TransferCancelOptions.Sender ||
         whoCanCancel === TransferCancelOptions.Both,
@@ -216,17 +245,46 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       canTopup: true,
       partner: referral,
     };
+    // const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
+    // if (!recipientAccount) {
+    //   const shouldContinue = await modalRef?.current?.show();
+    //   if (!shouldContinue) return setLoading(false);
+    // }
+    toast.info(
+      <MsgToast
+        title={"Solana network warning."}
+        type="info"
+        message={`It looks like Solana is taking longer than usual to process the transaction(s). 
+        It can take up to 2 minutes for us to confirm the status of all transactions. 
+        Don't leave or refresh the page! 
+        In case any transactions fail we will automatically repopulate the fields here so that you can try again.`}
+      />
+    );
+    const response = await createMultiple(StreamInstance, data, wallet);
+    setLoading(false);
+    if (response?.errors && response?.errors.length > 0) {
+      const totalRecipients = recipients.length;
+      const totalError = response.errors.length;
+      const failedRecipients = response.errors.map((el) => el.recipient);
+      const recipientsToRemove = recipients.filter(
+        (recipient) => !failedRecipients.some((failed) => failed === recipient.recipient)
+      );
+      console.log(response.errors);
+      recipientsToRemove.map((x) =>
+        remove(recipients.findIndex((y) => y.recipient == x.recipient))
+      );
+      setStreamErrors(response.errors);
 
-    const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
-    if (!recipientAccount) {
-      const shouldContinue = await modalRef?.current?.show();
-      if (!shouldContinue) return setLoading(false);
+      toast.error(
+        <MsgToast
+          title={"Some stream contracts were failed."}
+          type="error"
+          message={`${totalError} of ${totalRecipients} transactions are failed. We populated them on the form!`}
+        />
+      );
     }
 
-    const response = await createStream(StreamInstance, data, wallet);
-    setLoading(false);
     if (response) {
-      addStream([response.stream.mint, response.stream]);
       const mint = token.info.address;
 
       const updatedTokenAmount = await getTokenAmount(connection, wallet, mint);
@@ -240,39 +298,44 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
       setMyTokenAccountsSorted(myTokenAccountsSorted);
 
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
-      const streamflowFeeTotal = getNumberFromBN(
-        response.stream.streamflowFeeTotal,
-        token.uiTokenAmount.decimals
-      );
+      refetch();
+      // const streamflowFeeTotal = getNumberFromBN(
+      //   response.stream.streamflowFeeTotal,
+      //   token.uiTokenAmount.decimals
+      // );
 
-      trackTransaction(
-        response.stream.mint,
-        token.info.symbol,
-        token.info.name,
-        tokenPriceUsd,
-        TRANSACTION_VARIANT.CREATE_STREAM,
-        streamflowFeeTotal * tokenPriceUsd,
-        streamflowFeeTotal,
-        depositedAmount,
-        depositedAmount * tokenPriceUsd,
-        walletType.name
-      );
-
+      // trackTransaction(
+      //   response.stream.mint,
+      //   token.info.symbol,
+      //   token.info.name,
+      //   tokenPriceUsd,
+      //   TRANSACTION_VARIANT.CREATE_STREAM,
+      //   streamflowFeeTotal * tokenPriceUsd,
+      //   streamflowFeeTotal,
+      //   depositedAmount,
+      //   depositedAmount * tokenPriceUsd,
+      //   walletType.name
+      // );
+      if (!isAnyEmails) return;
       try {
-        if (email) {
-          const settingsClient = new SettingsClient(messageSignerWallet, cluster);
-          await settingsClient.createContractSettings([
-            {
-              contractAddress: response.metadata.publicKey.toBase58(),
-              transaction: response.tx,
-              contractSettings: { notificationEmail: email },
-            },
-          ]);
-          toast.dismiss();
-          toast.info(<MsgToast title="Notification sent." type="success" />, {
-            autoClose: 2000,
-          });
-        }
+        const settingsClient = new SettingsClient(messageSignerWallet, cluster);
+        const emailRequests: ContractSettingsRequest[] = response.metadatas.map(
+          (metadata, index) => {
+            const metadataPubKey = metadata.publicKey.toBase58();
+            const recipientPubKey = response.metadataToRecipient[metadataPubKey]?.recipient;
+            const notificationEmail = recipEmails[recipientPubKey];
+            return {
+              contractAddress: response.metadatas[index].publicKey.toBase58(),
+              transaction: response.txs[index],
+              contractSettings: { notificationEmail },
+            };
+          }
+        );
+        await settingsClient.createContractSettings(emailRequests);
+        toast.dismiss();
+        toast.info(<MsgToast title="Notification sent." type="info" />, {
+          autoClose: 2000,
+        });
       } catch (err: any) {
         toast.dismiss();
         console.log("err", err);
@@ -282,18 +345,37 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
     }
   };
 
-  const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
-  const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
-  const end = start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod;
+  // const start = getUnixTime(new Date(startDate + "T" + startTime)); // gives us seconds
+  // const releasePeriod = releaseFrequencyCounter * releaseFrequencyPeriod;
+  // const end = start + Math.ceil(depositedAmount / releaseAmount) * releasePeriod;
 
-  const withdrawalFees = automaticWithdrawal
-    ? calculateWithdrawalFees(
-        start,
-        start,
-        end,
-        withdrawalFrequencyCounter * withdrawalFrequencyPeriod
-      )
-    : 0;
+  // const withdrawalFees = automaticWithdrawal
+  //   ? calculateWithdrawalFees(
+  //       start,
+  //       start,
+  //       end,
+  //       withdrawalFrequencyCounter * withdrawalFrequencyPeriod
+  //     )
+  //   : 0;
+
+  const isRecipientsReachedLimit: boolean =
+    isMainnet && recipients.length + 1 > BATCH_MAINNET_RECIPIENT_LIMIT;
+
+  const addNewRecipient = () => {
+    //limit recipients due to low tps
+    if (isRecipientsReachedLimit) return;
+    append({ recipient: "", recipientEmail: "", depositedAmount: undefined, name: "" });
+  };
+
+  const updateTotalDepositedAmount = () => {
+    const totalAmount = recipients.reduce((sum, recipient) => sum + +recipient.depositedAmount, 0);
+    setTotalDepositedAmount(totalAmount);
+  };
+
+  useEffect(() => {
+    const totalAmount = recipients.reduce((sum, recipient) => sum + +recipient.depositedAmount, 0);
+    setTotalDepositedAmount(totalAmount);
+  }, [recipients]);
 
   return (
     <>
@@ -302,16 +384,6 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
         <Balance classes="sm:hidden" />
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
           <div className="grid gap-y-5 gap-x-3 grid-cols-6 sm:grid-cols-2">
-            <Input
-              type="number"
-              label="Amount"
-              customChange={updateReleaseAmountError}
-              placeholder="0.00"
-              classes="col-span-full sm:col-span-1"
-              error={errors?.depositedAmount?.message}
-              data-testid="stream-amount"
-              {...register("depositedAmount")}
-            />
             {wallet && tokenOptions.length ? (
               <Select
                 label="Token"
@@ -334,7 +406,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               label="Release Amount"
               placeholder="0.00"
               error={errors?.releaseAmount?.message}
-              classes="col-span-full sm:col-span-1"
+              classes="col-span-full sm:col-span-1 sm:col-start-1"
               data-testid="stream-release-amount"
               {...register("releaseAmount")}
             />
@@ -361,39 +433,6 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                 error={errors?.releaseFrequencyPeriod?.message}
               />
             </div>
-            <Input
-              type="text"
-              label="Contract Title"
-              placeholder="e.g. VC Seed Round"
-              classes="col-span-full"
-              error={errors?.subject?.message}
-              data-testid="stream-title"
-              {...register("subject")}
-            />
-            <Input
-              type="text"
-              label="Recipient Wallet Address"
-              placeholder="Please double check the address"
-              classes="col-span-full"
-              description="Make sure this is not a centralized exchange address."
-              error={errors?.recipient?.message}
-              data-testid="stream-recipient"
-              {...register("recipient")}
-            />
-            <Input
-              type="text"
-              label="Recipient Email"
-              placeholder="Optional email to notify"
-              classes="col-span-full"
-              description={
-                cluster === Cluster.Devnet
-                  ? "Sending emails is restricted in sandbox environment."
-                  : ""
-              }
-              error={errors?.email?.message}
-              data-testid="vesting-email"
-              {...register("email")}
-            />
             <Input
               type="date"
               label="Start Date"
@@ -432,6 +471,36 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               />
             </div>
             <div className="border-t border-b border-gray-dark py-6 col-span-full">
+              <h5 className="text-gray font-bold text-xs tracking-widest mb-5">RECIPIENTS</h5>
+            </div>
+            {fields.map((field, index) => (
+              <Recipient
+                key={field.id}
+                register={register}
+                index={index}
+                errors={{
+                  fieldErrors: errors.recipients?.[index],
+                  arrayErrors: errors?.recipients as any,
+                  externalError: (
+                    getStreamErrorByRecipient(recipients[index].recipient)?.error as any
+                  )?.message,
+                }}
+                trigger={trigger}
+                visible={true}
+                removeRecipient={() => remove(index)}
+                customChange={updateTotalDepositedAmount}
+              />
+            ))}
+            {!isRecipientsReachedLimit && (
+              <button
+                type="button"
+                className="text-blue text-xs bg-transparent w-28 text-left"
+                onClick={addNewRecipient}
+              >
+                + Add Recipient
+              </button>
+            )}
+            <div className="border-t border-b border-gray-dark py-6 col-span-full">
               <h5 className="text-gray font-bold text-xs tracking-widest mb-5">
                 WITHDRAW SETTINGS
               </h5>
@@ -467,7 +536,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                     classes="col-span-3"
                     error={errors?.withdrawalFrequencyPeriod?.message}
                   />
-                  <p className="text-gray-light text-xxs leading-4 mt-3 col-span-full">
+                  {/* <p className="text-gray-light text-xxs leading-4 mt-3 col-span-full">
                     When automatic withdrawal is enabled there are additional fees ( 5000 lamports )
                     per every withdrawal.{" "}
                     {withdrawalFees > 0 && (
@@ -477,7 +546,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
                         withdrawal fees.
                       </>
                     )}
-                  </p>
+                  </p> */}
                 </div>
               )}
             </div>
@@ -485,7 +554,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
           <Overview
             classes="sm:hidden"
             {...{
-              depositedAmount,
+              recipients,
               releaseAmount,
               tokenSymbol,
               startDate,
@@ -494,6 +563,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
               releaseFrequencyPeriod,
             }}
           />
+          <FinanceFee depositedAmount={totalDepositedAmount} tokenSymbol={tokenSymbol} />
           {wallet?.connected && (
             <>
               <Button
@@ -522,7 +592,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
         <Overview
           classes="hidden sm:block sm:mt-6"
           {...{
-            depositedAmount,
+            recipients,
             releaseAmount,
             tokenSymbol,
             startDate,
@@ -531,6 +601,7 @@ const NewStreamForm: FC<NewStreamFormProps> = ({ loading, setLoading }) => {
             releaseFrequencyPeriod,
           }}
         />
+        <FinanceFee depositedAmount={totalDepositedAmount} tokenSymbol={tokenSymbol} />
         <div className="pt-6 border-t border-gray-dark">
           <Input
             type="text"

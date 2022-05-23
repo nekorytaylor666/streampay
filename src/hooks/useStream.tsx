@@ -25,9 +25,7 @@ type FilteredStreamsOutput = {
   outgoing: StreamOutput[];
 };
 //we either return full use query result or just essential loaders
-export const useStreams = ():
-  | UseQueryResult<FilteredStreamsOutput>
-  | Pick<UseQueryResult<FilteredStreamsOutput>, "isLoading" | "data" | "isError"> => {
+export const useStreams = (): UseQueryResult<FilteredStreamsOutput> => {
   const { cluster, StreamInstance, wallet, clusterUrl } = useStore(storeGetter);
   //check for rpc endpoint on StreamInstance to be same as clusterUrl in the store. If they are the same we will assume that instance is connected to right cluster
   const isInstanceConnectedToCluster = useMemo(
@@ -61,9 +59,6 @@ export const useStreams = ():
       enabled: isInstanceConnectedToCluster,
     }
   );
-  //if instance is not connectet yet return placeholder object that will immitate react query response on loading stage
-  if (!isInstanceConnectedToCluster) {
-    return { isLoading: true, isError: false, data: { all: [], incoming: [], outgoing: [] } };
-  }
-  return query;
+
+  return { ...query };
 };

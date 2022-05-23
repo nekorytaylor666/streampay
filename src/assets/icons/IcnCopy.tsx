@@ -3,7 +3,7 @@ interface IconProps {
   classes?: string;
 }
 
-const IcnAllStreams: React.FC<IconProps> = ({ classes }) => (
+const IcnCopy: React.FC<IconProps> = ({ classes }) => (
   <svg
     width="16"
     height="18"
@@ -16,4 +16,4 @@ const IcnAllStreams: React.FC<IconProps> = ({ classes }) => (
   </svg>
 );
 
-export default IcnAllStreams;
+export default IcnCopy;

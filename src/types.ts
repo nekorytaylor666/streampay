@@ -63,3 +63,10 @@ export enum TransferCancelOptions {
   Both = "both",
   Neither = "neither",
 }
+
+export interface Recipient {
+  recipient: string;
+  recipientEmail: string;
+  name: string;
+  depositedAmount: number;
+}

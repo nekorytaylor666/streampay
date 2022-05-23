@@ -1,24 +1,21 @@
 import { useMemo } from "react";
 
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { add, format } from "date-fns";
 import * as yup from "yup";
 
-import { isAddressValid } from "../../utils/helpers";
+import { checkRecipientTotal, createWalletValidityTest, isAddressValid } from "../../utils/helpers";
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
-import { TransferCancelOptions } from "../../types";
+import { TransferCancelOptions, Recipient } from "../../types";
 
 export interface StreamsFormData {
   releaseAmount: number;
   email: string;
   tokenSymbol: string;
-  recipient: string;
-  subject: string;
   startDate: string;
   startTime: string;
-  depositedAmount: number;
   releaseFrequencyCounter: number;
   whoCanTransfer: TransferCancelOptions;
   whoCanCancel: TransferCancelOptions;
@@ -27,17 +24,14 @@ export interface StreamsFormData {
   withdrawalFrequencyCounter: number;
   withdrawalFrequencyPeriod: number;
   referral: string;
+  recipients: Recipient[];
 }
 
 const getDefaultValues = () => ({
   releaseAmount: undefined,
-  email: "",
-  subject: "",
   tokenSymbol: "",
-  recipient: "",
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
-  depositedAmount: undefined,
   releaseFrequencyCounter: 1,
   releaseFrequencyPeriod: timePeriodOptions[0].value,
   whoCanTransfer: TransferCancelOptions.Recipient,
@@ -46,6 +40,14 @@ const getDefaultValues = () => ({
   withdrawalFrequencyCounter: 1,
   withdrawalFrequencyPeriod: timePeriodOptions[1].value,
   referral: "",
+  recipients: [
+    {
+      recipient: "",
+      recipientEmail: "",
+      name: "",
+      depositedAmount: undefined,
+    },
+  ],
 });
 
 const encoder = new TextEncoder();
@@ -61,12 +63,6 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        depositedAmount: yup
-          .number()
-          .typeError(ERRORS.deposited_amount_required)
-          .required(ERRORS.deposited_amount_required)
-          .moreThan(0, ERRORS.amount_greater_than)
-          .max(tokenBalance, ERRORS.amount_too_high),
         releaseAmount: yup
           .number()
           .typeError(ERRORS.amount_required)
@@ -78,20 +74,6 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           )
           .moreThan(0, ERRORS.amount_greater_than),
         tokenSymbol: yup.string().required(ERRORS.token_required),
-        subject: yup
-          .string()
-          .required(ERRORS.subject_required)
-          .test("is not too long in representation", ERRORS.subject_too_long, (subject) => {
-            const view = encoder.encode(subject);
-            return view.length > 64 ? false : true;
-          }),
-        recipient: yup
-          .string()
-          .required(ERRORS.recipient_required)
-          .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isAddressValid(address || "", connection, true)
-          ),
-        email: yup.string().email(ERRORS.not_valid_email),
         startDate: yup
           .string()
           .required(ERRORS.max_year)
@@ -144,6 +126,35 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
           .test("address_validation", ERRORS.invalid_address, async (address) =>
             isAddressValid(address || "", connection)
           ),
+        recipients: yup
+          .array()
+          .of(
+            yup.object().shape({
+              depositedAmount: yup
+                .number()
+                .typeError(ERRORS.amount_required)
+                .required(ERRORS.amount_required)
+                .moreThan(0, ERRORS.amount_greater_than)
+                .max(tokenBalance, ERRORS.amount_too_high),
+              name: yup
+                .string()
+                .required(ERRORS.subject_required)
+                .test("is not too long in representation", ERRORS.subject_too_long, (subject) => {
+                  const view = encoder.encode(subject);
+                  return view.length > 64 ? false : true;
+                }),
+              recipient: yup
+                .string()
+                .required(ERRORS.recipient_required)
+                .test("address_validation", ERRORS.invalid_address, (address) =>
+                  createWalletValidityTest(connection)(address)
+                ),
+              recipientEmail: yup.string().email(ERRORS.not_valid_email),
+            })
+          )
+          .test("total_amount_check", ERRORS.total_bigger_than_balance, (recipients) =>
+            checkRecipientTotal(recipients as Recipient[], tokenBalance)
+          ),
       }),
     [connection, tokenBalance]
   );
@@ -157,10 +168,15 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     setError,
     trigger,
     clearErrors,
+    control,
   } = useForm<StreamsFormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
   });
+
+  const { fields, append, remove } = useFieldArray({ name: "recipients", control });
 
   return {
     register,
@@ -171,5 +187,8 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
     handleSubmit,
     setError,
     clearErrors,
+    fields,
+    append,
+    remove,
   };
 };

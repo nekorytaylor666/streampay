@@ -4,7 +4,7 @@ interface IconProps {
   onClick?: () => void;
 }
 
-const IcnDashboard: React.FC<IconProps> = ({ fill, classes, onClick }) => (
+const IcnArrowDown: React.FC<IconProps> = ({ fill, classes, onClick }) => (
   <svg
     width="14"
     height="8"
@@ -21,4 +21,4 @@ const IcnDashboard: React.FC<IconProps> = ({ fill, classes, onClick }) => (
   </svg>
 );
 
-export default IcnDashboard;
+export default IcnArrowDown;

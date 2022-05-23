@@ -38,7 +38,7 @@ const storeGetter = ({
   setToken,
   StreamInstance,
 });
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 const App: FC = () => {
   const history = useHistory();
@@ -138,7 +138,7 @@ const App: FC = () => {
         <ToastContainer
           hideProgressBar
           position="bottom-left"
-          limit={2}
+          limit={3}
           className="sm:w-96 sm:mt-2 sm:r-6"
           toastClassName="bg-gray-dark rounded-lg drop-shadow-lg"
         />

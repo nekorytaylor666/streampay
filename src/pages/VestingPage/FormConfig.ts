@@ -1,21 +1,17 @@
 import { useMemo } from "react";
 
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm, useFieldArray } from "react-hook-form";
 import { add, format, getUnixTime } from "date-fns";
 import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import { ERRORS, DATE_FORMAT, TIME_FORMAT, timePeriodOptions } from "../../constants";
 import useStore from "../../stores";
-import { TransferCancelOptions } from "../../types";
-import { isAddressValid } from "../../utils/helpers";
+import { TransferCancelOptions, Recipient } from "../../types";
+import { checkRecipientTotal, createWalletValidityTest, isAddressValid } from "../../utils/helpers";
 
 export interface VestingFormData {
-  amount: number;
-  email: string;
   tokenSymbol: string;
-  recipient: string;
-  subject: string;
   startDate: string;
   startTime: string;
   endDate: string;
@@ -31,14 +27,11 @@ export interface VestingFormData {
   withdrawalFrequencyCounter: number;
   withdrawalFrequencyPeriod: number;
   referral: string;
+  recipients: Recipient[];
 }
 
 const getDefaultValues = () => ({
-  amount: undefined,
   tokenSymbol: "",
-  email: "",
-  recipient: "",
-  subject: "",
   startDate: format(new Date(), DATE_FORMAT),
   startTime: format(add(new Date(), { minutes: 2 }), TIME_FORMAT),
   endDate: format(new Date(), DATE_FORMAT),
@@ -54,6 +47,14 @@ const getDefaultValues = () => ({
   withdrawalFrequencyCounter: 1,
   withdrawalFrequencyPeriod: timePeriodOptions[1].value,
   referral: "",
+  recipients: [
+    {
+      recipient: "",
+      recipientEmail: "",
+      name: "",
+      depositedAmount: undefined,
+    },
+  ],
 });
 
 const encoder = new TextEncoder();
@@ -65,31 +66,15 @@ interface UseVestingFormProps {
 export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
   const connection = useStore.getState().StreamInstance?.getConnection();
   const defaultValues = getDefaultValues();
-
+  yup.addMethod(yup.array, "unique", function (message, mapper = (a: any) => a) {
+    return this.test("unique", message, function (list) {
+      return list?.length === new Set(list?.map(mapper)).size;
+    });
+  });
   const validationSchema = useMemo(
     () =>
       yup.object().shape({
-        amount: yup
-          .number()
-          .typeError(ERRORS.amount_required)
-          .required(ERRORS.amount_required)
-          .moreThan(0, ERRORS.amount_greater_than)
-          .max(tokenBalance, ERRORS.amount_too_high),
         tokenSymbol: yup.string().required(ERRORS.token_required),
-        subject: yup
-          .string()
-          .required(ERRORS.subject_required)
-          .test("is not too long in representation", ERRORS.subject_too_long, (subject) => {
-            const view = encoder.encode(subject);
-            return view.length > 64 ? false : true;
-          }),
-        recipient: yup
-          .string()
-          .required(ERRORS.recipient_required)
-          .test("address_validation", ERRORS.invalid_address, async (address) =>
-            isAddressValid(address || "", connection, true)
-          ),
-        email: yup.string().email(ERRORS.not_valid_email),
         startDate: yup
           .string()
           .required(ERRORS.max_year)
@@ -213,6 +198,37 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
           .test("address_validation", ERRORS.invalid_address, async (address) =>
             isAddressValid(address || "", connection)
           ),
+        recipients: yup
+          .array()
+          .of(
+            yup.object().shape({
+              depositedAmount: yup
+                .number()
+                .typeError(ERRORS.amount_required)
+                .required(ERRORS.amount_required)
+                .moreThan(0, ERRORS.amount_greater_than)
+                .max(tokenBalance, ERRORS.amount_too_high),
+              name: yup
+                .string()
+                .required(ERRORS.subject_required)
+                .test("is not too long in representation", ERRORS.subject_too_long, (subject) => {
+                  const view = encoder.encode(subject);
+                  return view.length > 64 ? false : true;
+                }),
+              recipient: yup
+                .string()
+                .required(ERRORS.recipient_required)
+                .test("address_validation", ERRORS.invalid_address, (address) =>
+                  createWalletValidityTest(connection)(address)
+                ),
+              recipientEmail: yup.string().email(ERRORS.not_valid_email),
+            })
+          )
+          //@ts-ignore
+          .unique("Duplicate wallet", (a: Recipient) => a.recipient)
+          .test("total_amount_check", ERRORS.total_bigger_than_balance, (recipients: Recipient[]) =>
+            checkRecipientTotal(recipients as Recipient[], tokenBalance)
+          ),
       }),
 
     [connection, tokenBalance]
@@ -225,10 +241,14 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
     formState: { errors },
     setValue,
     trigger,
+    control,
   } = useForm<VestingFormData>({
     defaultValues,
     resolver: yupResolver(validationSchema),
+    mode: "onChange",
   });
+
+  const { fields, append, remove } = useFieldArray({ name: "recipients", control });
 
   return {
     register,
@@ -237,5 +257,8 @@ export const useVestingForm = ({ tokenBalance }: UseVestingFormProps) => {
     setValue,
     trigger,
     handleSubmit,
+    fields,
+    append,
+    remove,
   };
 };

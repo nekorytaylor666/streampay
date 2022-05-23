@@ -1,11 +1,12 @@
-import { FC, useEffect, useState, useRef } from "react";
+import { FC, useEffect, useState, useRef, useCallback } from "react";
 
 import { add, format, getUnixTime } from "date-fns";
-import { PublicKey } from "@solana/web3.js";
+// import { PublicKey } from "@solana/web3.js";
 import * as Sentry from "@sentry/react";
 import { toast } from "react-toastify";
-import { Cluster, getBN, getNumberFromBN } from "@streamflow/stream";
+import { getBN, CreateMultiError, Cluster } from "@streamflow/stream";
 
+import { useStreams } from "../../hooks/useStream";
 import {
   Input,
   Button,
@@ -14,6 +15,8 @@ import {
   ModalRef,
   Toggle,
   Balance,
+  RecipientVestingForm as Recipient,
+  FinanceFee,
   MsgToast,
 } from "../../components";
 import useStore, { StoreType } from "../../stores";
@@ -26,19 +29,20 @@ import {
   sortTokenAccounts,
 } from "../../utils/helpers";
 import {
+  BATCH_MAINNET_RECIPIENT_LIMIT,
   DATE_FORMAT,
   ERR_NOT_CONNECTED,
   timePeriodOptions,
   TIME_FORMAT,
-  TRANSACTION_VARIANT,
+  // TRANSACTION_VARIANT,
   transferCancelOptions,
 } from "../../constants";
-import { createStream } from "../../api/transactions";
-import SettingsClient from "../../api/contractSettings";
+import { createMultiple } from "../../api/transactions";
+import SettingsClient, { ContractSettingsRequest } from "../../api/contractSettings";
 import { StringOption, TransferCancelOptions } from "../../types";
 import { calculateReleaseRate } from "../../components/StreamCard/helpers";
-import { trackTransaction } from "../../utils/marketing_helpers";
 import Description from "./Description";
+// import { trackTransaction } from "../../utils/marketing_helpers";
 
 interface VestingFormProps {
   loading: boolean;
@@ -48,6 +52,7 @@ interface VestingFormProps {
 const storeGetter = (state: StoreType) => ({
   Stream: state.StreamInstance,
   connection: state.StreamInstance?.getConnection(),
+  isMainnet: state.cluster === Cluster.Mainnet,
   wallet: state.wallet,
   walletType: state.walletType,
   messageSignerWallet: state.messageSignerWallet,
@@ -57,7 +62,7 @@ const storeGetter = (state: StoreType) => ({
   myTokenAccountsSorted: state.myTokenAccountsSorted,
   setMyTokenAccounts: state.setMyTokenAccounts,
   setMyTokenAccountsSorted: state.setMyTokenAccountsSorted,
-  addStream: state.addStream,
+  addStreams: state.addStreams,
   setToken: state.setToken,
   cluster: state.cluster,
 });
@@ -70,25 +75,27 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     walletType,
     messageSignerWallet,
     token,
-    tokenPriceUsd,
+    // tokenPriceUsd,
     myTokenAccounts,
     setMyTokenAccounts,
     setMyTokenAccountsSorted,
     myTokenAccountsSorted,
-    addStream,
     setToken,
     cluster,
+    isMainnet,
   } = useStore(storeGetter);
+  const { refetch } = useStreams();
   const tokenBalance = token?.uiTokenAmount?.uiAmount;
   const [tokenOptions, setTokenOptions] = useState<StringOption[]>([]);
+  const [totalDepositedAmount, setTotalDepositedAmount] = useState(0);
   const modalRef = useRef<ModalRef>(null);
-
-  const { register, handleSubmit, watch, errors, setValue, trigger } = useVestingForm({
-    tokenBalance: tokenBalance || 0,
-  });
-
+  const [streamErrors, setStreamErrors] = useState<CreateMultiError[]>([]);
+  const { register, handleSubmit, watch, errors, setValue, trigger, append, remove, fields } =
+    useVestingForm({
+      tokenBalance: tokenBalance || 0,
+    });
   const [
-    amount,
+    recipients,
     tokenSymbol,
     startDate,
     startTime,
@@ -103,7 +110,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     withdrawalFrequencyCounter,
     withdrawalFrequencyPeriod,
   ] = watch([
-    "amount",
+    "recipients",
     "tokenSymbol",
     "startDate",
     "startTime",
@@ -183,14 +190,18 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     if (token) setToken(token);
   };
 
+  const getStreamErrorByRecipient = useCallback(
+    (recipient: string) => {
+      return streamErrors.find((el) => el.recipient === recipient);
+    },
+    [streamErrors]
+  );
+
   const decimals = token?.uiTokenAmount?.decimals || 0;
 
   const onSubmit = async (values: VestingFormData) => {
     const {
-      amount,
-      email,
-      subject,
-      recipient,
+      recipients,
       startDate,
       startTime,
       endDate,
@@ -204,7 +215,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       cliffAmount,
       referral,
     } = values;
-
+    setStreamErrors([]);
     if (!wallet?.publicKey || !Stream || !connection || !walletType)
       return toast.error(ERR_NOT_CONNECTED);
 
@@ -213,26 +224,34 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
     const start = getUnixTime(new Date(startDate + "T" + startTime));
     const end = getUnixTime(new Date(endDate + "T" + endTime));
     const cliff = getUnixTime(new Date(cliffDate + "T" + cliffTime));
-    const cliffAmountCalculated = (cliffAmount / 100) * amount;
-    const amountPerPeriod = calculateReleaseRate(
-      end,
-      cliff,
-      amount,
-      cliffAmountCalculated,
-      releaseFrequencyCounter * releaseFrequencyPeriod,
-      decimals
-    );
+
+    const recipEmails = Object.fromEntries(recipients.map((e) => [e.recipient, e.recipientEmail]));
+    const isAnyEmails = Object.values(recipients).some(({ recipientEmail }) => recipientEmail);
+    const recipientsFormatted = recipients.map(({ depositedAmount, recipient, name }) => {
+      const cliffAmountCalculated = (cliffAmount / 100) * depositedAmount;
+      const amountPerPeriod = calculateReleaseRate(
+        end,
+        cliff,
+        depositedAmount,
+        cliffAmountCalculated,
+        releaseFrequencyCounter * releaseFrequencyPeriod,
+        decimals
+      );
+      return {
+        recipient,
+        name,
+        depositedAmount: getBN(depositedAmount, decimals),
+        amountPerPeriod: getBN(amountPerPeriod, decimals),
+        cliffAmount: getBN(cliffAmountCalculated, decimals),
+      };
+    });
 
     const data = {
-      depositedAmount: getBN(amount, decimals),
-      recipient: recipient,
+      recipientsData: recipientsFormatted,
       mint: token.info.address,
       start,
-      name: subject,
       period: Math.floor(releaseFrequencyPeriod * releaseFrequencyCounter),
       cliff: cliff,
-      cliffAmount: getBN(cliffAmountCalculated, decimals),
-      amountPerPeriod: getBN(amountPerPeriod, decimals),
       cancelableBySender:
         whoCanCancel === TransferCancelOptions.Sender ||
         whoCanCancel === TransferCancelOptions.Both,
@@ -253,17 +272,51 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       partner: referral,
     };
 
-    const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
-    if (!recipientAccount) {
-      const shouldContinue = await modalRef?.current?.show();
-      if (!shouldContinue) return setLoading(false);
+    // const recipientAccount = await connection?.getAccountInfo(new PublicKey(recipient));
+    // if (!recipientAccount) {
+    //   const shouldContinue = await modalRef?.current?.show();
+    //   if (!shouldContinue) return setLoading(false);
+    // }
+    toast.info(
+      <MsgToast
+        title={"Solana network warning."}
+        type="info"
+        message={`It looks like Solana is taking longer than usual to process the transaction(s). 
+        It can take up to 2 minutes for us to confirm the status of all transactions. 
+        Don't leave or refresh the page! 
+        In case any transactions fail we will automatically repopulate the fields here so that you can try again.`}
+      />
+    );
+    const response = await createMultiple(Stream, data, wallet);
+    if (response?.errors && response?.errors?.length > 0) {
+      const totalRecipients = recipients?.length;
+      const totalError = response?.errors?.length;
+      const failedRecipients = response.errors.map((el) => el.recipient);
+      const recipientsToRemove = recipients.filter(
+        (recipient) => !failedRecipients.some((failed) => failed === recipient.recipient)
+      );
+      console.log(response.errors);
+      recipientsToRemove.map((x) =>
+        remove(recipients.findIndex((y) => y.recipient == x.recipient))
+      );
+      setStreamErrors(response.errors);
+
+      toast.error(
+        <MsgToast
+          title={"Some stream contracts were failed."}
+          type="error"
+          message={`${totalError} of ${totalRecipients} transactions are failed. We populated them on the form!`}
+        />
+      );
     }
 
-    const response = await createStream(Stream, data, wallet);
     setLoading(false);
-
     if (response) {
-      addStream([response.metadata.publicKey.toBase58(), response.stream]);
+      // const emailRequests: ContractSettingsRequest[] = response.streams.map((stream, index) => ({
+      //   contractAddress: response.metadatas[index].publicKey.toBase58(),
+      //   transaction: response.txs[index],
+      //   contractSettings: { notificationEmail: recipEmails[stream.recipient] },
+      // }));
 
       const mint = token.info.address;
 
@@ -278,47 +331,54 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
       setMyTokenAccountsSorted(myTokenAccountsSorted);
 
       setToken({ ...token, uiTokenAmount: updatedTokenAmount });
+      refetch();
+      // const streamflowFeeTotal = getNumberFromBN(
+      //   response.stream.streamflowFeeTotal,
+      //   token.uiTokenAmount.decimals
+      // );
 
-      const streamflowFeeTotal = getNumberFromBN(
-        response.stream.streamflowFeeTotal,
-        token.uiTokenAmount.decimals
-      );
+      // const depositedAmount = getNumberFromBN(
+      //   response.stream.streamflowFeeTotal,
+      //   token.uiTokenAmount.decimals
+      // );
+      // trackTransaction(
+      //   response.metadata.publicKey.toBase58(),
+      //   token.info.symbol,
+      //   token.info.name,
+      //   tokenPriceUsd,
+      //   TRANSACTION_VARIANT.CREATE_VESTING,
+      //   streamflowFeeTotal * tokenPriceUsd,
+      //   streamflowFeeTotal,
+      //   depositedAmount,
+      //   depositedAmount * tokenPriceUsd,
+      //   walletType.name
+      // );
 
-      const depositedAmount = getNumberFromBN(
-        response.stream.streamflowFeeTotal,
-        token.uiTokenAmount.decimals
-      );
-      trackTransaction(
-        response.metadata.publicKey.toBase58(),
-        token.info.symbol,
-        token.info.name,
-        tokenPriceUsd,
-        TRANSACTION_VARIANT.CREATE_VESTING,
-        streamflowFeeTotal * tokenPriceUsd,
-        streamflowFeeTotal,
-        depositedAmount,
-        depositedAmount * tokenPriceUsd,
-        walletType.name
-      );
+      if (!isAnyEmails) return;
+
       try {
-        if (email) {
-          const settingsClient = new SettingsClient(messageSignerWallet, cluster);
-          await settingsClient.createContractSettings([
-            {
-              contractAddress: response.metadata.publicKey.toBase58(),
-              transaction: response.tx,
-              contractSettings: { notificationEmail: email },
-            },
-          ]);
-          toast.dismiss();
-          toast.info(<MsgToast title="Notification sent." type="success" />, {
-            autoClose: 2000,
-          });
-        }
+        const settingsClient = new SettingsClient(messageSignerWallet, cluster);
+        // todo this part can fail if fetching response takes too much time, doesnt seem like safe
+        const emailRequests: ContractSettingsRequest[] = response.metadatas.map(
+          (metadata, index) => {
+            const metadataPubKey = metadata.publicKey.toBase58();
+            const recipientPubKey = response.metadataToRecipient[metadataPubKey]?.recipient;
+            const notificationEmail = recipEmails[recipientPubKey];
+            return {
+              contractAddress: response.metadatas[index].publicKey.toBase58(),
+              transaction: response.txs[index],
+              contractSettings: { notificationEmail },
+            };
+          }
+        );
+        await settingsClient.createContractSettings(emailRequests);
+        toast.dismiss();
+        toast.info(<MsgToast title="Notification sent." type="info" />, {
+          autoClose: 2000,
+        });
       } catch (err: any) {
         toast.dismiss();
-        console.log("err", err);
-        toast.error(<MsgToast title={"Sending notification failed."} type="error" />);
+        toast.error(<MsgToast title={"Sending notifications failed."} type="error" />);
         Sentry.captureException(err);
       }
     }
@@ -341,6 +401,25 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         withdrawalFrequencyCounter * withdrawalFrequencyPeriod
       )
     : 0;
+  const isRecipientsReachedLimit: boolean =
+    isMainnet && recipients.length + 1 > BATCH_MAINNET_RECIPIENT_LIMIT;
+
+  const addNewRecipient = () => {
+    //limit recipients due to low tps
+    if (isRecipientsReachedLimit) return;
+    append({ recipient: "", recipientEmail: "", depositedAmount: undefined, name: "" });
+  };
+
+  const updateTotalDepositedAmount = () => {
+    const totalAmount = recipients.reduce((sum, recipient) => sum + +recipient.depositedAmount, 0);
+    setTotalDepositedAmount(totalAmount);
+  };
+
+  useEffect(() => {
+    const totalAmount = recipients.reduce((sum, recipient) => sum + +recipient.depositedAmount, 0);
+    setTotalDepositedAmount(totalAmount);
+  }, [recipients]);
+
   return (
     <>
       <div className="xl:mr-12 px-4 sm:px-0 pt-4">
@@ -348,15 +427,6 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         <Balance classes="sm:hidden" />
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="block mt-4 mb-8">
           <div className="grid gap-y-5 gap-x-3 grid-cols-6 sm:grid-cols-2">
-            <Input
-              type="number"
-              label="Amount"
-              placeholder="0.00"
-              error={errors?.amount?.message}
-              classes="col-span-full sm:col-span-3 sm:col-span-1"
-              data-testid="vesting-amount"
-              {...register("amount")}
-            />
             {wallet && tokenOptions.length ? (
               <Select
                 label="Token"
@@ -364,7 +434,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 error={errors?.tokenSymbol?.message}
                 customChange={updateToken}
                 {...register("tokenSymbol")}
-                classes="col-span-full sm:col-span-3 sm:col-span-1"
+                classes="col-span-full sm:col-span-1"
               />
             ) : (
               <div className="col-span-3 sm:col-span-1">
@@ -372,39 +442,29 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 <p className="text-base font-medium text-blue">No tokens available.</p>
               </div>
             )}
-            <Input
-              type="text"
-              label="Recipient Wallet Address"
-              placeholder="Please double check the address"
-              classes="col-span-full"
-              description="Make sure this is not a centralized exchange address."
-              error={errors?.recipient?.message}
-              data-testid="vesting-recipient"
-              {...register("recipient")}
-            />
-            <Input
-              type="text"
-              label="Recipient Email"
-              placeholder="Optional email to notify"
-              classes="col-span-full"
-              description={
-                cluster === Cluster.Devnet
-                  ? "Sending emails is restricted in sandbox environment."
-                  : ""
-              }
-              error={errors?.email?.message}
-              data-testid="vesting-email"
-              {...register("email")}
-            />
-            <Input
-              type="text"
-              label="Contract Title"
-              placeholder="e.g. VC Seed Round"
-              classes="col-span-full"
-              error={errors?.subject?.message}
-              data-testid="vesting-title"
-              {...register("subject")}
-            />
+            <div className="grid gap-x-3 grid-cols-2 col-span-full sm:col-span-1 pb-2">
+              <label className="block text-base text-white font-bold capitalize col-span-2">
+                Release Frequency
+              </label>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                error={
+                  errors?.releaseFrequencyCounter?.message ||
+                  errors?.releaseFrequencyPeriod?.message
+                }
+                data-testid="vesting-release-frequency"
+                customChange={updateReleaseFrequencyCounter}
+                {...register("releaseFrequencyCounter")}
+              />
+              <Select
+                options={timePeriodOptions}
+                plural={releaseFrequencyCounter > 1}
+                {...register("releaseFrequencyPeriod")}
+                error={errors?.releaseFrequencyPeriod?.message}
+              />
+            </div>
             <Input
               type="date"
               label="Start Date"
@@ -449,29 +509,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
               required
               {...register("endTime")}
             />
-            <div className="grid gap-x-3 grid-cols-2 col-span-full sm:col-span-1 pb-2">
-              <label className="block text-base text-white font-bold capitalize col-span-2">
-                Release Frequency
-              </label>
-              <Input
-                type="number"
-                min={1}
-                step={1}
-                error={
-                  errors?.releaseFrequencyCounter?.message ||
-                  errors?.releaseFrequencyPeriod?.message
-                }
-                data-testid="vesting-release-frequency"
-                customChange={updateReleaseFrequencyCounter}
-                {...register("releaseFrequencyCounter")}
-              />
-              <Select
-                options={timePeriodOptions}
-                plural={releaseFrequencyCounter > 1}
-                {...register("releaseFrequencyPeriod")}
-                error={errors?.releaseFrequencyPeriod?.message}
-              />
-            </div>
+
             <div className="col-span-full border-t border-gray-dark pt-6 pb-1 grid grid-cols-2 gap-y-5 gap-x-4">
               <div className="grid gap-y-5 gap-x-1 sm:gap-x-2 grid-cols-5 col-span-full">
                 <Input
@@ -527,8 +565,39 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
                 data-testid="vesting-who-can-cancel"
               />
             </div>
+            <div className="border-t border-gray-dark pt-6 col-span-full">
+              <h5 className="text-gray font-bold text-p2 tracking-widest pb-0">RECIPIENTS</h5>
+            </div>
+            {fields.map((field, index) => (
+              <Recipient
+                key={field.id}
+                register={register}
+                index={index}
+                errors={{
+                  fieldErrors: errors.recipients?.[index],
+                  arrayErrors: errors?.recipients as any,
+                  externalError: (
+                    getStreamErrorByRecipient(recipients[index].recipient)?.error as any
+                  )?.message,
+                }}
+                trigger={trigger}
+                visible={true}
+                removeRecipient={() => remove(index)}
+                customChange={updateTotalDepositedAmount}
+              />
+            ))}
+
+            {!isRecipientsReachedLimit && (
+              <button
+                type="button"
+                className="text-blue text-xs bg-transparent w-28 text-left"
+                onClick={addNewRecipient}
+              >
+                + Add Recipient
+              </button>
+            )}
             <div className="border-t border-b border-gray-dark py-6 col-span-full">
-              <h5 className="text-gray font-bold text-xs tracking-widest mb-5">
+              <h5 className="text-gray font-bold text-p2 tracking-widest mb-5">
                 WITHDRAW SETTINGS
               </h5>
               <Toggle
@@ -580,18 +649,19 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             <Overview
               classes="sm:hidden"
               {...{
-                amount,
+                recipients,
                 tokenSymbol,
                 endDate,
                 endTime,
                 cliffDate,
                 cliffTime,
-                cliffAmount,
                 releaseFrequencyCounter,
                 releaseFrequencyPeriod,
                 decimals,
+                cliffAmount,
               }}
             />
+            <FinanceFee depositedAmount={totalDepositedAmount} tokenSymbol={tokenSymbol} />
           </div>
           {wallet?.connected && (
             <>
@@ -622,7 +692,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
         <Overview
           classes="hidden sm:block sm:my-6"
           {...{
-            amount,
+            recipients,
             tokenSymbol,
             endDate,
             endTime,
@@ -639,6 +709,7 @@ const VestingForm: FC<VestingFormProps> = ({ loading, setLoading }) => {
             withdrawalFrequencyPeriod,
           }}
         />
+        <FinanceFee depositedAmount={totalDepositedAmount} tokenSymbol={tokenSymbol} />
         <Input
           label="Referral Address"
           type="text"

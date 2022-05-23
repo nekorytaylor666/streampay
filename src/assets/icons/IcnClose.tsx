@@ -3,7 +3,7 @@ interface IconProps {
   classes?: string;
 }
 
-const IcnMenu: React.FC<IconProps> = ({ fill, classes }) => (
+const IcnClose: React.FC<IconProps> = ({ fill, classes }) => (
   <div className={`${classes} flex justify-center items-center`}>
     <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -14,4 +14,4 @@ const IcnMenu: React.FC<IconProps> = ({ fill, classes }) => (
   </div>
 );
 
-export default IcnMenu;
+export default IcnClose;
