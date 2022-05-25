@@ -182,4 +182,4 @@ export const transferCancelOptions = [
   },
 ];
 
-export const BATCH_MAINNET_RECIPIENT_LIMIT = 5;
+export const BATCH_MAINNET_RECIPIENT_LIMIT = 30;

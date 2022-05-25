@@ -152,7 +152,9 @@ export const useStreamsForm = ({ tokenBalance }: UseStreamFormProps) => {
               recipientEmail: yup.string().email(ERRORS.not_valid_email),
             })
           )
-          .test("total_amount_check", ERRORS.total_bigger_than_balance, (recipients) =>
+          //@ts-ignore
+          .unique("Duplicate wallet", (a: Recipient) => a.recipient)
+          .test("total_amount_check", ERRORS.total_bigger_than_balance, (recipients: Recipient[]) =>
             checkRecipientTotal(recipients as Recipient[], tokenBalance)
           ),
       }),
